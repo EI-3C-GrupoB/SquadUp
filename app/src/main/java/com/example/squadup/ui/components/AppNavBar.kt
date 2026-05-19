@@ -70,10 +70,11 @@ private val appNavBarItems = listOf(
 @Composable
 fun AppNavBar(
     selectedRoute: String,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         color = Color.White,
         shadowElevation = 8.dp
     ) {
