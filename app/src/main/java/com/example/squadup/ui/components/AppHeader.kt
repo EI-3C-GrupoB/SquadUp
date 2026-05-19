@@ -3,6 +3,7 @@ package com.example.squadup.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,7 +47,8 @@ fun AppHeader(
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     Surface(
         modifier = modifier
@@ -127,6 +129,8 @@ fun AppHeader(
                     )
                 }
             }
+
+            actions()
         }
     }
 }
