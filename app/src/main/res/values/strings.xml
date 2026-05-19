@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">SquadUp</string>
+
+    <!-- Nav Bar -->
+
+    <string name="nav_home">Home</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_teams">Teams</string>
+    <string name="nav_profile">Profile</string>
+
 </resources>
