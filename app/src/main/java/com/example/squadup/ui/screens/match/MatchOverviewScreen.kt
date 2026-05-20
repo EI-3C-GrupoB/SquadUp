@@ -39,6 +39,7 @@ import com.example.squadup.ui.components.MatchStatsList
 import com.example.squadup.ui.components.MatchTabSelector
 import com.example.squadup.ui.components.PrimaryButton
 import com.example.squadup.ui.theme.SquadIconSecondary
+import com.example.squadup.ui.theme.SquadSurfaceVariant
 import com.example.squadup.ui.theme.SquadTextPrimary
 
 @Composable

@@ -75,7 +75,7 @@ fun HomeScreen(
             AppNavBar(
                 selectedRoute = selectedRoute,
                 onItemClick = onNavItemClick,
-                modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
+                //modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
             )
         }
     ) { innerPadding ->
