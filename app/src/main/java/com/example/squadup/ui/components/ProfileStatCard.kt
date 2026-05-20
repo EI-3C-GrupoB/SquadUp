@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 
@@ -60,7 +60,7 @@ fun ProfileStatCard(
                 text = label,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadIconSecondary
+                color = Color(0x00000000)
             )
         }
     }

@@ -24,8 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadBorder
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 
@@ -46,7 +46,7 @@ fun MatchScoreCard(
         shape = RoundedCornerShape(6.dp),
         border = androidx.compose.foundation.BorderStroke(
             width = 1.dp,
-            color = SquadBorder
+            color = Color(0x00000000)
         )
     ) {
         Column(
@@ -114,7 +114,7 @@ fun MatchScoreCard(
 
                 Text(
                     text = "|",
-                    color = SquadIconSecondary,
+                    color = Color(0x00000000),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -123,7 +123,7 @@ fun MatchScoreCard(
 
                 Text(
                     text = "$awayScore",
-                    color = SquadIconSecondary,
+                    color = Color(0x00000000),
                     fontSize = 34.sp,
                     fontWeight = FontWeight.Bold
                 )

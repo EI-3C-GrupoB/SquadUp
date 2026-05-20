@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 
@@ -50,7 +50,7 @@ fun MatchEventItem(
 
     val iconTint = when (type) {
         MatchEventType.Goal -> SquadOrange
-        MatchEventType.Foul -> SquadIconSecondary
+        MatchEventType.Foul -> Color(0x00000000)
     }
 
     Row(
@@ -82,7 +82,7 @@ fun MatchEventItem(
 
             Text(
                 text = subtitle,
-                color = SquadIconSecondary,
+                color = Color(0x00000000),
                 fontSize = 12.sp
             )
         }

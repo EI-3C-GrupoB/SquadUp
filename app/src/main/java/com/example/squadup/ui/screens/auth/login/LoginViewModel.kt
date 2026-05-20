@@ -3,15 +3,15 @@ package com.example.squadup.ui.screens.auth.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.R
-import com.example.squadup.data.repositories.LoginException
-import com.example.squadup.data.repositories.LoginRepository
+import com.example.squadup.data.repositories.AuthException
+import com.example.squadup.data.repositories.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val repository: LoginRepository
+    private val repository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -71,7 +71,7 @@ class LoginViewModel(
                 },
                 onFailure = { exception ->
                     val errorMessage = when (exception) {
-                        is LoginException -> exception.messageRes
+                        is AuthException -> exception.messageRes
                         else -> R.string.login_error_generic
                     }
 

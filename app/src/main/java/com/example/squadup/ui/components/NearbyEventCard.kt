@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 
@@ -93,13 +93,13 @@ fun NearbyEventCard(
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
                     contentDescription = null,
-                    tint = SquadIconSecondary,
+                    tint = Color(0x00000000),
                     modifier = Modifier.height(16.dp)
                 )
 
                 Text(
                     text = "$location • $distance",
-                    color = SquadIconSecondary,
+                    color = Color(0x00000000),
                     fontSize = 14.sp
                 )
             }
@@ -114,7 +114,7 @@ fun NearbyEventCard(
                 ) {
                     Text(
                         text = "INTENSITY",
-                        color = SquadIconSecondary,
+                        color = Color(0x00000000),
                         fontSize = 10.sp
                     )
 

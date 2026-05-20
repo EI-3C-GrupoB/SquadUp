@@ -8,10 +8,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 
 enum class MatchOverviewTab {
@@ -56,7 +57,7 @@ private fun MatchTabItem(
         text = text,
         fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold,
-        color = if (selected) androidx.compose.ui.graphics.Color.White else SquadIconSecondary,
+        color = if (selected) androidx.compose.ui.graphics.Color.White else Color(0x00000000),
         modifier = Modifier
             .background(
                 color = if (selected) SquadOrange else androidx.compose.ui.graphics.Color.Transparent,

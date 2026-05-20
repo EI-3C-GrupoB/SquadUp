@@ -1,4 +1,4 @@
-package com.example.squadup.ui.screens.auth
+package com.example.squadup.ui.screens.auth.forgotPassword
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

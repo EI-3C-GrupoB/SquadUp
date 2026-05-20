@@ -50,7 +50,7 @@ import com.example.squadup.ui.components.AppNavBar
 import com.example.squadup.ui.components.PlayStyleIntensityCard
 import com.example.squadup.ui.components.ProfileActionRow
 import com.example.squadup.ui.components.ProfileStatCard
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 
@@ -75,7 +75,7 @@ fun ProfileScreen(
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
                             contentDescription = "Notificações",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
 
@@ -83,7 +83,7 @@ fun ProfileScreen(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Definições",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
                 }
@@ -93,7 +93,7 @@ fun ProfileScreen(
             AppNavBar(
                 selectedRoute = selectedRoute,
                 onItemClick = onNavItemClick,
-                modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
+                //modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
             )
         }
     ) { innerPadding ->

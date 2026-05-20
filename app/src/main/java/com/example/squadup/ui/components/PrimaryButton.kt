@@ -2,8 +2,10 @@ package com.example.squadup.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,10 +54,11 @@ fun PrimaryButton(
             Text(
                 text = text,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Normal
             )
 
             if (trailingIcon != null) {
+                Spacer(modifier = Modifier.width(12.dp))
                 Icon(
                     imageVector = trailingIcon,
                     contentDescription = null

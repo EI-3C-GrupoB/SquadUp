@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.squadup.ui.components.AppLanguage
 import com.example.squadup.ui.screens.auth.login.LoginRoute
+import com.example.squadup.ui.screens.auth.register.RegisterRoute
 import com.example.squadup.ui.screens.onboarding.OnboardingRoute
 import com.example.squadup.ui.utils.getCurrentLanguage
 import com.example.squadup.ui.utils.setAppLanguage
@@ -76,7 +77,23 @@ fun AppNavigation() {
                     //navController.navigate(AppRoutes.FORGOT_PASSWORD)
                 },
                 onCreateAccountClick = {
-                    //navController.navigate(AppRoutes.REGISTER)
+                    navController.navigate(AppRoutes.REGISTER)
+                }
+            )
+        }
+
+        composable(AppRoutes.REGISTER) {
+            RegisterRoute(
+                onRegisterSuccess = {
+                    navController.navigate(AppRoutes.LOGIN) {
+                        popUpTo(AppRoutes.REGISTER) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onLoginClick = {
+                    navController.popBackStack()
                 }
             )
         }
