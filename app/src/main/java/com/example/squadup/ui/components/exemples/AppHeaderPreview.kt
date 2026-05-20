@@ -14,8 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.squadup.ui.components.AppHeader
-import com.example.squadup.ui.components.AuthCard
-import com.example.squadup.ui.components.LanguageSelector
 import com.example.squadup.ui.theme.SquadBackground
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadUpTheme
@@ -63,17 +61,7 @@ fun ComponentsPreviewPage() {
         )
 
         AppHeader(
-            showLogo = true,
-            showBackButton = true,
-            onBackClick = { },
-            actions = {
-                LanguageSelector(
-                    selectedLanguage = "EN",
-                    onLanguageSelected = { language ->
-                        // por agora não precisas de fazer nada
-                    }
-                )
-            }
+            showLanguageSwitch = true
         )
     }
 }

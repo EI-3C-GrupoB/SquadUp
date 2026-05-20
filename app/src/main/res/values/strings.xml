@@ -8,4 +8,51 @@
     <string name="nav_teams">Teams</string>
     <string name="nav_profile">Profile</string>
 
+    <!-- Onboarding -->
+
+    <string name="Onboarding_1_title">Discover Events</string>
+    <string name="Onboarding_2_title">Create &amp; Manage</string>
+    <string name="Onboarding_3_title">Live Results &amp; Stats</string>
+
+    <string name="Onboarding_1_description">Find nearby sports events and tournaments. Filter by sport, location, and skill level to match your game.</string>
+    <string name="Onboarding_2_description">Organize your own tournaments, manage teams, and schedule matches in one place.</string>
+    <string name="Onboarding_3_description">Track match results in real time, view rankings, and analyze player and team performance.</string>
+
+    <string name="Onboarding_btnStart">Get Started</string>
+
+    <string name="Onboarding_loginMgs">Already have an account?</string>
+    <string name="Onboarding_loginMgs2">Login</string>
+
+    <string name="Onboarding_badgeLocal">LOCAL</string>
+    <string name="Onboarding_badgeLiveNow">LIVE NOW</string>
+
+    <!-- Login -->
+
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Ready for game day? Sign in to your squad.</string>
+
+    <string name="login_emailLabel">Email Address</string>
+    <string name="login_passwordLabel">Password</string>
+    <string name="login_forgot">Forgot Password?</string>
+    <string name="login_btnMgs1">Coming in …</string>
+    <string name="login_btnMgs2">Sign In</string>
+
+    <string name="login_divider">OR CONTINUE WITH</string>
+
+    <string name="login_createMgs1">New to the squad?</string>
+    <string name="login_createMgs2">Create an Account</string>
+
+    <string name="login_error_invalid_credentials">Incorrect email or password.</string>
+    <string name="login_error_email_not_confirmed">Confirm your email before signing in.</string>
+    <string name="login_error_network">Could not connect to the server. Check your Internet connection.</string>
+    <string name="login_error_missing_permission">The app does not have Internet permission.</string>
+    <string name="login_error_generic">Could not sign in. Try again.</string>
+
+    <string name="logout_error_network">Could not sign out. Check your Internet connection.</string>
+    <string name="logout_error_generic">Could not sign out. Try again.</string>
+
+    <string name="login_error_empty_email">Enter your email.</string>
+    <string name="login_error_empty_password">Enter your password.</string>
+
+
 </resources>

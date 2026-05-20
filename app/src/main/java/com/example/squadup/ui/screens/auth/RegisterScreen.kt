@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -47,9 +46,10 @@ import com.example.squadup.ui.components.AuthTextField
 import com.example.squadup.ui.components.ExperienceLevelSelector
 import com.example.squadup.ui.components.PrimaryButton
 import com.example.squadup.ui.components.SportInterestChip
-import com.example.squadup.ui.theme.SquadIconSecondary
+import com.example.squadup.ui.theme.SquadBackground
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
+import com.example.squadup.ui.theme.SquadTextSecondary
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -74,7 +74,7 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8F8F8))
+            .background(SquadBackground)
             .verticalScroll(rememberScrollState())
     ) {
         AppHeader(
@@ -108,7 +108,7 @@ fun RegisterScreen(
                 text = "Step into the arena. It takes less than a minute.",
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
-                color = SquadIconSecondary
+                color = SquadTextSecondary
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -248,7 +248,7 @@ fun RegisterScreen(
                 textAlign = TextAlign.Center,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
-                color = SquadIconSecondary
+                color = SquadTextSecondary
             )
         }
 

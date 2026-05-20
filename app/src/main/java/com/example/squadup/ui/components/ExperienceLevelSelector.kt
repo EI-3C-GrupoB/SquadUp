@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
+import com.example.squadup.ui.theme.SquadTextSecondary
 
 @Composable
 fun ExperienceLevelSelector(
@@ -63,7 +63,7 @@ fun ExperienceLevelSelector(
             Text(
                 text = "Novice",
                 fontSize = 14.sp,
-                color = SquadIconSecondary
+                color = SquadTextSecondary
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -71,7 +71,7 @@ fun ExperienceLevelSelector(
             Text(
                 text = "Pro",
                 fontSize = 14.sp,
-                color = SquadIconSecondary
+                color = SquadTextSecondary
             )
         }
     }
