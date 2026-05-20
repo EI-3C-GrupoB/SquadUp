@@ -1,7 +1,6 @@
 package com.example.squadup.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
@@ -13,9 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
+import com.example.squadup.ui.theme.SquadGrayLight
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
+import com.example.squadup.ui.theme.SquadWhite
 
 @Composable
 fun SportInterestChip(
@@ -45,13 +45,13 @@ fun SportInterestChip(
         shape = RoundedCornerShape(999.dp),
         border = BorderStroke(
             width = 1.dp,
-            color = if (selected) SquadOrange else SquadBorder
+            color = if (selected) SquadOrange else SquadGrayLight
         ),
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = SquadOrange,
-            selectedLabelColor = androidx.compose.ui.graphics.Color.White,
-            selectedLeadingIconColor = androidx.compose.ui.graphics.Color.White,
-            containerColor = androidx.compose.ui.graphics.Color.White,
+            selectedLabelColor = SquadWhite,
+            selectedLeadingIconColor = SquadWhite,
+            containerColor = SquadWhite,
             labelColor = SquadTextPrimary,
             iconColor = SquadTextPrimary
         )

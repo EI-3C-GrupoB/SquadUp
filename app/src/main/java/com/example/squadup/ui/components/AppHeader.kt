@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -25,15 +23,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
-import com.example.squadup.ui.theme.SquadTextPrimary
+import com.example.squadup.ui.theme.SquadSurface
+import com.example.squadup.ui.theme.SquadTextSecondary
 
 @Composable
 fun AppHeader(
@@ -42,8 +39,11 @@ fun AppHeader(
     showLogo: Boolean = true,
     showBackButton: Boolean = false,
     showLoginButton: Boolean = false,
+    showLanguageSwitch: Boolean = false,
     showNotificationsButton: Boolean = false,
     showSettingsButton: Boolean = false,
+    selectedLanguage: AppLanguage = AppLanguage.EN,
+    onLanguageChange: (AppLanguage) -> Unit = {},
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
@@ -54,7 +54,7 @@ fun AppHeader(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.statusBars),
-        color = Color.White,
+        color = SquadSurface,
         shadowElevation = 1.dp
     ) {
         Row(
@@ -100,6 +100,15 @@ fun AppHeader(
 
             Spacer(modifier = Modifier.weight(1f))
 
+            if (showLanguageSwitch) {
+                LanguageSwitch(
+                    selectedLanguage = selectedLanguage,
+                    onLanguageChange = onLanguageChange
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
             if (showLoginButton) {
                 TextButton(onClick = onLoginClick) {
                     Text(
@@ -115,7 +124,7 @@ fun AppHeader(
                     Icon(
                         imageVector = Icons.Outlined.Notifications,
                         contentDescription = "Notificações",
-                        tint = SquadIconSecondary
+                        tint = SquadTextSecondary
                     )
                 }
             }
@@ -125,7 +134,7 @@ fun AppHeader(
                     Icon(
                         imageVector = Icons.Outlined.Settings,
                         contentDescription = "Definições",
-                        tint = SquadIconSecondary
+                        tint = SquadTextSecondary
                     )
                 }
             }

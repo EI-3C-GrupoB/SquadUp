@@ -8,4 +8,50 @@
     <string name="nav_teams">Equipas</string>
     <string name="nav_profile">Perfil</string>
 
+    <!-- Onboarding -->
+
+    <string name="Onboarding_1_title">Descobre eventos</string>
+    <string name="Onboarding_2_title">Cria e gere</string>
+    <string name="Onboarding_3_title">Resultados e estatísticas em direto</string>
+
+    <string name="Onboarding_1_description">Encontra eventos desportivos e torneios perto de ti. Filtra por modalidade, localização e nível de experiência para encontrares o jogo ideal.</string>
+    <string name="Onboarding_2_description">Organiza os teus próprios torneios, gere equipas e agenda jogos num só lugar.</string>
+    <string name="Onboarding_3_description">Acompanha os resultados dos jogos em tempo real, consulta classificações e analisa o desempenho de jogadores e equipas.</string>
+
+    <string name="Onboarding_btnStart">Começar</string>
+
+    <string name="Onboarding_loginMgs">Já tens conta?</string>
+    <string name="Onboarding_loginMgs2">Entrar</string>
+
+    <string name="Onboarding_badgeLocal">LOCAL</string>
+    <string name="Onboarding_badgeLiveNow">AO VIVO</string>
+
+    <!-- Login -->
+
+    <string name="login_title">Bem-vindo de volta</string>
+    <string name="login_subtitle">Pronto para o dia de jogo? Inicia sessão na tua equipa.</string>
+
+    <string name="login_emailLabel">Endereço de email</string>
+    <string name="login_passwordLabel">Palavra-passe</string>
+    <string name="login_forgot">Esqueceste-te da pass?</string>
+    <string name="login_btnMgs1">A entrar...</string>
+    <string name="login_btnMgs2">Iniciar sessão</string>
+
+    <string name="login_divider">OU CONTINUA COM</string>
+
+    <string name="login_createMgs1">Novo na equipa?</string>
+    <string name="login_createMgs2">Criar conta</string>
+
+    <string name="login_error_invalid_credentials">Email ou palavra-passe incorretos.</string>
+    <string name="login_error_email_not_confirmed">Confirma o teu email antes de iniciares sessão.</string>
+    <string name="login_error_network">Não foi possível ligar ao servidor. Verifica a tua ligação à Internet.</string>
+    <string name="login_error_missing_permission">A app não tem permissão de Internet.</string>
+    <string name="login_error_generic">Não foi possível iniciar sessão. Tenta novamente.</string>
+
+    <string name="logout_error_network">Não foi possível terminar sessão. Verifica a tua ligação à Internet.</string>
+    <string name="logout_error_generic">Não foi possível terminar sessão. Tenta novamente.</string>
+
+    <string name="login_error_empty_email">Insere o email.</string>
+    <string name="login_error_empty_password">Insere a palavra-passe.</string>
+
 </resources>

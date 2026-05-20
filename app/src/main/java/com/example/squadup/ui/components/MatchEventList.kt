@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.squadup.ui.theme.SquadBorder
+import com.example.squadup.ui.theme.SquadDivider
 
 data class MatchEventUi(
     val type: MatchEventType,
@@ -43,7 +44,7 @@ fun MatchEventList(
                 if (index < events.lastIndex) {
                     HorizontalDivider(
                         thickness = 1.dp,
-                        color = Color(0xFFF1F1F1)
+                        color = SquadDivider
                     )
                 }
             }

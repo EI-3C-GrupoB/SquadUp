@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
+import com.example.squadup.ui.theme.SquadGrayLight
 import com.example.squadup.ui.theme.SquadTextPrimary
 
 @Composable
@@ -32,7 +32,7 @@ fun SocialLoginButton(
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             width = 1.dp,
-            color = SquadBorder
+            color = SquadGrayLight
         ),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = androidx.compose.ui.graphics.Color.White,

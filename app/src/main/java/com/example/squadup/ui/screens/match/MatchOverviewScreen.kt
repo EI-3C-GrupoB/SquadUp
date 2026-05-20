@@ -101,7 +101,7 @@ fun MatchOverviewScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8F8F8))
+            .background(SquadSurfaceVariant)
             .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
         AppHeader(

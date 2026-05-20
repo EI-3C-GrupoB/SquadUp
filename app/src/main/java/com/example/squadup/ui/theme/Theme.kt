@@ -1,49 +1,61 @@
 package com.example.squadup.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 private val SquadLightColorScheme = lightColorScheme(
     primary = SquadOrange,
-    onPrimary = Color.White,
+    onPrimary = SquadWhite,
+
+    primaryContainer = SquadOrangeLight,
+    onPrimaryContainer = SquadOrangeDark,
+
     secondary = SquadOrangeDark,
-    onSecondary = Color.White,
+    onSecondary = SquadWhite,
+
+    secondaryContainer = SquadOrangeLight,
+    onSecondaryContainer = SquadOrangeDark,
+
+    tertiary = SquadOrange,
+    onTertiary = SquadWhite,
+
+    tertiaryContainer = SquadOrangeLight,
+    onTertiaryContainer = SquadOrangeDark,
+
     background = SquadBackground,
     onBackground = SquadTextPrimary,
+
     surface = SquadSurface,
     onSurface = SquadTextPrimary,
-    error = SquadDanger,
-    onError = Color.White,
-    outline = SquadBorder
-)
 
-private val SquadDarkColorScheme = darkColorScheme(
-    primary = SquadOrange,
-    onPrimary = Color.White,
-    secondary = SquadOrangeDark,
-    onSecondary = Color.White,
-    background = Color(0xFF121212),
-    onBackground = Color.White,
-    surface = Color(0xFF1E1E1E),
-    onSurface = Color.White,
-    error = SquadDanger,
-    onError = Color.White,
-    outline = Color(0xFF333333)
+    surfaceVariant = SquadGrayLight,
+    onSurfaceVariant = SquadTextSecondary,
+
+    surfaceTint = SquadOrange,
+
+    inverseSurface = SquadTextPrimary,
+    inverseOnSurface = SquadWhite,
+    inversePrimary = SquadOrangeLight,
+
+    error = SquadError,
+    onError = SquadWhite,
+
+    errorContainer = SquadGrayLight,
+    onErrorContainer = SquadError,
+
+    outline = SquadGray,
+    outlineVariant = SquadGrayLight,
+
+    scrim = SquadTextPrimary.copy(alpha = 0.35f)
 )
 
 @Composable
 fun SquadUpTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = if (darkTheme) SquadDarkColorScheme else SquadLightColorScheme,
+        colorScheme = SquadLightColorScheme,
         typography = SquadTypography,
         content = content
     )

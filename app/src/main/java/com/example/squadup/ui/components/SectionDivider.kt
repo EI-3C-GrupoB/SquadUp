@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
+import com.example.squadup.ui.theme.SquadGrayLight
+import com.example.squadup.ui.theme.SquadTextSecondary
 
 @Composable
 fun SectionDivider(
@@ -28,12 +28,12 @@ fun SectionDivider(
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 1.dp,
-            color = SquadBorder
+            color = SquadGrayLight
         )
 
         Text(
             text = text,
-            color = SquadIconSecondary,
+            color = SquadTextSecondary,
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -42,7 +42,7 @@ fun SectionDivider(
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 1.dp,
-            color = SquadBorder
+            color = SquadGrayLight
         )
     }
 }

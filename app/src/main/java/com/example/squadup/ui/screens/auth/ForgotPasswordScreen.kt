@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,10 +28,11 @@ import com.example.squadup.ui.components.AppHeader
 import com.example.squadup.ui.components.AuthCard
 import com.example.squadup.ui.components.AuthTextField
 import com.example.squadup.ui.components.PrimaryButton
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
+import com.example.squadup.ui.theme.SquadBackground
+import com.example.squadup.ui.theme.SquadGrayLight
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
+import com.example.squadup.ui.theme.SquadTextSecondary
 
 @Composable
 fun ForgotPasswordScreen(
@@ -44,7 +44,7 @@ fun ForgotPasswordScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8F8F8))
+            .background(SquadBackground)
     ) {
         AppHeader(
             showLogo = true,
@@ -69,7 +69,7 @@ fun ForgotPasswordScreen(
                 text = "Enter your email address and we'll send you a link to reset your password.",
                 fontSize = 16.sp,
                 lineHeight = 22.sp,
-                color = SquadIconSecondary
+                color = SquadTextSecondary
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -94,7 +94,7 @@ fun ForgotPasswordScreen(
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 1.dp,
-                color = SquadBorder
+                color = SquadGrayLight
             )
 
             Spacer(modifier = Modifier.height(22.dp))

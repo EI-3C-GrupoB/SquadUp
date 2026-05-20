@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
@@ -24,17 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
+import com.example.squadup.ui.theme.SquadGrayLight
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
+import com.example.squadup.ui.theme.SquadTextSecondary
+import com.example.squadup.ui.theme.SquadWhite
 
 @Composable
 fun AuthTextField(
@@ -57,8 +58,7 @@ fun AuthTextField(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(24.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -66,7 +66,7 @@ fun AuthTextField(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = SquadTextPrimary,
-                modifier = Modifier.padding(start = 4.dp)
+                modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -86,70 +86,96 @@ fun AuthTextField(
             }
         }
 
-        OutlinedTextField(
+        @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+        BasicTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text(
-                    text = placeholder,
-                    color = SquadIconSecondary
-                )
-            },
-            leadingIcon = {
-                if (leadingIcon != null) {
-                    Icon(
-                        imageVector = leadingIcon,
-                        contentDescription = null,
-                        tint = SquadIconSecondary
-                    )
-                }
-            },
-            trailingIcon = {
-                if (isPassword) {
-                    IconButton(
-                        onClick = {
-                            passwordVisible = !passwordVisible
-                        }
-                    ) {
-                        Icon(
-                            imageVector = if (passwordVisible) {
-                                Icons.Outlined.VisibilityOff
-                            } else {
-                                Icons.Outlined.Visibility
-                            },
-                            contentDescription = if (passwordVisible) {
-                                "Esconder palavra-passe"
-                            } else {
-                                "Mostrar palavra-passe"
-                            },
-                            tint = SquadIconSecondary
-                        )
-                    }
-                } else if (trailingIcon != null) {
-                    Icon(
-                        imageVector = trailingIcon,
-                        contentDescription = null,
-                        tint = SquadIconSecondary
-                    )
-                }
-            },
+            singleLine = singleLine,
             visualTransformation = if (isPassword && !passwordVisible) {
                 PasswordVisualTransformation()
             } else {
                 VisualTransformation.None
             },
-            singleLine = singleLine,
-            shape = RoundedCornerShape(14.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = SquadOrange,
-                unfocusedBorderColor = SquadBorder,
-                cursorColor = SquadOrange,
-                focusedTextColor = SquadTextPrimary,
-                unfocusedTextColor = SquadTextPrimary,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
-            )
+            decorationBox = { innerTextField ->
+                OutlinedTextFieldDefaults.DecorationBox(
+                    value = value,
+                    visualTransformation = if (isPassword && !passwordVisible) {
+                        PasswordVisualTransformation()
+                    } else {
+                        VisualTransformation.None
+                    },
+                    innerTextField = innerTextField,
+                    placeholder = {
+                        Text(
+                            text = placeholder,
+                            color = SquadTextSecondary,
+                            fontSize = 15.sp
+                        )
+                    },
+                    leadingIcon = if (leadingIcon != null) {
+                        {
+                            Icon(
+                                imageVector = leadingIcon,
+                                contentDescription = null,
+                                tint = SquadTextSecondary
+                            )
+                        }
+                    } else null,
+                    trailingIcon = if (isPassword) {
+                        {
+                            IconButton(
+                                onClick = {
+                                    passwordVisible = !passwordVisible
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = if (passwordVisible) {
+                                        Icons.Outlined.VisibilityOff
+                                    } else {
+                                        Icons.Outlined.Visibility
+                                    },
+                                    contentDescription = if (passwordVisible) {
+                                        "Esconder palavra-passe"
+                                    } else {
+                                        "Mostrar palavra-passe"
+                                    },
+                                    tint = SquadTextSecondary
+                                )
+                            }
+                        }
+                    } else if (trailingIcon != null) {
+                        {
+                            Icon(
+                                imageVector = trailingIcon,
+                                contentDescription = null,
+                                tint = SquadTextSecondary
+                            )
+                        }
+                    } else null,
+                    singleLine = singleLine,
+                    enabled = true,
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    container = {
+                        OutlinedTextFieldDefaults.Container(
+                            enabled = true,
+                            isError = false,
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = SquadOrange,
+                                unfocusedBorderColor = SquadGrayLight,
+                                cursorColor = SquadOrange,
+                                focusedTextColor = SquadTextPrimary,
+                                unfocusedTextColor = SquadTextPrimary,
+                                focusedContainerColor = SquadWhite,
+                                unfocusedContainerColor = SquadWhite
+                            ),
+                            shape = RoundedCornerShape(14.dp),
+                        )
+                    }
+                )
+            }
         )
     }
 }
