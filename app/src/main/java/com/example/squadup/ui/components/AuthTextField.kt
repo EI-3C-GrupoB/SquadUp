@@ -49,7 +49,8 @@ fun AuthTextField(
     labelActionText: String? = null,
     onLabelActionClick: (() -> Unit)? = null,
     isPassword: Boolean = false,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    enabled: Boolean = true
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -92,6 +93,7 @@ fun AuthTextField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             singleLine = singleLine,
+            enabled = enabled,
             visualTransformation = if (isPassword && !passwordVisible) {
                 PasswordVisualTransformation()
             } else {
@@ -154,12 +156,12 @@ fun AuthTextField(
                         }
                     } else null,
                     singleLine = singleLine,
-                    enabled = true,
+                    enabled = enabled,
                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                     container = {
                         OutlinedTextFieldDefaults.Container(
-                            enabled = true,
+                            enabled = enabled,
                             isError = false,
                             interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -169,7 +171,11 @@ fun AuthTextField(
                                 focusedTextColor = SquadTextPrimary,
                                 unfocusedTextColor = SquadTextPrimary,
                                 focusedContainerColor = SquadWhite,
-                                unfocusedContainerColor = SquadWhite
+                                unfocusedContainerColor = SquadWhite,
+                                disabledBorderColor = SquadGrayLight,
+                                disabledTextColor = SquadTextPrimary,
+                                disabledContainerColor = SquadWhite,
+                                disabledPlaceholderColor = SquadTextSecondary
                             ),
                             shape = RoundedCornerShape(14.dp),
                         )

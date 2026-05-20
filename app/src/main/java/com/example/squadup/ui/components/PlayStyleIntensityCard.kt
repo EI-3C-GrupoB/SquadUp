@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 
@@ -75,7 +75,7 @@ fun PlayStyleIntensityCard(
                 text = description,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
-                color = SquadIconSecondary
+                color = Color(0x00000000)
             )
         }
     }

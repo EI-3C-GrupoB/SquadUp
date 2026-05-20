@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.squadup.data.repositories.LoginRepository
+import com.example.squadup.data.repositories.AuthRepository
 import com.example.squadup.data.supabase.SupabaseClientProvider
 import com.example.squadup.ui.components.AppLanguage
 
@@ -16,7 +16,7 @@ fun LoginRoute(
     onForgotPasswordClick: () -> Unit,
     onCreateAccountClick: () -> Unit
 ) {
-    val repository = LoginRepository(
+    val repository = AuthRepository(
         supabaseClient = SupabaseClientProvider.client
     )
 

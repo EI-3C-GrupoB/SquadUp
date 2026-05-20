@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadDivider
+//import com.example.squadup.ui.theme.SquadBorder
+//import com.example.squadup.ui.theme.SquadDivider
 
 data class MatchStatUi(
     val label: String,
@@ -32,7 +32,7 @@ fun MatchStatsList(
         shape = RoundedCornerShape(6.dp),
         border = BorderStroke(
             width = 1.dp,
-            color = SquadBorder
+            color = Color(0x00000000)
         )
     ) {
         Column(
@@ -49,7 +49,7 @@ fun MatchStatsList(
                 if (index < stats.lastIndex) {
                     HorizontalDivider(
                         thickness = 1.dp,
-                        color = SquadDivider
+                        color = Color(0x00000000)
                     )
                 }
             }

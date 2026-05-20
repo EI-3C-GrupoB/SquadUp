@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
+//import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadTextPrimary
 
 @Composable
@@ -45,7 +45,7 @@ fun ProfileActionRow(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = SquadIconSecondary
+                tint = Color(0x00000000)
             )
 
             Spacer(modifier = Modifier.padding(horizontal = 6.dp))
@@ -61,7 +61,7 @@ fun ProfileActionRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                 contentDescription = null,
-                tint = SquadIconSecondary
+                tint = Color(0x00000000)
             )
         }
     }
