@@ -9,13 +9,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadSurface
-import com.example.squadup.ui.theme.SquadSurfaceVariant
 import com.example.squadup.ui.theme.SquadTextPrimary
 
 enum class TeamsHubTab {
@@ -32,7 +32,7 @@ fun TeamsHubTabSelector(
     Row(
         modifier = modifier
             .background(
-                color = SquadSurfaceVariant,
+                color = Color(0x00000000),
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(2.dp)
@@ -69,7 +69,7 @@ private fun TeamsHubTabItem(
         color = if (selected) SquadSurface else SquadTextPrimary,
         modifier = modifier
             .background(
-                color = if (selected) SquadOrange else SquadSurfaceVariant,
+                color = if (selected) SquadOrange else Color(0x00000000),
                 shape = RoundedCornerShape(6.dp)
             )
             .clickable(onClick = onClick)

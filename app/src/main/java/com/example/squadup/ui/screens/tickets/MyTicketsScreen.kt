@@ -39,7 +39,6 @@ import com.example.squadup.ui.components.TicketCard
 import com.example.squadup.ui.components.TicketTab
 import com.example.squadup.ui.components.TicketTabSelector
 import com.example.squadup.ui.theme.SquadBackground
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrangeDark
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
@@ -68,7 +67,7 @@ fun MyTicketsScreen(
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
                             contentDescription = "Notificações",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
 
@@ -76,7 +75,7 @@ fun MyTicketsScreen(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Definições",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
                 }

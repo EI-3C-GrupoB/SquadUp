@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 
 enum class TeamDetailsTab {
@@ -51,7 +50,7 @@ private fun TeamTabItem(
         text = text,
         fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
-        color = if (selected) Color.White else SquadIconSecondary,
+        color = if (selected) Color.White else Color(0x00000000),
         modifier = Modifier
             .background(
                 color = if (selected) SquadOrange else Color.Transparent,

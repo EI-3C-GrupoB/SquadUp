@@ -39,7 +39,6 @@ import com.example.squadup.ui.components.PrimaryButton
 import com.example.squadup.ui.components.TicketDetailInfoRow
 import com.example.squadup.ui.components.TicketQrCard
 import com.example.squadup.ui.theme.SquadBackground
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadOrangeLight
 import com.example.squadup.ui.theme.SquadTextPrimary
@@ -117,7 +116,7 @@ fun TicketDetailsScreen(
 
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
-                        color = SquadBorder
+                        color = Color(0x00000000)
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))

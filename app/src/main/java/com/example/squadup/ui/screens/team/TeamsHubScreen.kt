@@ -45,9 +45,7 @@ import com.example.squadup.ui.components.TeamRosterMemberUi
 import com.example.squadup.ui.components.TeamsHubTab
 import com.example.squadup.ui.components.TeamsHubTabSelector
 import com.example.squadup.ui.theme.SquadBackground
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
-import com.example.squadup.ui.theme.SquadSurfaceVariant
 
 @Composable
 fun TeamsHubScreen(
@@ -85,7 +83,7 @@ fun TeamsHubScreen(
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
                             contentDescription = "Notificações",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
 
@@ -93,7 +91,7 @@ fun TeamsHubScreen(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Definições",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
                 }

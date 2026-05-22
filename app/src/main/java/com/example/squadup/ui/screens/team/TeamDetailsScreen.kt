@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.squadup.ui.components.AppHeader
@@ -32,7 +33,6 @@ import com.example.squadup.ui.components.TeamMembersList
 import com.example.squadup.ui.components.TeamOverviewCard
 import com.example.squadup.ui.components.TeamTabSelector
 import com.example.squadup.ui.theme.SquadBackground
-import com.example.squadup.ui.theme.SquadIconSecondary
 
 @Composable
 fun TeamDetailsScreen(
@@ -70,7 +70,7 @@ fun TeamDetailsScreen(
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
                             contentDescription = "Notificações",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
 
@@ -78,7 +78,7 @@ fun TeamDetailsScreen(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Definições",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
                 }

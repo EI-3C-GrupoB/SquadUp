@@ -23,8 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadOrangeLight
 import com.example.squadup.ui.theme.SquadTextPrimary
@@ -40,7 +38,7 @@ fun TeamOverviewCard(
         modifier = modifier.fillMaxWidth(),
         color = Color.White,
         shape = RoundedCornerShape(6.dp),
-        border = BorderStroke(1.dp, SquadBorder)
+        border = BorderStroke(1.dp, Color(0x00000000))
     ) {
         Column(
             modifier = Modifier.padding(vertical = 20.dp),
@@ -76,7 +74,7 @@ fun TeamOverviewCard(
             Text(
                 text = details,
                 fontSize = 13.sp,
-                color = SquadIconSecondary
+                color = Color(0x00000000)
             )
 
             Spacer(modifier = Modifier.height(8.dp))

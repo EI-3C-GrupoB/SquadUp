@@ -1,6 +1,7 @@
 package com.example.squadup.ui.screens.auth.register
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.R
 import com.example.squadup.data.models.UserProfileModel
@@ -214,5 +215,25 @@ class RegisterViewModel(
         _uiState.value = _uiState.value.copy(
             isRegisterSuccessful = false
         )
+    }
+}
+
+class RegisterViewModelFactory(
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
+    private val modalityRepository: ModalityRepository
+) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
+            return RegisterViewModel(
+                authRepository = authRepository,
+                userRepository = userRepository,
+                modalityRepository = modalityRepository
+            ) as T
+        }
+
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

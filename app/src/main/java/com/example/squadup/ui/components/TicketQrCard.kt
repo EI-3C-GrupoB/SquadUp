@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadTextPrimary
 
 @Composable
@@ -25,7 +24,7 @@ fun TicketQrCard(
         modifier = modifier,
         color = Color.White,
         shape = RoundedCornerShape(6.dp),
-        border = BorderStroke(1.dp, SquadBorder)
+        border = BorderStroke(1.dp, Color(0x00000000))
     ) {
         Box(
             modifier = Modifier

@@ -10,6 +10,14 @@ class AuthRepository(
     private val supabaseClient: SupabaseClient
 ) {
 
+    fun isLoggedIn(): Boolean {
+        return supabaseClient.auth.currentUserOrNull() != null
+    }
+
+    fun currentUserEmail(): String? {
+        return supabaseClient.auth.currentUserOrNull()?.email
+    }
+
     suspend fun login(
         email: String,
         password: String

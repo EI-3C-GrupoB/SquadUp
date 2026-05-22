@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadOrangeLight
 import com.example.squadup.ui.theme.SquadTextPrimary

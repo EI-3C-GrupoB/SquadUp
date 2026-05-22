@@ -38,8 +38,6 @@ import com.example.squadup.ui.components.MatchStatUi
 import com.example.squadup.ui.components.MatchStatsList
 import com.example.squadup.ui.components.MatchTabSelector
 import com.example.squadup.ui.components.PrimaryButton
-import com.example.squadup.ui.theme.SquadIconSecondary
-import com.example.squadup.ui.theme.SquadSurfaceVariant
 import com.example.squadup.ui.theme.SquadTextPrimary
 
 @Composable
@@ -102,7 +100,7 @@ fun MatchOverviewScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SquadSurfaceVariant)
+            .background(Color(0x00000000))
             .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
         AppHeader(
@@ -132,7 +130,7 @@ fun MatchOverviewScreen(
             Text(
                 text = "Track the game in real-time",
                 fontSize = 14.sp,
-                color = SquadIconSecondary
+                color = Color(0x00000000)
             )
 
             Spacer(modifier = Modifier.height(24.dp))

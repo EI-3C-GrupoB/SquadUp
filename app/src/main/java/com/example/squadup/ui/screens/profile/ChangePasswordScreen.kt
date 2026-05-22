@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,8 +35,6 @@ import com.example.squadup.ui.components.AuthCard
 import com.example.squadup.ui.components.AuthTextField
 import com.example.squadup.ui.components.PrimaryButton
 import com.example.squadup.ui.theme.SquadBackground
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
@@ -66,7 +65,7 @@ fun ChangePasswordScreen(
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
                             contentDescription = "Notificações",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
 
@@ -74,7 +73,7 @@ fun ChangePasswordScreen(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Definições",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
                 }
@@ -130,7 +129,7 @@ fun ChangePasswordScreen(
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
                     thickness = 1.dp,
-                    color = SquadBorder
+                    color = Color(0x00000000)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -165,7 +164,7 @@ fun ChangePasswordScreen(
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
                     thickness = 1.dp,
-                    color = SquadBorder
+                    color = Color(0x00000000)
                 )
 
                 Spacer(modifier = Modifier.height(22.dp))

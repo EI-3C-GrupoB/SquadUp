@@ -39,7 +39,6 @@ import com.example.squadup.ui.components.NotificationListItem
 import com.example.squadup.ui.components.NotificationPrimaryCard
 import com.example.squadup.ui.components.PrimaryButton
 import com.example.squadup.ui.theme.SquadBackground
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadOrangeDark
 import com.example.squadup.ui.theme.SquadOrangeLight
@@ -173,7 +172,7 @@ fun NotificationsScreen(
                         iconColor = SquadOrange
                     )
 
-                    HorizontalDivider(color = SquadBorder)
+                    HorizontalDivider(color = Color(0x00000000))
 
                     NotificationListItem(
                         title = "System Update",
@@ -184,7 +183,7 @@ fun NotificationsScreen(
                         iconColor = SquadTextSecondary
                     )
 
-                    HorizontalDivider(color = SquadBorder)
+                    HorizontalDivider(color = Color(0x00000000))
 
                     NotificationListItem(
                         title = "New Team Members",

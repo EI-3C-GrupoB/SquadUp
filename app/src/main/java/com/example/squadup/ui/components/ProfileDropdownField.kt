@@ -24,9 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadOrange
-import com.example.squadup.ui.theme.SquadSurfaceVariant
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
 
@@ -73,9 +71,9 @@ fun ProfileDropdownField(
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = SquadOrange,
-                    unfocusedBorderColor = SquadBorder,
-                    focusedContainerColor = SquadSurfaceVariant,
-                    unfocusedContainerColor = SquadSurfaceVariant,
+                    unfocusedBorderColor = Color(0x00000000),
+                    focusedContainerColor = Color(0x00000000),
+                    unfocusedContainerColor = Color(0x00000000),
                     focusedTextColor = SquadTextPrimary,
                     unfocusedTextColor = SquadTextPrimary,
                     cursorColor = SquadOrange

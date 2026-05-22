@@ -31,9 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadOrangeDark
-import com.example.squadup.ui.theme.SquadSurfaceVariant
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
 
@@ -51,7 +49,7 @@ fun TicketCard(
         modifier = modifier.fillMaxWidth(),
         color = Color.White,
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, SquadBorder),
+        border = BorderStroke(1.dp, Color(0x00000000)),
         shadowElevation = 1.dp
     ) {
         Row(
@@ -131,12 +129,12 @@ fun TicketCard(
                     }
                 }
 
-                HorizontalDivider(color = SquadBorder)
+                HorizontalDivider(color = Color(0x00000000))
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(SquadSurfaceVariant)
+                        .background(Color(0x00000000))
                         .padding(horizontal = 18.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

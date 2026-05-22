@@ -28,8 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadOrangeLight
 import com.example.squadup.ui.theme.SquadTextPrimary
@@ -48,7 +46,7 @@ fun TeamRosterMemberRow(
         modifier = modifier.fillMaxWidth(),
         color = Color.Transparent,
         shape = RoundedCornerShape(6.dp),
-        border = BorderStroke(1.dp, SquadIconSecondary)
+        border = BorderStroke(1.dp, Color(0x00000000))
     ) {
         Row(
             modifier = Modifier
@@ -97,7 +95,7 @@ fun TeamRosterMemberRow(
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowDown,
                         contentDescription = null,
-                        tint = SquadIconSecondary,
+                        tint = Color(0x00000000),
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 } else {
@@ -118,7 +116,7 @@ fun TeamRosterMemberRow(
                         Icon(
                             imageVector = Icons.Outlined.PersonRemove,
                             contentDescription = null,
-                            tint = SquadIconSecondary,
+                            tint = Color(0x00000000),
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -131,7 +129,7 @@ fun TeamRosterMemberRow(
                     color = Color.White,
                     modifier = Modifier
                         .background(
-                            color = if (isCaptain) SquadOrange else SquadIconSecondary,
+                            color = if (isCaptain) SquadOrange else Color(0x00000000),
                             shape = RoundedCornerShape(999.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)

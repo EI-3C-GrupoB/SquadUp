@@ -43,9 +43,7 @@ import com.example.squadup.ui.components.AuthTextField
 import com.example.squadup.ui.components.PrimaryButton
 import com.example.squadup.ui.components.ProfileDropdownField
 import com.example.squadup.ui.theme.SquadBackground
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadError
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
@@ -77,7 +75,7 @@ fun EditProfileScreen(
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
                             contentDescription = "Notificações",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
 
@@ -85,7 +83,7 @@ fun EditProfileScreen(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Definições",
-                            tint = SquadIconSecondary
+                            tint = Color(0x00000000)
                         )
                     }
                 }
@@ -198,7 +196,7 @@ fun EditProfileScreen(
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
                     thickness = 1.dp,
-                    color = SquadBorder
+                    color = Color(0x00000000)
                 )
 
                 Spacer(modifier = Modifier.height(22.dp))

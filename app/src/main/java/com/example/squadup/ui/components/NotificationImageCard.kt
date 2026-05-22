@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
 import com.example.squadup.ui.theme.SquadTextPrimary
 
 @Composable
@@ -39,7 +38,7 @@ fun NotificationImageCard(
         modifier = modifier.fillMaxWidth(),
         color = Color.White,
         shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, SquadBorder)
+        border = BorderStroke(1.dp, Color(0x00000000))
     ) {
         Column {
             Box(

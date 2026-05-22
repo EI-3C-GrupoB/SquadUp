@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.squadup.ui.components.AppLanguage
 import com.example.squadup.ui.screens.auth.login.LoginRoute
 import com.example.squadup.ui.screens.auth.register.RegisterRoute
+import com.example.squadup.ui.screens.home.HomeRoute
 import com.example.squadup.ui.screens.onboarding.OnboardingRoute
 import com.example.squadup.ui.utils.getCurrentLanguage
 import com.example.squadup.ui.utils.setAppLanguage
@@ -50,11 +51,11 @@ fun AppNavigation() {
                 selectedLanguage = selectedLanguage,
                 onLanguageChange = ::changeLanguage,
                 onFinish = {
-                    /*((navController.navigate(AppRoutes.HOME) {
+                    navController.navigate(AppRoutes.HOME) {
                         popUpTo(AppRoutes.ONBOARDING) {
                             inclusive = true
                         }
-                    }*/
+                    }
                 },
                 onLoginClick = {
                     navController.navigate(AppRoutes.LOGIN)
@@ -94,6 +95,37 @@ fun AppNavigation() {
                 },
                 onLoginClick = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(AppRoutes.HOME) {
+            HomeRoute(
+                selectedRoute = AppRoutes.HOME,
+                onNavItemClick = { route ->
+                    // Events, teams and profile still need NavHost destinations.
+                    if (route == AppRoutes.HOME) return@HomeRoute
+                },
+                onLoginClick = {
+                    navController.navigate(AppRoutes.LOGIN)
+                },
+                onRegisterClick = {
+                    navController.navigate(AppRoutes.REGISTER)
+                },
+                onNotificationsClick = {
+                    // navController.navigate(AppRoutes.NOTIFICATIONS)
+                },
+                onSettingsClick = {
+                    // navController.navigate(AppRoutes.SETTINGS)
+                },
+                onViewMatchDetailsClick = {
+                    // navController.navigate(AppRoutes.MATCH_DETAILS)
+                },
+                onSeeAllEventsClick = {
+                    // navController.navigate(AppRoutes.EVENTS)
+                },
+                onJoinEventClick = {
+                    // Depois ligamos a inscricao em evento.
                 }
             )
         }

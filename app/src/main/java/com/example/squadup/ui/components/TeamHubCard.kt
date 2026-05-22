@@ -28,12 +28,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.ui.theme.SquadBorder
-import com.example.squadup.ui.theme.SquadIconSecondary
 import com.example.squadup.ui.theme.SquadOrange
 import com.example.squadup.ui.theme.SquadOrangeLight
 import com.example.squadup.ui.theme.SquadSurface
-import com.example.squadup.ui.theme.SquadSurfaceVariant
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
 
@@ -59,7 +56,7 @@ fun TeamHubCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(SquadSurfaceVariant)
+                .background(Color(0x00000000))
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -95,7 +92,7 @@ fun TeamHubCard(
                     Icon(
                         imageVector = Icons.Outlined.Groups,
                         contentDescription = null,
-                        tint = SquadIconSecondary,
+                        tint = Color(0x00000000),
                         modifier = Modifier.size(14.dp)
                     )
 
