@@ -46,7 +46,7 @@ fun TeamRosterMemberRow(
         modifier = modifier.fillMaxWidth(),
         color = Color.Transparent,
         shape = RoundedCornerShape(6.dp),
-        border = BorderStroke(1.dp, Color(0x00000000))
+        border = BorderStroke(1.dp, SquadTextPrimary.copy(alpha = 0.55f))
     ) {
         Row(
             modifier = Modifier
@@ -129,7 +129,7 @@ fun TeamRosterMemberRow(
                     color = Color.White,
                     modifier = Modifier
                         .background(
-                            color = if (isCaptain) SquadOrange else Color(0x00000000),
+                            color = if (isCaptain) SquadOrange else Color(0xFF8D8D8D),
                             shape = RoundedCornerShape(999.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
