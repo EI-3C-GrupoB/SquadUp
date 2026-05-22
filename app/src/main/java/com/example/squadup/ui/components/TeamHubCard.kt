@@ -1,5 +1,6 @@
 package com.example.squadup.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,21 +16,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material.icons.outlined.SportsBasketball
-import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.ui.theme.SquadOrange
-import com.example.squadup.ui.theme.SquadOrangeLight
 import com.example.squadup.ui.theme.SquadSurface
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
@@ -39,9 +39,16 @@ fun TeamHubCard(
     name: String,
     members: String,
     icon: ImageVector,
+    selected: Boolean = false,
+    expanded: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val arrowRotation by animateFloatAsState(
+        targetValue = if (expanded) 90f else 0f,
+        label = "TeamHubCardArrowRotation"
+    )
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -49,8 +56,8 @@ fun TeamHubCard(
         color = Color.Transparent,
         shape = RoundedCornerShape(6.dp),
         border = BorderStroke(
-            width = 1.dp,
-            color = SquadTextSecondary
+            width = if (selected) 2.dp else 1.dp,
+            color = if (selected) SquadOrange else SquadTextSecondary
         )
     ) {
         Row(
@@ -92,7 +99,7 @@ fun TeamHubCard(
                     Icon(
                         imageVector = Icons.Outlined.Groups,
                         contentDescription = null,
-                        tint = Color(0x00000000),
+                        tint = SquadTextSecondary,
                         modifier = Modifier.size(14.dp)
                     )
 
@@ -109,7 +116,8 @@ fun TeamHubCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                 contentDescription = null,
-                tint = SquadTextSecondary
+                tint = if (selected) SquadOrange else SquadTextSecondary,
+                modifier = Modifier.rotate(arrowRotation)
             )
         }
     }

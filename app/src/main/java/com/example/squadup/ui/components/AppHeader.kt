@@ -84,7 +84,7 @@ fun AppHeader(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = "SquadUp",
+                    text = title ?: "SquadUp",
                     color = SquadOrange,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.ExtraBold

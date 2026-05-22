@@ -5,4 +5,7 @@ object AppRoutes {
     const val LOGIN = "login"
     const val HOME = "home"
     const val REGISTER = "register"
+    const val EVENTS = "events"
+    const val TEAMS = "teams"
+    const val INVITE_SQUAD = "invite_squad"
 }

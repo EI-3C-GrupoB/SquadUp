@@ -32,10 +32,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.ui.theme.SquadOrange
-import com.example.squadup.ui.theme.SquadOrangeLight
 import com.example.squadup.ui.theme.SquadSurface
 import com.example.squadup.ui.theme.SquadTextPrimary
 import com.example.squadup.ui.theme.SquadTextSecondary
@@ -54,6 +54,9 @@ fun ExpandedTeamPanel(
     inviteCode: String,
     members: List<TeamRosterMemberUi>,
     isManagingRoster: Boolean,
+    activePlayersText: String = "${members.size} Players Active",
+    showOwnerActions: Boolean = true,
+    primaryActionText: String = "Ask to join",
     onInviteMembersClick: () -> Unit,
     onTeamSettingsClick: () -> Unit,
     onCopyInviteCodeClick: () -> Unit,
@@ -77,126 +80,31 @@ fun ExpandedTeamPanel(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                Text(
-                    text = "INVITE CODE",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SquadTextSecondary,
-                    letterSpacing = 1.sp
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = inviteCode,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier
-                            .background(Color(0xFFC9BDB8), RoundedCornerShape(6.dp))
-                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                if (showOwnerActions) {
+                    TeamOwnerActions(
+                        inviteCode = inviteCode,
+                        isManagingRoster = isManagingRoster,
+                        onInviteMembersClick = onInviteMembersClick,
+                        onTeamSettingsClick = onTeamSettingsClick,
+                        onCopyInviteCodeClick = onCopyInviteCodeClick
                     )
-
-                    Icon(
-                        imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = null,
-                        tint = SquadOrange,
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .size(18.dp)
-                            .clickable(onClick = onCopyInviteCodeClick)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    OutlinedButton(
+                } else {
+                    Button(
                         onClick = onInviteMembersClick,
                         modifier = Modifier
-                            .weight(1f)
-                            .height(54.dp),
+                            .fillMaxWidth()
+                            .height(56.dp),
                         shape = RoundedCornerShape(6.dp),
-                        border = BorderStroke(1.dp, SquadOrange),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.White,
-                            contentColor = SquadOrange
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = SquadOrange,
+                            contentColor = Color.White
                         )
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Send,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
                         Text(
-                            text = "Invite\nMembers",
-                            fontSize = 12.sp,
-                            lineHeight = 15.sp,
-                            fontWeight = FontWeight.Medium
+                            text = primaryActionText,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
                         )
-                    }
-
-                    if (isManagingRoster) {
-                        Button(
-                            onClick = onTeamSettingsClick,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(54.dp),
-                            shape = RoundedCornerShape(6.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = SquadOrange,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Settings,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = "Team\nSettings",
-                                fontSize = 12.sp,
-                                lineHeight = 15.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    } else {
-                        OutlinedButton(
-                            onClick = onTeamSettingsClick,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(54.dp),
-                            shape = RoundedCornerShape(6.dp),
-                            border = BorderStroke(1.dp, SquadOrange),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = Color.White,
-                                contentColor = SquadOrange
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Settings,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = "Team\nSettings",
-                                fontSize = 12.sp,
-                                lineHeight = 15.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
                     }
                 }
 
@@ -213,7 +121,7 @@ fun ExpandedTeamPanel(
                     Spacer(modifier = Modifier.weight(1f))
 
                     Text(
-                        text = "${members.size} Players Active",
+                        text = activePlayersText,
                         fontSize = 12.sp,
                         color = SquadTextSecondary
                     )
@@ -221,20 +129,183 @@ fun ExpandedTeamPanel(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                members.forEach { member ->
-                    TeamRosterMemberRow(
-                        name = member.name,
-                        role = member.role,
-                        isCaptain = member.isCaptain,
-                        isManaging = isManagingRoster,
-                        onPromoteClick = { onPromoteClick(member) },
-                        onRemoveClick = { onRemoveClick(member) }
-                    )
+                if (members.isEmpty()) {
+                    EmptyRosterMessage()
+                } else {
+                    members.forEach { member ->
+                        TeamRosterMemberRow(
+                            name = member.name,
+                            role = member.role,
+                            isCaptain = member.isCaptain,
+                            isManaging = isManagingRoster,
+                            onPromoteClick = { onPromoteClick(member) },
+                            onRemoveClick = { onRemoveClick(member) }
+                        )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TeamOwnerActions(
+    inviteCode: String,
+    isManagingRoster: Boolean,
+    onInviteMembersClick: () -> Unit,
+    onTeamSettingsClick: () -> Unit,
+    onCopyInviteCodeClick: () -> Unit
+) {
+    Text(
+        text = "INVITE CODE",
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Bold,
+        color = SquadTextSecondary,
+        letterSpacing = 1.sp
+    )
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = inviteCode,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier
+                .background(Color(0xFFC9BDB8), RoundedCornerShape(6.dp))
+                .padding(horizontal = 10.dp, vertical = 5.dp)
+        )
+
+        Icon(
+            imageVector = Icons.Outlined.ContentCopy,
+            contentDescription = null,
+            tint = SquadOrange,
+            modifier = Modifier
+                .padding(start = 10.dp)
+                .size(18.dp)
+                .clickable(onClick = onCopyInviteCodeClick)
+        )
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        OutlinedButton(
+            onClick = onInviteMembersClick,
+            modifier = Modifier
+                .weight(1f)
+                .height(54.dp),
+            shape = RoundedCornerShape(6.dp),
+            border = BorderStroke(1.dp, SquadOrange),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.White,
+                contentColor = SquadOrange
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Send,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = "Invite\nMembers",
+                fontSize = 12.sp,
+                lineHeight = 15.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+
+        if (isManagingRoster) {
+            Button(
+                onClick = onTeamSettingsClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(54.dp),
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SquadOrange,
+                    contentColor = Color.White
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "Team\nSettings",
+                    fontSize = 12.sp,
+                    lineHeight = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        } else {
+            OutlinedButton(
+                onClick = onTeamSettingsClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(54.dp),
+                shape = RoundedCornerShape(6.dp),
+                border = BorderStroke(1.dp, SquadOrange),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.White,
+                    contentColor = SquadOrange
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "Team\nSettings",
+                    fontSize = 12.sp,
+                    lineHeight = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyRosterMessage() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 34.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "There are currently no players on\nthis team.",
+            fontSize = 13.sp,
+            lineHeight = 18.sp,
+            textAlign = TextAlign.Center,
+            color = SquadTextSecondary
+        )
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        Text(
+            text = "Try inviting your friends!",
+            fontSize = 13.sp,
+            textAlign = TextAlign.Center,
+            color = SquadTextSecondary
+        )
     }
 }
 

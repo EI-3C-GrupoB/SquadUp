@@ -3,6 +3,7 @@ package com.example.squadup.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -13,8 +14,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.squadup.ui.components.AppLanguage
 import com.example.squadup.ui.screens.auth.login.LoginRoute
 import com.example.squadup.ui.screens.auth.register.RegisterRoute
+import com.example.squadup.ui.screens.events.ExploreEventsScreen
 import com.example.squadup.ui.screens.home.HomeRoute
 import com.example.squadup.ui.screens.onboarding.OnboardingRoute
+import com.example.squadup.ui.screens.team.InviteSquadScreen
+import com.example.squadup.ui.screens.team.TeamsHubScreen
+import com.example.squadup.ui.components.TeamsHubTab
 import com.example.squadup.ui.utils.getCurrentLanguage
 import com.example.squadup.ui.utils.setAppLanguage
 import kotlinx.coroutines.delay
@@ -28,6 +33,21 @@ fun AppNavigation() {
 
     var selectedLanguage by rememberSaveable {
         mutableStateOf(getCurrentLanguage(context))
+    }
+    var selectedTeamsTab by remember {
+        mutableStateOf(TeamsHubTab.Discover)
+    }
+    var selectedTeamId by rememberSaveable {
+        mutableStateOf<String?>("lv_ponds")
+    }
+    var isManagingRoster by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var manualInviteValue by rememberSaveable {
+        mutableStateOf("")
+    }
+    var eventsSearchQuery by rememberSaveable {
+        mutableStateOf("")
     }
 
     fun changeLanguage(language: AppLanguage) {
@@ -103,8 +123,11 @@ fun AppNavigation() {
             HomeRoute(
                 selectedRoute = AppRoutes.HOME,
                 onNavItemClick = { route ->
-                    // Events, teams and profile still need NavHost destinations.
                     if (route == AppRoutes.HOME) return@HomeRoute
+                    when (route) {
+                        AppRoutes.EVENTS -> navController.navigate(AppRoutes.EVENTS)
+                        AppRoutes.TEAMS -> navController.navigate(AppRoutes.TEAMS)
+                    }
                 },
                 onLoginClick = {
                     navController.navigate(AppRoutes.LOGIN)
@@ -122,10 +145,94 @@ fun AppNavigation() {
                     // navController.navigate(AppRoutes.MATCH_DETAILS)
                 },
                 onSeeAllEventsClick = {
-                    // navController.navigate(AppRoutes.EVENTS)
+                    navController.navigate(AppRoutes.EVENTS)
                 },
                 onJoinEventClick = {
                     // Depois ligamos a inscricao em evento.
+                }
+            )
+        }
+
+        composable(AppRoutes.EVENTS) {
+            ExploreEventsScreen(
+                selectedRoute = AppRoutes.EVENTS,
+                searchQuery = eventsSearchQuery,
+                onSearchQueryChange = { eventsSearchQuery = it },
+                onMapClick = {},
+                onFilterClick = {},
+                onFeaturedEventClick = {},
+                onFilterByTeamsClick = {},
+                onEventActionClick = {},
+                onNotificationsClick = {
+                    // navController.navigate(AppRoutes.NOTIFICATIONS)
+                },
+                onSettingsClick = {
+                    // navController.navigate(AppRoutes.SETTINGS)
+                },
+                onNavItemClick = { route ->
+                    when (route) {
+                        AppRoutes.HOME -> navController.navigate(AppRoutes.HOME)
+                        AppRoutes.EVENTS -> Unit
+                        AppRoutes.TEAMS -> navController.navigate(AppRoutes.TEAMS)
+                    }
+                }
+            )
+        }
+
+        composable(AppRoutes.TEAMS) {
+            TeamsHubScreen(
+                selectedRoute = AppRoutes.TEAMS,
+                selectedTab = selectedTeamsTab,
+                selectedTeamId = selectedTeamId,
+                isManagingRoster = isManagingRoster,
+                onTabSelected = { selectedTeamsTab = it },
+                onTeamClick = { selectedTeamId = it },
+                onCreateTeamClick = {
+                    // Create team screen is built separately and can be wired here.
+                },
+                onNotificationsClick = {
+                    // navController.navigate(AppRoutes.NOTIFICATIONS)
+                },
+                onSettingsClick = {
+                    // navController.navigate(AppRoutes.SETTINGS)
+                },
+                onInviteMembersClick = {
+                    navController.navigate(AppRoutes.INVITE_SQUAD)
+                },
+                onTeamSettingsClick = {
+                    isManagingRoster = !isManagingRoster
+                },
+                onCopyInviteCodeClick = {},
+                onPromoteMemberClick = {},
+                onRemoveMemberClick = {},
+                onNavItemClick = { route ->
+                    when (route) {
+                        AppRoutes.HOME -> navController.navigate(AppRoutes.HOME)
+                        AppRoutes.EVENTS -> navController.navigate(AppRoutes.EVENTS)
+                        AppRoutes.TEAMS -> Unit
+                    }
+                }
+            )
+        }
+
+        composable(AppRoutes.INVITE_SQUAD) {
+            InviteSquadScreen(
+                inviteCode = "SQUAD-\nX92",
+                manualInviteValue = manualInviteValue,
+                onManualInviteChange = { manualInviteValue = it },
+                onCopyInviteCodeClick = {},
+                onShareOptionClick = {},
+                onSyncContactsClick = {},
+                onInviteContactClick = {},
+                onSendManualInviteClick = {},
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onNotificationsClick = {
+                    // navController.navigate(AppRoutes.NOTIFICATIONS)
+                },
+                onSettingsClick = {
+                    // navController.navigate(AppRoutes.SETTINGS)
                 }
             )
         }
