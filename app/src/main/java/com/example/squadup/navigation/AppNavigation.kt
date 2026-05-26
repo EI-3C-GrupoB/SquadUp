@@ -62,6 +62,15 @@ fun AppNavigation() {
         }
     }
 
+    fun navigateToHomeAfterAuth(popUpToRoute: String) {
+        navController.navigate(AppRoutes.HOME) {
+            popUpTo(popUpToRoute) {
+                inclusive = true
+            }
+            launchSingleTop = true
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = AppRoutes.ONBOARDING
@@ -88,11 +97,14 @@ fun AppNavigation() {
                 selectedLanguage = selectedLanguage,
                 onLanguageChange = ::changeLanguage,
                 onLoginSuccess = {
-                    navController.navigate(AppRoutes.HOME) {
-                        popUpTo(AppRoutes.LOGIN) {
-                            inclusive = true
-                        }
+                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                    val popUpToRoute = if (previousRoute == AppRoutes.ONBOARDING) {
+                        AppRoutes.ONBOARDING
+                    } else {
+                        AppRoutes.LOGIN
                     }
+
+                    navigateToHomeAfterAuth(popUpToRoute)
                 },
                 onForgotPasswordClick = {
                     //navController.navigate(AppRoutes.FORGOT_PASSWORD)
@@ -106,12 +118,14 @@ fun AppNavigation() {
         composable(AppRoutes.REGISTER) {
             RegisterRoute(
                 onRegisterSuccess = {
-                    navController.navigate(AppRoutes.LOGIN) {
-                        popUpTo(AppRoutes.REGISTER) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
+                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                    val popUpToRoute = if (previousRoute == AppRoutes.LOGIN) {
+                        AppRoutes.LOGIN
+                    } else {
+                        AppRoutes.REGISTER
                     }
+
+                    navigateToHomeAfterAuth(popUpToRoute)
                 },
                 onLoginClick = {
                     navController.popBackStack()
