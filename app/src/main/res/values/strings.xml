@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">SquadUp</string>
+
+    <!-- Sports -->
+    <string name="sport_soccer">Soccer</string>
+    <string name="sport_basketball">Basketball</string>
+    <string name="sport_paddle">Paddle</string>
+    <string name="sport_volleyball">Volleyball</string>
+    <string name="sport_futsal">Futsal</string>
+
+    <!-- Event Status -->
+    <string name="event_status_draft">DRAFT</string>
+    <string name="event_status_registration_open">REGISTRATION OPEN</string>
+    <string name="event_status_registration_closed">REGISTRATION CLOSED</string>
+    <string name="event_status_ongoing">ONGOING</string>
+    <string name="event_status_finished">FINISHED</string>
+    <string name="event_status_cancelled">CANCELLED</string>
+
+    <!-- Nav Bar -->
+    <string name="nav_home">Home</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_teams">Teams</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Onboarding Screen -->
+    <string name="Onboarding_1_title">Discover Events</string>
+    <string name="Onboarding_2_title">Create &amp; Manage</string>
+    <string name="Onboarding_3_title">Live Results &amp; Stats</string>
+
+    <string name="Onboarding_1_description">Find nearby sports events and tournaments. Filter by sport, location, and skill level to match your game.</string>
+    <string name="Onboarding_2_description">Organize your own tournaments, manage teams, and schedule matches in one place.</string>
+    <string name="Onboarding_3_description">Track match results in real time, view rankings, and analyze player and team performance.</string>
+
+    <string name="Onboarding_btnStart">Get Started</string>
+
+    <string name="Onboarding_loginMgs">Already have an account?</string>
+    <string name="Onboarding_loginMgs2">Login</string>
+
+    <string name="Onboarding_badgeLocal">LOCAL</string>
+    <string name="Onboarding_badgeLiveNow">LIVE NOW</string>
+
+    <!-- Login Screen -->
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Ready for game day? Sign in to your squad.</string>
+
+    <string name="login_emailLabel">Email Address</string>
+    <string name="login_passwordLabel">Password</string>
+    <string name="login_forgot">Forgot Password?</string>
+    <string name="login_btnMgs1">Coming in …</string>
+    <string name="login_btnMgs2">Sign In</string>
+
+    <string name="login_divider">OR CONTINUE WITH</string>
+
+    <string name="login_createMgs1">New to the squad?</string>
+    <string name="login_createMgs2">Create an Account</string>
+
+
+    <!-- Register Screen -->
+    <string name="register_login_action">Login</string>
+    <string name="register_title">Register Profile</string>
+    <string name="register_subtitle">Step into the arena. It takes less than a minute.</string>
+
+    <string name="register_full_name_label">Full Name</string>
+    <string name="register_full_name_placeholder">Alex Hunter</string>
+
+    <string name="register_username_label">Username</string>
+    <string name="register_username_placeholder">alex_hunter</string>
+
+    <string name="register_email_label">Email Address</string>
+    <string name="register_email_placeholder">alex@example.com</string>
+
+    <string name="register_default_location_label">Default Location</string>
+    <string name="register_default_location_placeholder">City or sports area</string>
+
+    <string name="register_user_type_label">Account Type</string>
+    <string name="register_user_type_player">Player</string>
+    <string name="register_user_type_organizer">Organizer</string>
+
+    <string name="register_birth_date_label">Date of Birth</string>
+
+    <string name="register_password_label">Password</string>
+    <string name="register_password_placeholder">••••••••</string>
+
+    <string name="register_sports_interests">Sports Interests</string>
+
+    <string name="register_button">SQUAD UP</string>
+    <string name="register_button_loading">LOADING...</string>
+
+    <string name="register_terms_prefix">By registering, you agree to our </string>
+    <string name="register_terms">Terms\nof Service</string>
+    <string name="register_terms_middle"> and </string>
+    <string name="register_privacy">Privacy Policy.</string>
+
+    <!-- Home  Screen -->
+    <string name="home_greeting">Hello, %1$s</string>
+    <string name="home_greeting_guest">Hello, Player</string>
+    <string name="home_subtitle_player">Ready for your game today?</string>
+    <string name="home_subtitle_organizer">Your tournaments are gaining momentum.</string>
+    <string name="home_subtitle_both">Ready to play and manage today?</string>
+    <string name="home_subtitle_guest">Find local sports events and squads near you.</string>
+    <string name="home_my_events">My Events</string>
+    <string name="home_nearby_events">Nearby Events</string>
+    <string name="home_my_teams">My Teams</string>
+    <string name="home_see_all">See all</string>
+
+    <!-- NearbyEventCard  Component -->
+    <string name="nearbyEventCard_status_live">LIVE</string>
+    <string name="nearbyEventCard_label_intensity">INTENSITY</string>
+    <string name="nearbyEventCard_action_join">Join</string>
+
+    <!-- TeamListItem  Component -->
+    <string name="team_members">Members</string>
+
+    <!-- CurrentMatchCard  Component -->
+    <string name="currentMatchCard_label">CURRENT MATCH</string>
+    <string name="currentMatchCard_btn_details">VIEW DETAILS</string>
+
+    <!-- StatsCard Component -->
+    <string name="statsCard_events_created">Events Created</string>
+    <string name="statsCard_active_teams">Active Teams</string>
+    <string name="statsCard_total_revenue">Total Revenue</string>
+
+    <!-- OrganizerEventCard Component -->
+    <string name="organizerEventCard_teams">Teams</string>
+    <string name="organizerEventCard_registered">Registered</string>
+
+    <!-- SettingsDialog Component -->
+    <string name="settings_title">SETTINGS</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_off">Off</string>
+    <string name="settings_on">On</string>
+
+</resources>
