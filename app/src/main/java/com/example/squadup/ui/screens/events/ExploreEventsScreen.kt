@@ -54,6 +54,7 @@ fun ExploreEventsScreen(
     onMapClick: () -> Unit,
     onFilterClick: (EventFilterUi) -> Unit,
     onFeaturedEventClick: () -> Unit,
+    onViewCalendarClick: () -> Unit,
     onFilterByTeamsClick: () -> Unit,
     onEventActionClick: (ExploreEventUi) -> Unit,
     onNotificationsClick: () -> Unit,
@@ -163,6 +164,7 @@ fun ExploreEventsScreen(
 
             UpcomingEventsCard(
                 events = upcomingEvents,
+                onViewCalendarClick = onViewCalendarClick,
                 onFilterByTeamsClick = onFilterByTeamsClick
             )
 
@@ -192,6 +194,7 @@ fun ExploreEventsScreenPreview() {
         onMapClick = {},
         onFilterClick = {},
         onFeaturedEventClick = {},
+        onViewCalendarClick = {},
         onFilterByTeamsClick = {},
         onEventActionClick = {},
         onNotificationsClick = {},

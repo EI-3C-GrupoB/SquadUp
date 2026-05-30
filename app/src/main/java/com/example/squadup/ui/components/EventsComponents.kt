@@ -2,6 +2,7 @@ package com.example.squadup.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -253,6 +254,7 @@ fun FeaturedEventCard(
 @Composable
 fun UpcomingEventsCard(
     events: List<UpcomingEventUi>,
+    onViewCalendarClick: () -> Unit,
     onFilterByTeamsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -279,7 +281,8 @@ fun UpcomingEventsCard(
                     text = "View Calendar",
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadOrange
+                    color = SquadOrange,
+                    modifier = Modifier.clickable(onClick = onViewCalendarClick)
                 )
             }
 
