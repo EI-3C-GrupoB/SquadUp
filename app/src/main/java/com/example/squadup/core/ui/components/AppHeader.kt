@@ -34,8 +34,11 @@ fun AppHeader(
     showSettingsButton: Boolean = false,
     selectedLanguage: AppLanguage = AppLanguage.EN,
     isDarkMode: Boolean = false,
+    isAdmin: Boolean = false,
+    isAdminView: Boolean = false,
     onLanguageChange: (AppLanguage) -> Unit = {},
     onDarkModeChange: (Boolean) -> Unit = {},
+    onAdminViewChange: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
@@ -49,7 +52,10 @@ fun AppHeader(
             isDarkMode = isDarkMode,
             onLanguageChange = onLanguageChange,
             onDarkModeChange = onDarkModeChange,
-            onDismiss = { showSettingsDialog = false }
+            onDismiss = { showSettingsDialog = false },
+            isAdmin = isAdmin,
+            isAdminView = isAdminView,
+            onAdminViewChange = onAdminViewChange
         )
     }
 
@@ -100,8 +106,8 @@ fun AppHeader(
                     Text(
                         text = title,
                         color = SquadOrange,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 

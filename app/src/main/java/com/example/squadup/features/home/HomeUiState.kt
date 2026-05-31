@@ -22,7 +22,6 @@ data class HomeUiState(
     // --- PLAYER ---
     val teams: List<HomeTeam> = emptyList(),
 ) {
-    val isAdmin get() = role == UserRole.ADMIN
     val isOrganizer get() = role == UserRole.ORGANIZER || role == UserRole.PLAYER_ORGANIZER
     val isPlayer get() = role == UserRole.PLAYER || role == UserRole.PLAYER_ORGANIZER
 }

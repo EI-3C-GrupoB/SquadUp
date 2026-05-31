@@ -47,16 +47,7 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadStaticData() {
-        // null = guest | PLAYER | ORGANIZER | PLAYER_ORGANIZER
-        val role: UserRole? = null
-
-        _uiState.value = when (role) {
-            null -> buildGuestState()
-            UserRole.ORGANIZER -> buildOrganizerState()
-            UserRole.PLAYER -> buildPlayerState()
-            UserRole.PLAYER_ORGANIZER -> buildPlayerOrganizerState()
-            else -> buildGuestState()
-        }
+        _uiState.value = buildPlayerOrganizerState()
     }
 
     private fun buildGuestState() = HomeUiState(

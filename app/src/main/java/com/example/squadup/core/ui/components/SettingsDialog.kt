@@ -12,8 +12,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AdminPanelSettings
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,7 +45,10 @@ fun SettingsDialog(
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    isAdmin: Boolean = false,
+    isAdminView: Boolean = false,
+    onAdminViewChange: (Boolean) -> Unit = {}
 ) {
     var showContent by rememberSaveable { mutableStateOf(false) }
 
@@ -140,6 +145,25 @@ fun SettingsDialog(
                                     onDarkModeChange(index == 1)
                                 }
                             )
+                        }
+
+                        if (isAdmin) {
+                            Spacer(modifier = Modifier.height(20.dp))
+                            HorizontalDivider(color = SquadGrayLight)
+                            Spacer(modifier = Modifier.height(20.dp))
+                            SettingsRow(
+                                icon = Icons.Outlined.AdminPanelSettings,
+                                label = stringResource(R.string.settings_view_mode)
+                            ) {
+                                SettingsToggle(
+                                    options = listOf(
+                                        stringResource(R.string.settings_view_normal),
+                                        stringResource(R.string.settings_view_admin)
+                                    ),
+                                    selectedIndex = if (isAdminView) 1 else 0,
+                                    onOptionSelected = { index -> onAdminViewChange(index == 1) }
+                                )
+                            }
                         }
                     }
                 }

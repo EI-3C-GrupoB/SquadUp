@@ -33,8 +33,11 @@ fun HomeScreen(
     onRegisterClick: () -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
+    isAdmin: Boolean,
+    isAdminView: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
+    onAdminViewChange: (Boolean) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -44,8 +47,11 @@ fun HomeScreen(
                 showNotificationsButton = uiState.isLoggedIn,
                 showSettingsButton = true,
                 showLoginButton = !uiState.isLoggedIn,
+                isAdmin = isAdmin,
+                isAdminView = isAdminView,
                 onNotificationsClick = onNotificationsClick,
                 onLoginClick = onLoginClick,
+                onAdminViewChange = onAdminViewChange,
                 selectedLanguage = selectedLanguage,
                 isDarkMode = isDarkMode,
                 onLanguageChange = onLanguageChange,

@@ -34,8 +34,8 @@ fun PrimaryButton(
         enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
-            .height(62.dp),
-        shape = RoundedCornerShape(10.dp),
+            .height(56.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = SquadOrange,
             contentColor = Color.White,
@@ -55,7 +55,7 @@ fun PrimaryButton(
             Text(
                 text = text,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Bold
             )
 
             if (trailingIcon != null) {

@@ -36,7 +36,10 @@ fun HomeRoute(
         onRegisterClick = onRegisterClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
+        isAdmin = appUiState.isAdmin,
+        isAdminView = appUiState.isAdminView,
         onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onDarkModeChange = { appViewModel.onDarkModeChange(it) },
+        onAdminViewChange = { appViewModel.onAdminViewChange(it) }
     )
 }

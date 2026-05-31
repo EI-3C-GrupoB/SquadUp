@@ -124,6 +124,108 @@
     <string name="organizerEventCard_teams">Teams</string>
     <string name="organizerEventCard_registered">Registered</string>
 
+    <!-- User Roles -->
+    <string name="role_admin">ADMINISTRATOR</string>
+    <string name="role_player">PLAYER</string>
+    <string name="role_organizer">ORGANIZER</string>
+    <string name="role_player_organizer">PLAYER &amp; ORGANIZER</string>
+
+    <!-- Manage Accounts Screen -->
+    <string name="manageAccounts_title">Manage Accounts</string>
+    <string name="manageAccounts_subtitle">Here you can manage all accounts on the platform. You can add, edit and delete accounts.</string>
+    <string name="manageAccounts_directory">User Directory</string>
+    <string name="manageAccounts_search_placeholder">Search athletes, organizers or administrators…</string>
+    <string name="manageAccounts_column_user">User</string>
+    <string name="manageAccounts_column_role">Role</string>
+    <string name="manageAccounts_showing">Showing %1$d of %2$s users</string>
+    <string name="manageAccounts_previous">Previous</string>
+    <string name="manageAccounts_next">Next</string>
+    <string name="manageAccounts_filter_by">F I L T E R   B Y</string>
+    <string name="manageAccounts_filter_role">Role</string>
+    <string name="manageAccounts_filter_all">All</string>
+    <string name="manageAccounts_sort_by">S O R T   B Y</string>
+    <string name="manageAccounts_sort_recent">Most Recent</string>
+    <string name="manageAccounts_sort_oldest">Oldest</string>
+    <string name="manageAccounts_sort_name_az">Name A–Z</string>
+    <string name="manageAccounts_filter_apply">Apply</string>
+    <string name="manageAccounts_filter_back">Back</string>
+    <string name="manageAccounts_role_admin">Admin</string>
+    <string name="manageAccounts_role_organizer">Organizer</string>
+    <string name="manageAccounts_role_player">Player</string>
+    <string name="manageAccounts_role_admin_filter">Administrator</string>
+
+    <!-- Ticket Status -->
+    <string name="ticket_status_confirmed">CONFIRMED</string>
+    <string name="ticket_status_past">PLAYED</string>
+    <string name="ticket_status_expired">EXPIRED</string>
+    <string name="ticket_status_cancelled">CANCELLED</string>
+
+    <!-- Tickets Screen -->
+    <string name="tickets_title">My Tickets</string>
+    <string name="tickets_tab_upcoming">UPCOMING</string>
+    <string name="tickets_tab_history">HISTORY</string>
+    <string name="tickets_confirmed">CONFIRMED</string>
+    <string name="tickets_view_details">View Details</string>
+    <string name="tickets_past_events">Past Events</string>
+    <string name="tickets_past_events_subtitle">View your completed matches and activities</string>
+    <string name="tickets_load_older">Load older tickets</string>
+    <string name="tickets_referral_title">Team Up &amp; Save</string>
+    <string name="tickets_referral_subtitle">Invite 3 teammates and get your next session for free.</string>
+    <string name="tickets_referral_button">Refer Now</string>
+    <string name="ticketDetails_title">TICKET DETAILS</string>
+    <string name="ticketDetails_add_calendar">Add to Calendar</string>
+    <string name="ticketDetails_share">Share Ticket</string>
+    <string name="ticketDetails_support">ⓘ  Need help with your ticket? Contact Support</string>
+    <string name="ticketDetails_date_label">Date &amp; Time</string>
+    <string name="ticketDetails_location_label">Location</string>
+
+    <!-- Change Password Screen -->
+    <string name="changePassword_heading">Change Password</string>
+    <string name="changePassword_subtitle">In order to change your password, you must first write your current password and then write your new one twice.</string>
+    <string name="changePassword_current_label">Current Password</string>
+    <string name="changePassword_new_label">New Password</string>
+    <string name="changePassword_confirm_label">Confirm New Password</string>
+    <string name="changePassword_button">Change Password</string>
+
+    <!-- Edit Profile Screen -->
+    <string name="editProfile_heading">Edit Profile</string>
+    <string name="editProfile_subtitle">Here you can edit your username, your play style and preferred sport. You can also delete your account.</string>
+    <string name="editProfile_username_label">Change Username</string>
+    <string name="editProfile_username_placeholder">Username</string>
+    <string name="editProfile_play_style_label">Change Play Style</string>
+    <string name="editProfile_sport_label">Change Preferred Sport</string>
+    <string name="editProfile_delete">Delete Account</string>
+    <string name="editProfile_save">Save Changes</string>
+    <string name="editProfile_back">← Back to Profile</string>
+
+    <!-- Profile Screen — Admin -->
+    <string name="profile_admin_create_account">Create\nnew Account</string>
+    <string name="profile_admin_manage_accounts">Manage Accounts</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_logout">Logout</string>
+    <string name="profile_stat_matches">MATCHES</string>
+    <string name="profile_stat_wins">WINS</string>
+    <string name="profile_stat_goals">GOALS</string>
+    <string name="profile_stat_teams">TEAMS</string>
+    <string name="profile_action_edit">Edit Profile</string>
+    <string name="profile_action_change_password">Change Password</string>
+
+    <!-- PlayStyleIntensityCard Component -->
+    <string name="playStyle_title">Play Style Intensity</string>
+    <string name="play_style_low_label">Low Energy</string>
+    <string name="play_style_low_desc">You prefer relaxed matches with low physical demand. Great for casual play and fun.</string>
+    <string name="play_style_medium_label">Medium Energy</string>
+    <string name="play_style_medium_desc">You enjoy a balanced mix of effort and fun. Competitive but not exhausting.</string>
+    <string name="play_style_high_label">High Energy</string>
+    <string name="play_style_high_desc">You prefer matches with competitive difficulty and high physical output.</string>
+
+    <!-- SettingsDialog Component — Admin -->
+    <string name="settings_view_mode">View Mode</string>
+    <string name="settings_view_normal">Usr</string>
+    <string name="settings_view_admin">Adm</string>
+
     <!-- SettingsDialog Component -->
     <string name="settings_title">SETTINGS</string>
     <string name="settings_language">Language</string>

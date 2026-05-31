@@ -115,13 +115,115 @@
     <string name="currentMatchCard_btn_details">VER DETALHES</string>
 
     <!-- StatsCard Component -->
-    <string name="statsCard_events_created">Events Created</string>
-    <string name="statsCard_active_teams">Active Teams</string>
-    <string name="statsCard_total_revenue">Total Revenue</string>
+    <string name="statsCard_events_created">Eventos Criados</string>
+    <string name="statsCard_active_teams">Equipas Ativas</string>
+    <string name="statsCard_total_revenue">Receita Total</string>
 
     <!-- OrganizerEventCard Component -->
     <string name="organizerEventCard_teams">Equipas</string>
     <string name="organizerEventCard_registered">Inscritos</string>
+
+    <!-- User Roles -->
+    <string name="role_admin">ADMINISTRADOR</string>
+    <string name="role_player">JOGADOR</string>
+    <string name="role_organizer">ORGANIZADOR</string>
+    <string name="role_player_organizer">JOGADOR &amp; ORGANIZADOR</string>
+
+    <!-- Manage Accounts Screen -->
+    <string name="manageAccounts_title">Gerir Contas</string>
+    <string name="manageAccounts_subtitle">Aqui podes gerir todas as contas da plataforma. Podes adicionar, editar e eliminar contas.</string>
+    <string name="manageAccounts_directory">Diretório de Utilizadores</string>
+    <string name="manageAccounts_search_placeholder">Procurar atletas, organizadores ou administradores…</string>
+    <string name="manageAccounts_column_user">Utilizador</string>
+    <string name="manageAccounts_column_role">Cargo</string>
+    <string name="manageAccounts_showing">A mostrar %1$d de %2$s utilizadores</string>
+    <string name="manageAccounts_previous">Anterior</string>
+    <string name="manageAccounts_next">Próximo</string>
+    <string name="manageAccounts_filter_by">F I L T R A R   P O R</string>
+    <string name="manageAccounts_filter_role">Cargo</string>
+    <string name="manageAccounts_filter_all">Todos</string>
+    <string name="manageAccounts_sort_by">O R D E N A R   P O R</string>
+    <string name="manageAccounts_sort_recent">Mais Recente</string>
+    <string name="manageAccounts_sort_oldest">Mais Antigo</string>
+    <string name="manageAccounts_sort_name_az">Nome A–Z</string>
+    <string name="manageAccounts_filter_apply">Aplicar</string>
+    <string name="manageAccounts_filter_back">Voltar</string>
+    <string name="manageAccounts_role_admin">Admin</string>
+    <string name="manageAccounts_role_organizer">Organizador</string>
+    <string name="manageAccounts_role_player">Jogador</string>
+    <string name="manageAccounts_role_admin_filter">Administrador</string>
+
+    <!-- Ticket Status -->
+    <string name="ticket_status_confirmed">CONFIRMADO</string>
+    <string name="ticket_status_past">JOGADO</string>
+    <string name="ticket_status_expired">EXPIRADO</string>
+    <string name="ticket_status_cancelled">CANCELADO</string>
+
+    <!-- Tickets Screen -->
+    <string name="tickets_title">Os Meus Bilhetes</string>
+    <string name="tickets_tab_upcoming">PRÓXIMOS</string>
+    <string name="tickets_tab_history">HISTÓRICO</string>
+    <string name="tickets_confirmed">CONFIRMADO</string>
+    <string name="tickets_view_details">Ver Detalhes</string>
+    <string name="tickets_past_events">Eventos Passados</string>
+    <string name="tickets_past_events_subtitle">Consulta os teus jogos e atividades concluídos</string>
+    <string name="tickets_load_older">Carregar bilhetes antigos</string>
+    <string name="tickets_referral_title">Junta a Equipa &amp; Poupa</string>
+    <string name="tickets_referral_subtitle">Convida 3 colegas e obtém a próxima sessão grátis.</string>
+    <string name="tickets_referral_button">Convidar</string>
+    <string name="ticketDetails_title">DETALHES DO BILHETE</string>
+    <string name="ticketDetails_add_calendar">Adicionar ao Calendário</string>
+    <string name="ticketDetails_share">Partilhar Bilhete</string>
+    <string name="ticketDetails_support">ⓘ  Precisas de ajuda? Contacta o Suporte</string>
+    <string name="ticketDetails_date_label">Data &amp; Hora</string>
+    <string name="ticketDetails_location_label">Localização</string>
+
+    <!-- Change Password Screen -->
+    <string name="changePassword_heading">Alterar Palavra-passe</string>
+    <string name="changePassword_subtitle">Para alterar a palavra-passe, deves primeiro escrever a tua palavra-passe atual e depois escrever a nova duas vezes.</string>
+    <string name="changePassword_current_label">Palavra-passe Atual</string>
+    <string name="changePassword_new_label">Nova Palavra-passe</string>
+    <string name="changePassword_confirm_label">Confirmar Nova Palavra-passe</string>
+    <string name="changePassword_button">Alterar Palavra-passe</string>
+
+    <!-- Edit Profile Screen -->
+    <string name="editProfile_heading">Editar Perfil</string>
+    <string name="editProfile_subtitle">Aqui podes editar o teu nome de utilizador, estilo de jogo e desporto preferido. Também podes eliminar a tua conta.</string>
+    <string name="editProfile_username_label">Alterar Nome de Utilizador</string>
+    <string name="editProfile_username_placeholder">Nome de utilizador</string>
+    <string name="editProfile_play_style_label">Alterar Estilo de Jogo</string>
+    <string name="editProfile_sport_label">Alterar Desporto Preferido</string>
+    <string name="editProfile_delete">Eliminar Conta</string>
+    <string name="editProfile_save">Guardar Alterações</string>
+    <string name="editProfile_back">← Voltar ao Perfil</string>
+
+    <!-- Profile Screen — Admin -->
+    <string name="profile_admin_create_account">Criar\nnova Conta</string>
+    <string name="profile_admin_manage_accounts">Gerir Contas</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Perfil</string>
+    <string name="profile_logout">Sair</string>
+    <string name="profile_stat_matches">JOGOS</string>
+    <string name="profile_stat_wins">VITÓRIAS</string>
+    <string name="profile_stat_goals">GOLOS</string>
+    <string name="profile_stat_teams">EQUIPAS</string>
+    <string name="profile_action_edit">Editar Perfil</string>
+    <string name="profile_action_change_password">Alterar Palavra-passe</string>
+
+    <!-- PlayStyleIntensityCard Component -->
+    <string name="playStyle_title">Intensidade de Jogo</string>
+    <string name="play_style_low_label">Baixa Intensidade</string>
+    <string name="play_style_low_desc">Preferes jogos relaxados com baixa exigência física. Ideal para jogar de forma casual e divertida.</string>
+    <string name="play_style_medium_label">Intensidade Média</string>
+    <string name="play_style_medium_desc">Gostas de um equilíbrio entre esforço e diversão. Competitivo mas sem exagerar.</string>
+    <string name="play_style_high_label">Alta Intensidade</string>
+    <string name="play_style_high_desc">Preferes jogos com dificuldade competitiva e elevado esforço físico.</string>
+
+    <!-- SettingsDialog Component — Admin -->
+    <string name="settings_view_mode">Modo de Vista</string>
+    <string name="settings_view_normal">Usr</string>
+    <string name="settings_view_admin">Adm</string>
 
     <!-- SettingsDialog Component -->
     <string name="settings_title">DEFINIÇÕES</string>

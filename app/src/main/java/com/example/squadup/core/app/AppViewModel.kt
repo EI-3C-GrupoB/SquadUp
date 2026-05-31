@@ -26,4 +26,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun onDarkModeChange(isDarkMode: Boolean) {
         _uiState.value = _uiState.value.copy(isDarkMode = isDarkMode)
     }
+
+    fun onAdminViewChange(isAdminView: Boolean) {
+        _uiState.value = _uiState.value.copy(isAdminView = isAdminView)
+    }
 }

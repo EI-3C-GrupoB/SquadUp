@@ -14,6 +14,12 @@ import com.example.squadup.features.onboarding.OnboardingRoute
 import com.example.squadup.features.onboarding.OnboardingViewModel
 import com.example.squadup.features.onboarding.OnboardingViewModelFactory
 import com.example.squadup.features.home.HomeRoute
+import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
+import com.example.squadup.features.profile.changepassword.ChangePasswordRoute
+import com.example.squadup.features.profile.tickets.MyTicketsRoute
+import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
+import com.example.squadup.features.profile.edit.EditProfileRoute
+import com.example.squadup.features.profile.ProfileRoute
 
 @Composable
 fun AppNavigation() {
@@ -129,7 +135,7 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.Profile.route) {
-            HomeRoute(
+            ProfileRoute(
                 selectedRoute = AppRoutes.Profile.route,
                 onNavItemClick = { route ->
                     navController.navigate(route) {
@@ -138,13 +144,114 @@ fun AppNavigation() {
                         restoreState = true
                     }
                 },
-                onNotificationsClick = {},
-                onViewMatchDetailsClick = {},
-                onSeeAllEventsClick = {},
-                onJoinEventClick = {},
-                onEventDetailsClick = {},
-                onLoginClick = {},
-                onRegisterClick = {},
+                onTicketsClick = {
+                    navController.navigate(AppRoutes.MyTickets.route)
+                },
+                onMyEventsClick = {},
+                onManageAccountsClick = {
+                    navController.navigate(AppRoutes.ManageAccounts.route)
+                },
+                onEditProfileClick = {
+                    navController.navigate(AppRoutes.EditProfile.route)
+                },
+                onChangePasswordClick = {
+                    navController.navigate(AppRoutes.ChangePassword.route)
+                },
+                onLogoutClick = {},
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.EditProfile.route) {
+            EditProfileRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onSaveChangesClick = {
+                    navController.popBackStack()
+                },
+                onDeleteAccountClick = {},
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                appViewModel = appViewModel
+            )
+        }
+        composable(AppRoutes.MyTickets.route) {
+            MyTicketsRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                onViewDetailsClick = {
+                    navController.navigate(AppRoutes.TicketDetails.route)
+                },
+                onReferClick = {},
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.TicketDetails.route) {
+            TicketDetailsRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                onAddToCalendarClick = {},
+                onShareTicketClick = {},
+                onSupportClick = {},
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.ManageAccounts.route) {
+            ManageAccountsRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                onPreviousClick = {},
+                onNextClick = {},
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.ChangePassword.route) {
+            ChangePasswordRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onChangePasswordClick = {
+                    navController.popBackStack()
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                },
                 appViewModel = appViewModel
             )
         }

@@ -48,7 +48,7 @@ fun OrganizerEventCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(90.dp)
-                    .background(sportType.toCardColor())
+                    .background(sportType.color)
             ) {
                 Text(
                     text = status.toLabel(context),

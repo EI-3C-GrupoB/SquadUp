@@ -48,7 +48,7 @@ fun NearbyEventCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(112.dp)
-                    .background(sportType.toCardColor(), RoundedCornerShape(8.dp)),
+                    .background(sportType.color, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
