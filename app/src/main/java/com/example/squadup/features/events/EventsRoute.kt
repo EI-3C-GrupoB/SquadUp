@@ -1,4 +1,4 @@
-package com.example.squadup.features.admin.createuser
+package com.example.squadup.features.events
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,27 +7,31 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.squadup.core.app.AppViewModel
 
 @Composable
-fun CreateUserRoute(
+fun EventsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
-    onBackClick: () -> Unit,
-    onCreateClick: () -> Unit,
+    onEventClick: (String) -> Unit,
+    onViewCalendarClick: () -> Unit,
+    onFilterByMyTeamsClick: () -> Unit,
+    onMapClick: () -> Unit,
+    onCreateEventClick: () -> Unit,
     appViewModel: AppViewModel,
-    viewModel: CreateUserViewModel = viewModel()
+    viewModel: EventsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    CreateUserScreen(
+    EventsScreen(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
-        onBackClick = onBackClick,
-        onEmailChange = viewModel::onEmailChange,
-        onUsernameChange = viewModel::onUsernameChange,
-        onPasswordChange = viewModel::onPasswordChange,
-        onRoleChange = viewModel::onRoleChange,
-        onCreateClick = onCreateClick,
+        onSearchQueryChange = viewModel::onSearchQueryChange,
+        onSportFilterChange = viewModel::onSportFilterChange,
+        onEventClick = onEventClick,
+        onViewCalendarClick = onViewCalendarClick,
+        onFilterByMyTeamsClick = onFilterByMyTeamsClick,
+        onMapClick = onMapClick,
+        onCreateEventClick = onCreateEventClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         onAdminViewChange = { appViewModel.onAdminViewChange(it) },

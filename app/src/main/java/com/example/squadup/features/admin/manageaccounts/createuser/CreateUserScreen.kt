@@ -1,4 +1,4 @@
-package com.example.squadup.features.admin.createuser
+package com.example.squadup.features.admin.manageaccounts.createuser
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

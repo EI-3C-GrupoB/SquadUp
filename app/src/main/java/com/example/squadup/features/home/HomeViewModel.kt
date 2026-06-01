@@ -26,7 +26,7 @@ class HomeViewModel : ViewModel() {
             distance = "2.4km",
             intensity = 0.65f,
             sportType = SportType.PADDLE,
-            status = EventStatus.ONGOING
+            status = EventStatus.REGISTRATION_OPEN
         ),
         HomeEvent(
             id = "2",

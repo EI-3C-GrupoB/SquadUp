@@ -1,0 +1,52 @@
+package com.example.squadup.features.organizer.createevent
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.squadup.core.app.AppViewModel
+
+@Composable
+fun CreateEventRoute(
+    onBackClick: () -> Unit,
+    onEventCreated: () -> Unit,
+    appViewModel: AppViewModel,
+    viewModel: CreateEventViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
+
+    CreateEventScreen(
+        uiState = uiState,
+        onBackClick = onBackClick,
+        onNextStep = viewModel::onNextStep,
+        onPreviousStep = viewModel::onPreviousStep,
+        onGoToStep = viewModel::onGoToStep,
+        onEventNameChange = viewModel::onEventNameChange,
+        onPrivacyChange = viewModel::onPrivacyChange,
+        onSportSelect = viewModel::onSportSelect,
+        formatOptions = viewModel.formatsFor(uiState.selectedSport),
+        onFormatChange = viewModel::onFormatChange,
+        onMaxTeamsChange = viewModel::onMaxTeamsChange,
+        onGeneralRulesChange = viewModel::onGeneralRulesChange,
+        onPublicEventToggle = viewModel::onPublicEventToggle,
+        onEntryFeeChange = viewModel::onEntryFeeChange,
+        onVenueChange = viewModel::onVenueChange,
+        onEventDateChange = viewModel::onEventDateChange,
+        onStartTimeChange = viewModel::onStartTimeChange,
+        onEndTimeChange = viewModel::onEndTimeChange,
+        onRecurringToggle = viewModel::onRecurringToggle,
+        onShowRecurrenceDialog = viewModel::onShowRecurrenceDialog,
+        onRecurrenceTypeChange = viewModel::onRecurrenceTypeChange,
+        onRecurringDayToggle = viewModel::onRecurringDayToggle,
+        onTeamNotifyToggle = viewModel::onTeamNotifyToggle,
+        onCreateEvent = onEventCreated,
+        isAdmin = appUiState.isAdmin,
+        isAdminView = appUiState.isAdminView,
+        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        selectedLanguage = appUiState.selectedLanguage,
+        isDarkMode = appUiState.isDarkMode,
+        onLanguageChange = { appViewModel.onLanguageChange(it) },
+        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+    )
+}

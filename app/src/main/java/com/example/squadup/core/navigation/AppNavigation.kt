@@ -13,10 +13,13 @@ import com.example.squadup.features.onboarding.OnboardingPreferences
 import com.example.squadup.features.onboarding.OnboardingRoute
 import com.example.squadup.features.onboarding.OnboardingViewModel
 import com.example.squadup.features.onboarding.OnboardingViewModelFactory
+import com.example.squadup.features.events.EventsRoute
+import com.example.squadup.features.organizer.createevent.CreateEventRoute
 import com.example.squadup.features.home.HomeRoute
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.squadup.features.admin.createuser.CreateUserRoute
+import com.example.squadup.features.admin.manageaccounts.createuser.CreateUserRoute
+import com.example.squadup.features.organizer.myevents.MyEventsRoute
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
 import com.example.squadup.features.profile.changepassword.ChangePasswordRoute
@@ -78,7 +81,7 @@ fun AppNavigation() {
                     // TODO: navegar para Detalhe do Jogo
                 },
                 onSeeAllEventsClick = {
-                    // TODO: navegar para Eventos
+                    navController.navigate(AppRoutes.MyEvents.route)
                 },
                 onJoinEventClick = { eventId ->
                     // TODO: navegar para Detalhe do Evento
@@ -97,7 +100,7 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.Events.route) {
-            HomeRoute(
+            EventsRoute(
                 selectedRoute = AppRoutes.Events.route,
                 onNavItemClick = { route ->
                     navController.navigate(route) {
@@ -106,13 +109,13 @@ fun AppNavigation() {
                         restoreState = true
                     }
                 },
-                onNotificationsClick = {},
-                onViewMatchDetailsClick = {},
-                onSeeAllEventsClick = {},
-                onJoinEventClick = {},
-                onEventDetailsClick = {},
-                onLoginClick = {},
-                onRegisterClick = {},
+                onEventClick = {},
+                onViewCalendarClick = {},
+                onFilterByMyTeamsClick = {},
+                onMapClick = {},
+                onCreateEventClick = {
+                    navController.navigate(AppRoutes.CreateEvent.route)
+                },
                 appViewModel = appViewModel
             )
         }
@@ -151,7 +154,9 @@ fun AppNavigation() {
                 onTicketsClick = {
                     navController.navigate(AppRoutes.MyTickets.route)
                 },
-                onMyEventsClick = {},
+                onMyEventsClick = {
+                    navController.navigate(AppRoutes.MyEvents.route)
+                },
                 onManageAccountsClick = {
                     navController.navigate(AppRoutes.ManageAccounts.route)
                 },
@@ -242,6 +247,34 @@ fun AppNavigation() {
                 onBackClick = { navController.popBackStack() },
                 onPreviousClick = {},
                 onNextClick = {},
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.CreateEvent.route) {
+            CreateEventRoute(
+                onBackClick = { navController.popBackStack() },
+                onEventCreated = { navController.popBackStack() },
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.MyEvents.route) {
+            MyEventsRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                onManageEventClick = {},
+                onViewResultsClick = {},
+                onCreateEventClick = {
+                    navController.navigate(AppRoutes.CreateEvent.route)
+                },
                 appViewModel = appViewModel
             )
         }

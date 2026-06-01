@@ -130,6 +130,84 @@
     <string name="role_organizer">ORGANIZER</string>
     <string name="role_player_organizer">PLAYER &amp; ORGANIZER</string>
 
+    <!-- Create Event Flow -->
+    <string name="createEvent_step1_title">Create Event (1 of 3)</string>
+    <string name="createEvent_step2_title">Create Event (2 of 3)</string>
+    <string name="createEvent_step3_title">Create Event (3 of 3)</string>
+    <string name="createEvent_review_title">Event Review</string>
+    <string name="createEvent_step1_subtitle">Getting Started</string>
+    <string name="createEvent_step1_heading">Basic Details</string>
+    <string name="createEvent_step2_heading">Format &amp; Players</string>
+    <string name="createEvent_step3_heading">Location</string>
+    <string name="createEvent_event_name_label">EVENT NAME</string>
+    <string name="createEvent_event_name_placeholder">e.g., Saturday Night Showdown</string>
+    <string name="createEvent_privacy_label">PRIVACY LEVEL</string>
+    <string name="createEvent_privacy_public">Public</string>
+    <string name="createEvent_privacy_private">Private</string>
+    <string name="createEvent_sports_label">SELECT SPORT</string>
+    <string name="createEvent_next_step">Next Step →</string>
+    <string name="createEvent_format_label">Format</string>
+    <string name="createEvent_max_teams_label">Max Teams</string>
+    <string name="createEvent_max_teams_hint">Recommended: %1$d players + %2$d subs</string>
+    <string name="createEvent_rules_label">General Rules</string>
+    <string name="createEvent_rules_placeholder">Describe eligibility, equipment requirements, and tournament format…</string>
+    <string name="createEvent_rules_counter">%1$d/2000</string>
+    <string name="createEvent_entry_privacy_label">Entry &amp; Privacy</string>
+    <string name="createEvent_public_event">Public Event</string>
+    <string name="createEvent_entry_fee_label">Entry Fee</string>
+    <string name="createEvent_select_on_map">Select on Map</string>
+    <string name="createEvent_schedule_label">Schedule</string>
+    <string name="createEvent_event_date_label">EVENT DATE</string>
+    <string name="createEvent_start_time_label">START TIME</string>
+    <string name="createEvent_end_time_label">END TIME</string>
+    <string name="createEvent_recurring_label">Recurring Event</string>
+    <string name="createEvent_recurring_subtitle">Repeat weekly</string>
+    <string name="createEvent_review_event">Review Event →</string>
+    <string name="createEvent_recurrence_title">Edit Recurrence</string>
+    <string name="createEvent_recurrence_daily">Daily</string>
+    <string name="createEvent_recurrence_weekly">Weekly</string>
+    <string name="createEvent_recurrence_monthly">Monthly</string>
+    <string name="createEvent_recurrence_save">Save Changes</string>
+    <string name="createEvent_recurrence_cancel">Cancel</string>
+    <string name="createEvent_review_cover_label">Event Cover</string>
+    <string name="createEvent_review_add_cover">Add Cover Image</string>
+    <string name="createEvent_review_summary_label">Summary Review</string>
+    <string name="createEvent_review_edit_steps">Edit Steps</string>
+    <string name="createEvent_review_branding_label">EVENT BRANDING</string>
+    <string name="createEvent_review_date_label">DATE &amp; TIME</string>
+    <string name="createEvent_review_venue_label">VENUE</string>
+    <string name="createEvent_review_format_label">FORMAT &amp; CAPACITY</string>
+    <string name="createEvent_notify_teams_label">Notify my Teams</string>
+    <string name="createEvent_notify_teams_subtitle">Selected teams will receive automatic invites</string>
+    <string name="createEvent_create_button">Create Event 🚀</string>
+
+    <!-- Events Screen -->
+    <string name="events_title">Explore Events</string>
+    <string name="events_search_placeholder">Search sports, teams, or venues…</string>
+    <string name="events_filter_all">All Events</string>
+    <string name="events_featured_badge">FEATURED</string>
+    <string name="events_upcoming">Upcoming</string>
+    <string name="events_view_calendar">View Calendar</string>
+    <string name="events_filter_my_teams">Filter by My Teams</string>
+    <string name="events_join">Join</string>
+    <string name="events_register">Register</string>
+    <string name="events_free">Free</string>
+
+    <!-- My Events Screen -->
+    <string name="myEvents_title">My Events</string>
+    <string name="myEvents_search_placeholder">Search events…</string>
+    <string name="myEvents_filter_all">All</string>
+    <string name="myEvents_filter_active">Active</string>
+    <string name="myEvents_filter_completed">Completed</string>
+    <string name="myEvents_teams_label">TEAMS</string>
+    <string name="myEvents_date_label">DATE</string>
+    <string name="myEvents_venue_label">VENUE</string>
+    <string name="myEvents_manage">Manage →</string>
+    <string name="myEvents_live">Live →</string>
+    <string name="myEvents_view_results">View Results</string>
+    <string name="myEvents_matches_in_progress">%1$d matches in progress</string>
+    <string name="myEvents_players">%1$d Players</string>
+
     <!-- Create User Screen -->
     <string name="createUser_title">Create Account</string>
     <string name="createUser_heading">Create new account</string>

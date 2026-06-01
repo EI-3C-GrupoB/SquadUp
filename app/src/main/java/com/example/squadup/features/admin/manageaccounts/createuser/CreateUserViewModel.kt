@@ -1,4 +1,4 @@
-package com.example.squadup.features.admin.createuser
+package com.example.squadup.features.admin.manageaccounts.createuser
 
 import androidx.lifecycle.ViewModel
 import com.example.squadup.features.admin.manageaccounts.AccountRole

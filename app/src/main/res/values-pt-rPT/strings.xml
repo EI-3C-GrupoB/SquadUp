@@ -129,6 +129,84 @@
     <string name="role_organizer">ORGANIZADOR</string>
     <string name="role_player_organizer">JOGADOR &amp; ORGANIZADOR</string>
 
+    <!-- Create Event Flow -->
+    <string name="createEvent_step1_title">Criar Evento (1 de 3)</string>
+    <string name="createEvent_step2_title">Criar Evento (2 de 3)</string>
+    <string name="createEvent_step3_title">Criar Evento (3 de 3)</string>
+    <string name="createEvent_review_title">Revisão do Evento</string>
+    <string name="createEvent_step1_subtitle">A Começar</string>
+    <string name="createEvent_step1_heading">Detalhes Básicos</string>
+    <string name="createEvent_step2_heading">Formato &amp; Jogadores</string>
+    <string name="createEvent_step3_heading">Localização</string>
+    <string name="createEvent_event_name_label">NOME DO EVENTO</string>
+    <string name="createEvent_event_name_placeholder">ex: Noite de Sábado</string>
+    <string name="createEvent_privacy_label">NÍVEL DE PRIVACIDADE</string>
+    <string name="createEvent_privacy_public">Público</string>
+    <string name="createEvent_privacy_private">Privado</string>
+    <string name="createEvent_sports_label">SELECIONAR DESPORTO</string>
+    <string name="createEvent_next_step">Próximo Passo →</string>
+    <string name="createEvent_format_label">Formato</string>
+    <string name="createEvent_max_teams_label">Máx. Equipas</string>
+    <string name="createEvent_max_teams_hint">Recomendado: %1$d jogadores + %2$d suplentes</string>
+    <string name="createEvent_rules_label">Regras Gerais</string>
+    <string name="createEvent_rules_placeholder">Descreve os requisitos de elegibilidade, equipamento e formato do torneio…</string>
+    <string name="createEvent_rules_counter">%1$d/2000</string>
+    <string name="createEvent_entry_privacy_label">Entrada &amp; Privacidade</string>
+    <string name="createEvent_public_event">Evento Público</string>
+    <string name="createEvent_entry_fee_label">Taxa de Entrada</string>
+    <string name="createEvent_select_on_map">Selecionar no Mapa</string>
+    <string name="createEvent_schedule_label">Horário</string>
+    <string name="createEvent_event_date_label">DATA DO EVENTO</string>
+    <string name="createEvent_start_time_label">HORA DE INÍCIO</string>
+    <string name="createEvent_end_time_label">HORA DE FIM</string>
+    <string name="createEvent_recurring_label">Evento Recorrente</string>
+    <string name="createEvent_recurring_subtitle">Repetir semanalmente</string>
+    <string name="createEvent_review_event">Rever Evento →</string>
+    <string name="createEvent_recurrence_title">Editar Recorrência</string>
+    <string name="createEvent_recurrence_daily">Diário</string>
+    <string name="createEvent_recurrence_weekly">Semanal</string>
+    <string name="createEvent_recurrence_monthly">Mensal</string>
+    <string name="createEvent_recurrence_save">Guardar Alterações</string>
+    <string name="createEvent_recurrence_cancel">Cancelar</string>
+    <string name="createEvent_review_cover_label">Capa do Evento</string>
+    <string name="createEvent_review_add_cover">Adicionar Imagem de Capa</string>
+    <string name="createEvent_review_summary_label">Revisão do Resumo</string>
+    <string name="createEvent_review_edit_steps">Editar Passos</string>
+    <string name="createEvent_review_branding_label">IDENTIDADE DO EVENTO</string>
+    <string name="createEvent_review_date_label">DATA &amp; HORA</string>
+    <string name="createEvent_review_venue_label">LOCAL</string>
+    <string name="createEvent_review_format_label">FORMATO &amp; CAPACIDADE</string>
+    <string name="createEvent_notify_teams_label">Notificar as Minhas Equipas</string>
+    <string name="createEvent_notify_teams_subtitle">As equipas selecionadas receberão convites automáticos</string>
+    <string name="createEvent_create_button">Criar Evento 🚀</string>
+
+    <!-- Events Screen -->
+    <string name="events_title">Explorar Eventos</string>
+    <string name="events_search_placeholder">Pesquisar desportos, equipas ou locais…</string>
+    <string name="events_filter_all">Todos os Eventos</string>
+    <string name="events_featured_badge">DESTAQUE</string>
+    <string name="events_upcoming">Próximos</string>
+    <string name="events_view_calendar">Ver Calendário</string>
+    <string name="events_filter_my_teams">Filtrar pelas Minhas Equipas</string>
+    <string name="events_join">Participar</string>
+    <string name="events_register">Inscrever</string>
+    <string name="events_free">Grátis</string>
+
+    <!-- My Events Screen -->
+    <string name="myEvents_title">Os Meus Eventos</string>
+    <string name="myEvents_search_placeholder">Pesquisar eventos…</string>
+    <string name="myEvents_filter_all">Todos</string>
+    <string name="myEvents_filter_active">Ativos</string>
+    <string name="myEvents_filter_completed">Concluídos</string>
+    <string name="myEvents_teams_label">EQUIPAS</string>
+    <string name="myEvents_date_label">DATA</string>
+    <string name="myEvents_venue_label">LOCAL</string>
+    <string name="myEvents_manage">Gerir →</string>
+    <string name="myEvents_live">Ao Vivo →</string>
+    <string name="myEvents_view_results">Ver Resultados</string>
+    <string name="myEvents_matches_in_progress">%1$d jogos em curso</string>
+    <string name="myEvents_players">%1$d Jogadores</string>
+
     <!-- Create User Screen -->
     <string name="createUser_title">Criar Conta</string>
     <string name="createUser_heading">Criar nova conta</string>
