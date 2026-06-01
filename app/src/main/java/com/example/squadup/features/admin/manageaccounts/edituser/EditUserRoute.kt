@@ -1,4 +1,4 @@
-package com.example.squadup.features.admin.manageaccounts
+package com.example.squadup.features.admin.manageaccounts.edituser
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,36 +7,28 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.squadup.core.app.AppViewModel
 
 @Composable
-fun ManageAccountsRoute(
+fun EditUserRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    onUserClick: (String) -> Unit,
-    onCreateUserClick: () -> Unit,
-    onPreviousClick: () -> Unit,
-    onNextClick: () -> Unit,
+    onSendMessageClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     appViewModel: AppViewModel,
-    viewModel: ManageAccountsViewModel = viewModel()
+    viewModel: EditUserViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    ManageAccountsScreen(
+    EditUserScreen(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         onBackClick = onBackClick,
-        onUserClick = onUserClick,
-        onCreateUserClick = onCreateUserClick,
-        onSearchQueryChange = viewModel::onSearchQueryChange,
-        onFilterClick = viewModel::onFilterDialogOpen,
-        onTogglePendingRole = viewModel::onTogglePendingRole,
-        onApplyFilter = viewModel::onApplyFilter,
-        onFilterDismiss = viewModel::onFilterDialogDismiss,
-        onSortByName = viewModel::onSortByName,
-        onSortByRole = viewModel::onSortByRole,
-        onPreviousClick = onPreviousClick,
-        onNextClick = onNextClick,
+        onRoleChange = viewModel::onRoleChange,
+        onSendMessageClick = onSendMessageClick,
+        onToggleSuspend = viewModel::onToggleSuspend,
+        onDeleteClick = onDeleteClick,
+        onSaveClick = onBackClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         onAdminViewChange = { appViewModel.onAdminViewChange(it) },

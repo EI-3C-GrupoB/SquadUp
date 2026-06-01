@@ -2,26 +2,33 @@ package com.example.squadup.features.admin.manageaccounts
 
 enum class AccountRole { Admin, Organizer, Player }
 
+enum class SortOrder { NameAZ, NameZA, RoleAZ, RoleZA }
+
 data class ManageAccountsUiState(
     val searchQuery: String = "",
     val users: List<ManageAccountItem> = emptyList(),
-    val selectedRoleFilter: AccountRole? = null,
-    val pendingRoleFilter: AccountRole? = null,
+    val selectedRoleFilters: Set<AccountRole> = emptySet(),
+    val pendingRoleFilters: Set<AccountRole> = emptySet(),
     val showFilterDialog: Boolean = false,
-    val sortAscending: Boolean = true,
+    val currentSortOrder: SortOrder = SortOrder.RoleAZ,
     val totalUsers: Int = 24512
 ) {
     val filteredUsers: List<ManageAccountItem>
         get() {
             val filtered = users
-                .filter { selectedRoleFilter == null || it.role == selectedRoleFilter }
+                .filter { selectedRoleFilters.isEmpty() || it.role in selectedRoleFilters }
                 .filter {
                     searchQuery.isBlank() ||
                     it.name.contains(searchQuery, ignoreCase = true) ||
                     it.email.contains(searchQuery, ignoreCase = true)
                 }
-            return if (sortAscending) filtered.sortedBy { it.name }
-                   else filtered.sortedByDescending { it.name }
+            
+            return when (currentSortOrder) {
+                SortOrder.NameAZ -> filtered.sortedBy { it.name }
+                SortOrder.NameZA -> filtered.sortedByDescending { it.name }
+                SortOrder.RoleAZ -> filtered.sortedBy { it.role.name }
+                SortOrder.RoleZA -> filtered.sortedByDescending { it.role.name }
+            }
         }
 }
 

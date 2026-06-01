@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class ManageAccountsViewModel : ViewModel() {
 
@@ -15,49 +16,69 @@ class ManageAccountsViewModel : ViewModel() {
     }
 
     private fun loadStaticData() {
-        _uiState.value = ManageAccountsUiState(
-            totalUsers = 24512,
-            users = listOf(
-                ManageAccountItem("1", "JD", "James D.", "james@squadup.com", AccountRole.Player),
-                ManageAccountItem("2", "SK", "Sarah K.", "sarah.k@club.org", AccountRole.Organizer),
-                ManageAccountItem("3", "ML", "Marcus L.", "ml@proleague.com", AccountRole.Player),
-                ManageAccountItem("4", "AR", "Ana R.", "ana.r@admin.com", AccountRole.Admin),
-                ManageAccountItem("5", "TC", "Tom C.", "tom.c@club.org", AccountRole.Organizer),
-                ManageAccountItem("6", "BW", "Ben W.", "ben.w@league.com", AccountRole.Player),
-                ManageAccountItem("7", "LM", "Lisa M.", "lisa.m@squad.com", AccountRole.Player),
-                ManageAccountItem("8", "PF", "Pedro F.", "pedro.f@admin.com", AccountRole.Admin),
-                ManageAccountItem("9", "KJ", "Kim J.", "kim.j@teams.com", AccountRole.Player)
+        _uiState.update { 
+            it.copy(
+                totalUsers = 24512,
+                users = listOf(
+                    ManageAccountItem("1", "JD", "James D.", "james@squadup.com", AccountRole.Player),
+                    ManageAccountItem("2", "SK", "Sarah K.", "sarah.k@club.org", AccountRole.Organizer),
+                    ManageAccountItem("3", "ML", "Marcus L.", "ml@proleague.com", AccountRole.Player),
+                    ManageAccountItem("4", "AR", "Ana R.", "ana.r@admin.com", AccountRole.Admin),
+                    ManageAccountItem("5", "TC", "Tom C.", "tom.c@club.org", AccountRole.Organizer),
+                    ManageAccountItem("6", "BW", "Ben W.", "ben.w@league.com", AccountRole.Player),
+                    ManageAccountItem("7", "LM", "Lisa M.", "lisa.m@squad.com", AccountRole.Player),
+                    ManageAccountItem("8", "PF", "Pedro F.", "pedro.f@admin.com", AccountRole.Admin),
+                    ManageAccountItem("9", "KJ", "Kim J.", "kim.j@teams.com", AccountRole.Player)
+                )
             )
-        )
+        }
     }
 
     fun onSearchQueryChange(query: String) {
-        _uiState.value = _uiState.value.copy(searchQuery = query)
+        _uiState.update { it.copy(searchQuery = query) }
     }
 
-    fun onToggleSort() {
-        _uiState.value = _uiState.value.copy(sortAscending = !_uiState.value.sortAscending)
+    fun onSortByName() {
+        _uiState.update { 
+            val newSort = if (it.currentSortOrder == SortOrder.NameAZ) SortOrder.NameZA else SortOrder.NameAZ
+            it.copy(currentSortOrder = newSort)
+        }
+    }
+
+    fun onSortByRole() {
+        _uiState.update { 
+            val newSort = if (it.currentSortOrder == SortOrder.RoleAZ) SortOrder.RoleZA else SortOrder.RoleAZ
+            it.copy(currentSortOrder = newSort)
+        }
     }
 
     fun onFilterDialogOpen() {
-        _uiState.value = _uiState.value.copy(
-            pendingRoleFilter = _uiState.value.selectedRoleFilter,
-            showFilterDialog = true
-        )
+        _uiState.update { 
+            it.copy(
+                pendingRoleFilters = it.selectedRoleFilters,
+                showFilterDialog = true
+            )
+        }
     }
 
     fun onFilterDialogDismiss() {
-        _uiState.value = _uiState.value.copy(showFilterDialog = false)
+        _uiState.update { it.copy(showFilterDialog = false) }
     }
 
-    fun onPendingRoleChange(role: AccountRole?) {
-        _uiState.value = _uiState.value.copy(pendingRoleFilter = role)
+    fun onTogglePendingRole(role: AccountRole) {
+        _uiState.update { state ->
+            val current = state.pendingRoleFilters
+            val updated = if (role in current) current - role else current + role
+            state.copy(pendingRoleFilters = updated)
+        }
     }
 
     fun onApplyFilter() {
-        _uiState.value = _uiState.value.copy(
-            selectedRoleFilter = _uiState.value.pendingRoleFilter,
-            showFilterDialog = false
-        )
+        _uiState.update { 
+            it.copy(
+                selectedRoleFilters = it.pendingRoleFilters,
+                showFilterDialog = false
+            )
+        }
     }
 }

@@ -129,6 +129,30 @@
     <string name="role_organizer">ORGANIZADOR</string>
     <string name="role_player_organizer">JOGADOR &amp; ORGANIZADOR</string>
 
+    <!-- Create User Screen -->
+    <string name="createUser_title">Criar Conta</string>
+    <string name="createUser_heading">Criar nova conta</string>
+    <string name="createUser_subtitle">Aqui podes criar novas contas. Especificamente, podes criar contas de administrador e organizador.</string>
+    <string name="createUser_email_label">Email</string>
+    <string name="createUser_username_label">Nome de Utilizador</string>
+    <string name="createUser_password_label">Palavra-passe</string>
+    <string name="createUser_account_type_label">Tipo de conta</string>
+    <string name="createUser_button">Criar Conta</string>
+
+    <!-- Edit User Screen -->
+    <string name="editUser_title">Gerir Utilizador</string>
+    <string name="editUser_subtitle">Editar Permissões</string>
+    <string name="editUser_assign_role">ATRIBUIR CARGO</string>
+    <string name="editUser_role_admin_desc">Acesso completo ao sistema</string>
+    <string name="editUser_role_organizer_desc">Gerir jogos e equipas</string>
+    <string name="editUser_role_player_desc">Aceder a equipas e horários</string>
+    <string name="editUser_send_message">Enviar Mensagem</string>
+    <string name="editUser_suspend">Suspender Conta</string>
+    <string name="editUser_reactivate">Reativar Conta</string>
+    <string name="editUser_delete">Eliminar Conta</string>
+    <string name="editUser_cancel">Cancelar</string>
+    <string name="editUser_save">Guardar Alterações</string>
+
     <!-- Manage Accounts Screen -->
     <string name="manageAccounts_title">Gerir Contas</string>
     <string name="manageAccounts_subtitle">Aqui podes gerir todas as contas da plataforma. Podes adicionar, editar e eliminar contas.</string>

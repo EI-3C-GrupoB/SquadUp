@@ -14,7 +14,11 @@ import com.example.squadup.features.onboarding.OnboardingRoute
 import com.example.squadup.features.onboarding.OnboardingViewModel
 import com.example.squadup.features.onboarding.OnboardingViewModelFactory
 import com.example.squadup.features.home.HomeRoute
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.squadup.features.admin.createuser.CreateUserRoute
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
+import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
 import com.example.squadup.features.profile.changepassword.ChangePasswordRoute
 import com.example.squadup.features.profile.tickets.MyTicketsRoute
 import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
@@ -222,6 +226,12 @@ fun AppNavigation() {
         composable(AppRoutes.ManageAccounts.route) {
             ManageAccountsRoute(
                 selectedRoute = AppRoutes.Profile.route,
+                onUserClick = { userId ->
+                    navController.navigate(AppRoutes.EditUser.createRoute(userId))
+                },
+                onCreateUserClick = {
+                    navController.navigate(AppRoutes.CreateUser.route)
+                },
                 onNavItemClick = { route ->
                     navController.navigate(route) {
                         popUpTo(AppRoutes.Home.route) { saveState = true }
@@ -232,6 +242,42 @@ fun AppNavigation() {
                 onBackClick = { navController.popBackStack() },
                 onPreviousClick = {},
                 onNextClick = {},
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.CreateUser.route) {
+            CreateUserRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                onCreateClick = { navController.popBackStack() },
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(
+            route = AppRoutes.EditUser.route,
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) {
+            EditUserRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                onSendMessageClick = {},
+                onDeleteClick = { navController.popBackStack() },
                 appViewModel = appViewModel
             )
         }

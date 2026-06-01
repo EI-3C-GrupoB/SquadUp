@@ -9,6 +9,10 @@ sealed class AppRoutes(val route: String) {
     data object EditProfile      : AppRoutes("edit_profile")
     data object ChangePassword   : AppRoutes("change_password")
     data object ManageAccounts   : AppRoutes("manage_accounts")
+    data object CreateUser       : AppRoutes("create_user")
+    data object EditUser         : AppRoutes("edit_user/{userId}") {
+        fun createRoute(userId: String) = "edit_user/$userId"
+    }
     data object MyTickets        : AppRoutes("my_tickets")
     data object TicketDetails    : AppRoutes("ticket_details/{ticketId}") {
         fun createRoute(ticketId: String) = "ticket_details/$ticketId"
