@@ -54,6 +54,14 @@
     <string name="login_createMgs1">New to the squad?</string>
     <string name="login_createMgs2">Create an Account</string>
 
+    <string name="login_error_empty_email">Enter your email.</string>
+    <string name="login_error_empty_password">Enter your password.</string>
+    <string name="login_error_invalid_credentials">Incorrect email or password.</string>
+    <string name="login_error_email_not_confirmed">Confirm your email before signing in.</string>
+    <string name="login_error_network">Could not connect to the server. Check your Internet connection.</string>
+    <string name="login_error_missing_permission">The app does not have Internet permission.</string>
+    <string name="login_error_generic">Could not sign in. Try again.</string>
+
 
     <!-- Register Screen -->
     <string name="register_login_action">Login</string>
@@ -90,6 +98,20 @@
     <string name="register_terms">Terms\nof Service</string>
     <string name="register_terms_middle"> and </string>
     <string name="register_privacy">Privacy Policy.</string>
+
+    <string name="register_validation_full_name_required">Enter your full name.</string>
+    <string name="register_validation_username_required">Enter your username.</string>
+    <string name="register_validation_email_required">Enter your email.</string>
+    <string name="register_validation_birth_date_required">Enter your date of birth.</string>
+    <string name="register_validation_password_min_length">Password must have at least 6 characters.</string>
+    <string name="register_error_email_already_exists">This email is already registered.</string>
+    <string name="register_error_weak_password">Password is too weak.</string>
+    <string name="register_error_invalid_email">Invalid email address.</string>
+    <string name="register_error_rate_limit">Too many attempts. Try again later.</string>
+    <string name="register_error_network">Network error. Check your connection.</string>
+    <string name="register_error_missing_permission">Missing internet permission.</string>
+    <string name="register_error_generic">Could not create account. Try again.</string>
+    <string name="register_error_auth_user_missing">Account was created, but the authenticated user was not returned.</string>
 
     <!-- Home  Screen -->
     <string name="home_greeting">Hello, %1$s</string>
