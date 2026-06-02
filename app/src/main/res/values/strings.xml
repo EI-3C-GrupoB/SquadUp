@@ -242,7 +242,7 @@
     <string name="manageAccounts_showing">Showing %1$d of %2$s users</string>
     <string name="manageAccounts_previous">Previous</string>
     <string name="manageAccounts_next">Next</string>
-    <string name="manageAccounts_filter_by">F I L T E R   B Y</string>
+    <string name="manageAccounts_filter_by">Filter  By</string>
     <string name="manageAccounts_filter_role">Role</string>
     <string name="manageAccounts_filter_all">All</string>
     <string name="manageAccounts_sort_by">S O R T   B Y</string>
@@ -293,6 +293,10 @@
     <string name="editProfile_heading">Edit Profile</string>
     <string name="editProfile_subtitle">Here you can edit your username, your play style and preferred sport. You can also delete your account.</string>
     <string name="editProfile_username_label">Change Username</string>
+    <string name="editProfile_name_label">Name</string>
+    <string name="editProfile_name_placeholder">Enter your name</string>
+    <string name="editProfile_location_label">Location</string>
+    <string name="editProfile_location_placeholder">Enter your location</string>
     <string name="editProfile_username_placeholder">Username</string>
     <string name="editProfile_play_style_label">Change Play Style</string>
     <string name="editProfile_sport_label">Change Preferred Sport</string>

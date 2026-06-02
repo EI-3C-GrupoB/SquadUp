@@ -292,6 +292,10 @@
     <string name="editProfile_heading">Editar Perfil</string>
     <string name="editProfile_subtitle">Aqui podes editar o teu nome de utilizador, estilo de jogo e desporto preferido. Também podes eliminar a tua conta.</string>
     <string name="editProfile_username_label">Alterar Nome de Utilizador</string>
+    <string name="editProfile_name_label">Nome</string>
+    <string name="editProfile_name_placeholder">Introduz o teu nome</string>
+    <string name="editProfile_location_label">Localização</string>
+    <string name="editProfile_location_placeholder">Introduz a tua localização</string>
     <string name="editProfile_username_placeholder">Nome de utilizador</string>
     <string name="editProfile_play_style_label">Alterar Estilo de Jogo</string>
     <string name="editProfile_sport_label">Alterar Desporto Preferido</string>

@@ -22,6 +22,8 @@ import com.example.squadup.features.admin.manageaccounts.createuser.CreateUserRo
 import com.example.squadup.features.organizer.myevents.MyEventsRoute
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
+import com.example.squadup.features.events.calendar.CalendarRoute
+import com.example.squadup.features.events.moredetails.MoreDetailsRoute
 import com.example.squadup.features.profile.changepassword.ChangePasswordRoute
 import com.example.squadup.features.profile.tickets.MyTicketsRoute
 import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
@@ -188,6 +190,9 @@ fun AppNavigation() {
                 onBackClick = {
                     navController.popBackStack()
                 },
+                onLocationClick = {
+                    navController.navigate(AppRoutes.SelectLocation.route)
+                },
                 appViewModel = appViewModel
             )
         }
@@ -327,6 +332,46 @@ fun AppNavigation() {
                 },
                 onChangePasswordClick = {
                     navController.popBackStack()
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.Calendar.route) {
+            CalendarRoute(
+                selectedRoute = AppRoutes.Events.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onMatchDetailsClick = {
+                    // TODO: navegar para detalhes do jogo
+                },
+                onTravelInfoClick = {
+                    // TODO: navegar para informação de viagem
+                },
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.MoreDetails.route) {
+            MoreDetailsRoute(
+                selectedRoute = AppRoutes.Events.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 onBackClick = {
                     navController.popBackStack()

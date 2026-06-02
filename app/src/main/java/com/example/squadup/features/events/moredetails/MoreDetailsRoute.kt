@@ -1,4 +1,4 @@
-package com.example.squadup.features.profile.edit
+package com.example.squadup.features.events.moredetails
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,34 +7,24 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.squadup.core.app.AppViewModel
 
 @Composable
-fun EditProfileRoute(
+fun MoreDetailsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
-    onSaveChangesClick: () -> Unit,
-    onDeleteAccountClick: () -> Unit,
     onBackClick: () -> Unit,
-    onLocationClick: () -> Unit,
     appViewModel: AppViewModel,
-    viewModel: EditProfileViewModel = viewModel()
+    viewModel: MoreDetailsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    EditProfileScreen(
+    MoreDetailsScreen(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
-        onNameChange = viewModel::onNameChange,
-        onUsernameChange = viewModel::onUsernameChange,
-        onLocationClick = onLocationClick,
-        onPlayStyleChange = viewModel::onPlayStyleChange,
-        onSportToggle = viewModel::onSportToggle,
-        onSaveChangesClick = onSaveChangesClick,
-        onDeleteAccountClick = onDeleteAccountClick,
         onBackClick = onBackClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

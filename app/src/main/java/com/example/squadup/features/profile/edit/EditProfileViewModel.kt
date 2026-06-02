@@ -18,14 +18,27 @@ class EditProfileViewModel : ViewModel() {
 
     private fun loadStaticData() {
         _uiState.value = EditProfileUiState(
-            username = "Alexandre Caçador",
+            name = "Alexandre Caçador",
+            username = "alexandre_cacador",
+            location = "Viana do Castelo",
             selectedPlayStyle = PlayStyle.HIGH,
-            selectedSports = listOf(SportType.SOCCER, SportType.BASKETBALL)
+            selectedSports = listOf(
+                SportType.SOCCER,
+                SportType.BASKETBALL
+            )
         )
+    }
+
+    fun onNameChange(value: String) {
+        _uiState.value = _uiState.value.copy(name = value)
     }
 
     fun onUsernameChange(value: String) {
         _uiState.value = _uiState.value.copy(username = value)
+    }
+
+    fun onLocationChange(value: String) {
+        _uiState.value = _uiState.value.copy(location = value)
     }
 
     fun onPlayStyleChange(playStyle: PlayStyle) {
@@ -34,8 +47,13 @@ class EditProfileViewModel : ViewModel() {
 
     fun onSportToggle(sport: SportType) {
         val current = _uiState.value.selectedSports
+
         _uiState.value = _uiState.value.copy(
-            selectedSports = if (sport in current) current - sport else current + sport
+            selectedSports = if (sport in current) {
+                current - sport
+            } else {
+                current + sport
+            }
         )
     }
 }
