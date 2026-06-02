@@ -1,4 +1,4 @@
-package com.example.squadup.features.organizer.createevent
+package com.example.squadup.features.events.createevent
 
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.enums.UserRole

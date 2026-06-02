@@ -1,4 +1,4 @@
-package com.example.squadup.features.organizer.myevents
+package com.example.squadup.features.profile.myevents
 
 import com.example.squadup.core.enums.EventStatus
 import com.example.squadup.core.enums.SportType

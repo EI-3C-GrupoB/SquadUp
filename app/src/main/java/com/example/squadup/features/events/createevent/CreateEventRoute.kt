@@ -1,4 +1,4 @@
-package com.example.squadup.features.organizer.createevent
+package com.example.squadup.features.events.createevent
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

@@ -14,12 +14,12 @@ import com.example.squadup.features.onboarding.OnboardingRoute
 import com.example.squadup.features.onboarding.OnboardingViewModel
 import com.example.squadup.features.onboarding.OnboardingViewModelFactory
 import com.example.squadup.features.events.EventsRoute
-import com.example.squadup.features.organizer.createevent.CreateEventRoute
+import com.example.squadup.features.events.createevent.CreateEventRoute
 import com.example.squadup.features.home.HomeRoute
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.squadup.features.admin.manageaccounts.createuser.CreateUserRoute
-import com.example.squadup.features.organizer.myevents.MyEventsRoute
+import com.example.squadup.features.profile.myevents.MyEventsRoute
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
 import com.example.squadup.features.events.calendar.CalendarRoute

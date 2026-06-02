@@ -1,7 +1,7 @@
-package com.example.squadup.features.organizer.createevent
+package com.example.squadup.features.events.createevent
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -26,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import com.example.squadup.R
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
@@ -275,7 +276,7 @@ private fun BasicInfoStep(
         SectionLabel(stringResource(R.string.createEvent_sports_label))
         Spacer(modifier = Modifier.height(10.dp))
 
-        @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+        @OptIn(ExperimentalLayoutApi::class)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SportType.entries.forEach { sport ->
                 val selected = uiState.selectedSport == sport
@@ -378,7 +379,7 @@ private fun FormatPlayersStep(
             modifier = Modifier.fillMaxWidth(),
             color = Color.White,
             shape = RoundedCornerShape(10.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, SquadGrayLight)
+            border = BorderStroke(1.dp, SquadGrayLight)
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 Text(
@@ -392,7 +393,7 @@ private fun FormatPlayersStep(
                     value = uiState.generalRules,
                     onValueChange = onGeneralRulesChange,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
-                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp, color = SquadTextPrimary),
+                    textStyle = TextStyle(fontSize = 14.sp, color = SquadTextPrimary),
                     decorationBox = { innerTextField ->
                         Box {
                             if (uiState.generalRules.isEmpty()) {
@@ -493,7 +494,7 @@ private fun LocationTimeStep(
             onClick = {},
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, SquadGray),
+            border = BorderStroke(1.dp, SquadGray),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = SquadTextPrimary)
         ) {
             Icon(Icons.Outlined.Map, null, modifier = Modifier.size(18.dp))
@@ -731,7 +732,7 @@ private fun ReviewStep(
                 modifier = Modifier.fillMaxWidth(),
                 color = Color(0xFFF8F8F8),
                 shape = RoundedCornerShape(10.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SquadGrayLight)
+                border = BorderStroke(1.dp, SquadGrayLight)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
@@ -907,7 +908,7 @@ private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun PrivacyButton(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -916,7 +917,7 @@ private fun PrivacyButton(
         modifier = modifier.clickable(onClick = onClick),
         color = if (selected) SquadOrangeLight else Color.White,
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             width = if (selected) 1.5.dp else 1.dp,
             color = if (selected) SquadOrange else SquadGrayLight
         )
@@ -936,7 +937,7 @@ private fun PrivacyButton(
 @Composable
 private fun SportChip(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit
 ) {
@@ -944,7 +945,7 @@ private fun SportChip(
         onClick = onClick,
         color = if (selected) SquadOrange else Color.White,
         shape = RoundedCornerShape(999.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) SquadOrange else SquadGray)
+        border = BorderStroke(1.dp, if (selected) SquadOrange else SquadGray)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
@@ -966,7 +967,7 @@ private fun ReviewCard(
         modifier = modifier.fillMaxWidth(),
         color = Color(0xFFF8F8F8),
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SquadGrayLight)
+        border = BorderStroke(1.dp, SquadGrayLight)
     ) {
         Column(modifier = Modifier.padding(14.dp), content = content)
     }

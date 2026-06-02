@@ -1,4 +1,4 @@
-package com.example.squadup.features.organizer.createevent
+package com.example.squadup.features.events.createevent
 
 import androidx.lifecycle.ViewModel
 import com.example.squadup.core.enums.SportType
