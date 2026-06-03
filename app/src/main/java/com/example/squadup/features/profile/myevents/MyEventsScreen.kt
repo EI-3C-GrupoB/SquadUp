@@ -1,4 +1,4 @@
-package com.example.squadup.features.organizer.myevents
+package com.example.squadup.features.profile.myevents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,8 +30,6 @@ import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
 import com.example.squadup.core.utils.toLabel
-import com.example.squadup.core.utils.toLabelBackground
-import com.example.squadup.core.utils.toLabelColor
 
 @Composable
 fun MyEventsScreen(

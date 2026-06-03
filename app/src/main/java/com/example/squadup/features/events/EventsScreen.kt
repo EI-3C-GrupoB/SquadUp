@@ -11,7 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -52,6 +52,15 @@ fun EventsScreen(
     onDarkModeChange: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
+    var selectedEvent by remember { mutableStateOf<BrowseEventItem?>(null) }
+
+    if (selectedEvent != null) {
+        EventSummaryBottomSheet(
+            event = selectedEvent!!,
+            onDismiss = { selectedEvent = null },
+            onRegisterClick = { onEventClick(selectedEvent!!.id) }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -254,7 +263,8 @@ fun EventsScreen(
             uiState.filteredBrowseEvents.forEach { event ->
                 BrowseEventCard(
                     event = event,
-                    onClick = { onEventClick(event.id) },
+                    onClick = { selectedEvent = event },
+                    onDetailsClick = { onEventClick(event.id) },
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -474,8 +484,11 @@ private fun UpcomingEventRow(
 private fun BrowseEventCard(
     event: BrowseEventItem,
     onClick: () -> Unit,
+    onDetailsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -507,15 +520,14 @@ private fun BrowseEventCard(
                         .size(110.dp)
                         .align(Alignment.Center)
                 )
-                // Sport badge bottom-left
-                val context = LocalContext.current
+                // Sport badge top-left
                 Text(
                     text = event.sportType.toDisplayName(context).uppercase(),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
+                        .align(Alignment.TopStart)
                         .padding(10.dp)
                         .background(Color.Black.copy(alpha = 0.45f), RoundedCornerShape(4.dp))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -524,6 +536,7 @@ private fun BrowseEventCard(
 
             // Content
             Column(modifier = Modifier.padding(14.dp)) {
+                // Title + price
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -535,6 +548,7 @@ private fun BrowseEventCard(
                         color = SquadTextPrimary,
                         modifier = Modifier.weight(1f)
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = event.price,
                         fontSize = 16.sp,
@@ -545,6 +559,7 @@ private fun BrowseEventCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Date/time
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Outlined.AccessTime,
@@ -558,6 +573,7 @@ private fun BrowseEventCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
+                // Venue
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Outlined.LocationOn,
@@ -571,8 +587,9 @@ private fun BrowseEventCard(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
+                // See Details button (full-width, navigates to detail page)
                 Button(
-                    onClick = onClick,
+                    onClick = onDetailsClick,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -581,11 +598,163 @@ private fun BrowseEventCard(
                     )
                 ) {
                     Text(
-                        text = event.actionLabel,
+                        text = stringResource(R.string.events_see_details),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
+            }
+        }
+    }
+}
+
+// ─── Event Summary Bottom Sheet ───────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EventSummaryBottomSheet(
+    event: BrowseEventItem,
+    onDismiss: () -> Unit,
+    onRegisterClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Hero banner
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(event.sportType.color, event.sportType.color.copy(alpha = 0.6f))
+                        )
+                    )
+            ) {
+                Icon(
+                    imageVector = event.sportType.toIcon(),
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.15f),
+                    modifier = Modifier.size(110.dp).align(Alignment.CenterEnd).padding(end = 16.dp)
+                )
+                Box(
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6f).align(Alignment.BottomCenter)
+                        .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.65f))))
+                )
+                Column(
+                    modifier = Modifier.align(Alignment.BottomStart).padding(14.dp)
+                ) {
+                    Text(
+                        text = event.entryType,
+                        fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                        modifier = Modifier.background(SquadOrange, RoundedCornerShape(999.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(text = event.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, maxLines = 1)
+                }
+            }
+
+            Column(modifier = Modifier.padding(horizontal = 18.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Date / Time row
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Surface(modifier = Modifier.weight(1f).height(72.dp), color = Color(0xFFF8F8F8), shape = RoundedCornerShape(10.dp)) {
+                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.Center) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Outlined.CalendarMonth, null, tint = SquadOrange, modifier = Modifier.size(13.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text("DATE", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(event.dateTime.substringBefore(" •").ifBlank { event.dateTime }, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = SquadTextPrimary)
+                        }
+                    }
+                    Surface(modifier = Modifier.weight(1f).height(72.dp), color = Color(0xFFF8F8F8), shape = RoundedCornerShape(10.dp)) {
+                        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.Center) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Outlined.LocationOn, null, tint = SquadOrange, modifier = Modifier.size(13.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text("VENUE", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(event.venue, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = SquadTextPrimary, maxLines = 2)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Team requirement
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFFFFEEE9),
+                    shape = RoundedCornerShape(10.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFFD3C7))
+                ) {
+                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = if (event.requiresTeam) Icons.Outlined.Groups else Icons.Outlined.PersonAdd,
+                            contentDescription = null, tint = SquadOrange, modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = if (event.requiresTeam) stringResource(R.string.events_sheet_team_required) else stringResource(R.string.events_sheet_no_team),
+                                fontSize = 13.sp, fontWeight = FontWeight.Bold, color = SquadOrange
+                            )
+                            Text(
+                                text = if (event.requiresTeam) stringResource(R.string.events_sheet_team_required_sub) else stringResource(R.string.events_sheet_no_team_sub),
+                                fontSize = 11.sp, color = SquadTextSecondary
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Spots row
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.Groups, null, tint = SquadTextSecondary, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.events_sheet_spots, event.spotsLeft, event.totalSpots),
+                        fontSize = 13.sp, color = SquadTextSecondary
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = event.price,
+                        fontSize = 20.sp, fontWeight = FontWeight.Bold, color = SquadOrange
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Register button
+                Button(
+                    onClick = onRegisterClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White)
+                ) {
+                    Text(
+                        text = if (event.price == "Free") stringResource(R.string.events_sheet_register_free)
+                               else stringResource(R.string.events_sheet_register_paid, event.price),
+                        fontSize = 14.sp, fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.Outlined.ArrowForward, null, modifier = Modifier.size(16.dp))
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

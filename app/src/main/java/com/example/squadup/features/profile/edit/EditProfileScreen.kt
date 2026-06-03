@@ -1,11 +1,30 @@
 package com.example.squadup.features.profile.edit
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,13 +32,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.SportType
-import com.example.squadup.core.ui.components.*
-import com.example.squadup.core.ui.theme.*
+import com.example.squadup.core.ui.components.AppHeader
+import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.AuthTextField
+import com.example.squadup.core.ui.components.PrimaryButton
+import com.example.squadup.core.ui.components.ProfileDropdownField
+import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.theme.SquadError
+import com.example.squadup.core.ui.theme.SquadOrange
+import com.example.squadup.core.ui.theme.SquadOrangeDark
+import com.example.squadup.core.ui.theme.SquadOrangeLight
+import com.example.squadup.core.ui.theme.SquadSurface
+import com.example.squadup.core.ui.theme.SquadTextPrimary
+import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
 
@@ -29,7 +60,9 @@ fun EditProfileScreen(
     uiState: EditProfileUiState,
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
+    onNameChange: (String) -> Unit,
     onUsernameChange: (String) -> Unit,
+    onLocationClick: () -> Unit,
     onPlayStyleChange: (PlayStyle) -> Unit,
     onSportToggle: (SportType) -> Unit,
     onSaveChangesClick: () -> Unit,
@@ -40,7 +73,6 @@ fun EditProfileScreen(
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
 ) {
-    val context = LocalContext.current
     val playStyleOptions = PlayStyle.entries.map { it to stringResource(it.labelRes) }
 
     Scaffold(
@@ -59,103 +91,81 @@ fun EditProfileScreen(
             )
         },
         bottomBar = {
-            AppNavBar(selectedRoute = selectedRoute, onItemClick = onNavItemClick)
+            AppNavBar(
+                selectedRoute = selectedRoute,
+                onItemClick = onNavItemClick
+            )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(SquadBackground)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            if (uiState.isLoading) {
-                CircularProgressIndicator(color = SquadOrange)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            uiState.errorMessage?.let { errorMessage ->
-                Text(
-                    text = stringResource(errorMessage),
-                    color = SquadError,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // Username Field
-            AuthTextField(
-                value = uiState.username,
-                onValueChange = onUsernameChange,
-                label = stringResource(R.string.editProfile_username_label),
-                placeholder = stringResource(R.string.editProfile_username_placeholder),
-                labelColor = SquadTextPrimary
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Play Style Field
-            ProfileDropdownField(
-                label = stringResource(R.string.editProfile_play_style_label),
-                selectedValue = stringResource(uiState.selectedPlayStyle.labelRes),
-                options = playStyleOptions.map { it.second },
-                onValueSelected = { selected ->
-                    val playStyle = playStyleOptions.first { it.second == selected }.first
-                    onPlayStyleChange(playStyle)
-                },
-                labelColor = Color(0xFF757575) // Grayish label
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Preferred Sports Section
-            Text(
-                text = stringResource(R.string.editProfile_sport_label),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF757575), // Grayish label
-                modifier = Modifier.padding(start = 4.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = SquadSurface,
+                shape = RoundedCornerShape(12.dp),
+                shadowElevation = 2.dp
             ) {
-                SportType.entries.forEach { sport ->
-                    val selected = sport in uiState.selectedSports
-                    Surface(
-                        onClick = { onSportToggle(sport) },
-                        shape = RoundedCornerShape(10.dp),
-                        color = if (selected) SquadOrangeLight else Color.White,
-                        border = androidx.compose.foundation.BorderStroke(
-                            width = 1.dp,
-                            color = if (selected) SquadOrange else Color(0xFFE0E0E0)
-                        ),
-                        modifier = Modifier.height(40.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = sport.toDisplayName(context),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = if (selected) SquadOrangeDark else Color(0xFF757575)
-                            )
-                        }
-                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp)
+                ) {
+                    AuthTextField(
+                        value = uiState.name,
+                        onValueChange = onNameChange,
+                        label = stringResource(R.string.editProfile_name_label),
+                        placeholder = stringResource(R.string.editProfile_name_placeholder),
+                        labelColor = SquadTextPrimary
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    AuthTextField(
+                        value = uiState.username,
+                        onValueChange = onUsernameChange,
+                        label = stringResource(R.string.editProfile_username_label),
+                        placeholder = stringResource(R.string.editProfile_username_placeholder),
+                        labelColor = SquadTextPrimary
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    LocationSelectorField(
+                        value = uiState.location,
+                        onClick = onLocationClick
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    ProfileDropdownField(
+                        label = stringResource(R.string.editProfile_play_style_label),
+                        selectedValue = stringResource(uiState.selectedPlayStyle.labelRes),
+                        options = playStyleOptions.map { it.second },
+                        onValueSelected = { selected ->
+                            val playStyle = playStyleOptions.first { it.second == selected }.first
+                            onPlayStyleChange(playStyle)
+                        },
+                        labelColor = SquadTextSecondary
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            PreferredSportsSection(
+                selectedSports = uiState.selectedSports.toSet(),
+                onSportToggle = onSportToggle
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
 
             PrimaryButton(
                 text = stringResource(R.string.editProfile_save),
@@ -171,7 +181,7 @@ fun EditProfileScreen(
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = SquadError
                 ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SquadError),
+                border = BorderStroke(1.dp, SquadError),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(vertical = 14.dp)
             ) {
@@ -183,6 +193,139 @@ fun EditProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+private fun LocationSelectorField(
+    value: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.editProfile_location_label),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = SquadTextPrimary,
+            modifier = Modifier.padding(start = 4.dp)
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Surface(
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp),
+            color = SquadSurface,
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = value.ifBlank {
+                        stringResource(R.string.editProfile_location_placeholder)
+                    },
+                    fontSize = 15.sp,
+                    color = if (value.isBlank()) SquadTextSecondary else SquadTextPrimary,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Icon(
+                    imageVector = Icons.Outlined.Map,
+                    contentDescription = null,
+                    tint = SquadOrange
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PreferredSportsSection(
+    selectedSports: Set<SportType>,
+    onSportToggle: (SportType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = SquadSurface,
+        shape = RoundedCornerShape(12.dp),
+        shadowElevation = 2.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.editProfile_sport_label),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = SquadTextPrimary,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                maxItemsInEachRow = 3
+            ) {
+                SportType.entries.forEach { sport ->
+                    PreferredSportChip(
+                        text = sport.toDisplayName(context),
+                        selected = sport in selectedSports,
+                        onClick = { onSportToggle(sport) },
+                        modifier = Modifier.padding(horizontal = 6.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PreferredSportChip(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(46.dp),
+        color = if (selected) SquadOrangeLight else SquadSurface,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(
+            width = 1.2.dp,
+            color = if (selected) SquadOrange else Color(0xFFDADADA)
+        )
+    ) {
+        Box(
+            modifier = Modifier.padding(horizontal = 18.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                fontSize = 15.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                color = if (selected) SquadOrangeDark else SquadTextSecondary,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

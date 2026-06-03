@@ -4,16 +4,39 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,11 +51,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
-import com.example.squadup.core.ui.components.*
-import com.example.squadup.core.ui.theme.*
+import com.example.squadup.core.ui.components.AppHeader
+import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.theme.SquadGrayLight
+import com.example.squadup.core.ui.theme.SquadOrange
+import com.example.squadup.core.ui.theme.SquadOrangeDark
+import com.example.squadup.core.ui.theme.SquadSurface
+import com.example.squadup.core.ui.theme.SquadTextPrimary
+import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
-import java.text.NumberFormat
-import java.util.Locale
 
 @Composable
 fun ManageAccountsScreen(
@@ -78,7 +106,10 @@ fun ManageAccountsScreen(
             )
         },
         bottomBar = {
-            AppNavBar(selectedRoute = selectedRoute, onItemClick = onNavItemClick)
+            AppNavBar(
+                selectedRoute = selectedRoute,
+                onItemClick = onNavItemClick
+            )
         }
     ) { innerPadding ->
         Box(
@@ -91,11 +122,12 @@ fun ManageAccountsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .alpha(if (uiState.showFilterDialog) 0.45f else 1f)
-                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp)
                     .padding(top = 24.dp, bottom = 24.dp)
             ) {
-                AdminAccountCard {
+                AdminAccountCard(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     Text(
                         text = stringResource(R.string.manageAccounts_title),
                         fontSize = 24.sp,
@@ -132,10 +164,9 @@ fun ManageAccountsScreen(
                             onValueChange = onSearchQueryChange,
                             modifier = Modifier.weight(1f)
                         )
-                        
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        
-                        // Filter Icon
+
                         IconButton(onClick = onFilterClick) {
                             Icon(
                                 imageVector = Icons.Outlined.FilterList,
@@ -145,7 +176,6 @@ fun ManageAccountsScreen(
                             )
                         }
 
-                        // Add User Button (Better Design)
                         Surface(
                             onClick = onCreateUserClick,
                             color = SquadOrange,
@@ -156,7 +186,7 @@ fun ManageAccountsScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Adicionar",
+                                    contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -184,12 +214,26 @@ fun ManageAccountsScreen(
                                 text = stringResource(R.string.manageAccounts_column_user),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (uiState.currentSortOrder == SortOrder.NameAZ || uiState.currentSortOrder == SortOrder.NameZA) 
-                                    SquadOrange else SquadTextPrimary
+                                color = if (
+                                    uiState.currentSortOrder == SortOrder.NameAZ ||
+                                    uiState.currentSortOrder == SortOrder.NameZA
+                                ) {
+                                    SquadOrange
+                                } else {
+                                    SquadTextPrimary
+                                }
                             )
-                            if (uiState.currentSortOrder == SortOrder.NameAZ || uiState.currentSortOrder == SortOrder.NameZA) {
+
+                            if (
+                                uiState.currentSortOrder == SortOrder.NameAZ ||
+                                uiState.currentSortOrder == SortOrder.NameZA
+                            ) {
                                 Icon(
-                                    imageVector = if (uiState.currentSortOrder == SortOrder.NameAZ) Icons.Outlined.KeyboardArrowDown else Icons.Outlined.KeyboardArrowUp,
+                                    imageVector = if (uiState.currentSortOrder == SortOrder.NameAZ) {
+                                        Icons.Outlined.KeyboardArrowDown
+                                    } else {
+                                        Icons.Outlined.KeyboardArrowUp
+                                    },
                                     contentDescription = null,
                                     tint = SquadOrange,
                                     modifier = Modifier.size(18.dp)
@@ -209,12 +253,26 @@ fun ManageAccountsScreen(
                                 text = stringResource(R.string.manageAccounts_column_role),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (uiState.currentSortOrder == SortOrder.RoleAZ || uiState.currentSortOrder == SortOrder.RoleZA) 
-                                    SquadOrange else SquadTextPrimary
+                                color = if (
+                                    uiState.currentSortOrder == SortOrder.RoleAZ ||
+                                    uiState.currentSortOrder == SortOrder.RoleZA
+                                ) {
+                                    SquadOrange
+                                } else {
+                                    SquadTextPrimary
+                                }
                             )
-                            if (uiState.currentSortOrder == SortOrder.RoleAZ || uiState.currentSortOrder == SortOrder.RoleZA) {
+
+                            if (
+                                uiState.currentSortOrder == SortOrder.RoleAZ ||
+                                uiState.currentSortOrder == SortOrder.RoleZA
+                            ) {
                                 Icon(
-                                    imageVector = if (uiState.currentSortOrder == SortOrder.RoleAZ) Icons.Outlined.KeyboardArrowDown else Icons.Outlined.KeyboardArrowUp,
+                                    imageVector = if (uiState.currentSortOrder == SortOrder.RoleAZ) {
+                                        Icons.Outlined.KeyboardArrowDown
+                                    } else {
+                                        Icons.Outlined.KeyboardArrowUp
+                                    },
                                     contentDescription = null,
                                     tint = SquadOrange,
                                     modifier = Modifier.size(18.dp)
@@ -223,43 +281,24 @@ fun ManageAccountsScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                    uiState.filteredUsers.forEachIndexed { index, user ->
-                        AccountUserRow(user = user, onClick = { onUserClick(user.id) })
-                        if (index < uiState.filteredUsers.lastIndex) {
-                            Spacer(modifier = Modifier.height(20.dp))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    val formattedTotal = NumberFormat.getNumberInstance(Locale.US)
-                        .format(uiState.totalUsers)
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentPadding = PaddingValues(bottom = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
-                        Text(
-                            text = stringResource(
-                                R.string.manageAccounts_showing,
-                                uiState.filteredUsers.size,
-                                formattedTotal
-                            ),
-                            fontSize = 14.sp,
-                            color = SquadTextPrimary,
-                            modifier = Modifier.weight(1f)
-                        )
-                        PaginationButton(
-                            text = stringResource(R.string.manageAccounts_previous),
-                            onClick = onPreviousClick
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        PaginationButton(
-                            text = stringResource(R.string.manageAccounts_next),
-                            onClick = onNextClick
-                        )
+                        items(
+                            items = uiState.filteredUsers,
+                            key = { user -> user.id }
+                        ) { user ->
+                            AccountUserRow(
+                                user = user,
+                                onClick = { onUserClick(user.id) }
+                            )
+                        }
                     }
                 }
             }
@@ -312,7 +351,10 @@ private fun AccountsSearchField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        textStyle = TextStyle(fontSize = 14.sp, color = SquadTextPrimary),
+        textStyle = TextStyle(
+            fontSize = 14.sp,
+            color = SquadTextPrimary
+        ),
         modifier = modifier
             .height(44.dp)
             .background(Color(0xFFF3F3F3), RoundedCornerShape(8.dp))
@@ -328,7 +370,9 @@ private fun AccountsSearchField(
                     tint = SquadTextSecondary,
                     modifier = Modifier.size(18.dp)
                 )
+
                 Spacer(modifier = Modifier.width(8.dp))
+
                 Box(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.CenterStart
@@ -342,6 +386,7 @@ private fun AccountsSearchField(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+
                     innerTextField()
                 }
             }
@@ -350,7 +395,10 @@ private fun AccountsSearchField(
 }
 
 @Composable
-private fun AccountUserRow(user: ManageAccountItem, onClick: () -> Unit) {
+private fun AccountUserRow(
+    user: ManageAccountItem,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -383,6 +431,7 @@ private fun AccountUserRow(user: ManageAccountItem, onClick: () -> Unit) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
             Text(
                 text = user.email,
                 fontSize = 14.sp,
@@ -399,22 +448,27 @@ private fun AccountUserRow(user: ManageAccountItem, onClick: () -> Unit) {
 @Composable
 private fun RoleBadge(role: AccountRole) {
     val background = when (role) {
-        AccountRole.Admin     -> Color(0xFFFFD7C4)
+        AccountRole.Admin -> Color(0xFFFFD7C4)
         AccountRole.Organizer -> Color(0xFFD4E8FF)
-        AccountRole.Player    -> Color(0xFFE8E8E8)
-    }
-    val textColor = when (role) {
-        AccountRole.Admin     -> SquadOrangeDark
-        AccountRole.Organizer -> Color(0xFF1A5CA8)
-        AccountRole.Player    -> Color(0xFF757575)
-    }
-    val label = when (role) {
-        AccountRole.Admin     -> stringResource(R.string.manageAccounts_role_admin)
-        AccountRole.Organizer -> stringResource(R.string.manageAccounts_role_organizer)
-        AccountRole.Player    -> stringResource(R.string.manageAccounts_role_player)
+        AccountRole.Player -> Color(0xFFE8E8E8)
     }
 
-    Surface(color = background, shape = RoundedCornerShape(999.dp)) {
+    val textColor = when (role) {
+        AccountRole.Admin -> SquadOrangeDark
+        AccountRole.Organizer -> Color(0xFF1A5CA8)
+        AccountRole.Player -> Color(0xFF757575)
+    }
+
+    val label = when (role) {
+        AccountRole.Admin -> stringResource(R.string.manageAccounts_role_admin)
+        AccountRole.Organizer -> stringResource(R.string.manageAccounts_role_organizer)
+        AccountRole.Player -> stringResource(R.string.manageAccounts_role_player)
+    }
+
+    Surface(
+        color = background,
+        shape = RoundedCornerShape(999.dp)
+    ) {
         Text(
             text = label,
             fontSize = 12.sp,
@@ -422,23 +476,6 @@ private fun RoleBadge(role: AccountRole) {
             color = textColor,
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
         )
-    }
-}
-
-@Composable
-private fun PaginationButton(text: String, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.height(42.dp),
-        shape = RoundedCornerShape(6.dp),
-        border = BorderStroke(1.5.dp, Color(0xFF1F1F1F)),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = SquadSurface,
-            contentColor = SquadTextPrimary
-        ),
-        contentPadding = PaddingValues(horizontal = 20.dp)
-    ) {
-        Text(text = text, fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -452,28 +489,32 @@ private fun AccountsFilterDialog(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 38.dp),
+            .padding(horizontal = 28.dp),
         color = SquadSurface,
-        shape = RoundedCornerShape(12.dp),
-        shadowElevation = 8.dp
+        shape = RoundedCornerShape(18.dp),
+        shadowElevation = 10.dp
     ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-
+        Column(
+            modifier = Modifier.padding(24.dp)
+        ) {
             Text(
                 text = stringResource(R.string.manageAccounts_filter_by),
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 1.1.sp,
                 color = SquadTextSecondary
             )
-            Spacer(modifier = Modifier.height(12.dp))
+
+            Spacer(modifier = Modifier.height(18.dp))
+
             Text(
                 text = stringResource(R.string.manageAccounts_filter_role),
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = SquadTextPrimary
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             RoleFilterRow(
                 selectedRoles = selectedRoleFilters,
                 onRoleToggle = onToggleRoleFilter
@@ -481,36 +522,50 @@ private fun AccountsFilterDialog(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            Button(
-                onClick = onApplyFilterClick,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = SquadOrange,
-                    contentColor = Color.White
-                )
+            HorizontalDivider(color = SquadGrayLight)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.manageAccounts_filter_apply),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = onBackFilterClick,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFBDBDBD),
-                    contentColor = Color.White
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.manageAccounts_filter_back),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                OutlinedButton(
+                    onClick = onBackFilterClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.5.dp, Color(0xFFBDBDBD)),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.White,
+                        contentColor = SquadTextSecondary
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.manageAccounts_filter_back),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Button(
+                    onClick = onApplyFilterClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = SquadOrange,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.manageAccounts_filter_apply),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
@@ -531,12 +586,14 @@ private fun RoleFilterRow(
             onClick = { onRoleToggle(AccountRole.Admin) },
             modifier = Modifier.weight(1f)
         )
+
         FilterSegment(
             text = stringResource(R.string.manageAccounts_role_organizer),
             selected = AccountRole.Organizer in selectedRoles,
             onClick = { onRoleToggle(AccountRole.Organizer) },
             modifier = Modifier.weight(1f)
         )
+
         FilterSegment(
             text = stringResource(R.string.manageAccounts_role_player),
             selected = AccountRole.Player in selectedRoles,
@@ -555,11 +612,11 @@ private fun FilterSegment(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.height(36.dp),
-        color = Color.White,
-        shape = RoundedCornerShape(8.dp),
+        modifier = modifier.height(42.dp),
+        color = if (selected) SquadOrange else Color.White,
+        shape = RoundedCornerShape(12.dp),
         border = BorderStroke(
-            width = 1.dp,
+            width = 1.2.dp,
             color = if (selected) SquadOrange else Color(0xFFE0E0E0)
         )
     ) {
@@ -567,9 +624,12 @@ private fun FilterSegment(
             Text(
                 text = text,
                 fontSize = 11.sp,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                color = if (selected) SquadOrange else SquadTextSecondary,
-                textAlign = TextAlign.Center
+                fontWeight = FontWeight.Bold,
+                color = if (selected) Color.White else SquadTextSecondary,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 6.dp)
             )
         }
     }

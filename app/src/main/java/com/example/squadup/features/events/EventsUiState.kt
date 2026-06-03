@@ -48,5 +48,8 @@ data class BrowseEventItem(
     val dateTime: String,
     val venue: String,
     val sportType: SportType,
-    val actionLabel: String
+    val entryType: String = "OPEN MATCH",
+    val requiresTeam: Boolean = true,
+    val spotsLeft: Int = 0,
+    val totalSpots: Int = 0
 )

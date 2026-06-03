@@ -1,7 +1,7 @@
-package com.example.squadup.features.organizer.createevent
+package com.example.squadup.features.events.createevent
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -26,7 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
 import com.example.squadup.R
+import com.example.squadup.core.enums.EventFormat
+import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.PrimaryButton
@@ -49,11 +52,14 @@ fun CreateEventScreen(
     onSportSelect: (SportType) -> Unit,
     formatOptions: List<String>,
     // Step 2
+    onEventFormatChange: (EventFormat) -> Unit,
     onFormatChange: (String) -> Unit,
     onMaxTeamsChange: (Int) -> Unit,
     onGeneralRulesChange: (String) -> Unit,
     onPublicEventToggle: (Boolean) -> Unit,
     onEntryFeeChange: (String) -> Unit,
+    onAllowTeamsToggle: (Boolean) -> Unit,
+    onAllowFreeAgentsToggle: (Boolean) -> Unit,
     // Step 3
     onVenueChange: (String) -> Unit,
     onEventDateChange: (String) -> Unit,
@@ -130,11 +136,14 @@ fun CreateEventScreen(
                     CreateEventStep.FORMAT_PLAYERS -> FormatPlayersStep(
                         uiState = uiState,
                         formatOptions = formatOptions,
+                        onEventFormatChange = onEventFormatChange,
                         onFormatChange = onFormatChange,
                         onMaxTeamsChange = onMaxTeamsChange,
                         onGeneralRulesChange = onGeneralRulesChange,
                         onPublicEventToggle = onPublicEventToggle,
                         onEntryFeeChange = onEntryFeeChange,
+                        onAllowTeamsToggle = onAllowTeamsToggle,
+                        onAllowFreeAgentsToggle = onAllowFreeAgentsToggle,
                         onNextStep = onNextStep
                     )
                     CreateEventStep.LOCATION_TIME -> LocationTimeStep(
@@ -275,7 +284,7 @@ private fun BasicInfoStep(
         SectionLabel(stringResource(R.string.createEvent_sports_label))
         Spacer(modifier = Modifier.height(10.dp))
 
-        @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+        @OptIn(ExperimentalLayoutApi::class)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SportType.entries.forEach { sport ->
                 val selected = uiState.selectedSport == sport
@@ -300,11 +309,14 @@ private fun BasicInfoStep(
 private fun FormatPlayersStep(
     uiState: CreateEventUiState,
     formatOptions: List<String>,
+    onEventFormatChange: (EventFormat) -> Unit,
     onFormatChange: (String) -> Unit,
     onMaxTeamsChange: (Int) -> Unit,
     onGeneralRulesChange: (String) -> Unit,
     onPublicEventToggle: (Boolean) -> Unit,
     onEntryFeeChange: (String) -> Unit,
+    onAllowTeamsToggle: (Boolean) -> Unit,
+    onAllowFreeAgentsToggle: (Boolean) -> Unit,
     onNextStep: () -> Unit
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
@@ -315,70 +327,86 @@ private fun FormatPlayersStep(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Format dropdown
-        ProfileDropdownField(
-            label = stringResource(R.string.createEvent_format_label),
-            selectedValue = uiState.format,
-            options = formatOptions,
-            onValueSelected = onFormatChange
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Max Teams
-        SectionLabel(stringResource(R.string.createEvent_max_teams_label))
+        // Competition Format
+        SectionLabel(stringResource(R.string.createEvent_event_format_label))
         Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { onMaxTeamsChange(-1) },
-                modifier = Modifier
-                    .size(42.dp)
-                    .background(SquadGrayLight, CircleShape)
-            ) {
-                Icon(Icons.Default.Remove, null, tint = SquadTextPrimary, modifier = Modifier.size(20.dp))
-            }
-            Slider(
-                value = uiState.maxTeams.toFloat(),
-                onValueChange = { onMaxTeamsChange(it.toInt() - uiState.maxTeams) },
-                valueRange = 2f..64f,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                colors = SliderDefaults.colors(
-                    thumbColor = SquadOrange,
-                    activeTrackColor = SquadOrange,
-                    inactiveTrackColor = SquadOrangeLight
-                )
-            )
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .background(SquadOrange, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = uiState.maxTeams.toString(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-            }
-        }
-        Text(
-            text = stringResource(R.string.createEvent_max_teams_hint, uiState.maxTeams * 11, uiState.maxTeams * 5),
-            fontSize = 12.sp,
-            color = SquadTextSecondary
-        )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        EventFormat.values().forEach { fmt ->
+            EventFormatCard(
+                format = fmt,
+                selected = uiState.eventFormat == fmt,
+                onClick = { onEventFormatChange(fmt) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Sport Format + Max Teams (só para torneios)
+        if (uiState.eventFormat != EventFormat.SINGLE_MATCH) {
+            ProfileDropdownField(
+                label = stringResource(R.string.createEvent_format_label),
+                selectedValue = uiState.format,
+                options = formatOptions,
+                onValueSelected = onFormatChange
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            SectionLabel(stringResource(R.string.createEvent_max_teams_label))
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { onMaxTeamsChange(-1) },
+                    modifier = Modifier
+                        .size(42.dp)
+                        .background(SquadGrayLight, CircleShape)
+                ) {
+                    Icon(Icons.Default.Remove, null, tint = SquadTextPrimary, modifier = Modifier.size(20.dp))
+                }
+                Slider(
+                    value = uiState.maxTeams.toFloat(),
+                    onValueChange = { onMaxTeamsChange(it.toInt() - uiState.maxTeams) },
+                    valueRange = 2f..64f,
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                    colors = SliderDefaults.colors(
+                        thumbColor = SquadOrange,
+                        activeTrackColor = SquadOrange,
+                        inactiveTrackColor = SquadOrangeLight
+                    )
+                )
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .background(SquadOrange, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = uiState.maxTeams.toString(),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+            Text(
+                text = stringResource(R.string.createEvent_max_teams_hint, uiState.maxTeams * 11, uiState.maxTeams * 5),
+                fontSize = 12.sp,
+                color = SquadTextSecondary
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
 
         // General Rules
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = Color.White,
             shape = RoundedCornerShape(10.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, SquadGrayLight)
+            border = BorderStroke(1.dp, SquadGrayLight)
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 Text(
@@ -392,7 +420,7 @@ private fun FormatPlayersStep(
                     value = uiState.generalRules,
                     onValueChange = onGeneralRulesChange,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp),
-                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp, color = SquadTextPrimary),
+                    textStyle = TextStyle(fontSize = 14.sp, color = SquadTextPrimary),
                     decorationBox = { innerTextField ->
                         Box {
                             if (uiState.generalRules.isEmpty()) {
@@ -416,6 +444,30 @@ private fun FormatPlayersStep(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Participation Type
+        SectionLabel(stringResource(R.string.createEvent_participation_label))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        ParticipationToggleRow(
+            icon = Icons.Outlined.Groups,
+            label = stringResource(R.string.createEvent_allow_teams),
+            subtitle = stringResource(R.string.createEvent_allow_teams_sub),
+            checked = uiState.allowTeams,
+            onCheckedChange = onAllowTeamsToggle
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        ParticipationToggleRow(
+            icon = Icons.Outlined.PersonAdd,
+            label = stringResource(R.string.createEvent_allow_free_agents),
+            subtitle = stringResource(R.string.createEvent_allow_free_agents_sub),
+            checked = uiState.allowFreeAgents,
+            onCheckedChange = onAllowFreeAgentsToggle
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -493,7 +545,7 @@ private fun LocationTimeStep(
             onClick = {},
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, SquadGray),
+            border = BorderStroke(1.dp, SquadGray),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = SquadTextPrimary)
         ) {
             Icon(Icons.Outlined.Map, null, modifier = Modifier.size(18.dp))
@@ -720,7 +772,27 @@ private fun ReviewStep(
         ReviewCard {
             Text(stringResource(R.string.createEvent_review_format_label), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.8.sp)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("${uiState.format} • ${uiState.maxTeams} Max Teams", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            val formatName = stringResource(uiState.eventFormat.labelRes)
+            val details = if (uiState.eventFormat != EventFormat.SINGLE_MATCH)
+                "$formatName • ${uiState.format} • ${uiState.maxTeams} Max Teams"
+            else formatName
+            Text(details, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Participation
+        ReviewCard {
+            Text(stringResource(R.string.createEvent_review_participation_label), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.8.sp)
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (uiState.allowTeams) {
+                    ParticipationBadge(icon = Icons.Outlined.Groups, label = stringResource(R.string.createEvent_participation_teams))
+                }
+                if (uiState.allowFreeAgents) {
+                    ParticipationBadge(icon = Icons.Outlined.PersonAdd, label = stringResource(R.string.createEvent_participation_free_agents))
+                }
+            }
         }
 
         // Notify Teams — só para PLAYER_ORGANIZER
@@ -731,7 +803,7 @@ private fun ReviewStep(
                 modifier = Modifier.fillMaxWidth(),
                 color = Color(0xFFF8F8F8),
                 shape = RoundedCornerShape(10.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SquadGrayLight)
+                border = BorderStroke(1.dp, SquadGrayLight)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
@@ -877,6 +949,140 @@ private fun RecurrenceDialog(
 // ─── Private helpers ─────────────────────────────────────────────────────────
 
 @Composable
+private fun EventFormatCard(
+    format: EventFormat,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val icon = when (format) {
+        EventFormat.SINGLE_MATCH   -> Icons.Outlined.Flag
+        EventFormat.LEAGUE         -> Icons.Outlined.Leaderboard
+        EventFormat.KNOCKOUT       -> Icons.Outlined.EmojiEvents
+        EventFormat.GROUP_KNOCKOUT -> Icons.Outlined.Groups
+        EventFormat.FREE           -> Icons.Outlined.Edit
+    }
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        color = if (selected) SquadOrangeLight else Color.White,
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            width = if (selected) 1.5.dp else 1.dp,
+            color = if (selected) SquadOrange else SquadGrayLight
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        if (selected) SquadOrange else SquadGrayLight,
+                        RoundedCornerShape(8.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = if (selected) Color.White else SquadTextSecondary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(format.labelRes),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (selected) SquadOrange else SquadTextPrimary
+                )
+                Text(
+                    text = stringResource(format.descRes),
+                    fontSize = 12.sp,
+                    color = SquadTextSecondary
+                )
+            }
+            if (selected) {
+                Icon(
+                    imageVector = Icons.Outlined.CheckCircle,
+                    contentDescription = null,
+                    tint = SquadOrange,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ParticipationToggleRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    if (checked) SquadOrangeLight else SquadGrayLight,
+                    RoundedCornerShape(8.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (checked) SquadOrange else SquadTextSecondary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text(subtitle, fontSize = 12.sp, color = SquadTextSecondary)
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = SquadOrange
+            )
+        )
+    }
+}
+
+@Composable
+private fun ParticipationBadge(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String
+) {
+    Surface(
+        color = SquadOrangeLight,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(icon, null, tint = SquadOrange, modifier = Modifier.size(14.dp))
+            Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadOrange)
+        }
+    }
+}
+
+@Composable
 private fun StepHeaderImage(
     heading: String,
     colors: List<Color>,
@@ -907,7 +1113,7 @@ private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun PrivacyButton(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -916,7 +1122,7 @@ private fun PrivacyButton(
         modifier = modifier.clickable(onClick = onClick),
         color = if (selected) SquadOrangeLight else Color.White,
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             width = if (selected) 1.5.dp else 1.dp,
             color = if (selected) SquadOrange else SquadGrayLight
         )
@@ -936,7 +1142,7 @@ private fun PrivacyButton(
 @Composable
 private fun SportChip(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit
 ) {
@@ -944,7 +1150,7 @@ private fun SportChip(
         onClick = onClick,
         color = if (selected) SquadOrange else Color.White,
         shape = RoundedCornerShape(999.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) SquadOrange else SquadGray)
+        border = BorderStroke(1.dp, if (selected) SquadOrange else SquadGray)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
@@ -966,7 +1172,7 @@ private fun ReviewCard(
         modifier = modifier.fillMaxWidth(),
         color = Color(0xFFF8F8F8),
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SquadGrayLight)
+        border = BorderStroke(1.dp, SquadGrayLight)
     ) {
         Column(modifier = Modifier.padding(14.dp), content = content)
     }

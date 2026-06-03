@@ -1,4 +1,4 @@
-package com.example.squadup.features.organizer.createevent
+package com.example.squadup.features.events.createevent
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,11 +26,14 @@ fun CreateEventRoute(
         onPrivacyChange = viewModel::onPrivacyChange,
         onSportSelect = viewModel::onSportSelect,
         formatOptions = viewModel.formatsFor(uiState.selectedSport),
+        onEventFormatChange = viewModel::onEventFormatChange,
         onFormatChange = viewModel::onFormatChange,
         onMaxTeamsChange = viewModel::onMaxTeamsChange,
         onGeneralRulesChange = viewModel::onGeneralRulesChange,
         onPublicEventToggle = viewModel::onPublicEventToggle,
         onEntryFeeChange = viewModel::onEntryFeeChange,
+        onAllowTeamsToggle = viewModel::onAllowTeamsToggle,
+        onAllowFreeAgentsToggle = viewModel::onAllowFreeAgentsToggle,
         onVenueChange = viewModel::onVenueChange,
         onEventDateChange = viewModel::onEventDateChange,
         onStartTimeChange = viewModel::onStartTimeChange,
