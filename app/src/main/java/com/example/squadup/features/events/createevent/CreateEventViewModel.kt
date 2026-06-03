@@ -1,6 +1,8 @@
 package com.example.squadup.features.events.createevent
 
 import androidx.lifecycle.ViewModel
+import com.example.squadup.core.enums.EventFormat
+import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.enums.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,6 +83,10 @@ class CreateEventViewModel : ViewModel() {
     }
 
     // Step 2
+    fun onEventFormatChange(eventFormat: EventFormat) {
+        _uiState.value = _uiState.value.copy(eventFormat = eventFormat)
+    }
+
     fun onFormatChange(format: String) {
         _uiState.value = _uiState.value.copy(format = format)
     }
@@ -101,6 +107,18 @@ class CreateEventViewModel : ViewModel() {
 
     fun onEntryFeeChange(value: String) {
         _uiState.value = _uiState.value.copy(entryFee = value)
+    }
+
+    fun onAllowTeamsToggle(value: Boolean) {
+        // pelo menos um tipo tem de estar ativo
+        if (!value && !_uiState.value.allowFreeAgents) return
+        _uiState.value = _uiState.value.copy(allowTeams = value)
+    }
+
+    fun onAllowFreeAgentsToggle(value: Boolean) {
+        // pelo menos um tipo tem de estar ativo
+        if (!value && !_uiState.value.allowTeams) return
+        _uiState.value = _uiState.value.copy(allowFreeAgents = value)
     }
 
     // Step 3

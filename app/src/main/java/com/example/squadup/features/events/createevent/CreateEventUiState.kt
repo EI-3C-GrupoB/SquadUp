@@ -1,11 +1,11 @@
 package com.example.squadup.features.events.createevent
 
+import com.example.squadup.core.enums.EventFormat
+import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.enums.UserRole
 
 enum class CreateEventStep { BASIC_INFO, FORMAT_PLAYERS, LOCATION_TIME, REVIEW }
-
-enum class RecurrenceType { DAILY, WEEKLY, MONTHLY }
 
 data class NotifyTeamItem(
     val id: String,
@@ -23,11 +23,14 @@ data class CreateEventUiState(
     val selectedSport: SportType? = null,
 
     // Step 2 — Format & Players
+    val eventFormat: EventFormat = EventFormat.SINGLE_MATCH,
     val format: String = "5v5 Full Court",
     val maxTeams: Int = 8,
     val generalRules: String = "",
     val isPublicEvent: Boolean = true,
     val entryFee: String = "",
+    val allowTeams: Boolean = true,
+    val allowFreeAgents: Boolean = false,
 
     // Step 3 — Location & Time
     val venue: String = "",

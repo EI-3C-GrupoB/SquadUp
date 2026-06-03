@@ -23,7 +23,8 @@ import com.example.squadup.features.profile.myevents.MyEventsRoute
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
 import com.example.squadup.features.events.calendar.CalendarRoute
-import com.example.squadup.features.events.moredetails.MoreDetailsRoute
+import com.example.squadup.features.events.manageevent.ManageEventRoute
+import com.example.squadup.features.events.livematch.LiveMatchRoute
 import com.example.squadup.features.profile.changepassword.ChangePasswordRoute
 import com.example.squadup.features.profile.tickets.MyTicketsRoute
 import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
@@ -275,7 +276,9 @@ fun AppNavigation() {
                     }
                 },
                 onBackClick = { navController.popBackStack() },
-                onManageEventClick = {},
+                onManageEventClick = { eventId ->
+                    navController.navigate(AppRoutes.ManageEvent.createRoute(eventId))
+                },
                 onViewResultsClick = {},
                 onCreateEventClick = {
                     navController.navigate(AppRoutes.CreateEvent.route)
@@ -340,6 +343,50 @@ fun AppNavigation() {
             )
         }
 
+        composable(
+            route = AppRoutes.ManageEvent.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) {
+            ManageEventRoute(
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                onFormTeamsClick = {},
+                onEditEventClick = {},
+                onManageLiveClick = { gameId ->
+                    navController.navigate(AppRoutes.LiveMatch.createRoute(gameId))
+                },
+                onCreateGameClick = {},
+                onEditGameClick = {},
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(
+            route = AppRoutes.LiveMatch.route,
+            arguments = listOf(navArgument("gameId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
+            LiveMatchRoute(
+                gameId = gameId,
+                selectedRoute = AppRoutes.Events.route,
+                onNavItemClick = { route ->
+                    navController.navigate(route) {
+                        popUpTo(AppRoutes.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
         composable(AppRoutes.Calendar.route) {
             CalendarRoute(
                 selectedRoute = AppRoutes.Events.route,
@@ -363,21 +410,5 @@ fun AppNavigation() {
             )
         }
 
-        composable(AppRoutes.MoreDetails.route) {
-            MoreDetailsRoute(
-                selectedRoute = AppRoutes.Events.route,
-                onNavItemClick = { route ->
-                    navController.navigate(route) {
-                        popUpTo(AppRoutes.Home.route) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                },
-                appViewModel = appViewModel
-            )
-        }
     }
 }
