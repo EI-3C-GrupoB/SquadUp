@@ -310,6 +310,13 @@
     <string name="changePassword_new_label">New Password</string>
     <string name="changePassword_confirm_label">Confirm New Password</string>
     <string name="changePassword_button">Change Password</string>
+    <string name="changePassword_error_current_required">Enter your current password.</string>
+    <string name="changePassword_error_current_invalid">Current password is incorrect.</string>
+    <string name="changePassword_error_new_min_length">New password must have at least 6 characters.</string>
+    <string name="changePassword_error_mismatch">New passwords do not match.</string>
+    <string name="changePassword_error_weak">New password is too weak.</string>
+    <string name="changePassword_error_network">Network error. Check your connection.</string>
+    <string name="changePassword_error_generic">Could not change password. Try again.</string>
 
     <!-- Edit Profile Screen -->
     <string name="editProfile_heading">Edit Profile</string>
@@ -321,6 +328,9 @@
     <string name="editProfile_delete">Delete Account</string>
     <string name="editProfile_save">Save Changes</string>
     <string name="editProfile_back">← Back to Profile</string>
+    <string name="editProfile_error_load">Could not load your profile.</string>
+    <string name="editProfile_error_save">Could not save your profile.</string>
+    <string name="editProfile_error_username_required">Enter your username.</string>
 
     <!-- Profile Screen — Admin -->
     <string name="profile_admin_create_account">Create\nnew Account</string>
@@ -329,6 +339,9 @@
     <!-- Profile Screen -->
     <string name="profile_title">Profile</string>
     <string name="profile_logout">Logout</string>
+    <string name="profile_error_not_logged_in">You need to sign in first.</string>
+    <string name="profile_error_load">Could not load your profile.</string>
+    <string name="profile_error_logout">Could not log out. Try again.</string>
     <string name="profile_stat_matches">MATCHES</string>
     <string name="profile_stat_wins">WINS</string>
     <string name="profile_stat_goals">GOALS</string>

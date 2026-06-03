@@ -204,7 +204,12 @@ fun AppNavigation() {
                 onChangePasswordClick = {
                     navController.navigate(AppRoutes.ChangePassword.route)
                 },
-                onLogoutClick = {},
+                onLogoutClick = {
+                    navController.navigate(AppRoutes.Login.route) {
+                        popUpTo(AppRoutes.Profile.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 appViewModel = appViewModel
             )
         }

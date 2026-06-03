@@ -309,6 +309,13 @@
     <string name="changePassword_new_label">Nova Palavra-passe</string>
     <string name="changePassword_confirm_label">Confirmar Nova Palavra-passe</string>
     <string name="changePassword_button">Alterar Palavra-passe</string>
+    <string name="changePassword_error_current_required">Introduz a tua palavra-passe atual.</string>
+    <string name="changePassword_error_current_invalid">A palavra-passe atual está incorreta.</string>
+    <string name="changePassword_error_new_min_length">A nova palavra-passe deve ter pelo menos 6 caracteres.</string>
+    <string name="changePassword_error_mismatch">As novas palavras-passe não coincidem.</string>
+    <string name="changePassword_error_weak">A nova palavra-passe é demasiado fraca.</string>
+    <string name="changePassword_error_network">Erro de rede. Verifica a ligação.</string>
+    <string name="changePassword_error_generic">Não foi possível alterar a palavra-passe. Tenta novamente.</string>
 
     <!-- Edit Profile Screen -->
     <string name="editProfile_heading">Editar Perfil</string>
@@ -320,6 +327,9 @@
     <string name="editProfile_delete">Eliminar Conta</string>
     <string name="editProfile_save">Guardar Alterações</string>
     <string name="editProfile_back">← Voltar ao Perfil</string>
+    <string name="editProfile_error_load">Não foi possível carregar o teu perfil.</string>
+    <string name="editProfile_error_save">Não foi possível guardar o teu perfil.</string>
+    <string name="editProfile_error_username_required">Introduz o teu nome de utilizador.</string>
 
     <!-- Profile Screen — Admin -->
     <string name="profile_admin_create_account">Criar\nnova Conta</string>
@@ -328,6 +338,9 @@
     <!-- Profile Screen -->
     <string name="profile_title">Perfil</string>
     <string name="profile_logout">Sair</string>
+    <string name="profile_error_not_logged_in">Tens de iniciar sessão primeiro.</string>
+    <string name="profile_error_load">Não foi possível carregar o teu perfil.</string>
+    <string name="profile_error_logout">Não foi possível sair. Tenta novamente.</string>
     <string name="profile_stat_matches">JOGOS</string>
     <string name="profile_stat_wins">VITÓRIAS</string>
     <string name="profile_stat_goals">GOLOS</string>

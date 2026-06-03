@@ -89,6 +89,17 @@ fun ChangePasswordScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
+                if (uiState.errorMessage != null) {
+                    Text(
+                        text = stringResource(uiState.errorMessage),
+                        color = SquadError,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 AuthTextField(
                     value = uiState.currentPassword,
                     onValueChange = onCurrentPasswordChange,
@@ -125,7 +136,8 @@ fun ChangePasswordScreen(
 
                 PrimaryButton(
                     text = stringResource(R.string.changePassword_button),
-                    onClick = onChangePasswordClick
+                    onClick = onChangePasswordClick,
+                    enabled = !uiState.isLoading
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

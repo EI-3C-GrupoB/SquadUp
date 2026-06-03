@@ -72,6 +72,21 @@ fun EditProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(32.dp))
 
+            if (uiState.isLoading) {
+                CircularProgressIndicator(color = SquadOrange)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            uiState.errorMessage?.let { errorMessage ->
+                Text(
+                    text = stringResource(errorMessage),
+                    color = SquadError,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             // Username Field
             AuthTextField(
                 value = uiState.username,
@@ -144,7 +159,8 @@ fun EditProfileScreen(
 
             PrimaryButton(
                 text = stringResource(R.string.editProfile_save),
-                onClick = onSaveChangesClick
+                onClick = onSaveChangesClick,
+                enabled = !uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
