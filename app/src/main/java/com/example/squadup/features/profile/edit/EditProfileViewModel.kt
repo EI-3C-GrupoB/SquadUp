@@ -1,19 +1,23 @@
 package com.example.squadup.features.profile.edit
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.squadup.R
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.SportType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class EditProfileViewModel : ViewModel() {
 
+    private val repository = EditProfileRepository()
     private val _uiState = MutableStateFlow(EditProfileUiState())
     val uiState: StateFlow<EditProfileUiState> = _uiState.asStateFlow()
 
     init {
-        loadStaticData()
+        loadProfile()
     }
 
     private fun loadStaticData() {
@@ -34,7 +38,7 @@ class EditProfileViewModel : ViewModel() {
     }
 
     fun onUsernameChange(value: String) {
-        _uiState.value = _uiState.value.copy(username = value)
+        _uiState.value = _uiState.value.copy(username = value, errorMessage = null)
     }
 
     fun onLocationChange(value: String) {
@@ -42,7 +46,7 @@ class EditProfileViewModel : ViewModel() {
     }
 
     fun onPlayStyleChange(playStyle: PlayStyle) {
-        _uiState.value = _uiState.value.copy(selectedPlayStyle = playStyle)
+        _uiState.value = _uiState.value.copy(selectedPlayStyle = playStyle, errorMessage = null)
     }
 
     fun onSportToggle(sport: SportType) {

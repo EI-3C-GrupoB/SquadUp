@@ -11,7 +11,9 @@ data class ProfileUiState(
     val wins: Int = 0,
     val goals: Int = 0,
     val teams: Int = 0,
-    val playStyle: PlayStyle? = null
+    val playStyle: PlayStyle? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: Int? = null
 ) {
     val isPlayer get() = role == UserRole.PLAYER || role == UserRole.PLAYER_ORGANIZER
     val isOrganizer get() = role == UserRole.ORGANIZER || role == UserRole.PLAYER_ORGANIZER

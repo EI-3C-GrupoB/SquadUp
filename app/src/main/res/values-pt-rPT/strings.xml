@@ -54,6 +54,14 @@
     <string name="login_createMgs1">Novo na squad?</string>
     <string name="login_createMgs2">Criar uma Conta</string>
 
+    <string name="login_error_empty_email">Introduz o teu email.</string>
+    <string name="login_error_empty_password">Introduz a tua palavra-passe.</string>
+    <string name="login_error_invalid_credentials">Email ou palavra-passe incorretos.</string>
+    <string name="login_error_email_not_confirmed">Confirma o teu email antes de entrar.</string>
+    <string name="login_error_network">Não foi possível ligar ao servidor. Verifica a ligação à Internet.</string>
+    <string name="login_error_missing_permission">A app não tem permissão de Internet.</string>
+    <string name="login_error_generic">Não foi possível entrar. Tenta novamente.</string>
+
     <!-- Register Screen -->
     <string name="register_login_action">Entrar</string>
     <string name="register_title">Criar Perfil</string>
@@ -89,6 +97,20 @@
     <string name="register_terms">Termos\nde Serviço</string>
     <string name="register_terms_middle"> e </string>
     <string name="register_privacy">Política de Privacidade.</string>
+
+    <string name="register_validation_full_name_required">Introduz o teu nome completo.</string>
+    <string name="register_validation_username_required">Introduz o teu nome de utilizador.</string>
+    <string name="register_validation_email_required">Introduz o teu email.</string>
+    <string name="register_validation_birth_date_required">Introduz a tua data de nascimento.</string>
+    <string name="register_validation_password_min_length">A palavra-passe deve ter pelo menos 6 caracteres.</string>
+    <string name="register_error_email_already_exists">Este email já está registado.</string>
+    <string name="register_error_weak_password">A palavra-passe é demasiado fraca.</string>
+    <string name="register_error_invalid_email">Endereço de email inválido.</string>
+    <string name="register_error_rate_limit">Demasiadas tentativas. Tenta mais tarde.</string>
+    <string name="register_error_network">Erro de rede. Verifica a ligação.</string>
+    <string name="register_error_missing_permission">Permissão de Internet em falta.</string>
+    <string name="register_error_generic">Não foi possível criar a conta. Tenta novamente.</string>
+    <string name="register_error_auth_user_missing">A conta foi criada, mas o utilizador autenticado não foi devolvido.</string>
 
     <!-- Home  Screen -->
     <string name="home_greeting">Olá, %1$s</string>
@@ -467,6 +489,13 @@
     <string name="changePassword_new_label">Nova Palavra-passe</string>
     <string name="changePassword_confirm_label">Confirmar Nova Palavra-passe</string>
     <string name="changePassword_button">Alterar Palavra-passe</string>
+    <string name="changePassword_error_current_required">Introduz a tua palavra-passe atual.</string>
+    <string name="changePassword_error_current_invalid">A palavra-passe atual está incorreta.</string>
+    <string name="changePassword_error_new_min_length">A nova palavra-passe deve ter pelo menos 6 caracteres.</string>
+    <string name="changePassword_error_mismatch">As novas palavras-passe não coincidem.</string>
+    <string name="changePassword_error_weak">A nova palavra-passe é demasiado fraca.</string>
+    <string name="changePassword_error_network">Erro de rede. Verifica a ligação.</string>
+    <string name="changePassword_error_generic">Não foi possível alterar a palavra-passe. Tenta novamente.</string>
 
     <!-- Edit Profile Screen -->
     <string name="editProfile_heading">Editar Perfil</string>
@@ -482,6 +511,9 @@
     <string name="editProfile_delete">Eliminar Conta</string>
     <string name="editProfile_save">Guardar Alterações</string>
     <string name="editProfile_back">← Voltar ao Perfil</string>
+    <string name="editProfile_error_load">Não foi possível carregar o teu perfil.</string>
+    <string name="editProfile_error_save">Não foi possível guardar o teu perfil.</string>
+    <string name="editProfile_error_username_required">Introduz o teu nome de utilizador.</string>
 
     <!-- Profile Screen — Admin -->
     <string name="profile_admin_create_account">Criar\nnova Conta</string>
@@ -490,6 +522,9 @@
     <!-- Profile Screen -->
     <string name="profile_title">Perfil</string>
     <string name="profile_logout">Sair</string>
+    <string name="profile_error_not_logged_in">Tens de iniciar sessão primeiro.</string>
+    <string name="profile_error_load">Não foi possível carregar o teu perfil.</string>
+    <string name="profile_error_logout">Não foi possível sair. Tenta novamente.</string>
     <string name="profile_stat_matches">JOGOS</string>
     <string name="profile_stat_wins">VITÓRIAS</string>
     <string name="profile_stat_goals">GOLOS</string>

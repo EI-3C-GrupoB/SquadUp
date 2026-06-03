@@ -8,5 +8,7 @@ data class EditProfileUiState(
     val username: String = "",
     val location: String = "",
     val selectedPlayStyle: PlayStyle = PlayStyle.HIGH,
-    val selectedSports: List<SportType> = emptyList()
+    val selectedSports: List<SportType> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: Int? = null
 )

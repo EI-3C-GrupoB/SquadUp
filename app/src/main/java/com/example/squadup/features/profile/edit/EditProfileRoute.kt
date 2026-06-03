@@ -29,7 +29,7 @@ fun EditProfileRoute(
         onLocationClick = onLocationClick,
         onPlayStyleChange = viewModel::onPlayStyleChange,
         onSportToggle = viewModel::onSportToggle,
-        onSaveChangesClick = onSaveChangesClick,
+        onSaveChangesClick = { viewModel.saveProfile(onSaveChangesClick) },
         onDeleteAccountClick = onDeleteAccountClick,
         onBackClick = onBackClick,
         selectedLanguage = appUiState.selectedLanguage,

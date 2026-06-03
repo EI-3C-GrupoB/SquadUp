@@ -25,7 +25,7 @@ fun ChangePasswordRoute(
         onCurrentPasswordChange = viewModel::onCurrentPasswordChange,
         onNewPasswordChange = viewModel::onNewPasswordChange,
         onConfirmNewPasswordChange = viewModel::onConfirmNewPasswordChange,
-        onChangePasswordClick = onChangePasswordClick,
+        onChangePasswordClick = { viewModel.changePassword(onChangePasswordClick) },
         onBackClick = onBackClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,

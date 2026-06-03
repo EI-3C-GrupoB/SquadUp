@@ -169,7 +169,8 @@ fun EditProfileScreen(
 
             PrimaryButton(
                 text = stringResource(R.string.editProfile_save),
-                onClick = onSaveChangesClick
+                onClick = onSaveChangesClick,
+                enabled = !uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))

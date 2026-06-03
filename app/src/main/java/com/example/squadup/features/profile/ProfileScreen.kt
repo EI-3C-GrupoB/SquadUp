@@ -84,6 +84,21 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(22.dp))
 
+            if (uiState.isLoading) {
+                CircularProgressIndicator(color = SquadOrange)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            uiState.errorMessage?.let { errorMessage ->
+                Text(
+                    text = stringResource(errorMessage),
+                    color = SquadError,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             ProfileAvatar(
                 isPlayer = uiState.isPlayer,
                 onTicketsClick = onTicketsClick

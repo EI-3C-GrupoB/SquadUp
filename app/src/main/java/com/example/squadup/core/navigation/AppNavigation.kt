@@ -30,6 +30,8 @@ import com.example.squadup.features.profile.tickets.MyTicketsRoute
 import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
 import com.example.squadup.features.profile.edit.EditProfileRoute
 import com.example.squadup.features.profile.ProfileRoute
+import com.example.squadup.features.login.LoginRoute
+import com.example.squadup.features.register.RegisterRoute
 
 @Composable
 fun AppNavigation() {
@@ -62,7 +64,43 @@ fun AppNavigation() {
                     }
                 },
                 onLoginClick = {
-                    // TODO: navegar para Auth
+                    navController.navigate(AppRoutes.Login.route)
+                }
+            )
+        }
+
+        composable(AppRoutes.Login.route) {
+            LoginRoute(
+                onLoginSuccess = {
+                    navController.navigate(AppRoutes.Home.route) {
+                        popUpTo(AppRoutes.Login.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onCreateAccountClick = {
+                    navController.navigate(AppRoutes.Register.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(AppRoutes.Register.route) {
+            RegisterRoute(
+                onRegisterSuccess = {
+                    navController.navigate(AppRoutes.Home.route) {
+                        popUpTo(AppRoutes.Register.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onLoginClick = {
+                    navController.navigate(AppRoutes.Login.route) {
+                        popUpTo(AppRoutes.Register.route) { inclusive = true }
+                    }
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -93,10 +131,10 @@ fun AppNavigation() {
                     // TODO: navegar para Detalhe do Evento
                 },
                 onLoginClick = {
-                    // TODO: navegar para Auth
+                    navController.navigate(AppRoutes.Login.route)
                 },
                 onRegisterClick = {
-                    // TODO: navegar para Auth
+                    navController.navigate(AppRoutes.Register.route)
                 },
                 appViewModel = appViewModel
             )
@@ -169,7 +207,12 @@ fun AppNavigation() {
                 onChangePasswordClick = {
                     navController.navigate(AppRoutes.ChangePassword.route)
                 },
-                onLogoutClick = {},
+                onLogoutClick = {
+                    navController.navigate(AppRoutes.Login.route) {
+                        popUpTo(AppRoutes.Profile.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 appViewModel = appViewModel
             )
         }
