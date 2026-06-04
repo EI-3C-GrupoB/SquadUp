@@ -57,6 +57,7 @@ fun MoreDetailsScreen(
     uiState: MoreDetailsUiState,
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
+    onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
@@ -70,6 +71,7 @@ fun MoreDetailsScreen(
                 showBackButton = true,
                 onBackClick = onBackClick,
                 showNotificationsButton = true,
+                onNotificationsClick = onNotificationsClick,
                 showSettingsButton = true,
                 selectedLanguage = selectedLanguage,
                 isDarkMode = isDarkMode,
@@ -481,26 +483,5 @@ private fun VenueMapCard(
                     .padding(horizontal = 7.dp, vertical = 4.dp)
             )
         }
-    }
-}
-
-@Preview(
-    name = "More Details Screen",
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-private fun MoreDetailsScreenPreview() {
-    SquadUpTheme {
-        MoreDetailsScreen(
-            uiState = MoreDetailsUiState(),
-            selectedRoute = "events",
-            onNavItemClick = {},
-            onBackClick = {},
-            selectedLanguage = AppLanguage.EN,
-            isDarkMode = false,
-            onLanguageChange = {},
-            onDarkModeChange = {}
-        )
     }
 }

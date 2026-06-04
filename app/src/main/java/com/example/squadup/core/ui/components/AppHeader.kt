@@ -1,15 +1,32 @@
 package com.example.squadup.core.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Login
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -17,10 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
-import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadSurface
 import com.example.squadup.core.ui.theme.SquadTextSecondary
+import com.example.squadup.core.utils.AppLanguage
 
 @Composable
 fun AppHeader(
@@ -65,14 +82,13 @@ fun AppHeader(
         shadowElevation = 1.dp
     ) {
         Column {
-            // Espaço para a status bar do Android
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsTopHeight(WindowInsets.statusBars)
             )
 
-            Row(
+            androidx.compose.foundation.layout.Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -87,6 +103,8 @@ fun AppHeader(
                             tint = SquadOrange
                         )
                     }
+
+                    Spacer(modifier = Modifier.width(4.dp))
                 }
 
                 if (showLogo) {
@@ -95,21 +113,16 @@ fun AppHeader(
                         contentDescription = "SquadUp logo",
                         modifier = Modifier.height(32.dp)
                     )
+
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "SquadUp",
-                        color = SquadOrange,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                } else if (title != null) {
-                    Text(
-                        text = title,
-                        color = SquadOrange,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
                 }
+
+                Text(
+                    text = title ?: "SquadUp",
+                    color = SquadOrange,
+                    fontSize = 20.sp,
+                    fontWeight = if (showLogo) FontWeight.ExtraBold else FontWeight.Bold
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -118,6 +131,7 @@ fun AppHeader(
                         selectedLanguage = selectedLanguage,
                         onLanguageChange = onLanguageChange
                     )
+
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
@@ -129,7 +143,9 @@ fun AppHeader(
                             tint = SquadOrange,
                             modifier = Modifier.size(18.dp)
                         )
+
                         Spacer(modifier = Modifier.width(4.dp))
+
                         Text(
                             text = "Login",
                             color = SquadOrange,

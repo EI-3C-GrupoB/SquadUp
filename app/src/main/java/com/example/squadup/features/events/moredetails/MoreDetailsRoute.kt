@@ -11,6 +11,7 @@ fun MoreDetailsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: MoreDetailsViewModel = viewModel()
 ) {
@@ -21,6 +22,7 @@ fun MoreDetailsRoute(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
+        onNotificationsClick = onNotificationsClick,
         onBackClick = onBackClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,

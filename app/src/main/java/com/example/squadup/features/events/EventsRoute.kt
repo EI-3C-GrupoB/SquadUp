@@ -10,6 +10,7 @@ import com.example.squadup.core.app.AppViewModel
 fun EventsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
+    onNotificationsClick: () -> Unit,
     onEventClick: (String) -> Unit,
     onViewCalendarClick: () -> Unit,
     onFilterByMyTeamsClick: () -> Unit,
@@ -25,6 +26,7 @@ fun EventsRoute(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
+        onNotificationsClick = onNotificationsClick,
         onSearchQueryChange = viewModel::onSearchQueryChange,
         onSportFilterChange = viewModel::onSportFilterChange,
         onEventClick = onEventClick,
@@ -34,10 +36,10 @@ fun EventsRoute(
         onCreateEventClick = onCreateEventClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

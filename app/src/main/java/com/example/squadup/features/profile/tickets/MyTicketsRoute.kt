@@ -11,6 +11,7 @@ fun MyTicketsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onViewDetailsClick: (String) -> Unit,
     onReferClick: () -> Unit,
     appViewModel: AppViewModel,
@@ -25,14 +26,15 @@ fun MyTicketsRoute(
         onNavItemClick = onNavItemClick,
         onTabSelected = viewModel::onTabSelected,
         onBackClick = onBackClick,
+        onNotificationsClick = onNotificationsClick,
         onViewDetailsClick = onViewDetailsClick,
         onReferClick = onReferClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

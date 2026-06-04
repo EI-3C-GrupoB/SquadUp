@@ -65,6 +65,7 @@ fun CalendarScreen(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onPreviousMonthClick: () -> Unit,
     onNextMonthClick: () -> Unit,
     onTodayClick: () -> Unit,
@@ -83,6 +84,7 @@ fun CalendarScreen(
                 showBackButton = false,
                 showNotificationsButton = true,
                 showSettingsButton = true,
+                onNotificationsClick = onNotificationsClick,
                 selectedLanguage = selectedLanguage,
                 isDarkMode = isDarkMode,
                 onLanguageChange = onLanguageChange,
@@ -615,35 +617,3 @@ private fun AwayGameCard(
     }
 }
 
-@Preview(
-    name = "Calendar Screen",
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-private fun CalendarScreenPreview() {
-    SquadUpTheme {
-        CalendarScreen(
-            uiState = CalendarUiState(
-                dailySchedule = listOf(
-                    DailyScheduleItem("08:00", "Morning Conditioning", "Main Field"),
-                    DailyScheduleItem("10:30", "Tactical Review", "Media Room"),
-                    DailyScheduleItem("15:00", "Scrimmage Match", "Practice Area B")
-                )
-            ),
-            selectedRoute = "events",
-            onNavItemClick = {},
-            onBackClick = {},
-            onPreviousMonthClick = {},
-            onNextMonthClick = {},
-            onTodayClick = {},
-            onDayClick = {},
-            onMatchDetailsClick = {},
-            onTravelInfoClick = {},
-            selectedLanguage = AppLanguage.EN,
-            isDarkMode = false,
-            onLanguageChange = {},
-            onDarkModeChange = {}
-        )
-    }
-}

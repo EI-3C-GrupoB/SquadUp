@@ -2,9 +2,15 @@ package com.example.squadup.core.navigation
 
 sealed class AppRoutes(val route: String) {
     data object Onboarding : AppRoutes("onboarding")
+
+    data object Notifications : AppRoutes("notifications")
     data object Home       : AppRoutes("home")
     data object Events     : AppRoutes("events")
     data object Teams      : AppRoutes("teams")
+
+    data object CreateTeam : AppRoutes("create_team")
+
+    data object InviteTeam : AppRoutes("invite_team")
     data object Profile      : AppRoutes("profile")
     data object EditProfile      : AppRoutes("edit_profile")
     data object ChangePassword   : AppRoutes("change_password")

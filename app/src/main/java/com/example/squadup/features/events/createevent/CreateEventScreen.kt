@@ -36,6 +36,10 @@ import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
 import com.example.squadup.core.utils.toIcon
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun CreateEventScreen(
@@ -46,6 +50,7 @@ fun CreateEventScreen(
     onGoToStep: (CreateEventStep) -> Unit,
     // Step 1
     onEventNameChange: (String) -> Unit,
+    onNotificationsClick: () -> Unit,
     onPrivacyChange: (Boolean) -> Unit,
     onSportSelect: (SportType) -> Unit,
     formatOptions: List<String>,
@@ -90,6 +95,7 @@ fun CreateEventScreen(
                 showBackButton = true,
                 onBackClick = if (uiState.currentStep == CreateEventStep.BASIC_INFO) onBackClick else onPreviousStep,
                 showSettingsButton = true,
+                onNotificationsClick = onNotificationsClick,
                 isAdmin = isAdmin,
                 isAdminView = isAdminView,
                 onAdminViewChange = onAdminViewChange,
@@ -216,7 +222,7 @@ private fun BasicInfoStep(
         StepHeaderImage(
             heading = stringResource(R.string.createEvent_step1_heading),
             subtitle = stringResource(R.string.createEvent_step1_subtitle),
-            colors = listOf(Color(0xFFD4611A), Color(0xFFFF8C42))
+            imageRes = R.drawable.create_event_1
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -880,22 +886,69 @@ private fun RecurrenceDialog(
 @Composable
 private fun StepHeaderImage(
     heading: String,
-    colors: List<Color>,
+    modifier: Modifier = Modifier,
     subtitle: String? = null,
-    modifier: Modifier = Modifier
+    imageRes: Int? = null,
+    colors: List<Color> = listOf(Color(0xFFD4611A), Color(0xFFFF8C42))
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(120.dp)
-            .background(Brush.linearGradient(colors), RoundedCornerShape(12.dp)),
+            .background(
+                brush = Brush.linearGradient(colors),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clip(RoundedCornerShape(12.dp)),
         contentAlignment = Alignment.BottomStart
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        if (imageRes != null) {
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color.Black.copy(alpha = 0.05f),
+                                Color.Black.copy(alpha = 0.62f)
+                            )
+                        )
+                    )
+            )
+        }
+
+        Column(
+            modifier = Modifier.padding(14.dp)
+        ) {
             subtitle?.let {
-                Text(it, fontSize = 11.sp, color = Color.White.copy(alpha = 0.8f))
+                Text(
+                    text = it,
+                    fontSize = 11.sp,
+                    color = Color.White.copy(alpha = 0.9f),
+                    modifier = Modifier
+                        .background(
+                            Color.White.copy(alpha = 0.18f),
+                            RoundedCornerShape(999.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
             }
-            Text(heading, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+
+            Text(
+                text = heading,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }

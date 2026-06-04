@@ -11,6 +11,7 @@ fun CreateUserRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onCreateClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: CreateUserViewModel = viewModel()
@@ -23,6 +24,7 @@ fun CreateUserRoute(
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         onBackClick = onBackClick,
+        onNotificationsClick = onNotificationsClick,
         onEmailChange = viewModel::onEmailChange,
         onUsernameChange = viewModel::onUsernameChange,
         onPasswordChange = viewModel::onPasswordChange,
@@ -30,10 +32,10 @@ fun CreateUserRoute(
         onCreateClick = onCreateClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

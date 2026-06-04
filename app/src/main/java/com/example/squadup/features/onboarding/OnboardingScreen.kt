@@ -60,6 +60,7 @@ private data class OnboardingPage(
 fun OnboardingScreen(
     selectedLanguage: AppLanguage,
     onLanguageChange: (AppLanguage) -> Unit,
+    onNotificationsClick: () -> Unit,
     onFinish: () -> Unit,
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -100,6 +101,7 @@ fun OnboardingScreen(
         AppHeader(
             showLogo = true,
             showBackButton = false,
+            onNotificationsClick = onNotificationsClick,
             showLanguageSwitch = true,
             selectedLanguage = selectedLanguage,
             onLanguageChange = onLanguageChange

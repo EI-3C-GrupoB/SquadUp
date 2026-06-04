@@ -1,4 +1,4 @@
-package com.example.squadup.features.admin.manageaccounts.edituser
+package com.example.squadup.features.teams.createteam
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,35 +7,30 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.squadup.core.app.AppViewModel
 
 @Composable
-fun EditUserRoute(
-    selectedRoute: String,
-    onNavItemClick: (String) -> Unit,
+fun CreateTeamRoute(
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onSendMessageClick: () -> Unit,
-    onDeleteClick: () -> Unit,
+    onCreateTeamClick: () -> Unit,
     appViewModel: AppViewModel,
-    viewModel: EditUserViewModel = viewModel()
+    viewModel: CreateTeamViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    EditUserScreen(
+    CreateTeamScreen(
         uiState = uiState,
-        selectedRoute = selectedRoute,
-        onNavItemClick = onNavItemClick,
         onBackClick = onBackClick,
         onNotificationsClick = onNotificationsClick,
-        onRoleChange = viewModel::onRoleChange,
-        onSendMessageClick = onSendMessageClick,
-        onToggleSuspend = viewModel::onToggleSuspend,
-        onDeleteClick = onDeleteClick,
-        onSaveClick = onBackClick,
+        onCreateTeamClick = onCreateTeamClick,
+        onTeamNameChange = viewModel::onTeamNameChange,
+        onSportTypeSelected = viewModel::onSportTypeSelected,
+        onTeamDescriptionChange = viewModel::onTeamDescriptionChange,
+        onPrivateTeamChange = viewModel::onPrivateTeamChange,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
+        onAdminViewChange = appViewModel::onAdminViewChange,
         onLanguageChange = appViewModel::onLanguageChange,
         onDarkModeChange = appViewModel::onDarkModeChange
     )
