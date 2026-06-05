@@ -1,60 +1,57 @@
 package com.example.squadup.features.teams.invite
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class InviteTeamViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        InviteTeamUiState(
-            suggestedContacts = listOf(
-                SuggestedContactItem(
-                    id = "1",
-                    name = "Marcus Jensen",
-                    username = "@marcus_lifts",
-                    subtitle = "In your contacts",
-                    initials = "MJ"
-                ),
-                SuggestedContactItem(
-                    id = "2",
-                    name = "Sarah Chen",
-                    username = "@schen_pro",
-                    subtitle = "Frequent squad mate",
-                    initials = "SC",
-                    status = InviteStatus.SENT
-                ),
-                SuggestedContactItem(
-                    id = "3",
-                    name = "David Okafor",
-                    username = "@dave_hoops",
-                    subtitle = "In your contacts",
-                    initials = "DO"
-                )
-            )
-        )
-    )
-
+    private val repository = InviteTeamRepository()
+    private val _uiState = MutableStateFlow(InviteTeamUiState())
     val uiState: StateFlow<InviteTeamUiState> = _uiState.asStateFlow()
+
+    init {
+        loadInviteState()
+    }
+
+    private fun loadInviteState() {
+        viewModelScope.launch {
+            repository.getInviteState().onSuccess { inviteState ->
+                _uiState.value = inviteState
+            }
+        }
+    }
 
     fun onUsernameOrEmailChange(value: String) {
         _uiState.value = _uiState.value.copy(usernameOrEmail = value)
     }
 
     fun onInviteContact(contactId: String) {
-        val updatedContacts = _uiState.value.suggestedContacts.map { contact ->
-            if (contact.id == contactId) {
-                contact.copy(status = InviteStatus.SENT)
-            } else {
-                contact
+        val teamId = _uiState.value.selectedTeamId
+        if (teamId.isBlank()) return
+
+        viewModelScope.launch {
+            repository.inviteUser(teamId, contactId).onSuccess {
+                val updatedContacts = _uiState.value.suggestedContacts.map { contact ->
+                    if (contact.id == contactId) contact.copy(status = InviteStatus.SENT) else contact
+                }
+                _uiState.value = _uiState.value.copy(suggestedContacts = updatedContacts)
             }
         }
-
-        _uiState.value = _uiState.value.copy(suggestedContacts = updatedContacts)
     }
 
     fun onSendInvite() {
-        _uiState.value = _uiState.value.copy(usernameOrEmail = "")
+        val teamId = _uiState.value.selectedTeamId
+        val value = _uiState.value.usernameOrEmail
+        if (teamId.isBlank()) return
+
+        viewModelScope.launch {
+            repository.inviteByUsernameOrEmail(teamId, value).onSuccess {
+                _uiState.value = _uiState.value.copy(usernameOrEmail = "")
+            }
+        }
     }
 }

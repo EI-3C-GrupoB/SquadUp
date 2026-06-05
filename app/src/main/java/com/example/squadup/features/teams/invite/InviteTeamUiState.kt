@@ -1,7 +1,8 @@
 package com.example.squadup.features.teams.invite
 
 data class InviteTeamUiState(
-    val inviteCode: String = "SQUAD-X92",
+    val inviteCode: String = "",
+    val selectedTeamId: String = "",
     val usernameOrEmail: String = "",
     val suggestedContacts: List<SuggestedContactItem> = emptyList()
 )

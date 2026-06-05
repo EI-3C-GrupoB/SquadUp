@@ -6,5 +6,6 @@ data class CreateTeamUiState(
     val teamName: String = "",
     val selectedSportType: SportType = SportType.BASKETBALL,
     val teamDescription: String = "",
-    val isPrivateTeam: Boolean = false
+    val isPrivateTeam: Boolean = false,
+    val isSaving: Boolean = false
 )

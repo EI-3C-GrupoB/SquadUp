@@ -21,7 +21,7 @@ fun CreateTeamRoute(
         uiState = uiState,
         onBackClick = onBackClick,
         onNotificationsClick = onNotificationsClick,
-        onCreateTeamClick = onCreateTeamClick,
+        onCreateTeamClick = { viewModel.createTeam(onCreateTeamClick) },
         onTeamNameChange = viewModel::onTeamNameChange,
         onSportTypeSelected = viewModel::onSportTypeSelected,
         onTeamDescriptionChange = viewModel::onTeamDescriptionChange,
