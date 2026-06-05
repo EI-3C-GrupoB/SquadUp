@@ -11,6 +11,7 @@ fun TicketDetailsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onAddToCalendarClick: () -> Unit,
     onShareTicketClick: () -> Unit,
     onSupportClick: () -> Unit,
@@ -25,15 +26,16 @@ fun TicketDetailsRoute(
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         onBackClick = onBackClick,
+        onNotificationsClick = onNotificationsClick,
         onAddToCalendarClick = onAddToCalendarClick,
         onShareTicketClick = onShareTicketClick,
         onSupportClick = onSupportClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

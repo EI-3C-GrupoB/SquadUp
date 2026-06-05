@@ -11,6 +11,7 @@ fun MyEventsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onManageEventClick: (String) -> Unit,
     onViewResultsClick: (String) -> Unit,
     onCreateEventClick: () -> Unit,
@@ -25,6 +26,7 @@ fun MyEventsRoute(
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         onBackClick = onBackClick,
+        onNotificationsClick = onNotificationsClick,
         onSearchQueryChange = viewModel::onSearchQueryChange,
         onFilterChange = viewModel::onFilterChange,
         onManageEventClick = onManageEventClick,
@@ -32,10 +34,10 @@ fun MyEventsRoute(
         onCreateEventClick = onCreateEventClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

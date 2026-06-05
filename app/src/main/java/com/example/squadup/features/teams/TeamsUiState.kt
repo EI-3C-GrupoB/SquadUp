@@ -1,0 +1,55 @@
+package com.example.squadup.features.teams
+
+import com.example.squadup.core.enums.SportType
+
+enum class TeamsTab {
+    MY_TEAMS,
+    DISCOVER
+}
+
+enum class TeamRosterRole {
+    CAPTAIN,
+    MEMBER
+}
+
+data class TeamRosterMember(
+    val id: String,
+    val name: String,
+    val role: TeamRosterRole
+)
+
+data class TeamListItem(
+    val id: String,
+    val name: String,
+    val membersCount: Int,
+    val sportType: SportType,
+    val location: String,
+    val inviteCode: String? = null,
+    val roster: List<TeamRosterMember> = emptyList()
+)
+
+data class TeamsUiState(
+    val selectedTab: TeamsTab = TeamsTab.MY_TEAMS,
+    val searchQuery: String = "",
+    val expandedTeamId: String? = null,
+    val settingsTeamId: String? = null,
+    val myTeams: List<TeamListItem> = emptyList(),
+    val discoverTeams: List<TeamListItem> = emptyList()
+) {
+    val visibleTeams: List<TeamListItem>
+        get() {
+            val teams = when (selectedTab) {
+                TeamsTab.MY_TEAMS -> myTeams
+                TeamsTab.DISCOVER -> discoverTeams
+            }
+
+            if (searchQuery.isBlank()) {
+                return teams
+            }
+
+            return teams.filter { team ->
+                team.name.contains(searchQuery, ignoreCase = true) ||
+                        team.location.contains(searchQuery, ignoreCase = true)
+            }
+        }
+}

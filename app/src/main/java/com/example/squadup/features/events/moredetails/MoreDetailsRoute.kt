@@ -1,4 +1,4 @@
-package com.example.squadup.features.admin.manageaccounts.edituser
+package com.example.squadup.features.events.moredetails
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,33 +7,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.squadup.core.app.AppViewModel
 
 @Composable
-fun EditUserRoute(
+fun MoreDetailsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onSendMessageClick: () -> Unit,
-    onDeleteClick: () -> Unit,
     appViewModel: AppViewModel,
-    viewModel: EditUserViewModel = viewModel()
+    viewModel: MoreDetailsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    EditUserScreen(
+    MoreDetailsScreen(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
-        onBackClick = onBackClick,
         onNotificationsClick = onNotificationsClick,
-        onRoleChange = viewModel::onRoleChange,
-        onSendMessageClick = onSendMessageClick,
-        onToggleSuspend = viewModel::onToggleSuspend,
-        onDeleteClick = onDeleteClick,
-        onSaveClick = onBackClick,
-        isAdmin = appUiState.isAdmin,
-        isAdminView = appUiState.isAdminView,
-        onAdminViewChange = appViewModel::onAdminViewChange,
+        onBackClick = onBackClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = appViewModel::onLanguageChange,

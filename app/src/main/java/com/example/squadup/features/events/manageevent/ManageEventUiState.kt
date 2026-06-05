@@ -14,7 +14,7 @@ data class ManageEventUiState(
     val venue: String = "Metropolis Sports Complex",
     val dateRange: String = "Aug 12 – 14",
     val sportType: SportType = SportType.SOCCER,
-    val status: EventStatus = EventStatus.REGISTRATION_OPEN,
+    val status: EventStatus = EventStatus.DRAFT,
     val isPublic: Boolean = true,
     val allowTeams: Boolean = true,
     val allowFreeAgents: Boolean = false,

@@ -20,21 +20,33 @@ class EditProfileViewModel : ViewModel() {
         loadProfile()
     }
 
-    private fun loadStaticData() {
-        _uiState.value = EditProfileUiState(
-            name = "Alexandre Caçador",
-            username = "alexandre_cacador",
-            location = "Viana do Castelo",
-            selectedPlayStyle = PlayStyle.HIGH,
-            selectedSports = listOf(
-                SportType.SOCCER,
-                SportType.BASKETBALL
-            )
-        )
+    fun loadProfile() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+            repository
+                .getCurrentProfile()
+                .onSuccess { profile ->
+                    _uiState.value = EditProfileUiState(
+                        name = profile.username,
+                        username = profile.username,
+                        location = "",
+                        selectedPlayStyle = profile.playStyle,
+                        selectedSports = profile.sports,
+                        isLoading = false
+                    )
+                }
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = (exception as? EditProfileException)?.messageRes
+                    )
+                }
+        }
     }
 
     fun onNameChange(value: String) {
-        _uiState.value = _uiState.value.copy(name = value)
+        _uiState.value = _uiState.value.copy(name = value, errorMessage = null)
     }
 
     fun onUsernameChange(value: String) {
@@ -42,7 +54,7 @@ class EditProfileViewModel : ViewModel() {
     }
 
     fun onLocationChange(value: String) {
-        _uiState.value = _uiState.value.copy(location = value)
+        _uiState.value = _uiState.value.copy(location = value, errorMessage = null)
     }
 
     fun onPlayStyleChange(playStyle: PlayStyle) {
@@ -57,7 +69,40 @@ class EditProfileViewModel : ViewModel() {
                 current - sport
             } else {
                 current + sport
-            }
+            },
+            errorMessage = null
         )
+    }
+
+    fun saveProfile(onSuccess: () -> Unit) {
+        val currentState = _uiState.value
+
+        if (currentState.username.isBlank()) {
+            _uiState.value = currentState.copy(errorMessage = R.string.editProfile_error_username_required)
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = currentState.copy(isLoading = true, errorMessage = null)
+
+            repository
+                .updateProfile(
+                    EditProfileUpdate(
+                        username = currentState.username.trim(),
+                        playStyle = currentState.selectedPlayStyle,
+                        sports = currentState.selectedSports
+                    )
+                )
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    onSuccess()
+                }
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = (exception as? EditProfileException)?.messageRes
+                    )
+                }
+        }
     }
 }

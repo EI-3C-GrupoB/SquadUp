@@ -1,4 +1,4 @@
-package com.example.squadup.features.admin.manageaccounts.edituser
+package com.example.squadup.features.teams
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,35 +7,34 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.squadup.core.app.AppViewModel
 
 @Composable
-fun EditUserRoute(
+fun TeamsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
-    onBackClick: () -> Unit,
+    onCreateTeamClick: () -> Unit,
+    onInviteMembersClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onSendMessageClick: () -> Unit,
-    onDeleteClick: () -> Unit,
     appViewModel: AppViewModel,
-    viewModel: EditUserViewModel = viewModel()
+    viewModel: TeamsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    EditUserScreen(
+    TeamsScreen(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
-        onBackClick = onBackClick,
+        onCreateTeamClick = onCreateTeamClick,
+        onInviteMembersClick = onInviteMembersClick,
         onNotificationsClick = onNotificationsClick,
-        onRoleChange = viewModel::onRoleChange,
-        onSendMessageClick = onSendMessageClick,
-        onToggleSuspend = viewModel::onToggleSuspend,
-        onDeleteClick = onDeleteClick,
-        onSaveClick = onBackClick,
+        onTabSelected = viewModel::onTabSelected,
+        onSearchQueryChange = viewModel::onSearchQueryChange,
+        onTeamToggle = viewModel::onTeamToggle,
+        onTeamSettingsToggle = viewModel::onTeamSettingsToggle,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
+        onAdminViewChange = appViewModel::onAdminViewChange,
         onLanguageChange = appViewModel::onLanguageChange,
         onDarkModeChange = appViewModel::onDarkModeChange
     )

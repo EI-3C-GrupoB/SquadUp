@@ -155,15 +155,16 @@ internal fun OverviewTabContent(
         // 1 — Métricas adaptativas
         MetricsGrid(uiState)
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 3 — Progress (adapta ao tipo de evento)
-        MatchProgressCard(
-            isSingleMatch = uiState.isSingleMatch,
-            progress = uiState.matchProgress,
-            completedGames = uiState.completedGames,
-            totalGames = uiState.totalGames
-        )
+        // Progress — só para torneios (múltiplos jogos)
+        if (!uiState.isSingleMatch) {
+            Spacer(modifier = Modifier.height(12.dp))
+            MatchProgressCard(
+                isSingleMatch = false,
+                progress = uiState.matchProgress,
+                completedGames = uiState.completedGames,
+                totalGames = uiState.totalGames
+            )
+        }
 
         val hasManagementTools = uiState.status != EventStatus.FINISHED &&
                 uiState.status != EventStatus.CANCELLED
@@ -402,7 +403,7 @@ private fun StatusActionCard(
         EventStatus.DRAFT -> ActionConfig(
             icon = Icons.Outlined.Upload,
             message = stringResource(R.string.manageEvent_action_draft_msg),
-            buttonLabel = stringResource(R.string.manageEvent_action_publish),
+            buttonLabel = stringResource(R.string.manageEvent_action_open_registrations),
             color = SquadOrange
         )
         EventStatus.REGISTRATION_OPEN -> ActionConfig(
@@ -414,16 +415,10 @@ private fun StatusActionCard(
         EventStatus.REGISTRATION_CLOSED -> ActionConfig(
             icon = Icons.Outlined.PlayArrow,
             message = stringResource(R.string.manageEvent_action_reg_closed_msg),
-            buttonLabel = stringResource(R.string.manageEvent_action_start_event),
+            buttonLabel = stringResource(R.string.manageEvent_action_start_warmup),
             color = Color(0xFF2E7D32)
         )
-        EventStatus.ONGOING -> ActionConfig(
-            icon = Icons.Outlined.Flag,
-            message = stringResource(R.string.manageEvent_action_ongoing_msg),
-            buttonLabel = stringResource(R.string.manageEvent_action_finish_event),
-            color = SquadGrayDark
-        )
-        EventStatus.FINISHED, EventStatus.CANCELLED -> null
+        EventStatus.ONGOING, EventStatus.FINISHED, EventStatus.CANCELLED -> null
     } ?: return
 
     Surface(

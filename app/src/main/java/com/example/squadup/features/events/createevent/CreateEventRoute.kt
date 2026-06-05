@@ -9,6 +9,7 @@ import com.example.squadup.core.app.AppViewModel
 @Composable
 fun CreateEventRoute(
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onEventCreated: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: CreateEventViewModel = viewModel()
@@ -19,6 +20,7 @@ fun CreateEventRoute(
     CreateEventScreen(
         uiState = uiState,
         onBackClick = onBackClick,
+        onNotificationsClick = onNotificationsClick,
         onNextStep = viewModel::onNextStep,
         onPreviousStep = viewModel::onPreviousStep,
         onGoToStep = viewModel::onGoToStep,
@@ -46,10 +48,10 @@ fun CreateEventRoute(
         onCreateEvent = onEventCreated,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
-        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        onAdminViewChange = appViewModel::onAdminViewChange,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

@@ -13,6 +13,7 @@ fun EditProfileRoute(
     onSaveChangesClick: () -> Unit,
     onDeleteAccountClick: () -> Unit,
     onBackClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
     onLocationClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: EditProfileViewModel = viewModel()
@@ -32,9 +33,10 @@ fun EditProfileRoute(
         onSaveChangesClick = { viewModel.saveProfile(onSaveChangesClick) },
         onDeleteAccountClick = onDeleteAccountClick,
         onBackClick = onBackClick,
+        onNotificationsClick = onNotificationsClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
-        onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onLanguageChange = appViewModel::onLanguageChange,
+        onDarkModeChange = appViewModel::onDarkModeChange
     )
 }

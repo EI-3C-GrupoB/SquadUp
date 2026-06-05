@@ -1,11 +1,11 @@
 package com.example.squadup.core.utils
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
-import androidx.annotation.StringRes
 import com.example.squadup.R
 import com.example.squadup.core.enums.SportType
 
@@ -23,16 +23,18 @@ fun SportType.toDisplayName(context: Context): String = context.getString(this.l
 
 @StringRes
 fun SportType.scoreLabelRes(): Int = when (this) {
-    SportType.SOCCER, SportType.FUTSAL -> R.string.stats_score_goals
-    SportType.BASKETBALL               -> R.string.stats_score_points
-    SportType.PADDLE                   -> R.string.stats_score_wins
-    SportType.VOLLEYBALL               -> R.string.stats_score_points
+    SportType.SOCCER     -> R.string.stats_score_goals
+    SportType.FUTSAL     -> R.string.stats_score_goals
+    SportType.BASKETBALL -> R.string.stats_score_points
+    SportType.VOLLEYBALL -> R.string.stats_score_points
+    SportType.PADDLE     -> R.string.stats_score_wins
 }
 
 @StringRes
 fun SportType.topPerformerLabelRes(): Int = when (this) {
-    SportType.SOCCER, SportType.FUTSAL -> R.string.stats_top_scorer_football
-    SportType.BASKETBALL               -> R.string.stats_top_scorer_basketball
-    SportType.PADDLE                   -> R.string.stats_top_player_paddle
-    SportType.VOLLEYBALL               -> R.string.stats_top_scorer_volleyball
+    SportType.SOCCER     -> R.string.stats_top_scorer_football
+    SportType.FUTSAL     -> R.string.stats_top_scorer_football
+    SportType.BASKETBALL -> R.string.stats_top_scorer_basketball
+    SportType.VOLLEYBALL -> R.string.stats_top_scorer_volleyball
+    SportType.PADDLE     -> R.string.stats_top_player_paddle
 }
