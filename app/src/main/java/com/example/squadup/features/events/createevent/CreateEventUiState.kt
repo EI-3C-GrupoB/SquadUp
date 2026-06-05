@@ -24,7 +24,7 @@ data class CreateEventUiState(
 
     // Step 2 — Format & Players
     val eventFormat: EventFormat = EventFormat.SINGLE_MATCH,
-    val format: String = "5v5 Full Court",
+    val format: String = "",
     val maxTeams: Int = 8,
     val generalRules: String = "",
     val isPublicEvent: Boolean = true,
@@ -39,15 +39,17 @@ data class CreateEventUiState(
     val endTime: String = "",
     val isRecurring: Boolean = false,
     val recurrenceType: RecurrenceType = RecurrenceType.WEEKLY,
-    val recurringDays: Set<Int> = setOf(2, 4), // 0=Sun … 6=Sat
+    val recurringDays: Set<Int> = emptySet(), // 0=Sun … 6=Sat
     val showRecurrenceDialog: Boolean = false,
 
     // User context (loaded from session)
     val userRole: UserRole? = null,
     val userTeams: List<NotifyTeamItem> = emptyList(),
+    val formatOptions: List<String> = emptyList(),
 
     // Review
-    val teamsToNotify: Set<String> = emptySet()
+    val teamsToNotify: Set<String> = emptySet(),
+    val isSaving: Boolean = false
 ) {
     val isPlayerOrganizer get() = userRole == UserRole.PLAYER_ORGANIZER
 

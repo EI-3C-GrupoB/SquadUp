@@ -1,6 +1,7 @@
 package com.example.squadup.features.profile.tickets.details
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -8,6 +9,7 @@ import com.example.squadup.core.app.AppViewModel
 
 @Composable
 fun TicketDetailsRoute(
+    ticketId: String,
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
@@ -18,6 +20,10 @@ fun TicketDetailsRoute(
     appViewModel: AppViewModel,
     viewModel: TicketDetailsViewModel = viewModel()
 ) {
+    LaunchedEffect(ticketId) {
+        viewModel.loadTicket(ticketId)
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 

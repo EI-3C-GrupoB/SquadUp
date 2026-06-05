@@ -45,7 +45,7 @@ fun CreateEventRoute(
         onRecurrenceTypeChange = viewModel::onRecurrenceTypeChange,
         onRecurringDayToggle = viewModel::onRecurringDayToggle,
         onTeamNotifyToggle = viewModel::onTeamNotifyToggle,
-        onCreateEvent = onEventCreated,
+        onCreateEvent = { viewModel.createEvent(onEventCreated) },
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         onAdminViewChange = appViewModel::onAdminViewChange,

@@ -30,7 +30,9 @@ sealed class AppRoutes(val route: String) {
         fun createRoute(gameId: String) = "live_match/$gameId"
     }
     data object SelectLocation : AppRoutes("select_location")
-    data object MoreDetails : AppRoutes("more_details")
+    data object MoreDetails : AppRoutes("more_details/{eventId}") {
+        fun createRoute(eventId: String) = "more_details/$eventId"
+    }
     data object Calendar : AppRoutes("calendar")
     data object MyTickets        : AppRoutes("my_tickets")
     data object TicketDetails    : AppRoutes("ticket_details/{ticketId}") {

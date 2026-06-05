@@ -1,16 +1,18 @@
 package com.example.squadup.features.events.createevent
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
-import com.example.squadup.core.enums.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class CreateEventViewModel : ViewModel() {
 
+    private val repository = CreateEventRepository()
     private val _uiState = MutableStateFlow(CreateEventUiState())
     val uiState: StateFlow<CreateEventUiState> = _uiState.asStateFlow()
 
@@ -19,15 +21,16 @@ class CreateEventViewModel : ViewModel() {
     }
 
     private fun loadUserContext() {
-        // Hardcoded — substituir com dados da sessão quando ligar à BD
-        // Mudar role para null ou ORGANIZER para testar sem a secção de equipas
-        _uiState.value = _uiState.value.copy(
-            userRole = UserRole.PLAYER_ORGANIZER,
-            userTeams = listOf(
-                NotifyTeamItem("1", "The Mavericks", 12, SportType.SOCCER),
-                NotifyTeamItem("2", "Midnight Hoop", 8, SportType.BASKETBALL)
-            )
-        )
+        viewModelScope.launch {
+            repository.getUserContext().onSuccess { context ->
+                _uiState.value = _uiState.value.copy(
+                    userRole = context.userRole,
+                    userTeams = context.userTeams,
+                    formatOptions = context.formatOptions,
+                    format = context.formatOptions.firstOrNull() ?: _uiState.value.format
+                )
+            }
+        }
     }
 
     // Navigation
@@ -69,17 +72,14 @@ class CreateEventViewModel : ViewModel() {
         // toggle: clicking the same sport deselects it
         _uiState.value = _uiState.value.copy(
             selectedSport = if (current == sport) null else sport,
-            format = formatsFor(if (current == sport) null else sport).first()
+            format = formatsFor(if (current == sport) null else sport).firstOrNull().orEmpty()
         )
     }
 
-    fun formatsFor(sport: SportType?): List<String> = when (sport) {
-        SportType.SOCCER     -> listOf("11v11 Full Match", "7v7 Format", "5v5 Small Sided")
-        SportType.BASKETBALL -> listOf("5v5 Full Court", "3v3 Half Court")
-        SportType.PADDLE     -> listOf("Singles", "Doubles")
-        SportType.VOLLEYBALL -> listOf("6v6 Standard", "4v4 Beach")
-        SportType.FUTSAL     -> listOf("5v5 Futsal", "4v4 Indoor")
-        null                 -> listOf("5v5 Full Court")
+    fun formatsFor(sport: SportType?): List<String> {
+        return _uiState.value.formatOptions.ifEmpty {
+            EventFormat.entries.map { it.name.replace("_", " ") }
+        }
     }
 
     // Step 2
@@ -166,5 +166,22 @@ class CreateEventViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             teamsToNotify = if (teamId in current) current - teamId else current + teamId
         )
+    }
+
+    fun createEvent(onSuccess: () -> Unit) {
+        val currentState = _uiState.value
+        if (currentState.eventName.isBlank()) return
+
+        viewModelScope.launch {
+            _uiState.value = currentState.copy(isSaving = true)
+            repository.createEvent(currentState)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isSaving = false)
+                    onSuccess()
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(isSaving = false)
+                }
+        }
     }
 }

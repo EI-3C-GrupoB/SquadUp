@@ -168,8 +168,8 @@ fun AppNavigation() {
                 selectedRoute = AppRoutes.Events.route,
                 onNavItemClick = navigateWithBottomBar,
                 onNotificationsClick = openNotifications,
-                onEventClick = {
-                    // TODO: navegar para detalhe do evento
+                onEventClick = { eventId ->
+                    navController.navigate(AppRoutes.MoreDetails.createRoute(eventId))
                 },
                 onViewCalendarClick = {
                     navController.navigate(AppRoutes.Calendar.route)
@@ -292,16 +292,21 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onNotificationsClick = openNotifications,
-                onViewDetailsClick = {
-                    navController.navigate(AppRoutes.TicketDetails.route)
+                onViewDetailsClick = { ticketId ->
+                    navController.navigate(AppRoutes.TicketDetails.createRoute(ticketId))
                 },
                 onReferClick = {},
                 appViewModel = appViewModel
             )
         }
 
-        composable(AppRoutes.TicketDetails.route) {
+        composable(
+            route = AppRoutes.TicketDetails.route,
+            arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
             TicketDetailsRoute(
+                ticketId = ticketId,
                 selectedRoute = AppRoutes.Profile.route,
                 onNavItemClick = navigateWithBottomBar,
                 onBackClick = {
@@ -422,8 +427,10 @@ fun AppNavigation() {
         composable(
             route = AppRoutes.ManageEvent.route,
             arguments = listOf(navArgument("eventId") { type = NavType.StringType })
-        ) {
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
             ManageEventRoute(
+                eventId = eventId,
                 selectedRoute = AppRoutes.Profile.route,
                 onNavItemClick = { route ->
                     navController.navigate(route) {
@@ -481,8 +488,13 @@ fun AppNavigation() {
             )
         }
 
-        composable(AppRoutes.MoreDetails.route) {
+        composable(
+            route = AppRoutes.MoreDetails.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
             MoreDetailsRoute(
+                eventId = eventId,
                 selectedRoute = AppRoutes.Events.route,
                 onNavItemClick = navigateWithBottomBar,
                 onBackClick = {

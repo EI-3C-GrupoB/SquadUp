@@ -13,6 +13,8 @@ data class LiveMatchUiState(
     val sportType: SportType = SportType.SOCCER,
 
     // Teams
+    val homeTeamId: Int? = null,
+    val awayTeamId: Int? = null,
     val homeTeamName: String = "",
     val awayTeamName: String = "",
     val homeTeamAbbr: String = "",
@@ -31,7 +33,7 @@ data class LiveMatchUiState(
     val timerSeconds: Int = 0,
     val isTimerRunning: Boolean = false,
 
-    // Events (offline-first — synced flag para Room mais tarde)
+    // Events
     val events: List<MatchEventItem> = emptyList(),
     val selectedTab: LiveMatchTab = LiveMatchTab.EVENTS,
 
@@ -40,7 +42,7 @@ data class LiveMatchUiState(
     val showInfractionForm: Boolean = false,
     val showSubstitutionForm: Boolean = false,
 
-    // Stats — hardcoded por agora, derivadas dos eventos quando ligarmos à BD
+    // Stats
     val homeStats: LiveTeamStats = LiveTeamStats(),
     val awayStats: LiveTeamStats = LiveTeamStats()
 ) {
@@ -70,7 +72,6 @@ data class MatchEventItem(
     val synced: Boolean = false  // offline-first
 )
 
-// Stats — hardcoded por agora, derivadas dos eventos quando ligarmos à BD
 data class LiveTeamStats(
     val shots: Int = 0,
     val shotsOnGoal: Int = 0,

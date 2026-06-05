@@ -1,20 +1,20 @@
 package com.example.squadup.features.events.calendar
 
 data class CalendarUiState(
-    val monthTitle: String = "April 2026",
-    val matchesScheduled: Int = 4,
-    val selectedDay: Int = 9,
-    val eventDays: Set<Int> = setOf(9, 12, 19, 20, 26),
+    val monthTitle: String = "",
+    val matchesScheduled: Int = 0,
+    val selectedDay: Int = java.time.LocalDate.now().dayOfMonth,
+    val eventDays: Set<Int> = emptySet(),
     val highlightedMatch: CalendarMatchItem = CalendarMatchItem(),
     val dailySchedule: List<DailyScheduleItem> = emptyList(),
     val nextAwayGame: AwayGameItem = AwayGameItem()
 )
 
 data class CalendarMatchItem(
-    val label: String = "UPCOMING: OCT 12",
-    val title: String = "The Mavericks vs.\nRed Eagles",
-    val homeTeam: String = "Strikers",
-    val awayTeam: String = "Metro"
+    val label: String = "",
+    val title: String = "",
+    val homeTeam: String = "",
+    val awayTeam: String = ""
 )
 
 data class DailyScheduleItem(
@@ -25,6 +25,6 @@ data class DailyScheduleItem(
 
 data class AwayGameItem(
     val label: String = "Next Away Game",
-    val city: String = "Chicago Fire",
-    val date: String = "Oct 19 • Soldier Field"
+    val city: String = "",
+    val date: String = ""
 )
