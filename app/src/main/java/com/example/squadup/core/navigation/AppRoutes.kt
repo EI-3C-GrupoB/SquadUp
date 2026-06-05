@@ -22,6 +22,12 @@ sealed class AppRoutes(val route: String) {
         fun createRoute(userId: String) = "edit_user/$userId"
     }
 
+    data object ManageEvent : AppRoutes("manage_event/{eventId}") {
+        fun createRoute(eventId: String) = "manage_event/$eventId"
+    }
+    data object LiveMatch : AppRoutes("live_match/{gameId}") {
+        fun createRoute(gameId: String) = "live_match/$gameId"
+    }
     data object SelectLocation : AppRoutes("select_location")
     data object MoreDetails : AppRoutes("more_details")
     data object Calendar : AppRoutes("calendar")
