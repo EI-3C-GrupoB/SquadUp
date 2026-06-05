@@ -147,6 +147,16 @@
     <string name="createEvent_sports_label">SELECT SPORT</string>
     <string name="createEvent_next_step">Next Step →</string>
     <string name="createEvent_format_label">Format</string>
+    <string name="createEvent_format_single_match">Single Match</string>
+    <string name="createEvent_format_single_match_desc">One match between two teams or players.</string>
+    <string name="createEvent_format_league">League</string>
+    <string name="createEvent_format_league_desc">All teams play against each other in a round-robin format.</string>
+    <string name="createEvent_format_knockout">Knockout</string>
+    <string name="createEvent_format_knockout_desc">Teams compete in elimination brackets until one remains.</string>
+    <string name="createEvent_format_group_knockout">Group + Knockout</string>
+    <string name="createEvent_format_group_knockout_desc">Group stage followed by knockout elimination rounds.</string>
+    <string name="createEvent_format_free">Open Format</string>
+    <string name="createEvent_format_free_desc">Flexible format defined by the organizer.</string>
     <string name="createEvent_max_teams_label">Max Teams</string>
     <string name="createEvent_max_teams_hint">Recommended: %1$d players + %2$d subs</string>
     <string name="createEvent_rules_label">General Rules</string>

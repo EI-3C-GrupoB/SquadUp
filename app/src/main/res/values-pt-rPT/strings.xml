@@ -146,6 +146,16 @@
     <string name="createEvent_sports_label">SELECIONAR DESPORTO</string>
     <string name="createEvent_next_step">Próximo Passo →</string>
     <string name="createEvent_format_label">Formato</string>
+    <string name="createEvent_format_single_match">Jogo Único</string>
+    <string name="createEvent_format_single_match_desc">Um jogo entre duas equipas ou jogadores.</string>
+    <string name="createEvent_format_league">Liga</string>
+    <string name="createEvent_format_league_desc">Todas as equipas jogam entre si em formato todos contra todos.</string>
+    <string name="createEvent_format_knockout">Eliminatórias</string>
+    <string name="createEvent_format_knockout_desc">Equipas competem em eliminatórias até restar uma.</string>
+    <string name="createEvent_format_group_knockout">Grupos + Eliminatórias</string>
+    <string name="createEvent_format_group_knockout_desc">Fase de grupos seguida de rondas eliminatórias.</string>
+    <string name="createEvent_format_free">Formato Livre</string>
+    <string name="createEvent_format_free_desc">Formato flexível definido pelo organizador.</string>
     <string name="createEvent_max_teams_label">Máx. Equipas</string>
     <string name="createEvent_max_teams_hint">Recomendado: %1$d jogadores + %2$d suplentes</string>
     <string name="createEvent_rules_label">Regras Gerais</string>
