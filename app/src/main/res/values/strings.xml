@@ -167,7 +167,7 @@
     <string name="createEvent_privacy_public">Public</string>
     <string name="createEvent_privacy_private">Private</string>
     <string name="createEvent_sports_label">SELECT SPORT</string>
-    <string name="createEvent_next_step">Next Step →</string>
+    <string name="createEvent_next_step">Next Step</string>
     <string name="createEvent_format_label">Format</string>
     <string name="createEvent_format_single_match">Single Match</string>
     <string name="createEvent_format_single_match_desc">One match between two teams or players.</string>
@@ -194,7 +194,7 @@
     <string name="createEvent_end_time_label">END TIME</string>
     <string name="createEvent_recurring_label">Recurring Event</string>
     <string name="createEvent_recurring_subtitle">Repeat weekly</string>
-    <string name="createEvent_review_event">Review Event →</string>
+    <string name="createEvent_review_event">Review Event</string>
     <string name="createEvent_recurrence_title">Edit Recurrence</string>
     <string name="createEvent_recurrence_daily">Daily</string>
     <string name="createEvent_recurrence_weekly">Weekly</string>
@@ -220,7 +220,7 @@
     <string name="createEvent_participation_free_agents">Free Agents</string>
     <string name="createEvent_notify_teams_label">Notify my Teams</string>
     <string name="createEvent_notify_teams_subtitle">Selected teams will receive automatic invites</string>
-    <string name="createEvent_create_button">Create Event 🚀</string>
+    <string name="createEvent_create_button">Create Event</string>
 
     <!-- Events Screen -->
     <string name="events_title">Explore Events</string>

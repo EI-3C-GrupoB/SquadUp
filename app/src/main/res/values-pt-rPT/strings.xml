@@ -166,7 +166,7 @@
     <string name="createEvent_privacy_public">Público</string>
     <string name="createEvent_privacy_private">Privado</string>
     <string name="createEvent_sports_label">SELECIONAR DESPORTO</string>
-    <string name="createEvent_next_step">Próximo Passo →</string>
+    <string name="createEvent_next_step">Próximo Passo</string>
     <string name="createEvent_format_label">Formato</string>
     <string name="createEvent_format_single_match">Jogo Único</string>
     <string name="createEvent_format_single_match_desc">Um jogo entre duas equipas ou jogadores.</string>
@@ -193,7 +193,7 @@
     <string name="createEvent_end_time_label">HORA DE FIM</string>
     <string name="createEvent_recurring_label">Evento Recorrente</string>
     <string name="createEvent_recurring_subtitle">Repetir semanalmente</string>
-    <string name="createEvent_review_event">Rever Evento →</string>
+    <string name="createEvent_review_event">Rever Evento</string>
     <string name="createEvent_recurrence_title">Editar Recorrência</string>
     <string name="createEvent_recurrence_daily">Diário</string>
     <string name="createEvent_recurrence_weekly">Semanal</string>
@@ -219,7 +219,7 @@
     <string name="createEvent_participation_free_agents">Agentes Livres</string>
     <string name="createEvent_notify_teams_label">Notificar as Minhas Equipas</string>
     <string name="createEvent_notify_teams_subtitle">As equipas selecionadas receberão convites automáticos</string>
-    <string name="createEvent_create_button">Criar Evento 🚀</string>
+    <string name="createEvent_create_button">Criar Evento</string>
 
     <!-- Events Screen -->
     <string name="events_title">Explorar Eventos</string>

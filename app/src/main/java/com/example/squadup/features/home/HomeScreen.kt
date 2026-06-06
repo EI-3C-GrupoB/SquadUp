@@ -6,6 +6,10 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,7 +79,6 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- SAUDAÇÃO ---
             Text(
                 text = if (uiState.isLoggedIn) {
                     stringResource(R.string.home_greeting, uiState.displayName)
@@ -100,7 +103,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // --- STATS (apenas organizador) ---
             if (uiState.isOrganizer) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -111,6 +113,7 @@ fun HomeScreen(
                         value = uiState.eventsCreated.toString(),
                         modifier = Modifier.weight(1f)
                     )
+
                     StatsCard(
                         label = stringResource(R.string.statsCard_active_teams),
                         value = uiState.activeTeams.toString(),
@@ -130,7 +133,6 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(28.dp))
             }
 
-            // --- CURRENT MATCH (todos os roles) ---
             if (uiState.currentMatch != null) {
                 CurrentMatchCard(
                     title = uiState.currentMatch.title,
@@ -139,11 +141,16 @@ fun HomeScreen(
                     sportType = uiState.currentMatch.sportType,
                     onViewDetailsClick = onViewMatchDetailsClick
                 )
-
-                Spacer(modifier = Modifier.height(28.dp))
+            } else {
+                EmptyStateCard(
+                    title = "Sem jogo atual",
+                    message = "Ainda não existe nenhum jogo em destaque para mostrar.",
+                    icon = Icons.Outlined.SportsSoccer
+                )
             }
 
-            // --- MY EVENTS (apenas organizador) ---
+            Spacer(modifier = Modifier.height(28.dp))
+
             if (uiState.isOrganizer) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -153,6 +160,7 @@ fun HomeScreen(
                         color = SquadTextPrimary,
                         modifier = Modifier.weight(1f)
                     )
+
                     Text(
                         text = stringResource(R.string.home_see_all),
                         fontSize = 14.sp,
@@ -163,24 +171,36 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                uiState.myEvents.forEach { event ->
-                    OrganizerEventCard(
-                        title = event.title,
-                        price = event.price,
-                        nTeams = event.nTeams,
-                        dateLeft = event.dateLeft,
-                        registeredCount = event.registeredCount,
-                        status = event.status,
-                        sportType = event.sportType,
-                        modifier = Modifier.clickable { onEventDetailsClick(event.id) }
+                if (uiState.myEvents.isEmpty()) {
+                    EmptyStateCard(
+                        title = "Sem eventos criados",
+                        message = "Ainda não criaste nenhum evento. Quando criares eventos, eles aparecem aqui.",
+                        icon = Icons.Outlined.CalendarMonth,
+                        actionText = "Criar evento",
+                        onActionClick = onSeeAllEventsClick
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                } else {
+                    uiState.myEvents.forEach { event ->
+                        OrganizerEventCard(
+                            title = event.title,
+                            price = event.price,
+                            nTeams = event.nTeams,
+                            dateLeft = event.dateLeft,
+                            registeredCount = event.registeredCount,
+                            status = event.status,
+                            sportType = event.sportType,
+                            modifier = Modifier.clickable {
+                                onEventDetailsClick(event.id)
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(28.dp))
             }
 
-            // --- NEARBY EVENTS (todos os roles) ---
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.home_nearby_events),
@@ -189,6 +209,7 @@ fun HomeScreen(
                     color = SquadTextPrimary,
                     modifier = Modifier.weight(1f)
                 )
+
                 Text(
                     text = stringResource(R.string.home_see_all),
                     fontSize = 14.sp,
@@ -199,24 +220,33 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                uiState.nearbyEvents.forEach { event ->
-                    NearbyEventCard(
-                        title = event.title,
-                        location = event.location,
-                        distance = event.distance,
-                        intensity = event.intensity,
-                        sportType = event.sportType,
-                        status = event.status,
-                        onJoinClick = { onJoinEventClick(event.id) }
-                    )
+            if (uiState.nearbyEvents.isEmpty()) {
+                EmptyStateCard(
+                    title = "Sem eventos próximos",
+                    message = "Ainda não existem eventos próximos disponíveis.",
+                    icon = Icons.Outlined.CalendarMonth
+                )
+            } else {
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    uiState.nearbyEvents.forEach { event ->
+                        NearbyEventCard(
+                            title = event.title,
+                            location = event.location,
+                            distance = event.distance,
+                            intensity = event.intensity,
+                            sportType = event.sportType,
+                            status = event.status,
+                            onJoinClick = {
+                                onJoinEventClick(event.id)
+                            }
+                        )
+                    }
                 }
             }
 
-            // --- MY TEAMS (apenas jogador) ---
             if (uiState.isPlayer) {
                 Spacer(modifier = Modifier.height(28.dp))
 
@@ -229,14 +259,23 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                uiState.teams.forEach { team ->
-                    TeamListItem(
-                        name = team.name,
-                        nMembers = team.nMembers,
-                        sportType = team.sportType,
-                        badge = team.badge
+                if (uiState.teams.isEmpty()) {
+                    EmptyStateCard(
+                        title = "Sem equipas",
+                        message = "Ainda não tens equipas associadas à tua conta.",
+                        icon = Icons.Outlined.Groups
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                } else {
+                    uiState.teams.forEach { team ->
+                        TeamListItem(
+                            name = team.name,
+                            nMembers = team.nMembers,
+                            sportType = team.sportType,
+                            badge = team.badge
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
 
