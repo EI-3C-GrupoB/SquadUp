@@ -10,6 +10,7 @@ import com.example.squadup.core.app.AppViewModel
 fun ProfileRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
+    onNotificationsClick: () -> Unit,
     onTicketsClick: () -> Unit,
     onMyEventsClick: () -> Unit,
     onManageAccountsClick: () -> Unit,
@@ -35,6 +36,7 @@ fun ProfileRoute(
         onEditProfileClick = onEditProfileClick,
         onChangePasswordClick = onChangePasswordClick,
         onLogoutClick = { viewModel.logout(onLogoutClick) },
+        onNotificationsClick = onNotificationsClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = { appViewModel.onLanguageChange(it) },

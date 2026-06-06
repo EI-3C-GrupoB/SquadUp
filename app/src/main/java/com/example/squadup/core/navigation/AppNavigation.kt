@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
@@ -64,7 +65,7 @@ fun AppNavigation() {
 
     val navigateWithBottomBar: (String) -> Unit = { route ->
         navController.navigate(route) {
-            popUpTo(AppRoutes.Home.route) {
+            popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
             }
             launchSingleTop = true
@@ -245,6 +246,7 @@ fun AppNavigation() {
             ProfileRoute(
                 selectedRoute = AppRoutes.Profile.route,
                 onNavItemClick = navigateWithBottomBar,
+                onNotificationsClick = openNotifications,
                 onTicketsClick = {
                     navController.navigate(AppRoutes.MyTickets.route)
                 },

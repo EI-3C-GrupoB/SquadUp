@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.EmptyStateCard
 import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
@@ -153,16 +154,26 @@ fun TeamsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                uiState.visibleTeams.forEach { team ->
-                    ExpandableTeamCard(
-                        team = team,
-                        selectedTab = uiState.selectedTab,
-                        expanded = uiState.expandedTeamId == team.id,
-                        settingsActive = uiState.settingsTeamId == team.id,
-                        onToggle = { onTeamToggle(team.id) },
-                        onInviteMembersClick = onInviteMembersClick,
-                        onTeamSettingsToggle = { onTeamSettingsToggle(team.id) }
+                if (uiState.visibleTeams.isEmpty()) {
+                    EmptyStateCard(
+                        title = if (uiState.selectedTab == TeamsTab.MY_TEAMS) "No Teams Found" else "No Teams to Discover",
+                        message = if (uiState.selectedTab == TeamsTab.MY_TEAMS)
+                            "You haven't joined or created any teams yet."
+                        else "There are no teams available for discovery right now.",
+                        icon = Icons.Outlined.Groups
                     )
+                } else {
+                    uiState.visibleTeams.forEach { team ->
+                        ExpandableTeamCard(
+                            team = team,
+                            selectedTab = uiState.selectedTab,
+                            expanded = uiState.expandedTeamId == team.id,
+                            settingsActive = uiState.settingsTeamId == team.id,
+                            onToggle = { onTeamToggle(team.id) },
+                            onInviteMembersClick = onInviteMembersClick,
+                            onTeamSettingsToggle = { onTeamSettingsToggle(team.id) }
+                        )
+                    }
                 }
             }
 
@@ -965,21 +976,11 @@ private fun RoleBadge(
 
 @Composable
 private fun EmptyRosterMessage() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "There are currently no players on\nthis team.\n\nTry inviting your friends!",
-            fontSize = 13.sp,
-            lineHeight = 20.sp,
-            fontWeight = FontWeight.Medium,
-            color = SquadTextSecondary,
-            textAlign = TextAlign.Center
-        )
-    }
+    EmptyStateCard(
+        title = "No Players",
+        message = "There are currently no players on this team. Try inviting your friends!",
+        icon = Icons.Outlined.Person
+    )
 }
 
 @Composable

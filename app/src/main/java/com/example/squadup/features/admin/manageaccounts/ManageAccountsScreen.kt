@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Search
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.EmptyStateCard
 import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
@@ -285,21 +287,30 @@ fun ManageAccountsScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentPadding = PaddingValues(bottom = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(18.dp)
-                    ) {
-                        items(
-                            items = uiState.filteredUsers,
-                            key = { user -> user.id }
-                        ) { user ->
-                            AccountUserRow(
-                                user = user,
-                                onClick = { onUserClick(user.id) }
-                            )
+                    if (uiState.filteredUsers.isEmpty()) {
+                        EmptyStateCard(
+                            title = "Nenhum utilizador",
+                            message = "Não foram encontrados utilizadores para a pesquisa selecionada.",
+                            icon = Icons.Outlined.Groups,
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentPadding = PaddingValues(bottom = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(18.dp)
+                        ) {
+                            items(
+                                items = uiState.filteredUsers,
+                                key = { user -> user.id }
+                            ) { user ->
+                                AccountUserRow(
+                                    user = user,
+                                    onClick = { onUserClick(user.id) }
+                                )
+                            }
                         }
                     }
                 }

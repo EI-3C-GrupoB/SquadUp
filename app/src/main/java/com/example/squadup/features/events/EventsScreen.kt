@@ -25,6 +25,7 @@ import com.example.squadup.R
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.EmptyStateCard
 import com.example.squadup.core.ui.components.SquadFab
 import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
@@ -262,14 +263,23 @@ fun EventsScreen(
             }
 
             // Browse events
-            uiState.filteredBrowseEvents.forEach { event ->
-                BrowseEventCard(
-                    event = event,
-                    onClick = { selectedEvent = event },
-                    onDetailsClick = { onEventClick(event.id) },
+            if (uiState.filteredBrowseEvents.isEmpty() && uiState.filteredUpcomingEvents.isEmpty()) {
+                EmptyStateCard(
+                    title = "Sem eventos encontrados",
+                    message = "Não existem eventos disponíveis para os filtros selecionados.",
+                    icon = Icons.Outlined.CalendarMonth,
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+            } else {
+                uiState.filteredBrowseEvents.forEach { event ->
+                    BrowseEventCard(
+                        event = event,
+                        onClick = { selectedEvent = event },
+                        onDetailsClick = { onEventClick(event.id) },
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
 
             Spacer(modifier = Modifier.height(88.dp)) // espaço para o FAB

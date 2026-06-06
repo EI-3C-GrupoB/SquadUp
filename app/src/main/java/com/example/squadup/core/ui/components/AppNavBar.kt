@@ -170,7 +170,14 @@ private fun AppNavBarButton(
     )
 
     Box(
-        modifier = modifier,
+        modifier = modifier
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab,
+                interactionSource = interactionSource,
+                indication = null
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -180,13 +187,6 @@ private fun AppNavBarButton(
                 .background(
                     color = backgroundColor,
                     shape = RoundedCornerShape(cornerRadius)
-                )
-                .selectable(
-                    selected = selected,
-                    onClick = onClick,
-                    role = Role.Tab,
-                    interactionSource = interactionSource,
-                    indication = null
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center

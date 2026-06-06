@@ -25,6 +25,7 @@ import com.example.squadup.R
 import com.example.squadup.core.enums.EventStatus
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.EmptyStateCard
 import com.example.squadup.core.ui.components.SquadFab
 import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
@@ -159,22 +160,32 @@ fun MyEventsScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // Event list
-            uiState.filteredEvents.forEach { event ->
-                when (event.status) {
-                    EventStatus.FINISHED, EventStatus.CANCELLED -> {
-                        MyEventCompletedCard(
-                            event = event,
-                            onViewResultsClick = { onViewResultsClick(event.id) }
-                        )
+            if (uiState.filteredEvents.isEmpty()) {
+                EmptyStateCard(
+                    title = "Sem eventos",
+                    message = "Ainda não tens eventos nesta categoria. Cria um evento para começar!",
+                    icon = Icons.Default.CalendarMonth,
+                    actionText = "Criar Evento",
+                    onActionClick = onCreateEventClick
+                )
+            } else {
+                uiState.filteredEvents.forEach { event ->
+                    when (event.status) {
+                        EventStatus.FINISHED, EventStatus.CANCELLED -> {
+                            MyEventCompletedCard(
+                                event = event,
+                                onViewResultsClick = { onViewResultsClick(event.id) }
+                            )
+                        }
+                        else -> {
+                            MyEventActiveCard(
+                                event = event,
+                                onManageClick = { onManageEventClick(event.id) }
+                            )
+                        }
                     }
-                    else -> {
-                        MyEventActiveCard(
-                            event = event,
-                            onManageClick = { onManageEventClick(event.id) }
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

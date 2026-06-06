@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.EmptyStateCard
 import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
@@ -72,6 +73,7 @@ fun NotificationsScreen(
             AppHeader(
                 showLogo = true,
                 title = "SquadUp",
+                showBackButton = false,
                 showNotificationsButton = true,
                 showSettingsButton = true,
                 onNotificationsClick = onNotificationsClick,
@@ -118,45 +120,57 @@ fun NotificationsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            NotificationSectionHeader(
-                title = "Today",
-                badgeText = "${uiState.newNotificationsCount} New"
-            )
+            if (uiState.todayNotifications.isEmpty() && uiState.earlierNotifications.isEmpty()) {
+                EmptyStateCard(
+                    title = "Sem notificações",
+                    message = "Ainda não tens notificações para mostrar. Todas as atualizações das tuas squads aparecerão aqui.",
+                    icon = Icons.Outlined.Notifications
+                )
+            } else {
+                if (uiState.todayNotifications.isNotEmpty()) {
+                    NotificationSectionHeader(
+                        title = "Today",
+                        badgeText = "${uiState.newNotificationsCount} New"
+                    )
 
-            Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                uiState.todayNotifications.forEach { notification ->
-                    NotificationCard(notification = notification)
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        uiState.todayNotifications.forEach { notification ->
+                            NotificationCard(notification = notification)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(22.dp))
                 }
-            }
 
-            Spacer(modifier = Modifier.height(22.dp))
+                if (uiState.earlierNotifications.isNotEmpty()) {
+                    NotificationSectionHeader(
+                        title = "Earlier",
+                        badgeText = null
+                    )
 
-            NotificationSectionHeader(
-                title = "Earlier",
-                badgeText = null
-            )
+                    Spacer(modifier = Modifier.height(10.dp))
 
-            Spacer(modifier = Modifier.height(10.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = SquadSurface,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, SquadGrayLight)
+                    ) {
+                        Column {
+                            uiState.earlierNotifications.forEachIndexed { index, notification ->
+                                CompactNotificationRow(notification = notification)
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = SquadSurface,
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, SquadGrayLight)
-            ) {
-                Column {
-                    uiState.earlierNotifications.forEachIndexed { index, notification ->
-                        CompactNotificationRow(notification = notification)
-
-                        if (index < uiState.earlierNotifications.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 12.dp),
-                                color = SquadGrayLight
-                            )
+                                if (index < uiState.earlierNotifications.lastIndex) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(horizontal = 12.dp),
+                                        color = SquadGrayLight
+                                    )
+                                }
+                            }
                         }
                     }
                 }
