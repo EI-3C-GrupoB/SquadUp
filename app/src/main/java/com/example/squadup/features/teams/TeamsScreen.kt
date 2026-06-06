@@ -32,9 +32,9 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Groups
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
+import androidx.compose.material.icons.outlined.PersonRemove
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
@@ -47,10 +47,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
+import coil.compose.AsyncImage
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -84,6 +87,7 @@ fun TeamsScreen(
     onTeamToggle: (String) -> Unit,
     onTeamSettingsToggle: (String) -> Unit,
     onLoginClick: () -> Unit,
+    onAskToJoinClick: (String) -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -178,13 +182,15 @@ fun TeamsScreen(
                 } else {
                     uiState.visibleTeams.forEach { team ->
                         ExpandableTeamCard(
+                            uiState = uiState,
                             team = team,
                             selectedTab = uiState.selectedTab,
                             expanded = uiState.expandedTeamId == team.id,
                             settingsActive = uiState.settingsTeamId == team.id,
                             onToggle = { onTeamToggle(team.id) },
                             onInviteMembersClick = onInviteMembersClick,
-                            onTeamSettingsToggle = { onTeamSettingsToggle(team.id) }
+                            onTeamSettingsToggle = { onTeamSettingsToggle(team.id) },
+                            onAskToJoinClick = { onAskToJoinClick(team.id) }
                         )
                     }
                 }
@@ -387,13 +393,15 @@ private fun TeamsSearchField(
 
 @Composable
 private fun ExpandableTeamCard(
+    uiState: TeamsUiState,
     team: TeamListItem,
     selectedTab: TeamsTab,
     expanded: Boolean,
     settingsActive: Boolean,
     onToggle: () -> Unit,
     onInviteMembersClick: () -> Unit,
-    onTeamSettingsToggle: () -> Unit
+    onTeamSettingsToggle: () -> Unit,
+    onAskToJoinClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -410,11 +418,13 @@ private fun ExpandableTeamCard(
             exit = shrinkVertically() + fadeOut()
         ) {
             TeamExpandedContent(
+                uiState = uiState,
                 team = team,
                 selectedTab = selectedTab,
                 settingsActive = settingsActive,
                 onInviteMembersClick = onInviteMembersClick,
-                onTeamSettingsToggle = onTeamSettingsToggle
+                onTeamSettingsToggle = onTeamSettingsToggle,
+                onAskToJoinClick = onAskToJoinClick
             )
         }
     }
@@ -445,7 +455,8 @@ private fun TeamSummaryCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TeamSportIcon(
-                sportType = team.sportType
+                sportType = team.sportType,
+                logoUrl = team.logoUrl
             )
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -500,11 +511,13 @@ private fun TeamSummaryCard(
 
 @Composable
 private fun TeamExpandedContent(
+    uiState: TeamsUiState,
     team: TeamListItem,
     selectedTab: TeamsTab,
     settingsActive: Boolean,
     onInviteMembersClick: () -> Unit,
-    onTeamSettingsToggle: () -> Unit
+    onTeamSettingsToggle: () -> Unit,
+    onAskToJoinClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -531,19 +544,23 @@ private fun TeamExpandedContent(
                 )
             ) {
                 if (selectedTab == TeamsTab.DISCOVER) {
+                    val isPending = uiState.pendingJoinRequests.contains(team.id)
                     Button(
-                        onClick = {},
+                        onClick = onAskToJoinClick,
+                        enabled = !isPending,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = SquadOrange,
-                            contentColor = SquadWhite
+                            containerColor = if (isPending) Color(0xFF9E9E9E) else SquadOrange,
+                            contentColor = SquadWhite,
+                            disabledContainerColor = Color(0xFF9E9E9E),
+                            disabledContentColor = SquadWhite.copy(alpha = 0.8f)
                         )
                     ) {
                         Text(
-                            text = "Ask to join",
+                            text = if (isPending) "Request Sent" else "Ask to join",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -643,12 +660,21 @@ private fun TeamExpandedHero(
                         .background(SquadOrange, RoundedCornerShape(16.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = team.sportType.toIcon(),
-                        contentDescription = null,
-                        tint = SquadWhite,
-                        modifier = Modifier.size(38.dp)
-                    )
+                    if (team.logoUrl != null) {
+                        AsyncImage(
+                            model = team.logoUrl,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = team.sportType.toIcon(),
+                            contentDescription = null,
+                            tint = SquadWhite,
+                            modifier = Modifier.size(38.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -663,42 +689,24 @@ private fun TeamExpandedHero(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text(
-                    text = when (team.sportType) {
-                        SportType.SOCCER -> "Soccer"
-                        SportType.BASKETBALL -> "Basketball"
-                        SportType.PADDLE -> "Paddle"
-                        SportType.VOLLEYBALL -> "Volleyball"
-                        SportType.FUTSAL -> "Futsal"
-                    },
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SquadWhite,
-                    modifier = Modifier
-                        .background(SquadOrange, RoundedCornerShape(999.dp))
-                        .padding(horizontal = 18.dp, vertical = 7.dp)
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.LocationOn,
-                        contentDescription = null,
-                        tint = SquadOrange,
-                        modifier = Modifier.size(17.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
                     Text(
-                        text = team.location,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = SquadTextSecondary
+                        text = when (team.sportType) {
+                            SportType.SOCCER -> "Soccer"
+                            SportType.BASKETBALL -> "Basketball"
+                            SportType.PADDLE -> "Paddle"
+                            SportType.VOLLEYBALL -> "Volleyball"
+                            SportType.FUTSAL -> "Futsal"
+                        },
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SquadWhite,
+                        modifier = Modifier
+                            .background(SquadOrange, RoundedCornerShape(999.dp))
+                            .padding(horizontal = 18.dp, vertical = 7.dp)
                     )
                 }
 
@@ -742,14 +750,18 @@ private fun TeamExpandedHero(
                             modifier = Modifier.weight(1f)
                         )
 
-                        TeamSimpleActionButton(
-                            text = if (settingsActive) "Settings Active" else "Team Settings",
-                            icon = Icons.Outlined.Settings,
-                            filled = true,
-                            active = settingsActive,
-                            onClick = onTeamSettingsToggle,
-                            modifier = Modifier.weight(1f)
-                        )
+                        if (team.isCaptain) {
+                            TeamSimpleActionButton(
+                                text = if (settingsActive) "Settings Active" else "Team Settings",
+                                icon = Icons.Outlined.Settings,
+                                filled = true,
+                                active = settingsActive,
+                                onClick = onTeamSettingsToggle,
+                                modifier = Modifier.weight(1f)
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }
@@ -952,20 +964,33 @@ private fun RosterMemberCard(
                     }
 
                     TeamRosterRole.MEMBER -> {
-                        RoleBadge(
-                            text = "Promote",
-                            background = Color(0xFF26323F),
-                            textColor = SquadWhite
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Surface(
+                                modifier = Modifier.clickable { /* TODO: Promote */ },
+                                color = Color(0xFF26323F),
+                                shape = RoundedCornerShape(999.dp)
+                            ) {
+                                Text(
+                                    text = "Promote",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SquadWhite,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
 
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Icon(
-                            imageVector = Icons.Outlined.PersonAdd,
-                            contentDescription = null,
-                            tint = SquadTextSecondary,
-                            modifier = Modifier.size(18.dp)
-                        )
+                            Icon(
+                                imageVector = Icons.Outlined.PersonRemove,
+                                contentDescription = "Remove",
+                                tint = SquadTextSecondary,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable { /* TODO: Remove */ }
+                            )
+                        }
                     }
                 }
             }
@@ -1001,7 +1026,8 @@ private fun EmptyRosterMessage() {
 
 @Composable
 private fun TeamSportIcon(
-    sportType: SportType
+    sportType: SportType,
+    logoUrl: String? = null
 ) {
     Box(
         modifier = Modifier
@@ -1009,11 +1035,20 @@ private fun TeamSportIcon(
             .background(SquadWhite, RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = sportType.toIcon(),
-            contentDescription = null,
-            tint = SquadOrange,
-            modifier = Modifier.size(24.dp)
-        )
+        if (logoUrl != null) {
+            AsyncImage(
+                model = logoUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Icon(
+                imageVector = sportType.toIcon(),
+                contentDescription = null,
+                tint = SquadOrange,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }

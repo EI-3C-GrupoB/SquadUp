@@ -1,5 +1,6 @@
 package com.example.squadup.features.teams.createteam
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.enums.SportType
@@ -30,18 +31,28 @@ class CreateTeamViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(isPrivateTeam = isPrivate)
     }
 
-    fun createTeam(onSuccess: () -> Unit) {
+    fun onLogoUriChange(uri: Uri?) {
+        _uiState.value = _uiState.value.copy(logoUri = uri)
+    }
+
+    fun createTeam(onSuccess: () -> Unit, context: android.content.Context) {
         val currentState = _uiState.value
         if (currentState.teamName.isBlank()) return
 
         viewModelScope.launch {
             _uiState.value = currentState.copy(isSaving = true)
-            repository.createTeam(currentState)
+
+            val logoBytes = currentState.logoUri?.let { uri ->
+                context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            }
+
+            repository.createTeam(currentState, logoBytes)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(isSaving = false)
                     onSuccess()
                 }
-                .onFailure {
+                .onFailure { exception ->
+                    android.util.Log.e("CreateTeam", "Erro ao criar equipa", exception)
                     _uiState.value = _uiState.value.copy(isSaving = false)
                 }
         }

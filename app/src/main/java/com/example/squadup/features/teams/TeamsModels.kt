@@ -21,7 +21,15 @@ data class TeamsTeamRow(
     @SerialName("codigo_convite")
     val inviteCode: String? = null,
     @SerialName("user_id")
-    val ownerId: Int? = null
+    val ownerId: Int? = null,
+    @SerialName("modalidade_id")
+    val modalidadeId: Int? = null,
+    @SerialName("descricao")
+    val description: String? = null,
+    @SerialName("emblema")
+    val logoUrl: String? = null,
+    @SerialName("is_private")
+    val isPrivate: Boolean = false
 )
 
 @Serializable
@@ -35,4 +43,15 @@ data class TeamsRegistrationRow(
     val teamId: Int? = null,
     @SerialName("user_id")
     val userId: Int? = null
+)
+
+@Serializable
+data class TeamsInviteRow(
+    val id: Int,
+    @SerialName("equipa_id")
+    val teamId: Int? = null,
+    @SerialName("convidado_user_id")
+    val invitedUserId: Int? = null,
+    val estado: String? = null,
+    val tipo: String? = null
 )

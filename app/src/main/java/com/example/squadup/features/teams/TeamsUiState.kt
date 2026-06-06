@@ -23,8 +23,9 @@ data class TeamListItem(
     val name: String,
     val membersCount: Int,
     val sportType: SportType,
-    val location: String,
     val inviteCode: String? = null,
+    val logoUrl: String? = null,
+    val isCaptain: Boolean = false,
     val roster: List<TeamRosterMember> = emptyList()
 )
 
@@ -33,6 +34,7 @@ data class TeamsUiState(
     val searchQuery: String = "",
     val expandedTeamId: String? = null,
     val settingsTeamId: String? = null,
+    val pendingJoinRequests: Set<String> = emptySet(),
     val myTeams: List<TeamListItem> = emptyList(),
     val discoverTeams: List<TeamListItem> = emptyList()
 ) {
@@ -48,8 +50,7 @@ data class TeamsUiState(
             }
 
             return teams.filter { team ->
-                team.name.contains(searchQuery, ignoreCase = true) ||
-                        team.location.contains(searchQuery, ignoreCase = true)
+                team.name.contains(searchQuery, ignoreCase = true)
             }
         }
 }

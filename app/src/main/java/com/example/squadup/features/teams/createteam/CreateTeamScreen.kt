@@ -1,5 +1,12 @@
 package com.example.squadup.features.teams.createteam
 
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +18,8 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -60,6 +69,8 @@ import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -72,6 +83,7 @@ fun CreateTeamScreen(
     onSportTypeSelected: (SportType) -> Unit,
     onTeamDescriptionChange: (String) -> Unit,
     onPrivateTeamChange: (Boolean) -> Unit,
+    onLogoUriChange: (Uri?) -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -80,6 +92,18 @@ fun CreateTeamScreen(
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit
 ) {
+    val context = LocalContext.current
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            Log.d("CreateTeam", "Photo picker result: $uri")
+            if (uri != null) {
+                Toast.makeText(context, "Imagem selecionada!", Toast.LENGTH_SHORT).show()
+            }
+            onLogoUriChange(uri)
+        }
+    )
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -107,7 +131,18 @@ fun CreateTeamScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            CreateTeamHero()
+            CreateTeamHero(
+                logoUri = uiState.logoUri,
+                onUploadClick = {
+                    Log.d("CreateTeam", "Clicou em Upload Logo")
+                    try {
+                        photoPickerLauncher.launch("image/*")
+                    } catch (e: Exception) {
+                        Log.e("CreateTeam", "Erro ao abrir picker", e)
+                        Toast.makeText(context, "Erro ao abrir galeria", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
 
             Column(
                 modifier = Modifier
@@ -220,7 +255,10 @@ fun CreateTeamScreen(
 }
 
 @Composable
-private fun CreateTeamHero() {
+private fun CreateTeamHero(
+    logoUri: Uri?,
+    onUploadClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -237,49 +275,30 @@ private fun CreateTeamHero() {
             .padding(horizontal = 26.dp),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Outlined.SportsBasketball,
-            contentDescription = null,
-            tint = SquadOrange.copy(alpha = 0.07f),
-            modifier = Modifier
-                .size(180.dp)
-                .align(Alignment.CenterEnd)
-        )
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
-                    .size(104.dp),
+                    .size(104.dp)
+                    .clickable { onUploadClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
                         .size(94.dp)
-                        .background(
-                            color = Color.Transparent,
-                            shape = CircleShape
-                        )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .size(96.dp)
-                        .background(
-                            color = Color.Transparent,
-                            shape = CircleShape
-                        )
-                )
-
-                Surface(
-                    modifier = Modifier
-                        .size(94.dp),
-                    color = SquadWhite.copy(alpha = 0.55f),
-                    shape = CircleShape,
-                    border = BorderStroke(1.5.dp, SquadOrange.copy(alpha = 0.35f))
+                        .clip(CircleShape)
+                        .background(SquadWhite.copy(alpha = 0.55f)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    if (logoUri != null) {
+                        AsyncImage(
+                            model = logoUri,
+                            contentDescription = "Logo da Equipa",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -310,7 +329,7 @@ private fun CreateTeamHero() {
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Add,
+                        imageVector = if (logoUri != null) Icons.Default.Edit else Icons.Outlined.Add,
                         contentDescription = null,
                         tint = SquadWhite,
                         modifier = Modifier.size(16.dp)

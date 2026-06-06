@@ -19,7 +19,7 @@ class TeamsViewModel : ViewModel() {
 
     private fun loadTeams() {
         viewModelScope.launch {
-            repository.getTeams().onSuccess { teams ->
+            repository.getTeamsRealtime().collect { teams ->
                 _uiState.value = teams.copy(
                     selectedTab = _uiState.value.selectedTab,
                     searchQuery = _uiState.value.searchQuery
@@ -57,5 +57,18 @@ class TeamsViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(
             settingsTeamId = if (currentSettingsTeamId == teamId) null else teamId
         )
+    }
+
+    fun onAskToJoinClick(teamId: String) {
+        if (_uiState.value.pendingJoinRequests.contains(teamId)) return
+        
+        viewModelScope.launch {
+            repository.requestToJoinTeam(teamId.toInt())
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(
+                        pendingJoinRequests = _uiState.value.pendingJoinRequests + teamId
+                    )
+                }
+        }
     }
 }
