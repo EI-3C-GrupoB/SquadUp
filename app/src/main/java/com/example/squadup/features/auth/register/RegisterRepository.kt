@@ -7,6 +7,10 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class RegisterRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
@@ -16,32 +20,20 @@ class RegisterRepository(
             val authUser = supabaseClient.auth.signUpWith(Email) {
                 email = profile.email
                 password = profile.password
-            }
-
-            val authUserId = authUser?.id ?: supabaseClient.auth.currentUserOrNull()?.id
-            if (authUserId == null) {
-                return Result.failure(RegisterException(R.string.register_error_auth_user_missing))
-            }
-
-            val createdUser = supabaseClient
-                .from("utilizador")
-                .insert(
-                    UserProfileInsert(
-                        authUserId = authUserId,
-                        fullName = profile.fullName,
-                        username = profile.username,
-                        email = profile.email,
-                        birthDate = profile.birthDate
-                    )
-                ) {
-                    select()
+                data = buildJsonObject {
+                    put("full_name", profile.fullName)
+                    put("username", profile.username)
+                    put("birth_date", profile.birthDate)
+                    put("account_type", profile.accountType.name.lowercase())
+                    put("modalities", JsonArray(profile.modalityNames.map(::JsonPrimitive)))
                 }
-                .decodeSingle<CreatedUser>()
+            }
 
-            addUserTypeIfAvailable(createdUser.id, profile.accountType)
-            addUserModalities(createdUser.id, profile.modalityNames)
-
-            Result.success(Unit)
+            if (authUser == null) {
+                Result.failure(RegisterException(R.string.register_error_generic))
+            } else {
+                Result.success(Unit)
+            }
         } catch (exception: Exception) {
             Result.failure(RegisterException(mapRegisterError(exception)))
         }
@@ -58,44 +50,6 @@ class RegisterRepository(
         } catch (exception: Exception) {
             Result.failure(exception)
         }
-    }
-
-    private suspend fun addUserModalities(userId: Int, modalityNames: List<String>) {
-        if (modalityNames.isEmpty()) return
-
-        val modalities = supabaseClient
-            .from("modalidade")
-            .select()
-            .decodeList<Modality>()
-
-        val userModalities = modalityNames.mapNotNull { modalityName ->
-            modalities
-                .firstOrNull { it.name.equals(modalityName, ignoreCase = true) }
-                ?.let { UserModalityInsert(userId = userId, modalityId = it.id) }
-        }
-
-        if (userModalities.isNotEmpty()) {
-            supabaseClient
-                .from("utilizador_modalidade")
-                .insert(userModalities)
-        }
-    }
-
-    private suspend fun addUserTypeIfAvailable(userId: Int, accountType: AccountType) {
-        val userTypes = supabaseClient
-            .from("tipo_utilizador")
-            .select()
-            .decodeList<UserType>()
-
-        val typeId = userTypes.firstOrNull { userType ->
-            accountType.databaseAliases.any { alias ->
-                userType.type.equals(alias, ignoreCase = true)
-            }
-        }?.id ?: return
-
-        supabaseClient
-            .from("utilizador_tipoutilizador")
-            .insert(UserTypeInsert(userId = userId, userTypeId = typeId))
     }
 
     @StringRes

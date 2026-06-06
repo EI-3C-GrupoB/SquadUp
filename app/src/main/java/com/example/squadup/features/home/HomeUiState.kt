@@ -6,6 +6,7 @@ import com.example.squadup.core.enums.UserRole
 
 data class HomeUiState(
     val isLoggedIn: Boolean = false,
+    val isLoading: Boolean = false,
     val displayName: String = "",
     val role: UserRole? = null,
 

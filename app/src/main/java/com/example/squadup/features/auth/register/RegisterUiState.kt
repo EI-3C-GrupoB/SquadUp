@@ -10,7 +10,7 @@ data class RegisterUiState(
     val password: String = "",
     val accountType: AccountType = AccountType.Player,
     val modalities: List<Modality> = emptyList(),
-    val selectedModalities: List<String> = emptyList(),
+    val selectedModalities: Set<String> = emptySet(),
     val isLoading: Boolean = false,
     val isRegisterSuccessful: Boolean = false,
     @param:StringRes val errorMessage: Int? = null

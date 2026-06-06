@@ -102,6 +102,7 @@
     <string name="register_validation_username_required">Introduz o teu nome de utilizador.</string>
     <string name="register_validation_email_required">Introduz o teu email.</string>
     <string name="register_validation_birth_date_required">Introduz a tua data de nascimento.</string>
+    <string name="register_validation_birth_date_format">A data deve estar no formato AAAA-MM-DD.</string>
     <string name="register_validation_password_min_length">A palavra-passe deve ter pelo menos 6 caracteres.</string>
     <string name="register_error_email_already_exists">Este email já está registado.</string>
     <string name="register_error_weak_password">A palavra-passe é demasiado fraca.</string>
@@ -110,7 +111,6 @@
     <string name="register_error_network">Erro de rede. Verifica a ligação.</string>
     <string name="register_error_missing_permission">Permissão de Internet em falta.</string>
     <string name="register_error_generic">Não foi possível criar a conta. Tenta novamente.</string>
-    <string name="register_error_auth_user_missing">A conta foi criada, mas o utilizador autenticado não foi devolvido.</string>
 
     <!-- Home  Screen -->
     <string name="home_greeting">Olá, %1$s</string>

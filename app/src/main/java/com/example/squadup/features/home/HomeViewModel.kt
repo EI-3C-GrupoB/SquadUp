@@ -13,15 +13,22 @@ class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private var fetchJob: kotlinx.coroutines.Job? = null
+
     init {
+        // Carrega imediatamente detectando a sessão do Supabase directamente
         loadHome()
     }
 
-    private fun loadHome() {
-        viewModelScope.launch {
-            repository.getHome().onSuccess { home ->
-                _uiState.value = home
-            }
+    // Chamado pelo LaunchedEffect no HomeRoute quando o AppViewModel
+    // termina de carregar o utilizador — garante dados frescos com o userId correcto
+    fun loadHome(userId: Int? = null, displayName: String = "") {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.getHome(userId, displayName)
+                .onSuccess { home -> _uiState.value = home }
+                .onFailure { _uiState.value = _uiState.value.copy(isLoading = false) }
         }
     }
 }

@@ -3,8 +3,15 @@ package com.example.squadup.core.app
 import com.example.squadup.core.utils.AppLanguage
 
 data class AppUiState(
+    // sessão do utilizador
+    val isLoggedIn: Boolean = false,
+    val userId: Int? = null,
+    val displayName: String = "",
+    val username: String = "",
+    val isAdmin: Boolean = false,
+    // preferências globais
     val selectedLanguage: AppLanguage = AppLanguage.EN,
     val isDarkMode: Boolean = false,
-    val isAdmin: Boolean = true,
+    // controlo de vista admin
     val isAdminView: Boolean = false
 )

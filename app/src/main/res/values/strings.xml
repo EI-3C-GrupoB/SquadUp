@@ -103,6 +103,7 @@
     <string name="register_validation_username_required">Enter your username.</string>
     <string name="register_validation_email_required">Enter your email.</string>
     <string name="register_validation_birth_date_required">Enter your date of birth.</string>
+    <string name="register_validation_birth_date_format">Date must be in YYYY-MM-DD format.</string>
     <string name="register_validation_password_min_length">Password must have at least 6 characters.</string>
     <string name="register_error_email_already_exists">This email is already registered.</string>
     <string name="register_error_weak_password">Password is too weak.</string>
@@ -111,7 +112,6 @@
     <string name="register_error_network">Network error. Check your connection.</string>
     <string name="register_error_missing_permission">Missing internet permission.</string>
     <string name="register_error_generic">Could not create account. Try again.</string>
-    <string name="register_error_auth_user_missing">Account was created, but the authenticated user was not returned.</string>
 
     <!-- Home  Screen -->
     <string name="home_greeting">Hello, %1$s</string>

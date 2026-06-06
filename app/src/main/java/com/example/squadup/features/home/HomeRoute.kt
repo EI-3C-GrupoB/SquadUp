@@ -1,6 +1,7 @@
 package com.example.squadup.features.home
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,6 +23,15 @@ fun HomeRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
+
+    // Re-carrega quando o estado de login ou o utilizador mudam
+    // Garante que o HomeViewModel reflecte sempre a sessão actual
+    LaunchedEffect(appUiState.isLoggedIn, appUiState.userId) {
+        viewModel.loadHome(
+            userId = appUiState.userId,
+            displayName = appUiState.displayName
+        )
+    }
 
     HomeScreen(
         uiState = uiState,

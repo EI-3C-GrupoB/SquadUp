@@ -44,17 +44,13 @@ class RegisterViewModel(
     }
 
     fun onModalityToggle(value: String) {
-        val currentState = _uiState.value
-        val selectedModalities = if (currentState.selectedModalities.contains(value)) {
-            currentState.selectedModalities - value
+        val current = _uiState.value
+        val updated = if (value in current.selectedModalities) {
+            current.selectedModalities - value
         } else {
-            currentState.selectedModalities + value
+            current.selectedModalities + value
         }
-
-        _uiState.value = currentState.copy(
-            selectedModalities = selectedModalities,
-            errorMessage = null
-        )
+        _uiState.value = current.copy(selectedModalities = updated, errorMessage = null)
     }
 
     fun register() {
@@ -77,6 +73,10 @@ class RegisterViewModel(
                 _uiState.value = currentState.copy(errorMessage = R.string.register_validation_birth_date_required)
                 return
             }
+            !Regex("""\d{4}-\d{2}-\d{2}""").matches(currentState.birthDate) -> {
+                _uiState.value = currentState.copy(errorMessage = R.string.register_validation_birth_date_format)
+                return
+            }
             currentState.password.length < 6 -> {
                 _uiState.value = currentState.copy(errorMessage = R.string.register_validation_password_min_length)
                 return
@@ -95,7 +95,7 @@ class RegisterViewModel(
                         birthDate = currentState.birthDate.trim(),
                         password = currentState.password,
                         accountType = currentState.accountType,
-                        modalityNames = currentState.selectedModalities
+                        modalityNames = currentState.selectedModalities.toList()
                     )
                 )
                 .onSuccess {

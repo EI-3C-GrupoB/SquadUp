@@ -96,6 +96,7 @@ fun AppNavigation() {
         composable(AppRoutes.Login.route) {
             LoginRoute(
                 onLoginSuccess = {
+                    appViewModel.loadCurrentUser()
                     navController.navigate(AppRoutes.Home.route) {
                         popUpTo(AppRoutes.Login.route) { inclusive = true }
                         launchSingleTop = true
@@ -113,6 +114,7 @@ fun AppNavigation() {
         composable(AppRoutes.Register.route) {
             RegisterRoute(
                 onRegisterSuccess = {
+                    appViewModel.loadCurrentUser()
                     navController.navigate(AppRoutes.Home.route) {
                         popUpTo(AppRoutes.Register.route) { inclusive = true }
                         launchSingleTop = true

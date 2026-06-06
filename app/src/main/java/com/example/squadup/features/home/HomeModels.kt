@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class HomeUserRow(
     val id: Int,
     @SerialName("nome")
-    val name: String,
+    val name: String = "",
     @SerialName("auth_user_id")
     val authUserId: String? = null
 )
