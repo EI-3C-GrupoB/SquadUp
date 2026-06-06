@@ -17,7 +17,9 @@ data class NotificationItem(
     val imageUrl: String? = null,
     val primaryAction: String? = null,
     val secondaryAction: String? = null,
-    val createdAt: java.time.LocalDateTime? = null
+    val createdAt: java.time.LocalDateTime? = null,
+    val referenceId: Int? = null,
+    val referenceType: String? = null
 )
 
 data class NotificationsUiState(

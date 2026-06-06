@@ -15,5 +15,7 @@ data class AppUiState(
     val selectedLanguage: AppLanguage = AppLanguage.EN,
     val isDarkMode: Boolean = false,
     // controlo de vista admin
-    val isAdminView: Boolean = false
+    val isAdminView: Boolean = false,
+    // notificações
+    val notificationsCount: Int = 0
 )

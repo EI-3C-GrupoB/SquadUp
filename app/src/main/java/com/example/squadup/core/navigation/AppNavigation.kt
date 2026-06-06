@@ -85,12 +85,16 @@ fun AppNavigation() {
     }
 
     val navigateWithBottomBar: (String) -> Unit = { route ->
-        navController.navigate(route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
+        if (navController.currentDestination?.route != route) {
+            navController.navigate(route) {
+                // Remove everything from the stack up to Home
+                // This ensures we leave Notifications and go to the target feature
+                popUpTo(AppRoutes.Home.route) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
             }
-            launchSingleTop = true
-            restoreState = true
         }
     }
 
@@ -157,6 +161,7 @@ fun AppNavigation() {
             NotificationsRoute(
                 selectedRoute = AppRoutes.Notifications.route,
                 onNavItemClick = navigateWithBottomBar,
+                onBackClick = { navController.popBackStack() },
                 appViewModel = appViewModel
             )
         }

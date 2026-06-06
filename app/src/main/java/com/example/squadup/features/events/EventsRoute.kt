@@ -40,6 +40,7 @@ fun EventsRoute(
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = appViewModel::onLanguageChange,
-        onDarkModeChange = appViewModel::onDarkModeChange
+        onDarkModeChange = appViewModel::onDarkModeChange,
+        notificationsCount = appUiState.notificationsCount
     )
 }

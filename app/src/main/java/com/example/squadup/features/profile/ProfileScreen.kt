@@ -50,6 +50,7 @@ fun ProfileScreen(
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
+    notificationsCount: Int = 0
 ) {
     Scaffold(
         topBar = {
@@ -58,6 +59,7 @@ fun ProfileScreen(
                 title = stringResource(R.string.profile_title),
                 showBackButton = false,
                 showNotificationsButton = uiState.isLoggedIn,
+                notificationsCount = notificationsCount,
                 showSettingsButton = true,
                 showLoginButton = !uiState.isLoggedIn,
                 onLoginClick = onLoginClick,

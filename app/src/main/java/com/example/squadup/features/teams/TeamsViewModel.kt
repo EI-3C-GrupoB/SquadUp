@@ -22,7 +22,9 @@ class TeamsViewModel : ViewModel() {
             repository.getTeamsRealtime().collect { teams ->
                 _uiState.value = teams.copy(
                     selectedTab = _uiState.value.selectedTab,
-                    searchQuery = _uiState.value.searchQuery
+                    searchQuery = _uiState.value.searchQuery,
+                    // Keep local pending requests that might not have reached the server yet
+                    pendingJoinRequests = teams.pendingJoinRequests + _uiState.value.pendingJoinRequests
                 )
             }
         }
@@ -60,13 +62,26 @@ class TeamsViewModel : ViewModel() {
     }
 
     fun onAskToJoinClick(teamId: String) {
-        if (_uiState.value.pendingJoinRequests.contains(teamId)) return
+        val currentRequests = _uiState.value.pendingJoinRequests
+        android.util.Log.d("TeamsViewModel", "Click onAskToJoin for team: $teamId. Current requests: $currentRequests")
+        if (currentRequests.contains(teamId)) return
         
         viewModelScope.launch {
+            // Optimistic update: show as pending immediately
+            _uiState.value = _uiState.value.copy(
+                pendingJoinRequests = currentRequests + teamId
+            )
+            android.util.Log.d("TeamsViewModel", "Optimistic update done for: $teamId")
+            
             repository.requestToJoinTeam(teamId.toInt())
                 .onSuccess {
+                    android.util.Log.d("TeamsViewModel", "Success joining team: $teamId")
+                }
+                .onFailure { error ->
+                    android.util.Log.e("TeamsViewModel", "Error joining team: ${error.message}", error)
+                    // Rollback on error
                     _uiState.value = _uiState.value.copy(
-                        pendingJoinRequests = _uiState.value.pendingJoinRequests + teamId
+                        pendingJoinRequests = _uiState.value.pendingJoinRequests - teamId
                     )
                 }
         }

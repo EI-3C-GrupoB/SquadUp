@@ -42,6 +42,7 @@ fun HomeScreen(
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
     onAdminViewChange: (Boolean) -> Unit,
+    notificationsCount: Int = 0
 ) {
     Scaffold(
         topBar = {
@@ -49,6 +50,7 @@ fun HomeScreen(
                 showLogo = true,
                 showBackButton = false,
                 showNotificationsButton = uiState.isLoggedIn,
+                notificationsCount = notificationsCount,
                 onNotificationsClick = onNotificationsClick,
                 showSettingsButton = true,
                 showLoginButton = !uiState.isLoggedIn,

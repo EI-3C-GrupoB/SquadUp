@@ -94,7 +94,8 @@ fun TeamsScreen(
     isDarkMode: Boolean,
     onAdminViewChange: (Boolean) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
-    onDarkModeChange: (Boolean) -> Unit
+    onDarkModeChange: (Boolean) -> Unit,
+    notificationsCount: Int = 0
 ) {
     Scaffold(
         topBar = {
@@ -102,8 +103,10 @@ fun TeamsScreen(
                 showLogo = true,
                 title = "Teams",
                 showNotificationsButton = isLoggedIn,
+                notificationsCount = notificationsCount,
                 onNotificationsClick = onNotificationsClick,
                 showSettingsButton = true,
+// ...
                 showLoginButton = !isLoggedIn,
                 onLoginClick = onLoginClick,
                 isAdmin = isAdmin,
@@ -545,6 +548,7 @@ private fun TeamExpandedContent(
             ) {
                 if (selectedTab == TeamsTab.DISCOVER) {
                     val isPending = uiState.pendingJoinRequests.contains(team.id)
+                    
                     Button(
                         onClick = onAskToJoinClick,
                         enabled = !isPending,

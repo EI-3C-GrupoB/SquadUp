@@ -55,3 +55,52 @@ data class TeamsInviteRow(
     val estado: String? = null,
     val tipo: String? = null
 )
+
+@Serializable
+data class InviteInsert(
+    @SerialName("equipa_id")
+    val teamId: Int,
+    @SerialName("convidado_user_id")
+    val invitedUserId: Int,
+    val tipo: String,
+    val estado: String = "pendente"
+)
+
+@Serializable
+data class NotificationInsert(
+    @SerialName("user_id")
+    val userId: Int,
+    @SerialName("titulo")
+    val title: String,
+    @SerialName("descricao")
+    val description: String,
+    val tipo: String,
+    @SerialName("referencia_id")
+    val referenceId: Int? = null,
+    @SerialName("referencia_tipo")
+    val referenceType: String? = null
+)
+
+@Serializable
+data class InviteUpdate(
+    val estado: String,
+    @SerialName("data_resposta")
+    val responseDate: String
+)
+
+@Serializable
+data class RegistrationInsert(
+    @SerialName("equipa_id")
+    val teamId: Int,
+    @SerialName("user_id")
+    val userId: Int,
+    val role: String = "membro",
+    @SerialName("estado_inscricao")
+    val status: String = "aceite"
+)
+
+@Serializable
+data class NotificationUpdate(
+    @SerialName("is_lida")
+    val isRead: Boolean
+)

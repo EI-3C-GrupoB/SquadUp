@@ -7,6 +7,10 @@ import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.getCurrentLanguage
 import com.example.squadup.core.utils.setAppLanguage
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,10 +30,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             appRepository.sessionStatus.collect { status ->
                 when (status) {
                     is SessionStatus.Authenticated -> {
-                        // Marcamos como logado imediatamente se houver sessão
                         _uiState.value = _uiState.value.copy(
                             isLoggedIn = true,
-                            isInitializing = true // Mantém a inicializar enquanto carrega perfil
+                            isInitializing = true
                         )
                         loadCurrentUser()
                     }
@@ -57,14 +60,57 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         username = user.username,
                         isAdmin = user.isAdmin
                     )
+                    loadNotificationsCount()
+                    setupNotificationsRealtime()
                 }
                 .onFailure {
                     _uiState.value = _uiState.value.copy(
                         isInitializing = false
-                        // Se falhou ao carregar o perfil, mas o Supabase diz que estamos
-                        // autenticados, mantemos o estado de login mas sem dados de perfil.
                     )
                 }
+        }
+    }
+
+    private fun setupNotificationsRealtime() {
+        val userId = _uiState.value.userId ?: return
+        viewModelScope.launch {
+            try {
+                val client = com.example.squadup.core.SupabaseClientProvider.client
+                val channel = client.channel("notifications_count")
+                val changes = channel.postgresChangeFlow<PostgresAction>(schema = "public") {
+                    table = "notificacao"
+                }
+                
+                launch {
+                    changes.collect {
+                        loadNotificationsCount()
+                    }
+                }
+                
+                channel.subscribe()
+            } catch (e: Exception) {
+                android.util.Log.e("AppViewModel", "Error setup realtime", e)
+            }
+        }
+    }
+
+    fun loadNotificationsCount() {
+        val userId = _uiState.value.userId ?: return
+        viewModelScope.launch {
+            try {
+                val response = com.example.squadup.core.SupabaseClientProvider.client
+                    .from("notificacao")
+                    .select {
+                        filter {
+                            eq("user_id", userId)
+                            eq("is_lida", false)
+                        }
+                    }
+                val count = response.decodeList<com.example.squadup.features.notifications.NotificationsRow>().size
+                _uiState.value = _uiState.value.copy(notificationsCount = count)
+            } catch (e: Exception) {
+                android.util.Log.e("AppViewModel", "Error loading count", e)
+            }
         }
     }
 

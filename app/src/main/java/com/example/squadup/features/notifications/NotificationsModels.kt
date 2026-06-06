@@ -13,6 +13,8 @@ data class NotificationsUserRow(
 @Serializable
 data class NotificationsRow(
     val id: Int,
+    @SerialName("user_id")
+    val userId: Int? = null,
     @SerialName("titulo")
     val title: String,
     @SerialName("descricao")
@@ -24,5 +26,9 @@ data class NotificationsRow(
     @SerialName("tipo")
     val type: String? = null,
     @SerialName("is_lida")
-    val isRead: Boolean? = null
+    val isRead: Boolean? = null,
+    @SerialName("referencia_id")
+    val referenceId: Int? = null,
+    @SerialName("referencia_tipo")
+    val referenceType: String? = null
 )

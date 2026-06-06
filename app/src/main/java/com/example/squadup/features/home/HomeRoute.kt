@@ -57,6 +57,7 @@ fun HomeRoute(
         isAdminView = appUiState.isAdminView,
         onLanguageChange = { appViewModel.onLanguageChange(it) },
         onDarkModeChange = { appViewModel.onDarkModeChange(it) },
-        onAdminViewChange = { appViewModel.onAdminViewChange(it) }
+        onAdminViewChange = { appViewModel.onAdminViewChange(it) },
+        notificationsCount = appUiState.notificationsCount
     )
 }

@@ -52,6 +52,7 @@ fun EventsScreen(
     onAdminViewChange: (Boolean) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
+    notificationsCount: Int = 0
 ) {
     val context = LocalContext.current
     var selectedEvent by remember { mutableStateOf<BrowseEventItem?>(null) }
@@ -70,6 +71,7 @@ fun EventsScreen(
                 showLogo = true,
                 showBackButton = false,
                 showNotificationsButton = true,
+                notificationsCount = notificationsCount,
                 showSettingsButton = true,
                 onNotificationsClick = onNotificationsClick,
                 isAdmin = isAdmin,

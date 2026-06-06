@@ -2,6 +2,7 @@ package com.example.squadup.features.notifications
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +27,8 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.SportsBasketball
 import androidx.compose.material.icons.outlined.Update
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -33,7 +37,12 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -60,14 +69,49 @@ fun NotificationsScreen(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
+    onRespondToJoinRequest: (NotificationItem, Boolean) -> Unit,
+    onDeleteNotification: (String) -> Unit,
+    onBackClick: () -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onAdminViewChange: (Boolean) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
-    onDarkModeChange: (Boolean) -> Unit
+    onDarkModeChange: (Boolean) -> Unit,
+    notificationsCount: Int = 0
 ) {
+    var selectedNotificationForDialog by remember { mutableStateOf<NotificationItem?>(null) }
+
+    if (selectedNotificationForDialog != null) {
+        val notification = selectedNotificationForDialog!!
+        AlertDialog(
+            onDismissRequest = { selectedNotificationForDialog = null },
+            title = { Text(text = notification.title) },
+            text = { Text(text = notification.description) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onRespondToJoinRequest(notification, true)
+                        selectedNotificationForDialog = null
+                    }
+                ) {
+                    Text("Aceitar", color = SquadOrange)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onRespondToJoinRequest(notification, false)
+                        selectedNotificationForDialog = null
+                    }
+                ) {
+                    Text("Recusar", color = SquadTextSecondary)
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -75,8 +119,10 @@ fun NotificationsScreen(
                 title = "SquadUp",
                 showBackButton = false,
                 showNotificationsButton = true,
+                notificationsCount = notificationsCount,
                 showSettingsButton = true,
                 onNotificationsClick = onNotificationsClick,
+                onBackClick = onBackClick,
                 isAdmin = isAdmin,
                 isAdminView = isAdminView,
                 selectedLanguage = selectedLanguage,
@@ -135,13 +181,22 @@ fun NotificationsScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        uiState.todayNotifications.forEach { notification ->
-                            NotificationCard(notification = notification)
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            uiState.todayNotifications.forEach { notification ->
+                                NotificationCard(
+                                    notification = notification,
+                                    onRespond = onRespondToJoinRequest,
+                                    onDelete = { onDeleteNotification(notification.id) },
+                                    onClick = {
+                                        if (notification.type == NotificationType.TEAM && notification.referenceType == "convite") {
+                                            selectedNotificationForDialog = notification
+                                        }
+                                    }
+                                )
+                            }
                         }
-                    }
 
                     Spacer(modifier = Modifier.height(22.dp))
                 }
@@ -162,7 +217,10 @@ fun NotificationsScreen(
                     ) {
                         Column {
                             uiState.earlierNotifications.forEachIndexed { index, notification ->
-                                CompactNotificationRow(notification = notification)
+                                CompactNotificationRow(
+                                    notification = notification,
+                                    onDelete = { onDeleteNotification(notification.id) }
+                                )
 
                                 if (index < uiState.earlierNotifications.lastIndex) {
                                     HorizontalDivider(
@@ -212,10 +270,15 @@ private fun NotificationSectionHeader(
 
 @Composable
 private fun NotificationCard(
-    notification: NotificationItem
+    notification: NotificationItem,
+    onRespond: (NotificationItem, Boolean) -> Unit,
+    onDelete: () -> Unit,
+    onClick: () -> Unit = {}
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         color = SquadSurface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, SquadOrange.copy(alpha = 0.35f)),
@@ -235,7 +298,7 @@ private fun NotificationCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.Top
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = notification.title,
@@ -250,6 +313,20 @@ private fun NotificationCard(
                             fontSize = 10.sp,
                             color = SquadTextSecondary
                         )
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        androidx.compose.material3.IconButton(
+                            onClick = onDelete,
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Eliminar",
+                                tint = SquadTextSecondary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -279,7 +356,7 @@ private fun NotificationCard(
                 ) {
                     if (notification.primaryAction != null) {
                         Button(
-                            onClick = {},
+                            onClick = { onRespond(notification, true) },
                             modifier = Modifier.height(38.dp),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -298,7 +375,7 @@ private fun NotificationCard(
 
                     if (notification.secondaryAction != null) {
                         OutlinedButton(
-                            onClick = {},
+                            onClick = { onRespond(notification, false) },
                             modifier = Modifier.height(38.dp),
                             shape = RoundedCornerShape(8.dp),
                             border = BorderStroke(1.dp, SquadTextSecondary.copy(alpha = 0.45f)),
@@ -376,7 +453,8 @@ private fun NotificationImagePreview(
 
 @Composable
 private fun CompactNotificationRow(
-    notification: NotificationItem
+    notification: NotificationItem,
+    onDelete: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -393,7 +471,7 @@ private fun CompactNotificationRow(
             modifier = Modifier.weight(1f)
         ) {
             Row(
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = notification.title,
@@ -408,6 +486,20 @@ private fun CompactNotificationRow(
                     fontSize = 9.sp,
                     color = SquadTextSecondary
                 )
+                
+                Spacer(modifier = Modifier.width(8.dp))
+
+                androidx.compose.material3.IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Eliminar",
+                        tint = SquadTextSecondary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(4.dp))

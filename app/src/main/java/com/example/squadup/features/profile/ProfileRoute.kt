@@ -53,6 +53,7 @@ fun ProfileRoute(
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = { appViewModel.onLanguageChange(it) },
-        onDarkModeChange = { appViewModel.onDarkModeChange(it) }
+        onDarkModeChange = { appViewModel.onDarkModeChange(it) },
+        notificationsCount = appUiState.notificationsCount
     )
 }

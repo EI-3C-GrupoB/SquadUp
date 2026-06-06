@@ -17,8 +17,12 @@ class TeamsRepository(
 ) {
     fun getTeamsRealtime(): Flow<TeamsUiState> = flow {
         val currentUser = getCurrentUserRow()
+        if (currentUser == null) {
+            emit(TeamsUiState())
+            return@flow
+        }
         
-        val channel = supabaseClient.channel("teams_realtime")
+        val channel = supabaseClient.channel("teams_realtime_${currentUser.id}")
         val teamsFlow = channel.postgresListDataFlow<TeamsTeamRow, Int>(
             schema = "public",
             table = "equipa",
@@ -28,30 +32,31 @@ class TeamsRepository(
         emitAll(teamsFlow.map { teams ->
             val users = supabaseClient.from("utilizador").select().decodeList<TeamsUserRow>().associateBy { it.id }
             val registrations = supabaseClient.from("inscricao").select().decodeList<TeamsRegistrationRow>()
-            val pendingInvites: List<TeamsInviteRow> = if (currentUser != null) {
-                supabaseClient.from("convite")
-                    .select {
-                        filter {
-                            eq("convidado_user_id", currentUser.id)
-                            eq("tipo", "pedido_adesao")
-                            eq("estado", "pendente")
-                        }
+            
+            // Buscar apenas os convites pendentes do utilizador logado
+            val pendingInvites = supabaseClient.from("convite")
+                .select {
+                    filter {
+                        eq("convidado_user_id", currentUser.id)
+                        eq("tipo", "pedido_adesao")
+                        eq("estado", "pendente")
                     }
-                    .decodeList<TeamsInviteRow>()
-            } else emptyList()
+                }
+                .decodeList<TeamsInviteRow>()
 
+            // Identificar equipas do utilizador (owner ou inscrito)
             val myTeamIds = registrations
-                .filter { it.userId == currentUser?.id && it.teamId != null }
+                .filter { it.userId == currentUser.id && it.teamId != null }
                 .mapNotNull { it.teamId }
-                .toSet() + teams.filter { it.ownerId == currentUser?.id }.map { it.id }
+                .toSet() + teams.filter { it.ownerId == currentUser.id }.map { it.id }
 
             TeamsUiState(
                 myTeams = teams
                     .filter { it.id in myTeamIds }
-                    .map { it.toTeamListItem(registrations, users, currentUser?.id) },
+                    .map { it.toTeamListItem(registrations, users, currentUser.id) },
                 discoverTeams = teams
-                    .filter { !it.isPrivate }
-                    .map { it.toTeamListItem(registrations, users, currentUser?.id) },
+                    .filter { !it.isPrivate && it.id !in myTeamIds }
+                    .map { it.toTeamListItem(registrations, users, currentUser.id) },
                 pendingJoinRequests = pendingInvites.mapNotNull { it.teamId?.toString() }.toSet()
             )
         })
@@ -118,14 +123,18 @@ class TeamsRepository(
             val currentUser = getCurrentUserRow() ?: throw Exception("Utilizador não encontrado")
             
             // 1. Criar o pedido de adesão na tabela 'convite'
-            supabaseClient.from("convite").insert(
-                mapOf(
-                    "equipa_id" to teamId,
-                    "convidado_user_id" to currentUser.id,
-                    "tipo" to "pedido_adesao",
-                    "estado" to "pendente"
-                )
+            val invite = InviteInsert(
+                teamId = teamId,
+                invitedUserId = currentUser.id,
+                tipo = "pedido_adesao",
+                estado = "pendente"
             )
+
+            val insertResult = supabaseClient.from("convite").insert(invite) {
+                select()
+            }
+            
+            val convite = insertResult.decodeSingle<TeamsInviteRow>()
 
             // 2. Obter o capitão/dono da equipa para notificar
             val team = supabaseClient.from("equipa")
@@ -134,16 +143,15 @@ class TeamsRepository(
 
             if (team.ownerId != null) {
                 // 3. Criar notificação para o capitão
-                supabaseClient.from("notificacao").insert(
-                    mapOf(
-                        "user_id" to team.ownerId,
-                        "titulo" to "Novo pedido de adesão",
-                        "descricao" to "${currentUser.name} pediu para se juntar à equipa ${team.name}.",
-                        "tipo" to "equipa",
-                        "referencia_id" to teamId,
-                        "referencia_tipo" to "equipa"
-                    )
+                val notification = NotificationInsert(
+                    userId = team.ownerId,
+                    title = "Novo pedido de adesão",
+                    description = "${currentUser.name} pediu para se juntar à equipa ${team.name}.",
+                    tipo = "equipa",
+                    referenceId = convite.id,
+                    referenceType = "convite"
                 )
+                supabaseClient.from("notificacao").insert(notification)
             }
 
             Result.success(Unit)
