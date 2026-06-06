@@ -19,6 +19,7 @@ import com.example.squadup.features.events.calendar.CalendarRoute
 import com.example.squadup.features.events.createevent.CreateEventRoute
 import com.example.squadup.features.events.livematch.LiveMatchRoute
 import com.example.squadup.features.events.manageevent.ManageEventRoute
+import com.example.squadup.features.events.map.EventsMapRoute
 import com.example.squadup.features.events.moredetails.MoreDetailsRoute
 import com.example.squadup.features.home.HomeRoute
 import com.example.squadup.features.notifications.NotificationsRoute
@@ -175,7 +176,9 @@ fun AppNavigation() {
                     navController.navigate(AppRoutes.Calendar.route)
                 },
                 onFilterByMyTeamsClick = {},
-                onMapClick = {},
+                onMapClick = {
+                    navController.navigate(AppRoutes.EventsMap.route)
+                },
                 onCreateEventClick = {
                     navController.navigate(AppRoutes.CreateEvent.route)
                 },
@@ -467,6 +470,19 @@ fun AppNavigation() {
                     }
                 },
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(AppRoutes.EventsMap.route) {
+            EventsMapRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onNotificationsClick = openNotifications,
+                onEventClick = { eventId ->
+                    navController.navigate(AppRoutes.MoreDetails.createRoute(eventId))
+                },
+                appViewModel = appViewModel
             )
         }
 

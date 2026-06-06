@@ -7,6 +7,7 @@ sealed class AppRoutes(val route: String) {
     data object Notifications : AppRoutes("notifications")
     data object Home       : AppRoutes("home")
     data object Events     : AppRoutes("events")
+    data object EventsMap : AppRoutes("events_map")
     data object Teams      : AppRoutes("teams")
 
     data object CreateTeam : AppRoutes("create_team")
