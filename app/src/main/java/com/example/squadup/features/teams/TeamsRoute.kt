@@ -13,6 +13,7 @@ fun TeamsRoute(
     onCreateTeamClick: () -> Unit,
     onInviteMembersClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onLoginClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: TeamsViewModel = viewModel()
 ) {
@@ -21,6 +22,7 @@ fun TeamsRoute(
 
     TeamsScreen(
         uiState = uiState,
+        isLoggedIn = appUiState.isLoggedIn,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         onCreateTeamClick = onCreateTeamClick,
@@ -30,6 +32,7 @@ fun TeamsRoute(
         onSearchQueryChange = viewModel::onSearchQueryChange,
         onTeamToggle = viewModel::onTeamToggle,
         onTeamSettingsToggle = viewModel::onTeamSettingsToggle,
+        onLoginClick = onLoginClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         selectedLanguage = appUiState.selectedLanguage,

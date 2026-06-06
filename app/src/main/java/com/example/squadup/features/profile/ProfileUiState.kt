@@ -4,6 +4,7 @@ import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.UserRole
 
 data class ProfileUiState(
+    val isLoggedIn: Boolean = false,
     val isAdmin: Boolean = false,
     val role: UserRole? = null,
     val displayName: String = "",

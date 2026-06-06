@@ -45,6 +45,7 @@ fun ProfileScreen(
     onChangePasswordClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onLoginClick: () -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -53,19 +54,21 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             AppHeader(
-                showLogo = false,
+                showLogo = true,
                 title = stringResource(R.string.profile_title),
                 showBackButton = false,
-                showNotificationsButton = true,
+                showNotificationsButton = uiState.isLoggedIn,
                 showSettingsButton = true,
-                onNotificationsClick = onNotificationsClick,
+                showLoginButton = !uiState.isLoggedIn,
+                onLoginClick = onLoginClick,
                 isAdmin = isAdmin,
                 isAdminView = isAdminView,
                 onAdminViewChange = onAdminViewChange,
                 selectedLanguage = selectedLanguage,
                 isDarkMode = isDarkMode,
                 onLanguageChange = onLanguageChange,
-                onDarkModeChange = onDarkModeChange
+                onDarkModeChange = onDarkModeChange,
+                onNotificationsClick = onNotificationsClick
             )
         },
         bottomBar = {
@@ -84,7 +87,20 @@ fun ProfileScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(22.dp))
+            if (!uiState.isLoggedIn) {
+                Spacer(modifier = Modifier.height(40.dp))
+
+                EmptyStateCard(
+                    title = "Perfil de Convidado",
+                    message = "Inicia sessão para veres as tuas estatísticas, gerires o teu perfil e acederes aos teus bilhetes e eventos.",
+                    icon = Icons.Outlined.Person,
+                    actionText = "Login / Registo",
+                    onActionClick = onLoginClick
+                )
+
+                Spacer(modifier = Modifier.height(40.dp))
+            } else {
+                Spacer(modifier = Modifier.height(22.dp))
 
             if (uiState.isLoading) {
                 CircularProgressIndicator(color = SquadOrange)
@@ -238,6 +254,7 @@ fun ProfileScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }

@@ -17,6 +17,7 @@ fun ProfileRoute(
     onEditProfileClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onLoginClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: ProfileViewModel = viewModel()
 ) {
@@ -37,6 +38,7 @@ fun ProfileRoute(
         onChangePasswordClick = onChangePasswordClick,
         onLogoutClick = { viewModel.logout(onLogoutClick) },
         onNotificationsClick = onNotificationsClick,
+        onLoginClick = onLoginClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = { appViewModel.onLanguageChange(it) },

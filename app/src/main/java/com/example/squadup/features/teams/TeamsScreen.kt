@@ -73,6 +73,7 @@ import com.example.squadup.core.utils.toIcon
 @Composable
 fun TeamsScreen(
     uiState: TeamsUiState,
+    isLoggedIn: Boolean,
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
@@ -82,6 +83,7 @@ fun TeamsScreen(
     onSearchQueryChange: (String) -> Unit,
     onTeamToggle: (String) -> Unit,
     onTeamSettingsToggle: (String) -> Unit,
+    onLoginClick: () -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -95,9 +97,11 @@ fun TeamsScreen(
             AppHeader(
                 showLogo = true,
                 title = "Teams",
-                showNotificationsButton = true,
+                showNotificationsButton = isLoggedIn,
                 onNotificationsClick = onNotificationsClick,
                 showSettingsButton = true,
+                showLoginButton = !isLoggedIn,
+                onLoginClick = onLoginClick,
                 isAdmin = isAdmin,
                 isAdminView = isAdminView,
                 selectedLanguage = selectedLanguage,
@@ -127,7 +131,8 @@ fun TeamsScreen(
             TeamsActionSelector(
                 selectedTab = uiState.selectedTab,
                 onTabSelected = onTabSelected,
-                onCreateTeamClick = onCreateTeamClick
+                onCreateTeamClick = onCreateTeamClick,
+                isLoggedIn = isLoggedIn
             )
 
             if (uiState.selectedTab == TeamsTab.DISCOVER) {
@@ -154,7 +159,15 @@ fun TeamsScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (uiState.visibleTeams.isEmpty()) {
+                if (!isLoggedIn && uiState.selectedTab == TeamsTab.MY_TEAMS) {
+                    EmptyStateCard(
+                        title = "Entra para ver as tuas equipas",
+                        message = "Inicia sessão para criares ou juntares-te às tuas próprias equipas e gerires o teu plantel.",
+                        icon = Icons.Outlined.Groups,
+                        actionText = "Login",
+                        onActionClick = onLoginClick
+                    )
+                } else if (uiState.visibleTeams.isEmpty()) {
                     EmptyStateCard(
                         title = if (uiState.selectedTab == TeamsTab.MY_TEAMS) "No Teams Found" else "No Teams to Discover",
                         message = if (uiState.selectedTab == TeamsTab.MY_TEAMS)
@@ -186,7 +199,8 @@ fun TeamsScreen(
 private fun TeamsActionSelector(
     selectedTab: TeamsTab,
     onTabSelected: (TeamsTab) -> Unit,
-    onCreateTeamClick: () -> Unit
+    onCreateTeamClick: () -> Unit,
+    isLoggedIn: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -227,10 +241,12 @@ private fun TeamsActionSelector(
                 }
             }
 
-            CreateTeamButton(
-                onClick = onCreateTeamClick,
-                modifier = Modifier.width(128.dp)
-            )
+            if (isLoggedIn) {
+                CreateTeamButton(
+                    onClick = onCreateTeamClick,
+                    modifier = Modifier.width(128.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(14.dp))

@@ -200,6 +200,9 @@ fun AppNavigation() {
                     navController.navigate(AppRoutes.InviteTeam.route)
                 },
                 onNotificationsClick = openNotifications,
+                onLoginClick = {
+                    navController.navigate(AppRoutes.Login.route)
+                },
                 appViewModel = appViewModel
             )
         }
@@ -267,6 +270,9 @@ fun AppNavigation() {
                         popUpTo(AppRoutes.Profile.route) { inclusive = true }
                         launchSingleTop = true
                     }
+                },
+                onLoginClick = {
+                    navController.navigate(AppRoutes.Login.route)
                 },
                 appViewModel = appViewModel
             )
