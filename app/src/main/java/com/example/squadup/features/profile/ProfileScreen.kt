@@ -3,6 +3,8 @@ package com.example.squadup.features.profile
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -42,6 +44,7 @@ fun ProfileScreen(
     onMyEventsClick: () -> Unit,
     onManageAccountsClick: () -> Unit,
     onEditProfileClick: () -> Unit,
+    onAvatarClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onNotificationsClick: () -> Unit,
@@ -81,15 +84,15 @@ fun ProfileScreen(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(SquadBackground)
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (!uiState.isLoggedIn) {
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SquadBackground)
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (!uiState.isLoggedIn) {
                 Spacer(modifier = Modifier.height(40.dp))
 
                 EmptyStateCard(
@@ -104,11 +107,6 @@ fun ProfileScreen(
             } else {
                 Spacer(modifier = Modifier.height(22.dp))
 
-            if (uiState.isLoading) {
-                CircularProgressIndicator(color = SquadOrange)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
             uiState.errorMessage?.let { errorMessage ->
                 Text(
                     text = stringResource(errorMessage),
@@ -121,7 +119,9 @@ fun ProfileScreen(
 
             ProfileAvatar(
                 isPlayer = uiState.isPlayer,
-                onTicketsClick = onTicketsClick
+                photoUrl = uiState.photoUrl,
+                onTicketsClick = onTicketsClick,
+                onEditClick = onAvatarClick
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -264,7 +264,9 @@ fun ProfileScreen(
 @Composable
 private fun ProfileAvatar(
     isPlayer: Boolean,
-    onTicketsClick: () -> Unit
+    photoUrl: String?,
+    onTicketsClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -283,16 +285,31 @@ private fun ProfileAvatar(
             )
         }
 
-        Box(contentAlignment = Alignment.BottomEnd) {
-            Image(
-                painter = painterResource(id = R.drawable.logo_squadup),
-                contentDescription = "Foto de perfil",
-                modifier = Modifier
-                    .size(86.dp)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .padding(4.dp)
-            )
+        Box(
+            modifier = Modifier.clickable { onEditClick() },
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            if (photoUrl != null) {
+                AsyncImage(
+                    model = photoUrl,
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(86.dp)
+                        .clip(CircleShape)
+                        .background(Color.White),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_squadup),
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(86.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .padding(4.dp)
+                )
+            }
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = null,

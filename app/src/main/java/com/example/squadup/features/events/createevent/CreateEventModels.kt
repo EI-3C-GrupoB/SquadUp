@@ -7,20 +7,9 @@ import kotlinx.serialization.Serializable
 data class CreateEventUserRow(
     val id: Int,
     @SerialName("auth_user_id")
-    val authUserId: String? = null
-)
-
-@Serializable
-data class CreateEventUserTypeLinkRow(
-    @SerialName("tipo_utilizador_id")
-    val userTypeId: Int
-)
-
-@Serializable
-data class CreateEventUserTypeRow(
-    val id: Int,
-    @SerialName("tipo")
-    val type: String
+    val authUserId: String? = null,
+    @SerialName("tipo_conta")
+    val accountType: Int? = null
 )
 
 @Serializable

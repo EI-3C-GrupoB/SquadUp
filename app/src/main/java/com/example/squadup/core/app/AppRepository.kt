@@ -39,9 +39,10 @@ class AppRepository(
             Result.success(
                 LoggedInUser(
                     id = userRow.id,
-                    displayName = userRow.name,
-                    username = userRow.username,
-                    isAdmin = userRow.isAdmin ?: false
+                    displayName = userRow.name.orEmpty(),
+                    username = userRow.username.orEmpty(),
+                    isAdmin = userRow.isAdmin ?: false,
+                    photoUrl = userRow.photoUrl
                 )
             )
         } catch (exception: Exception) {

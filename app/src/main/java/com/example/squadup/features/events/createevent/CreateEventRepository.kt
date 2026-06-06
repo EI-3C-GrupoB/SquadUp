@@ -97,33 +97,14 @@ class CreateEventRepository(
     }
 
     private suspend fun getUserRole(userId: Int): UserRole {
-        val links = supabaseClient
-            .from("utilizador_tipoutilizador")
-            .select {
-                filter {
-                    eq("user_id", userId)
-                }
+        val user = supabaseClient
+            .from("utilizador")
+            .select(io.github.jan.supabase.postgrest.query.Columns.raw("tipo_conta")) {
+                filter { eq("id", userId) }
             }
-            .decodeList<CreateEventUserTypeLinkRow>()
+            .decodeSingle<CreateEventUserRow>()
 
-        val userTypes = supabaseClient
-            .from("tipo_utilizador")
-            .select()
-            .decodeList<CreateEventUserTypeRow>()
-
-        val selectedTypeIds = links.map { it.userTypeId }.toSet()
-        val normalizedRoles = userTypes
-            .filter { it.id in selectedTypeIds }
-            .map { it.type.lowercase() }
-
-        val isPlayer = normalizedRoles.any { it == "player" || it == "jogador" }
-        val isOrganizer = normalizedRoles.any { it == "organizer" || it == "organizador" }
-
-        return when {
-            isPlayer && isOrganizer -> UserRole.PLAYER_ORGANIZER
-            isOrganizer -> UserRole.ORGANIZER
-            else -> UserRole.PLAYER
-        }
+        return UserRole.fromInt(user.accountType)
     }
 
     private suspend fun getUserTeams(userId: Int): List<NotifyTeamItem> {

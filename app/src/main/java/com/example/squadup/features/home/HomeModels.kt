@@ -9,20 +9,9 @@ data class HomeUserRow(
     @SerialName("nome")
     val name: String = "",
     @SerialName("auth_user_id")
-    val authUserId: String? = null
-)
-
-@Serializable
-data class HomeUserTypeLinkRow(
-    @SerialName("tipo_utilizador_id")
-    val userTypeId: Int
-)
-
-@Serializable
-data class HomeUserTypeRow(
-    val id: Int,
-    @SerialName("tipo")
-    val type: String
+    val authUserId: String? = null,
+    @SerialName("tipo_conta")
+    val accountType: Int? = null
 )
 
 @Serializable

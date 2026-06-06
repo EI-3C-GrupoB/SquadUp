@@ -71,14 +71,17 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(SquadBackground)
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 26.dp)
-        ) {
+        if (uiState.isLoading && uiState.displayName.isBlank()) {
+            LoadingScreen(message = "A carregar novidades...")
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SquadBackground)
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 26.dp)
+            ) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
@@ -284,4 +287,5 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
 }

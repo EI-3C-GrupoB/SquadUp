@@ -8,12 +8,12 @@ data class ProfileUiState(
     val isAdmin: Boolean = false,
     val role: UserRole? = null,
     val displayName: String = "",
+    val photoUrl: String? = null,
     val matchesPlayed: Int = 0,
     val wins: Int = 0,
     val goals: Int = 0,
     val teams: Int = 0,
     val playStyle: PlayStyle? = null,
-    val isLoading: Boolean = false,
     val errorMessage: Int? = null
 ) {
     val isPlayer get() = role == UserRole.PLAYER || role == UserRole.PLAYER_ORGANIZER

@@ -2,9 +2,13 @@ package com.example.squadup.features.profile
 
 import com.example.squadup.R
 import com.example.squadup.core.SupabaseClientProvider
+import com.example.squadup.core.enums.UserRole
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.storage.storage
+import io.ktor.http.ContentType
+import java.util.UUID
 
 class ProfileRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
@@ -13,36 +17,44 @@ class ProfileRepository(
         return try {
             val authUserId = supabaseClient.auth.currentUserOrNull()?.id
                 ?: return Result.failure(ProfileException(R.string.profile_error_not_logged_in))
+            
+            android.util.Log.d("ProfileRepo", "Loading profile for auth_user_id: $authUserId")
 
-            var userRow: UserProfileRow? = null
-            repeat(3) { attempt ->
-                userRow = supabaseClient
+            val response = try {
+                supabaseClient
                     .from("utilizador")
                     .select {
                         filter {
                             eq("auth_user_id", authUserId)
                         }
                     }
-                    .decodeList<UserProfileRow>()
-                    .firstOrNull()
-                
-                if (userRow != null) return@repeat
-                if (attempt < 2) kotlinx.coroutines.delay(1000)
+            } catch (e: Exception) {
+                android.util.Log.e("ProfileRepo", "Query failed: ${e.message}", e)
+                return Result.failure(ProfileException(R.string.profile_error_load))
+            }
+            
+            android.util.Log.d("ProfileRepo", "Raw data: ${response.data}")
+            val user = try {
+                response.decodeList<UserProfileRow>().firstOrNull()
+            } catch (e: Exception) {
+                android.util.Log.e("ProfileRepo", "Decoding failed: ${e.message}", e)
+                null
+            } ?: run {
+                android.util.Log.e("ProfileRepo", "No user found or decoding failed for auth_user_id: $authUserId")
+                return Result.failure(ProfileException(R.string.profile_error_load))
             }
 
-            val user = userRow ?: return Result.failure(ProfileException(R.string.profile_error_not_logged_in))
-
             val stats = try { getPlayerStats(user.id) } catch (e: Exception) { null }
-            val roleNames = try { getRoleNames(user.id) } catch (e: Exception) { emptyList() }
-
+            
             Result.success(
                 ProfileData(
                     id = user.id,
-                    displayName = user.name.ifBlank { user.username }.ifBlank { "User ${user.id}" },
-                    username = user.username,
+                    displayName = user.name.orEmpty().ifBlank { user.username.orEmpty() }.ifBlank { "User ${user.id}" },
+                    username = user.username.orEmpty(),
                     isAdmin = user.isAdmin ?: false,
-                    roleNames = roleNames,
+                    role = UserRole.fromInt(user.accountType),
                     playStyle = user.playStyle,
+                    photoUrl = user.photoUrl,
                     matchesPlayed = stats?.totalMatches ?: 0,
                     goals = stats?.totalGoals ?: 0,
                     teams = stats?.totalTeams ?: 0
@@ -50,6 +62,34 @@ class ProfileRepository(
             )
         } catch (exception: Exception) {
             android.util.Log.e("ProfileRepo", "Error loading profile: ${exception.message}", exception)
+            Result.failure(ProfileException(R.string.profile_error_load))
+        }
+    }
+
+    suspend fun uploadAvatar(photoBytes: ByteArray): Result<String> {
+        return try {
+            val authUserId = supabaseClient.auth.currentUserOrNull()?.id
+                ?: return Result.failure(ProfileException(R.string.profile_error_not_logged_in))
+            
+            android.util.Log.d("ProfileRepo", "Loading profile for auth_user_id: $authUserId")
+
+            val fileName = "user_${authUserId}/avatar_${UUID.randomUUID()}.jpg"
+            val bucket = supabaseClient.storage.from("user-avatars")
+            bucket.upload(fileName, photoBytes) {
+                contentType = ContentType.Image.JPEG
+                upsert = true
+            }
+            val url = bucket.publicUrl(fileName)
+
+            supabaseClient
+                .from("utilizador")
+                .update(mapOf("foto_url" to url)) {
+                    filter { eq("auth_user_id", authUserId) }
+                }
+
+            Result.success(url)
+        } catch (exception: Exception) {
+            android.util.Log.e("ProfileRepo", "Error uploading avatar: ${exception.message}", exception)
             Result.failure(ProfileException(R.string.profile_error_load))
         }
     }
@@ -77,30 +117,4 @@ class ProfileRepository(
         }.getOrNull()
     }
 
-    private suspend fun getRoleNames(userId: Int): List<String> {
-        val links = runCatching {
-            supabaseClient
-                .from("utilizador_tipoutilizador")
-                .select {
-                    filter {
-                        eq("user_id", userId)
-                    }
-                }
-                .decodeList<UserTypeLinkRow>()
-        }.getOrDefault(emptyList())
-
-        if (links.isEmpty()) return emptyList()
-
-        val userTypes = runCatching {
-            supabaseClient
-                .from("tipo_utilizador")
-                .select()
-                .decodeList<UserTypeRow>()
-        }.getOrDefault(emptyList())
-
-        val typeIds = links.map { it.userTypeId }.toSet()
-        return userTypes
-            .filter { it.id in typeIds }
-            .map { it.type }
-    }
 }

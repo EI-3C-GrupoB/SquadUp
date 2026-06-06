@@ -2,6 +2,8 @@ package com.example.squadup.features.profile.edit
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +16,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
@@ -28,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -45,14 +51,19 @@ import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
 import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadError
+import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeDark
 import com.example.squadup.core.ui.theme.SquadOrangeLight
 import com.example.squadup.core.ui.theme.SquadSurface
 import com.example.squadup.core.ui.theme.SquadTextPrimary
 import com.example.squadup.core.ui.theme.SquadTextSecondary
+import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
+
+import com.example.squadup.core.ui.components.LocationPickerDialog
+import com.example.squadup.core.ui.components.SelectedLocation
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -63,7 +74,8 @@ fun EditProfileScreen(
     onNotificationsClick: () -> Unit,
     onNameChange: (String) -> Unit,
     onUsernameChange: (String) -> Unit,
-    onLocationClick: () -> Unit,
+    onLocationChange: (SelectedLocation?) -> Unit,
+    onShowLocationPickerChange: (Boolean) -> Unit,
     onPlayStyleChange: (PlayStyle) -> Unit,
     onSportToggle: (SportType) -> Unit,
     onSaveChangesClick: () -> Unit,
@@ -80,7 +92,7 @@ fun EditProfileScreen(
         topBar = {
             AppHeader(
                 showLogo = false,
-                title = stringResource(R.string.profile_title),
+                title = "Edit Profile",
                 showBackButton = true,
                 onBackClick = onBackClick,
                 onNotificationsClick = onNotificationsClick,
@@ -141,11 +153,11 @@ fun EditProfileScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     LocationSelectorField(
-                        value = uiState.location,
-                        onClick = onLocationClick
+                        address = uiState.location?.address,
+                        onClick = { onShowLocationPickerChange(true) }
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     ProfileDropdownField(
                         label = stringResource(R.string.editProfile_play_style_label),
@@ -155,7 +167,7 @@ fun EditProfileScreen(
                             val playStyle = playStyleOptions.first { it.second == selected }.first
                             onPlayStyleChange(playStyle)
                         },
-                        labelColor = SquadTextSecondary
+                        labelColor = SquadTextPrimary
                     )
                 }
             }
@@ -197,11 +209,21 @@ fun EditProfileScreen(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+
+    if (uiState.showLocationPicker) {
+        LocationPickerDialog(
+            onLocationSelected = { location ->
+                onLocationChange(location)
+                onShowLocationPickerChange(false)
+            },
+            onDismiss = { onShowLocationPickerChange(false) }
+        )
+    }
 }
 
 @Composable
 private fun LocationSelectorField(
-    value: String,
+    address: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -216,34 +238,36 @@ private fun LocationSelectorField(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        Surface(
-            onClick = onClick,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(58.dp),
-            color = SquadSurface,
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, SquadGrayLight, RoundedCornerShape(12.dp))
+                .background(SquadWhite)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = value.ifBlank {
-                        stringResource(R.string.editProfile_location_placeholder)
-                    },
-                    fontSize = 15.sp,
-                    color = if (value.isBlank()) SquadTextSecondary else SquadTextPrimary,
-                    modifier = Modifier.weight(1f)
-                )
-
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Outlined.Map,
+                    imageVector = Icons.Outlined.LocationOn,
                     contentDescription = null,
-                    tint = SquadOrange
+                    tint = SquadTextSecondary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = address ?: stringResource(R.string.editProfile_location_placeholder),
+                    color = if (address != null) SquadTextPrimary else SquadTextSecondary,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                    contentDescription = null,
+                    tint = SquadTextSecondary,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }

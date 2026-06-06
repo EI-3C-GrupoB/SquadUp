@@ -96,6 +96,11 @@ fun AuthTextField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = singleLine,
             enabled = enabled,
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 15.sp,
+                color = SquadTextPrimary,
+                fontWeight = FontWeight.Medium
+            ),
             visualTransformation = if (isPassword && !passwordVisible) {
                 PasswordVisualTransformation()
             } else {
@@ -136,7 +141,7 @@ fun AuthTextField(
                     singleLine = singleLine,
                     enabled = enabled,
                     interactionSource = interactionSource,
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
                     container = {
                         OutlinedTextFieldDefaults.Container(
                             enabled = enabled,

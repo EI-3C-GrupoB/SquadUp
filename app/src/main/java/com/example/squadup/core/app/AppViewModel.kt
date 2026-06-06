@@ -58,6 +58,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         userId = user.id,
                         displayName = user.displayName,
                         username = user.username,
+                        photoUrl = user.photoUrl,
                         isAdmin = user.isAdmin
                     )
                     loadNotificationsCount()
@@ -139,5 +140,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onAdminViewChange(isAdminView: Boolean) {
         _uiState.value = _uiState.value.copy(isAdminView = isAdminView)
+    }
+
+    fun onPhotoUrlChange(url: String) {
+        _uiState.value = _uiState.value.copy(photoUrl = url)
     }
 }

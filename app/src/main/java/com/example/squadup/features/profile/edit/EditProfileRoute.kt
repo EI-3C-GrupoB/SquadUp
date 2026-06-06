@@ -14,7 +14,6 @@ fun EditProfileRoute(
     onDeleteAccountClick: () -> Unit,
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onLocationClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: EditProfileViewModel = viewModel()
 ) {
@@ -27,7 +26,8 @@ fun EditProfileRoute(
         onNavItemClick = onNavItemClick,
         onNameChange = viewModel::onNameChange,
         onUsernameChange = viewModel::onUsernameChange,
-        onLocationClick = onLocationClick,
+        onLocationChange = viewModel::onLocationChange,
+        onShowLocationPickerChange = viewModel::onShowLocationPickerChange,
         onPlayStyleChange = viewModel::onPlayStyleChange,
         onSportToggle = viewModel::onSportToggle,
         onSaveChangesClick = { viewModel.saveProfile(onSaveChangesClick) },

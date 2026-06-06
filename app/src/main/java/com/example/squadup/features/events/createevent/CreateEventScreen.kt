@@ -50,7 +50,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
@@ -92,11 +91,12 @@ import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
-import com.example.squadup.core.ui.components.MapLibreLocationPicker
 import com.example.squadup.core.ui.components.DateTimePickerMode
 import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
 import com.example.squadup.core.ui.components.SquadDateTimePickerField
+import com.example.squadup.core.ui.components.LocationPickerDialog
+import com.example.squadup.core.ui.components.SelectedLocation
 import com.example.squadup.core.ui.theme.SquadGray
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
@@ -139,7 +139,7 @@ fun CreateEventScreen(
 
     // Step 3
     onVenueChange: (String) -> Unit,
-    onLocationSelected: (Double, Double) -> Unit,
+    onLocationSelected: (SelectedLocation) -> Unit,
     onEventDateChange: (String) -> Unit,
     onStartTimeChange: (String) -> Unit,
     onEndTimeChange: (String) -> Unit,
@@ -685,7 +685,7 @@ private fun FormatPlayersStep(
 private fun LocationTimeStep(
     uiState: CreateEventUiState,
     @Suppress("UNUSED_PARAMETER") onVenueChange: (String) -> Unit,
-    onLocationSelected: (Double, Double) -> Unit,
+    onLocationSelected: (SelectedLocation) -> Unit,
     onEventDateChange: (String) -> Unit,
     onStartTimeChange: (String) -> Unit,
     onEndTimeChange: (String) -> Unit,
@@ -866,12 +866,10 @@ private fun LocationTimeStep(
     }
 
         if (showMapDialog) {
-            CreateEventLocationPickerDialog(
-                initialLatitude = uiState.latitude,
-                initialLongitude = uiState.longitude,
+            LocationPickerDialog(
                 onDismiss = { showMapDialog = false },
-                onLocationSelected = { latitude, longitude ->
-                    onLocationSelected(latitude, longitude)
+                onLocationSelected = { location ->
+                    onLocationSelected(location)
                     showMapDialog = false
                 }
             )
@@ -1655,79 +1653,6 @@ private fun ReviewCard(
     }
 }
 
-@Composable
-private fun CreateEventLocationPickerDialog(
-    initialLatitude: Double?,
-    initialLongitude: Double?,
-    onDismiss: () -> Unit,
-    onLocationSelected: (Double, Double) -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(520.dp),
-            color = Color.White,
-            shape = RoundedCornerShape(18.dp),
-            shadowElevation = 10.dp
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Selecionar localização",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Text(
-                        text = "Fechar",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = SquadOrange,
-                        modifier = Modifier.clickable(onClick = onDismiss)
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    MapLibreLocationPicker(
-                        initialLatitude = initialLatitude,
-                        initialLongitude = initialLongitude,
-                        onLocationSelected = onLocationSelected,
-                        modifier = Modifier.fillMaxSize()
-                    )
-
-                    Surface(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 12.dp),
-                        color = Color.White.copy(alpha = 0.95f),
-                        shape = RoundedCornerShape(999.dp),
-                        shadowElevation = 4.dp
-                    ) {
-                        Text(
-                            text = "Toca no mapa para definir a localização",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = SquadTextPrimary,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun LocationPreviewCard(

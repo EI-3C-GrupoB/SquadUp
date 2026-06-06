@@ -3,16 +3,11 @@ package com.example.squadup.features.auth.register
 import androidx.annotation.StringRes
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.UserRole
+import com.example.squadup.core.ui.components.SelectedLocation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 class RegisterException(@param:StringRes val messageRes: Int) : Exception()
-
-data class SelectedLocation(
-    val lat: Double,
-    val lng: Double,
-    val address: String
-)
 
 data class RegisterProfile(
     val fullName: String,

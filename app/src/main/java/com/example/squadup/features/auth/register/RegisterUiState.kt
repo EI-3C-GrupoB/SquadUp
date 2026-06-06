@@ -3,6 +3,7 @@ package com.example.squadup.features.auth.register
 import androidx.annotation.StringRes
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.UserRole
+import com.example.squadup.core.ui.components.SelectedLocation
 
 data class RegisterUiState(
     val fullName: String = "",

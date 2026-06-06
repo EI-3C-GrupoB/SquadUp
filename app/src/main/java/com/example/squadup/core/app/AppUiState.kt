@@ -10,6 +10,7 @@ data class AppUiState(
     val userId: Int? = null,
     val displayName: String = "",
     val username: String = "",
+    val photoUrl: String? = null,
     val isAdmin: Boolean = false,
     // preferências globais
     val selectedLanguage: AppLanguage = AppLanguage.EN,

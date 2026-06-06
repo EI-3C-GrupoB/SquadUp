@@ -1,4 +1,4 @@
-package com.example.squadup.features.auth.register
+package com.example.squadup.core.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.squadup.R
-import com.example.squadup.core.ui.components.MapLibreLocationPicker
-import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadTextPrimary
 import com.example.squadup.core.ui.theme.SquadTextSecondary
@@ -41,11 +39,17 @@ import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 
+data class SelectedLocation(
+    val lat: Double,
+    val lng: Double,
+    val address: String
+)
+
 /**
- * Location picker dialog for the Register screen.
+ * Shared Location picker dialog.
  *
- * Uses the shared [MapLibreLocationPicker] component (same tap-to-select UX as CreateEvent)
- * inside a card-style dialog. On tap the marker appears; once the user hits Confirm the
+ * Uses the shared [MapLibreLocationPicker] component.
+ * On tap the marker appears; once the user hits Confirm the
  * address is reverse-geocoded via Nominatim and returned as a [SelectedLocation].
  */
 @Composable
@@ -117,7 +121,7 @@ fun LocationPickerDialog(
                     )
                 }
 
-                // ── Map (colleague's tap-to-select component) ─────────────────
+                // ── Map ───────────────────────────────────────────────────────
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -133,7 +137,7 @@ fun LocationPickerDialog(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // Hint pill – identical style to CreateEvent's dialog
+                    // Hint pill
                     Surface(
                         modifier = Modifier
                             .align(Alignment.TopCenter)

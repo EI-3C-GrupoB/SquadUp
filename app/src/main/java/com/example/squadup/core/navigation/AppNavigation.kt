@@ -1,25 +1,19 @@
 package com.example.squadup.core.navigation
 
 import android.app.Application
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.squadup.core.app.AppViewModel
-import com.example.squadup.core.ui.theme.SquadOrange
+import com.example.squadup.core.ui.components.LoadingScreen
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.createuser.CreateUserRoute
 import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
@@ -62,13 +56,7 @@ fun AppNavigation() {
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
     if (appUiState.isInitializing) {
-        // Mostra um ecrã de carregamento ou splash enquanto verifica a sessão
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = SquadOrange)
-        }
+        LoadingScreen(message = "Verificando sessão...")
         return
     }
 
@@ -79,22 +67,29 @@ fun AppNavigation() {
     )
 
     val openNotifications: () -> Unit = {
-        navController.navigate(AppRoutes.Notifications.route) {
-            launchSingleTop = true
+        if (navController.currentDestination?.route == AppRoutes.Notifications.route) {
+            navController.popBackStack()
+        } else {
+            navController.navigate(AppRoutes.Notifications.route) {
+                launchSingleTop = true
+            }
         }
     }
 
     val navigateWithBottomBar: (String) -> Unit = { route ->
-        if (navController.currentDestination?.route != route) {
-            navController.navigate(route) {
-                // Remove everything from the stack up to Home
-                // This ensures we leave Notifications and go to the target feature
-                popUpTo(AppRoutes.Home.route) {
-                    saveState = true
-                }
-                launchSingleTop = true
-                restoreState = true
+        navController.navigate(route) {
+            // Pop up to the start destination of the graph to
+            // avoid building up a large stack of destinations
+            // on the back stack as users select items
+            popUpTo(AppRoutes.Home.route) {
+                saveState = true
             }
+            // Avoid multiple copies of the same destination when
+            // reselecting the same item
+            launchSingleTop = true
+            // Restore state when reselecting a previously selected item
+            // We set this to false to ensure we always go to the main page of the tab
+            restoreState = false
         }
     }
 
@@ -122,7 +117,6 @@ fun AppNavigation() {
         composable(AppRoutes.Login.route) {
             LoginRoute(
                 onLoginSuccess = {
-                    appViewModel.loadCurrentUser()
                     navController.navigate(AppRoutes.Home.route) {
                         popUpTo(AppRoutes.Login.route) { inclusive = true }
                         launchSingleTop = true
@@ -140,7 +134,6 @@ fun AppNavigation() {
         composable(AppRoutes.Register.route) {
             RegisterRoute(
                 onRegisterSuccess = {
-                    appViewModel.loadCurrentUser()
                     navController.navigate(AppRoutes.Home.route) {
                         popUpTo(AppRoutes.Register.route) { inclusive = true }
                         launchSingleTop = true
@@ -162,6 +155,7 @@ fun AppNavigation() {
                 selectedRoute = AppRoutes.Notifications.route,
                 onNavItemClick = navigateWithBottomBar,
                 onBackClick = { navController.popBackStack() },
+                onNotificationsClick = openNotifications,
                 appViewModel = appViewModel
             )
         }
@@ -316,9 +310,6 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onNotificationsClick = openNotifications,
-                onLocationClick = {
-                    navController.navigate(AppRoutes.SelectLocation.route)
-                },
                 appViewModel = appViewModel
             )
         }

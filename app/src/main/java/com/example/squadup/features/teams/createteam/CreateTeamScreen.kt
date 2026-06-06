@@ -263,15 +263,6 @@ private fun CreateTeamHero(
         modifier = Modifier
             .fillMaxWidth()
             .height(250.dp)
-            .background(
-                brush = Brush.verticalGradient(
-                    listOf(
-                        Color(0xFFFFF8F4),
-                        Color(0xFFF3EEF4),
-                        Color(0xFFF0ECEB)
-                    )
-                )
-            )
             .padding(horizontal = 26.dp),
         contentAlignment = Alignment.Center
     ) {

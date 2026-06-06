@@ -4,9 +4,11 @@ import com.example.squadup.R
 import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.SportType
+import com.example.squadup.core.ui.components.SelectedLocation
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import kotlinx.serialization.Serializable
 
 class EditProfileRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
@@ -18,24 +20,32 @@ class EditProfileRepository(
 
             val profile = supabaseClient
                 .from("utilizador")
-                .select {
+                .select() {
                     filter {
                         eq("auth_user_id", authUserId)
                     }
                 }
-                .decodeSingle<EditableProfileRow>()
+                .decodeList<EditableProfileRow>()
+                .firstOrNull() ?: throw Exception("Profile not found")
+
+            android.util.Log.d("EditProfileRepo", "Loaded user: $profile")
 
             val selectedSports = getUserSports(profile.id)
+            val location = profile.locId?.let { getLoc(it) }
 
             Result.success(
                 EditableProfile(
                     id = profile.id,
-                    username = profile.username,
-                    playStyle = profile.playStyle.toPlayStyle(),
-                    sports = selectedSports
+                    name = profile.name.orEmpty(),
+                    username = profile.username.orEmpty(),
+                    playStyle = PlayStyle.fromLevel(profile.playStyle ?: 3),
+                    sports = selectedSports,
+                    photoUrl = profile.photoUrl,
+                    location = location
                 )
             )
         } catch (exception: Exception) {
+            android.util.Log.e("EditProfileRepo", "Error: ${exception.message}", exception)
             Result.failure(EditProfileException(R.string.editProfile_error_load))
         }
     }
@@ -47,26 +57,78 @@ class EditProfileRepository(
 
             val profile = supabaseClient
                 .from("utilizador")
+                .select() { filter { eq("auth_user_id", authUserId) } }
+                .decodeSingle<EditableProfileRow>()
+
+            var newLocId: Long? = profile.locId
+
+            if (update.location != null) {
+                newLocId = supabaseClient
+                    .from("localizacao")
+                    .insert(
+                        LocInsert(
+                            geopos = "SRID=4326;POINT(${update.location.lng} ${update.location.lat})",
+                            morada = update.location.address
+                        )
+                    ) { select() }
+                    .decodeSingle<LocRow>()
+                    .id
+            }
+
+            supabaseClient
+                .from("utilizador")
                 .update(
                     EditUserProfileUpdateRow(
+                        name = update.name,
                         username = update.username,
-                        playStyle = update.playStyle.databaseValue
+                        playStyle = update.playStyle.level,
+                        locId = newLocId
                     )
                 ) {
                     filter {
                         eq("auth_user_id", authUserId)
                     }
-                    select()
                 }
-                .decodeSingle<EditableProfileRow>()
 
             replaceUserSports(profile.id, update.sports)
 
             Result.success(Unit)
         } catch (exception: Exception) {
+            android.util.Log.e("EditProfileRepo", "Save error: ${exception.message}", exception)
             Result.failure(EditProfileException(R.string.editProfile_error_save))
         }
     }
+
+    private suspend fun getLoc(locId: Long): SelectedLocation? {
+        return try {
+            // Acedemos apenas ao campo 'morada' da tabela localizacao
+            val response = supabaseClient
+                .from("localizacao")
+                .select(io.github.jan.supabase.postgrest.query.Columns.raw("morada")) {
+                    filter { eq("id", locId) }
+                }
+            
+            val data = response.decodeSingle<LocRowSimple>()
+            
+            SelectedLocation(
+                lat = 38.7223, // Posição default (Lisboa)
+                lng = -9.1393,
+                address = data.morada.orEmpty()
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("EditProfileRepo", "Erro ao ler morada: ${e.message}")
+            null
+        }
+    }
+
+    @Serializable
+    private data class LocRowSimple(val morada: String? = null)
+
+    @Serializable
+    private data class LocRow(val id: Long)
+
+    @Serializable
+    private data class LocInsert(val geopos: String, val morada: String?)
 
     private suspend fun getUserSports(userId: Int): List<SportType> {
         val links = runCatching {
@@ -126,22 +188,6 @@ class EditProfileRepository(
                 .insert(inserts)
         }
     }
-
-    private fun String?.toPlayStyle(): PlayStyle {
-        return when (this?.lowercase()) {
-            "low", "baixa", "baixo" -> PlayStyle.LOW
-            "medium", "media", "média", "medio", "médio" -> PlayStyle.MEDIUM
-            "high", "alta", "alto" -> PlayStyle.HIGH
-            else -> PlayStyle.HIGH
-        }
-    }
-
-    private val PlayStyle.databaseValue: String
-        get() = when (this) {
-            PlayStyle.LOW -> "low"
-            PlayStyle.MEDIUM -> "medium"
-            PlayStyle.HIGH -> "high"
-        }
 
     private fun String.toSportType(): SportType? {
         return SportType.entries.firstOrNull { it.matchesModality(this) }

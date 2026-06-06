@@ -3,6 +3,7 @@ package com.example.squadup.features.profile.edit
 import androidx.annotation.StringRes
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.SportType
+import com.example.squadup.core.ui.components.SelectedLocation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,30 +11,45 @@ class EditProfileException(@param:StringRes val messageRes: Int) : Exception()
 
 data class EditableProfile(
     val id: Int,
+    val name: String,
     val username: String,
     val playStyle: PlayStyle,
-    val sports: List<SportType>
+    val sports: List<SportType>,
+    val photoUrl: String? = null,
+    val location: SelectedLocation? = null
 )
 
 data class EditProfileUpdate(
+    val name: String,
     val username: String,
     val playStyle: PlayStyle,
-    val sports: List<SportType>
+    val sports: List<SportType>,
+    val location: SelectedLocation?
 )
 
 @Serializable
 data class EditableProfileRow(
     val id: Int,
-    val username: String,
+    @SerialName("nome")
+    val name: String? = null,
+    val username: String? = null,
     @SerialName("play_style")
-    val playStyle: String? = null
+    val playStyle: Int? = null,
+    @SerialName("foto_url")
+    val photoUrl: String? = null,
+    @SerialName("loc_id")
+    val locId: Long? = null
 )
 
 @Serializable
 data class EditUserProfileUpdateRow(
+    @SerialName("nome")
+    val name: String,
     val username: String,
     @SerialName("play_style")
-    val playStyle: String
+    val playStyle: Int,
+    @SerialName("loc_id")
+    val locId: Long? = null
 )
 
 @Serializable

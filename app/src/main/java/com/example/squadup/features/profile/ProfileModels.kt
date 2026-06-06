@@ -1,6 +1,7 @@
 package com.example.squadup.features.profile
 
 import androidx.annotation.StringRes
+import com.example.squadup.core.enums.UserRole
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,8 +12,9 @@ data class ProfileData(
     val displayName: String,
     val username: String,
     val isAdmin: Boolean,
-    val roleNames: List<String>,
+    val role: UserRole,
     val playStyle: Int?,
+    val photoUrl: String? = null,
     val matchesPlayed: Int,
     val goals: Int,
     val teams: Int
@@ -22,12 +24,16 @@ data class ProfileData(
 data class UserProfileRow(
     val id: Int,
     @SerialName("nome")
-    val name: String = "",
-    val username: String = "",
+    val name: String? = null,
+    val username: String? = null,
     @SerialName("is_admin")
     val isAdmin: Boolean? = false,
     @SerialName("play_style")
-    val playStyle: Int? = null
+    val playStyle: Int? = null,
+    @SerialName("foto_url")
+    val photoUrl: String? = null,
+    @SerialName("tipo_conta")
+    val accountType: Int? = null
 )
 
 @Serializable
@@ -40,15 +46,3 @@ data class PlayerStatsRow(
     val totalTeams: Int? = 0
 )
 
-@Serializable
-data class UserTypeLinkRow(
-    @SerialName("tipo_utilizador_id")
-    val userTypeId: Int
-)
-
-@Serializable
-data class UserTypeRow(
-    val id: Int,
-    @SerialName("tipo")
-    val type: String = ""
-)

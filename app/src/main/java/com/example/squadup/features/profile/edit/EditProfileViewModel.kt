@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.squadup.R
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.SportType
+import com.example.squadup.core.ui.components.SelectedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,9 +29,10 @@ class EditProfileViewModel : ViewModel() {
                 .getCurrentProfile()
                 .onSuccess { profile ->
                     _uiState.value = EditProfileUiState(
-                        name = profile.username,
+                        name = profile.name,
                         username = profile.username,
-                        location = "",
+                        location = profile.location,
+                        photoUrl = profile.photoUrl,
                         selectedPlayStyle = profile.playStyle,
                         selectedSports = profile.sports,
                         isLoading = false
@@ -53,8 +55,12 @@ class EditProfileViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(username = value, errorMessage = null)
     }
 
-    fun onLocationChange(value: String) {
+    fun onLocationChange(value: SelectedLocation?) {
         _uiState.value = _uiState.value.copy(location = value, errorMessage = null)
+    }
+
+    fun onShowLocationPickerChange(show: Boolean) {
+        _uiState.value = _uiState.value.copy(showLocationPicker = show, errorMessage = null)
     }
 
     fun onPlayStyleChange(playStyle: PlayStyle) {
@@ -74,6 +80,26 @@ class EditProfileViewModel : ViewModel() {
         )
     }
 
+    fun uploadAvatar(photoBytes: ByteArray, onUploadSuccess: (String) -> Unit = {}) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+            // Using ProfileRepository for avatar upload
+            val profileRepository = com.example.squadup.features.profile.ProfileRepository()
+            profileRepository.uploadAvatar(photoBytes)
+                .onSuccess { url ->
+                    _uiState.value = _uiState.value.copy(photoUrl = url, isLoading = false)
+                    onUploadSuccess(url)
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = R.string.profile_error_load
+                    )
+                }
+        }
+    }
+
     fun saveProfile(onSuccess: () -> Unit) {
         val currentState = _uiState.value
 
@@ -88,9 +114,11 @@ class EditProfileViewModel : ViewModel() {
             repository
                 .updateProfile(
                     EditProfileUpdate(
+                        name = currentState.name.trim(),
                         username = currentState.username.trim(),
                         playStyle = currentState.selectedPlayStyle,
-                        sports = currentState.selectedSports
+                        sports = currentState.selectedSports,
+                        location = currentState.location
                     )
                 )
                 .onSuccess {

@@ -120,9 +120,7 @@ fun AppNavBar(
                         item = item,
                         selected = selected,
                         onClick = {
-                            if (!selected) {
-                                onItemClick(item.route)
-                            }
+                            onItemClick(item.route)
                         },
                         modifier = Modifier.weight(1f)
                     )

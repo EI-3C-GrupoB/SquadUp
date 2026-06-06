@@ -124,31 +124,14 @@ class HomeRepository(
     }
 
     private suspend fun getUserRole(userId: Int): UserRole {
-        val links = supabaseClient
-            .from("utilizador_tipoutilizador")
-            .select { filter { eq("user_id", userId) } }
-            .decodeList<HomeUserTypeLinkRow>()
+        val user = supabaseClient
+            .from("utilizador")
+            .select(io.github.jan.supabase.postgrest.query.Columns.raw("tipo_conta")) {
+                filter { eq("id", userId) }
+            }
+            .decodeSingle<HomeUserRow>()
 
-        if (links.isEmpty()) return UserRole.PLAYER
-
-        val userTypes = supabaseClient
-            .from("tipo_utilizador")
-            .select()
-            .decodeList<HomeUserTypeRow>()
-
-        val selectedTypeIds = links.map { it.userTypeId }.toSet()
-        val roles = userTypes
-            .filter { it.id in selectedTypeIds }
-            .map { it.type.lowercase() }
-
-        val isPlayer = roles.any { it == "player" || it == "jogador" }
-        val isOrganizer = roles.any { it == "organizer" || it == "organizador" }
-
-        return when {
-            isPlayer && isOrganizer -> UserRole.PLAYER_ORGANIZER
-            isOrganizer -> UserRole.ORGANIZER
-            else -> UserRole.PLAYER
-        }
+        return UserRole.fromInt(user.accountType)
     }
 
     private fun buildCurrentMatch(

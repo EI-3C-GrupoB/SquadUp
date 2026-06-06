@@ -10,6 +10,7 @@ import com.example.squadup.core.app.AppViewModel
 fun NotificationsRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
+    onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: NotificationsViewModel = viewModel()
@@ -21,7 +22,7 @@ fun NotificationsRoute(
         uiState = uiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
-        onNotificationsClick = {},
+        onNotificationsClick = onNotificationsClick,
         onRespondToJoinRequest = viewModel::respondToJoinRequest,
         onDeleteNotification = viewModel::deleteNotification,
         onBackClick = onBackClick,

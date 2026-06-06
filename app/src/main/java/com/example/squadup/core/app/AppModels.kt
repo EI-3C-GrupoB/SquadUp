@@ -7,15 +7,18 @@ data class LoggedInUser(
     val id: Int,
     val displayName: String,
     val username: String,
-    val isAdmin: Boolean
+    val isAdmin: Boolean,
+    val photoUrl: String? = null
 )
 
 @Serializable
 data class LoggedInUserRow(
     val id: Int,
     @SerialName("nome")
-    val name: String = "",
-    val username: String = "",
+    val name: String? = null,
+    val username: String? = null,
     @SerialName("is_admin")
-    val isAdmin: Boolean? = false
+    val isAdmin: Boolean? = false,
+    @SerialName("foto_url")
+    val photoUrl: String? = null
 )

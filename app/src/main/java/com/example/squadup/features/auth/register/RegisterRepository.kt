@@ -3,6 +3,7 @@ package com.example.squadup.features.auth.register
 import androidx.annotation.StringRes
 import com.example.squadup.R
 import com.example.squadup.core.SupabaseClientProvider
+import com.example.squadup.core.ui.components.SelectedLocation
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.SignOutScope
 import io.github.jan.supabase.auth.auth

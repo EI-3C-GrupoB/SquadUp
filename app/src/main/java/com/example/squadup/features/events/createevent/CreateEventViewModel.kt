@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
+import com.example.squadup.core.ui.components.SelectedLocation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 class CreateEventViewModel : ViewModel() {
 
@@ -127,19 +127,11 @@ class CreateEventViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(venue = value)
     }
 
-    fun onLocationSelected(
-        latitude: Double,
-        longitude: Double
-    ) {
+    fun onLocationSelected(location: SelectedLocation) {
         _uiState.value = _uiState.value.copy(
-            latitude = latitude,
-            longitude = longitude,
-            venue = String.format(
-                Locale.US,
-                "Lat: %.5f, Lng: %.5f",
-                latitude,
-                longitude
-            )
+            latitude = location.lat,
+            longitude = location.lng,
+            venue = location.address
         )
     }
     fun onEventDateChange(value: String) {
