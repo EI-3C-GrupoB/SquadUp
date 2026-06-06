@@ -1,4 +1,4 @@
-package com.example.squadup.features.login
+package com.example.squadup.features.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

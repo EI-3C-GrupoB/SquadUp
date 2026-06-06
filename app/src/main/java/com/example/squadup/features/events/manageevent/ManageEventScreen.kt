@@ -122,7 +122,7 @@ fun ManageEventScreen(
                     .fillMaxWidth(0.9f)
                     .align(Alignment.CenterHorizontally),
                 thickness = 1.dp,
-                color = SquadGrayLight
+                color = SquadGray
             )
 
             when (uiState.selectedTab) {

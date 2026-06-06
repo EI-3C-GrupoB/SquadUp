@@ -32,8 +32,8 @@ import com.example.squadup.features.profile.edit.EditProfileRoute
 import com.example.squadup.features.profile.myevents.MyEventsRoute
 import com.example.squadup.features.profile.tickets.MyTicketsRoute
 import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
-import com.example.squadup.features.login.LoginRoute
-import com.example.squadup.features.register.RegisterRoute
+import com.example.squadup.features.auth.login.LoginRoute
+import com.example.squadup.features.auth.register.RegisterRoute
 import com.example.squadup.features.teams.TeamsRoute
 import com.example.squadup.features.teams.createteam.CreateTeamRoute
 import com.example.squadup.features.teams.invite.InviteTeamRoute

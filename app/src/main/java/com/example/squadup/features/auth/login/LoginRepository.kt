@@ -1,4 +1,4 @@
-package com.example.squadup.features.login
+package com.example.squadup.features.auth.login
 
 import androidx.annotation.StringRes
 import com.example.squadup.R

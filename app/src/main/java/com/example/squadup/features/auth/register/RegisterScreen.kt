@@ -1,4 +1,4 @@
-package com.example.squadup.features.register
+package com.example.squadup.features.auth.register
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -68,7 +69,7 @@ fun RegisterScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(SquadBackground)
-            .verticalScroll(rememberScrollState())
+            .navigationBarsPadding()
     ) {
         AppHeader(
             showLogo = true,
@@ -97,6 +98,12 @@ fun RegisterScreen(
                 }
             }
         )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
 
         Spacer(modifier = Modifier.height(30.dp))
 
@@ -235,5 +242,6 @@ fun RegisterScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+        } // end scrollable Column
     }
 }

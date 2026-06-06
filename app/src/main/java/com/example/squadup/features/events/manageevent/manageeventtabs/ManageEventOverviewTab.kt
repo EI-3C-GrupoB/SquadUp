@@ -117,7 +117,7 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
             }
 
             Spacer(modifier = Modifier.height(14.dp))
-            HorizontalDivider(color = SquadGrayLight)
+            HorizontalDivider(color = SquadGray)
             Spacer(modifier = Modifier.height(14.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
