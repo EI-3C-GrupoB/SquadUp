@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.R
+import com.example.squadup.core.enums.PlayStyle
+import com.example.squadup.core.enums.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,7 +41,7 @@ class RegisterViewModel(
         _uiState.value = _uiState.value.copy(password = value, errorMessage = null)
     }
 
-    fun onAccountTypeChange(value: AccountType) {
+    fun onAccountTypeChange(value: UserRole) {
         _uiState.value = _uiState.value.copy(accountType = value, errorMessage = null)
     }
 
@@ -51,6 +53,22 @@ class RegisterViewModel(
             current.selectedModalities + value
         }
         _uiState.value = current.copy(selectedModalities = updated, errorMessage = null)
+    }
+
+    fun onLocationChange(value: SelectedLocation?) {
+        _uiState.value = _uiState.value.copy(location = value, errorMessage = null)
+    }
+
+    fun onPlayStyleChange(value: PlayStyle) {
+        _uiState.value = _uiState.value.copy(playStyle = value)
+    }
+
+    fun onNotificationRadiusChange(value: Int) {
+        _uiState.value = _uiState.value.copy(notificationRadius = value)
+    }
+
+    fun onShowLocationPicker(show: Boolean) {
+        _uiState.value = _uiState.value.copy(showLocationPicker = show)
     }
 
     fun register() {
@@ -95,7 +113,12 @@ class RegisterViewModel(
                         birthDate = currentState.birthDate.trim(),
                         password = currentState.password,
                         accountType = currentState.accountType,
-                        modalityNames = currentState.selectedModalities.toList()
+                        modalityIds = currentState.modalities
+                            .filter { it.name in currentState.selectedModalities }
+                            .map { it.id },
+                        location = currentState.location,
+                        playStyle = currentState.playStyle,
+                        notificationRadius = currentState.notificationRadius
                     )
                 )
                 .onSuccess {

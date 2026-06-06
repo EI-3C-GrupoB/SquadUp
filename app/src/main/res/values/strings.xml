@@ -85,8 +85,22 @@
     <string name="register_user_type_label">Account Type</string>
     <string name="register_user_type_player">Player</string>
     <string name="register_user_type_organizer">Organizer</string>
+    <string name="register_user_type_player_organizer">Player &amp; Organizer</string>
 
     <string name="register_birth_date_label">Date of Birth</string>
+
+    <string name="register_location_label">Default Location</string>
+    <string name="register_location_placeholder">Tap to pick on map</string>
+    <string name="register_location_pick_title">Pick a Location</string>
+    <string name="register_location_confirm">Confirm Location</string>
+    <string name="register_location_tap_hint">Tap the map to pick a location</string>
+    <string name="register_location_move_hint">Tap the map to pick a location</string>
+    <string name="register_location_getting">Getting address…</string>
+    <string name="register_location_close">Close</string>
+
+    <string name="register_play_style_label">Play Style</string>
+    <string name="register_notification_radius_label">Notification Radius</string>
+    <string name="register_notification_radius_unit">km</string>
 
     <string name="register_password_label">Password</string>
     <string name="register_password_placeholder">••••••••</string>

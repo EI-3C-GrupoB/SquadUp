@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.UserRole
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,13 +15,11 @@ class ProfileViewModel : ViewModel() {
     private val repository = ProfileRepository()
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
-
-    init {
-        loadProfile()
-    }
+    private var loadJob: Job? = null
 
     fun loadProfile() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             repository
@@ -47,18 +46,6 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun logout(onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            repository.logout().onSuccess {
-                onSuccess()
-            }.onFailure { exception ->
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = (exception as? ProfileException)?.messageRes
-                )
-            }
-        }
-    }
-
     private fun resolveRole(roleNames: List<String>): UserRole {
         val normalizedRoles = roleNames.map { it.lowercase() }
         val isPlayer = normalizedRoles.any { it == "player" || it == "jogador" }
@@ -71,12 +58,6 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    private fun resolvePlayStyle(value: String?): PlayStyle? {
-        return when (value?.lowercase()) {
-            "low", "baixa", "baixo" -> PlayStyle.LOW
-            "medium", "media", "média", "medio", "médio" -> PlayStyle.MEDIUM
-            "high", "alta", "alto" -> PlayStyle.HIGH
-            else -> null
-        }
-    }
+    private fun resolvePlayStyle(value: Int?): PlayStyle? =
+        value?.let { PlayStyle.fromLevel(it) }
 }

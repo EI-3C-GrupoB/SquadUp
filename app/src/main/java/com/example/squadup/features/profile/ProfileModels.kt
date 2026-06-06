@@ -12,7 +12,7 @@ data class ProfileData(
     val username: String,
     val isAdmin: Boolean,
     val roleNames: List<String>,
-    val playStyle: String?,
+    val playStyle: Int?,
     val matchesPlayed: Int,
     val goals: Int,
     val teams: Int
@@ -22,12 +22,12 @@ data class ProfileData(
 data class UserProfileRow(
     val id: Int,
     @SerialName("nome")
-    val name: String,
-    val username: String,
-    @SerialName("is_admin_plataforma")
+    val name: String = "",
+    val username: String = "",
+    @SerialName("is_admin")
     val isAdmin: Boolean = false,
     @SerialName("play_style")
-    val playStyle: String? = null
+    val playStyle: Int? = null
 )
 
 @Serializable

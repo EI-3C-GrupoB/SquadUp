@@ -21,7 +21,9 @@ class ProfileRepository(
                         eq("auth_user_id", authUserId)
                     }
                 }
-                .decodeSingle<UserProfileRow>()
+                .decodeList<UserProfileRow>()
+                .firstOrNull()
+                ?: return Result.failure(ProfileException(R.string.profile_error_not_logged_in))
 
             val stats = getPlayerStats(user.id)
             val roleNames = getRoleNames(user.id)

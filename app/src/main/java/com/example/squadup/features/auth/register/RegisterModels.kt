@@ -1,15 +1,18 @@
 package com.example.squadup.features.auth.register
 
 import androidx.annotation.StringRes
+import com.example.squadup.core.enums.PlayStyle
+import com.example.squadup.core.enums.UserRole
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 class RegisterException(@param:StringRes val messageRes: Int) : Exception()
 
-enum class AccountType {
-    Player,
-    Organizer
-}
+data class SelectedLocation(
+    val lat: Double,
+    val lng: Double,
+    val address: String
+)
 
 data class RegisterProfile(
     val fullName: String,
@@ -17,8 +20,11 @@ data class RegisterProfile(
     val email: String,
     val birthDate: String,
     val password: String,
-    val accountType: AccountType,
-    val modalityNames: List<String>
+    val accountType: UserRole,
+    val modalityIds: List<Int>,
+    val location: SelectedLocation?,
+    val playStyle: PlayStyle,
+    val notificationRadius: Int
 )
 
 @Serializable
@@ -27,4 +33,3 @@ data class Modality(
     @SerialName("nome")
     val name: String
 )
-

@@ -84,8 +84,22 @@
     <string name="register_user_type_label">Tipo de Conta</string>
     <string name="register_user_type_player">Jogador</string>
     <string name="register_user_type_organizer">Organizador</string>
+    <string name="register_user_type_player_organizer">Jogador &amp; Organizador</string>
 
     <string name="register_birth_date_label">Data de Nascimento</string>
+
+    <string name="register_location_label">Localização Padrão</string>
+    <string name="register_location_placeholder">Toca para selecionar no mapa</string>
+    <string name="register_location_pick_title">Selecionar Localização</string>
+    <string name="register_location_confirm">Confirmar Localização</string>
+    <string name="register_location_tap_hint">Toca no mapa para selecionar a localização</string>
+    <string name="register_location_move_hint">Toca no mapa para selecionar a localização</string>
+    <string name="register_location_getting">A obter morada…</string>
+    <string name="register_location_close">Fechar</string>
+
+    <string name="register_play_style_label">Estilo de Jogo</string>
+    <string name="register_notification_radius_label">Raio de Notificação</string>
+    <string name="register_notification_radius_unit">km</string>
 
     <string name="register_password_label">Palavra-passe</string>
     <string name="register_password_placeholder">••••••••</string>

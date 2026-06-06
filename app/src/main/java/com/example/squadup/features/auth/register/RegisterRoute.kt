@@ -33,6 +33,10 @@ fun RegisterRoute(
         onPasswordChange = viewModel::onPasswordChange,
         onAccountTypeChange = viewModel::onAccountTypeChange,
         onModalityToggle = viewModel::onModalityToggle,
+        onLocationChange = viewModel::onLocationChange,
+        onPlayStyleChange = viewModel::onPlayStyleChange,
+        onNotificationRadiusChange = viewModel::onNotificationRadiusChange,
+        onShowLocationPickerChange = viewModel::onShowLocationPicker,
         onRegisterClick = viewModel::register,
         onLoginClick = onLoginClick,
         onBackClick = onBackClick

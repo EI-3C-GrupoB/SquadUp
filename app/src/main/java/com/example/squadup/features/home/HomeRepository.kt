@@ -14,9 +14,12 @@ import java.util.Locale
 class HomeRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
 ) {
-    suspend fun getHome(passedUserId: Int? = null, passedDisplayName: String = ""): Result<HomeUiState> {
+    suspend fun getHome(
+        passedUserId: Int? = null,
+        passedDisplayName: String = "",
+        passedIsLoggedIn: Boolean? = null
+    ): Result<HomeUiState> {
         return try {
-            // isLoggedIn determinado pela sessão Supabase — independente de qualquer query à BD
             val authSession = supabaseClient.auth.currentUserOrNull()
             val isLoggedIn = authSession != null
 
@@ -40,24 +43,32 @@ class HomeRepository(
                 displayName = ""
             }
 
-            val role = userId?.let { getUserRole(it) }
+            val role = userId?.let { runCatching { getUserRole(it) }.getOrNull() }
 
-            val events = supabaseClient.from("evento").select().decodeList<HomeEventRow>()
-            val modalities = supabaseClient.from("modalidade").select()
-                .decodeList<HomeModalityRow>().associateBy { it.id }
+            val events = runCatching {
+                supabaseClient.from("evento").select().decodeList<HomeEventRow>()
+            }.getOrElse { emptyList() }
+            val modalities = runCatching {
+                supabaseClient.from("modalidade").select().decodeList<HomeModalityRow>()
+            }.getOrElse { emptyList() }.associateBy { it.id }
 
-            // Buscar tabelas de suporte uma única vez, filtrar em Kotlin
-            val allRegistrations = supabaseClient.from("inscricao").select()
-                .decodeList<HomeRegistrationRow>()
-            val allTeams = supabaseClient.from("equipa").select()
-                .decodeList<HomeTeamRow>()
+            val allRegistrations = runCatching {
+                supabaseClient.from("inscricao").select().decodeList<HomeRegistrationRow>()
+            }.getOrElse { emptyList() }
+            val allTeams = runCatching {
+                supabaseClient.from("equipa").select().decodeList<HomeTeamRow>()
+            }.getOrElse { emptyList() }
 
-            val games = supabaseClient.from("jogo").select {
-                filter { neq("estado_jogo", "cancelado") }
-            }.decodeList<HomeGameRow>()
+            val games = runCatching {
+                supabaseClient.from("jogo").select {
+                    filter { neq("estado_jogo", "cancelado") }
+                }.decodeList<HomeGameRow>()
+            }.getOrElse { emptyList() }
 
             val gameTeams = if (games.isNotEmpty()) {
-                supabaseClient.from("jogo_equipa").select().decodeList<HomeGameTeamRow>()
+                runCatching {
+                    supabaseClient.from("jogo_equipa").select().decodeList<HomeGameTeamRow>()
+                }.getOrElse { emptyList() }
             } else emptyList()
 
             // Dados específicos do utilizador calculados em memória

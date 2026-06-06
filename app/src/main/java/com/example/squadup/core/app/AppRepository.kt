@@ -3,12 +3,14 @@ package com.example.squadup.core.app
 import com.example.squadup.core.SupabaseClientProvider
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.flow.StateFlow
 
 class AppRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
 ) {
-    fun isLoggedIn(): Boolean = supabaseClient.auth.currentUserOrNull() != null
+    val sessionStatus: StateFlow<SessionStatus> = supabaseClient.auth.sessionStatus
 
     suspend fun loadCurrentUser(): Result<LoggedInUser> {
         return try {

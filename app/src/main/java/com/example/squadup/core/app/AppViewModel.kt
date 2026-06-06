@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.getCurrentLanguage
 import com.example.squadup.core.utils.setAppLanguage
+import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,9 +22,17 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
     init {
-        // Se já houver sessão activa (ex: app reiniciada), carrega o utilizador
-        if (appRepository.isLoggedIn()) {
-            loadCurrentUser()
+        viewModelScope.launch {
+            appRepository.sessionStatus.collect { status ->
+                when (status) {
+                    is SessionStatus.Authenticated -> loadCurrentUser()
+                    is SessionStatus.NotAuthenticated -> _uiState.value = AppUiState(
+                        selectedLanguage = _uiState.value.selectedLanguage,
+                        isDarkMode = _uiState.value.isDarkMode
+                    )
+                    else -> {}
+                }
+            }
         }
     }
 
@@ -38,6 +47,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         username = user.username,
                         isAdmin = user.isAdmin
                     )
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(isLoggedIn = false)
                 }
         }
     }

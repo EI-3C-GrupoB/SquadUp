@@ -22,11 +22,15 @@ class HomeViewModel : ViewModel() {
 
     // Chamado pelo LaunchedEffect no HomeRoute quando o AppViewModel
     // termina de carregar o utilizador — garante dados frescos com o userId correcto
-    fun loadHome(userId: Int? = null, displayName: String = "") {
+    fun loadHome(
+        userId: Int? = null,
+        displayName: String = "",
+        isLoggedIn: Boolean? = null
+    ) {
         fetchJob?.cancel()
         fetchJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            repository.getHome(userId, displayName)
+            repository.getHome(userId, displayName, isLoggedIn)
                 .onSuccess { home -> _uiState.value = home }
                 .onFailure { _uiState.value = _uiState.value.copy(isLoading = false) }
         }

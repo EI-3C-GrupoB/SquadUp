@@ -29,12 +29,19 @@ fun HomeRoute(
     LaunchedEffect(appUiState.isLoggedIn, appUiState.userId) {
         viewModel.loadHome(
             userId = appUiState.userId,
-            displayName = appUiState.displayName
+            displayName = appUiState.displayName,
+            isLoggedIn = appUiState.isLoggedIn
         )
     }
 
+    // appUiState é a fonte de verdade para login — não depende de getHome() que pode falhar
+    val effectiveUiState = uiState.copy(
+        isLoggedIn = appUiState.isLoggedIn,
+        displayName = if (appUiState.displayName.isNotBlank()) appUiState.displayName else uiState.displayName
+    )
+
     HomeScreen(
-        uiState = uiState,
+        uiState = effectiveUiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         onNotificationsClick = onNotificationsClick,

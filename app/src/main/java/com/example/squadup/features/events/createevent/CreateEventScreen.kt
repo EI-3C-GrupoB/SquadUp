@@ -92,6 +92,7 @@ import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
+import com.example.squadup.core.ui.components.MapLibreLocationPicker
 import com.example.squadup.core.ui.components.DateTimePickerMode
 import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
@@ -108,7 +109,6 @@ import com.example.squadup.core.utils.toIcon
 import org.maplibre.android.MapLibre
 import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.camera.CameraPosition
-import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
 
@@ -1727,109 +1727,6 @@ private fun CreateEventLocationPickerDialog(
             }
         }
     }
-}
-
-@Composable
-private fun MapLibreLocationPicker(
-    initialLatitude: Double?,
-    initialLongitude: Double?,
-    onLocationSelected: (Double, Double) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val defaultLocation = LatLng(
-        initialLatitude ?: 41.6932,
-        initialLongitude ?: -8.8329
-    )
-
-    val mapView = remember {
-        MapLibre.getInstance(context.applicationContext)
-
-        MapView(context).apply {
-            onCreate(null)
-        }
-    }
-
-    DisposableEffect(lifecycleOwner, mapView) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> mapView.onStart()
-                Lifecycle.Event.ON_RESUME -> mapView.onResume()
-                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-                Lifecycle.Event.ON_STOP -> mapView.onStop()
-                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
-                else -> Unit
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    LaunchedEffect(initialLatitude, initialLongitude) {
-        mapView.getMapAsync { map ->
-            map.setStyle("https://tiles.openfreemap.org/styles/liberty") {
-                map.uiSettings.apply {
-                    isCompassEnabled = false
-                    isLogoEnabled = false
-                    isAttributionEnabled = true
-                    isZoomGesturesEnabled = true
-                    isScrollGesturesEnabled = true
-                    isRotateGesturesEnabled = true
-                    isTiltGesturesEnabled = true
-                }
-
-                map.cameraPosition = CameraPosition.Builder()
-                    .target(defaultLocation)
-                    .zoom(
-                        if (initialLatitude != null && initialLongitude != null) {
-                            15.0
-                        } else {
-                            12.0
-                        }
-                    )
-                    .build()
-
-                if (initialLatitude != null && initialLongitude != null) {
-                    map.clear()
-                    map.addMarker(
-                        MarkerOptions()
-                            .position(defaultLocation)
-                            .title("Localização selecionada")
-                    )
-                }
-
-                map.addOnMapClickListener { point ->
-                    map.clear()
-
-                    map.addMarker(
-                        MarkerOptions()
-                            .position(point)
-                            .title("Localização selecionada")
-                    )
-
-                    map.animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(point, 15.0),
-                        400
-                    )
-
-                    onLocationSelected(point.latitude, point.longitude)
-
-                    true
-                }
-            }
-        }
-    }
-
-    AndroidView(
-        modifier = modifier,
-        factory = { mapView }
-    )
 }
 
 @Composable
