@@ -37,8 +37,10 @@ import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AuthCard
 import com.example.squadup.core.ui.components.AuthTextField
+import com.example.squadup.core.ui.components.DateTimePickerMode
 import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
+import com.example.squadup.core.ui.components.SquadDateTimePickerField
 import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadError
 import com.example.squadup.core.ui.theme.SquadOrange
@@ -156,11 +158,12 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            AuthTextField(
+            SquadDateTimePickerField(
                 value = uiState.birthDate,
                 onValueChange = onBirthDateChange,
                 label = stringResource(R.string.register_birth_date_label),
                 placeholder = "YYYY-MM-DD",
+                mode = DateTimePickerMode.DATE,
                 leadingIcon = Icons.Outlined.Cake
             )
 
