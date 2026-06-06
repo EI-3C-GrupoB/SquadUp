@@ -14,26 +14,33 @@ class ProfileRepository(
             val authUserId = supabaseClient.auth.currentUserOrNull()?.id
                 ?: return Result.failure(ProfileException(R.string.profile_error_not_logged_in))
 
-            val user = supabaseClient
-                .from("utilizador")
-                .select {
-                    filter {
-                        eq("auth_user_id", authUserId)
+            var userRow: UserProfileRow? = null
+            repeat(3) { attempt ->
+                userRow = supabaseClient
+                    .from("utilizador")
+                    .select {
+                        filter {
+                            eq("auth_user_id", authUserId)
+                        }
                     }
-                }
-                .decodeList<UserProfileRow>()
-                .firstOrNull()
-                ?: return Result.failure(ProfileException(R.string.profile_error_not_logged_in))
+                    .decodeList<UserProfileRow>()
+                    .firstOrNull()
+                
+                if (userRow != null) return@repeat
+                if (attempt < 2) kotlinx.coroutines.delay(1000)
+            }
 
-            val stats = getPlayerStats(user.id)
-            val roleNames = getRoleNames(user.id)
+            val user = userRow ?: return Result.failure(ProfileException(R.string.profile_error_not_logged_in))
+
+            val stats = try { getPlayerStats(user.id) } catch (e: Exception) { null }
+            val roleNames = try { getRoleNames(user.id) } catch (e: Exception) { emptyList() }
 
             Result.success(
                 ProfileData(
                     id = user.id,
-                    displayName = user.name,
+                    displayName = user.name.ifBlank { user.username }.ifBlank { "User ${user.id}" },
                     username = user.username,
-                    isAdmin = user.isAdmin,
+                    isAdmin = user.isAdmin ?: false,
                     roleNames = roleNames,
                     playStyle = user.playStyle,
                     matchesPlayed = stats?.totalMatches ?: 0,
@@ -42,6 +49,7 @@ class ProfileRepository(
                 )
             )
         } catch (exception: Exception) {
+            android.util.Log.e("ProfileRepo", "Error loading profile: ${exception.message}", exception)
             Result.failure(ProfileException(R.string.profile_error_load))
         }
     }

@@ -29,8 +29,14 @@ fun ProfileRoute(
         viewModel.loadProfile()
     }
 
+    val effectiveUiState = uiState.copy(
+        isLoggedIn = appUiState.isLoggedIn,
+        displayName = if (uiState.displayName.isBlank()) appUiState.displayName else uiState.displayName,
+        isAdmin = if (!uiState.isLoggedIn) appUiState.isAdmin else uiState.isAdmin
+    )
+
     ProfileScreen(
-        uiState = uiState,
+        uiState = effectiveUiState,
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         isAdmin = appUiState.isAdmin,

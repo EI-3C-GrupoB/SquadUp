@@ -17,5 +17,5 @@ data class LoggedInUserRow(
     val name: String = "",
     val username: String = "",
     @SerialName("is_admin")
-    val isAdmin: Boolean = false
+    val isAdmin: Boolean? = false
 )

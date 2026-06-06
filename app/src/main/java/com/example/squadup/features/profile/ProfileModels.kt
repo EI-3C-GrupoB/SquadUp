@@ -25,7 +25,7 @@ data class UserProfileRow(
     val name: String = "",
     val username: String = "",
     @SerialName("is_admin")
-    val isAdmin: Boolean = false,
+    val isAdmin: Boolean? = false,
     @SerialName("play_style")
     val playStyle: Int? = null
 )
@@ -33,11 +33,11 @@ data class UserProfileRow(
 @Serializable
 data class PlayerStatsRow(
     @SerialName("total_jogos")
-    val totalMatches: Int = 0,
+    val totalMatches: Int? = 0,
     @SerialName("total_golos")
-    val totalGoals: Int = 0,
+    val totalGoals: Int? = 0,
     @SerialName("total_equipas")
-    val totalTeams: Int = 0
+    val totalTeams: Int? = 0
 )
 
 @Serializable
@@ -50,5 +50,5 @@ data class UserTypeLinkRow(
 data class UserTypeRow(
     val id: Int,
     @SerialName("tipo")
-    val type: String
+    val type: String = ""
 )

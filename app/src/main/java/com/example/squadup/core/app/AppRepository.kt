@@ -17,24 +17,35 @@ class AppRepository(
             val authUserId = supabaseClient.auth.currentUserOrNull()?.id
                 ?: return Result.failure(Exception("No authenticated user"))
 
-            val row = supabaseClient
-                .from("utilizador")
-                .select {
-                    filter {
-                        eq("auth_user_id", authUserId)
+            // Tenta carregar o perfil com retentativas (útil logo após o registo)
+            var row: LoggedInUserRow? = null
+            repeat(3) { attempt ->
+                row = supabaseClient
+                    .from("utilizador")
+                    .select {
+                        filter {
+                            eq("auth_user_id", authUserId)
+                        }
                     }
-                }
-                .decodeSingle<LoggedInUserRow>()
+                    .decodeList<LoggedInUserRow>()
+                    .firstOrNull()
+                
+                if (row != null) return@repeat
+                if (attempt < 2) kotlinx.coroutines.delay(1000)
+            }
+
+            val userRow = row ?: return Result.failure(Exception("User profile not found in database"))
 
             Result.success(
                 LoggedInUser(
-                    id = row.id,
-                    displayName = row.name,
-                    username = row.username,
-                    isAdmin = row.isAdmin
+                    id = userRow.id,
+                    displayName = userRow.name,
+                    username = userRow.username,
+                    isAdmin = userRow.isAdmin ?: false
                 )
             )
         } catch (exception: Exception) {
+            android.util.Log.e("AppRepository", "Error loading current user: ${exception.message}", exception)
             Result.failure(exception)
         }
     }

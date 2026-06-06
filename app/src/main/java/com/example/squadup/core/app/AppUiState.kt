@@ -3,6 +3,8 @@ package com.example.squadup.core.app
 import com.example.squadup.core.utils.AppLanguage
 
 data class AppUiState(
+    // estado do carregamento inicial
+    val isInitializing: Boolean = true,
     // sessão do utilizador
     val isLoggedIn: Boolean = false,
     val userId: Int? = null,

@@ -25,8 +25,17 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             appRepository.sessionStatus.collect { status ->
                 when (status) {
-                    is SessionStatus.Authenticated -> loadCurrentUser()
+                    is SessionStatus.Authenticated -> {
+                        // Marcamos como logado imediatamente se houver sessão
+                        _uiState.value = _uiState.value.copy(
+                            isLoggedIn = true,
+                            isInitializing = true // Mantém a inicializar enquanto carrega perfil
+                        )
+                        loadCurrentUser()
+                    }
                     is SessionStatus.NotAuthenticated -> _uiState.value = AppUiState(
+                        isInitializing = false,
+                        isLoggedIn = false,
                         selectedLanguage = _uiState.value.selectedLanguage,
                         isDarkMode = _uiState.value.isDarkMode
                     )
@@ -41,6 +50,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             appRepository.loadCurrentUser()
                 .onSuccess { user ->
                     _uiState.value = _uiState.value.copy(
+                        isInitializing = false,
                         isLoggedIn = true,
                         userId = user.id,
                         displayName = user.displayName,
@@ -49,7 +59,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
                 .onFailure {
-                    _uiState.value = _uiState.value.copy(isLoggedIn = false)
+                    _uiState.value = _uiState.value.copy(
+                        isInitializing = false
+                        // Se falhou ao carregar o perfil, mas o Supabase diz que estamos
+                        // autenticados, mantemos o estado de login mas sem dados de perfil.
+                    )
                 }
         }
     }
@@ -58,6 +72,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             appRepository.logout().onSuccess {
                 _uiState.value = AppUiState(
+                    isInitializing = false,
+                    isLoggedIn = false,
                     selectedLanguage = _uiState.value.selectedLanguage,
                     isDarkMode = _uiState.value.isDarkMode
                 )

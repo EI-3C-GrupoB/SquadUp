@@ -2,6 +2,7 @@ package com.example.squadup.features.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.squadup.R
 import com.example.squadup.core.enums.PlayStyle
 import com.example.squadup.core.enums.UserRole
 import kotlinx.coroutines.Job
@@ -26,6 +27,7 @@ class ProfileViewModel : ViewModel() {
                 .getCurrentProfile()
                 .onSuccess { profile ->
                     _uiState.value = ProfileUiState(
+                        isLoggedIn = true,
                         isAdmin = profile.isAdmin,
                         role = resolveRole(profile.roleNames),
                         displayName = profile.displayName,
@@ -40,7 +42,8 @@ class ProfileViewModel : ViewModel() {
                 .onFailure { exception ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = (exception as? ProfileException)?.messageRes
+                        isLoggedIn = true, // Mantemos como logado se falhou apenas o carregamento dos dados
+                        errorMessage = (exception as? ProfileException)?.messageRes ?: R.string.profile_error_load
                     )
                 }
         }
