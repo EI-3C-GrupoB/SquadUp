@@ -28,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.AccessTime
-import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -43,7 +42,6 @@ import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.RocketLaunch
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -63,6 +61,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -78,7 +82,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.squadup.R
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.RecurrenceType
@@ -97,6 +105,12 @@ import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
 import com.example.squadup.core.utils.toIcon
+import org.maplibre.android.MapLibre
+import org.maplibre.android.annotations.MarkerOptions
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapView
 
 @Composable
 fun CreateEventScreen(
@@ -125,6 +139,7 @@ fun CreateEventScreen(
 
     // Step 3
     onVenueChange: (String) -> Unit,
+    onLocationSelected: (Double, Double) -> Unit,
     onEventDateChange: (String) -> Unit,
     onStartTimeChange: (String) -> Unit,
     onEndTimeChange: (String) -> Unit,
@@ -220,6 +235,7 @@ fun CreateEventScreen(
                     CreateEventStep.LOCATION_TIME -> LocationTimeStep(
                         uiState = uiState,
                         onVenueChange = onVenueChange,
+                        onLocationSelected = onLocationSelected,
                         onEventDateChange = onEventDateChange,
                         onStartTimeChange = onStartTimeChange,
                         onEndTimeChange = onEndTimeChange,
@@ -668,23 +684,27 @@ private fun FormatPlayersStep(
 @Composable
 private fun LocationTimeStep(
     uiState: CreateEventUiState,
-    onVenueChange: (String) -> Unit,
+    @Suppress("UNUSED_PARAMETER") onVenueChange: (String) -> Unit,
+    onLocationSelected: (Double, Double) -> Unit,
     onEventDateChange: (String) -> Unit,
     onStartTimeChange: (String) -> Unit,
     onEndTimeChange: (String) -> Unit,
     onRecurringToggle: (Boolean) -> Unit,
     onNextStep: () -> Unit
 ) {
+    var showMapDialog by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        StepHeaderImage(
-            heading = stringResource(R.string.createEvent_step3_heading),
-            colors = listOf(Color(0xFF2D5A27), Color(0xFF4A7C59))
+        LocationPreviewCard(
+            latitude = uiState.latitude,
+            longitude = uiState.longitude,
+            onClick = { showMapDialog = true }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedButton(
-            onClick = {},
+            onClick = { showMapDialog = true },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(1.dp, SquadGray),
@@ -705,6 +725,42 @@ private fun LocationTimeStep(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
+        }
+
+        if (uiState.latitude != null && uiState.longitude != null) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = SquadOrangeLight,
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = null,
+                        tint = SquadOrange,
+                        modifier = Modifier.size(18.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = uiState.venue.ifBlank {
+                            "Lat: %.5f, Lng: %.5f".format(
+                                uiState.latitude,
+                                uiState.longitude
+                            )
+                        },
+                        color = SquadTextPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -808,6 +864,18 @@ private fun LocationTimeStep(
 
         Spacer(modifier = Modifier.height(24.dp))
     }
+
+        if (showMapDialog) {
+            CreateEventLocationPickerDialog(
+                initialLatitude = uiState.latitude,
+                initialLongitude = uiState.longitude,
+                onDismiss = { showMapDialog = false },
+                onLocationSelected = { latitude, longitude ->
+                    onLocationSelected(latitude, longitude)
+                    showMapDialog = false
+                }
+            )
+        }
 }
 
 // ─── Review Step ─────────────────────────────────────────────────────────────
@@ -883,7 +951,7 @@ private fun ReviewStep(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = if (uiState.eventName.isNotBlank()) uiState.eventName else "—",
+                text = uiState.eventName.ifBlank { "—" },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = SquadTextPrimary
@@ -930,7 +998,7 @@ private fun ReviewStep(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = if (uiState.eventDate.isNotBlank()) uiState.eventDate else "—",
+                    text = uiState.eventDate.ifBlank { "—" },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = SquadTextPrimary
@@ -965,7 +1033,7 @@ private fun ReviewStep(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = if (uiState.venue.isNotBlank()) uiState.venue else "—",
+                    text = uiState.venue.ifBlank { "—" },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = SquadTextPrimary
@@ -1585,5 +1653,333 @@ private fun ReviewCard(
             content = content
         )
     }
+}
+
+@Composable
+private fun CreateEventLocationPickerDialog(
+    initialLatitude: Double?,
+    initialLongitude: Double?,
+    onDismiss: () -> Unit,
+    onLocationSelected: (Double, Double) -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(520.dp),
+            color = Color.White,
+            shape = RoundedCornerShape(18.dp),
+            shadowElevation = 10.dp
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Selecionar localização",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SquadTextPrimary,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "Fechar",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = SquadOrange,
+                        modifier = Modifier.clickable(onClick = onDismiss)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    MapLibreLocationPicker(
+                        initialLatitude = initialLatitude,
+                        initialLongitude = initialLongitude,
+                        onLocationSelected = onLocationSelected,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 12.dp),
+                        color = Color.White.copy(alpha = 0.95f),
+                        shape = RoundedCornerShape(999.dp),
+                        shadowElevation = 4.dp
+                    ) {
+                        Text(
+                            text = "Toca no mapa para definir a localização",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = SquadTextPrimary,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MapLibreLocationPicker(
+    initialLatitude: Double?,
+    initialLongitude: Double?,
+    onLocationSelected: (Double, Double) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val defaultLocation = LatLng(
+        initialLatitude ?: 41.6932,
+        initialLongitude ?: -8.8329
+    )
+
+    val mapView = remember {
+        MapLibre.getInstance(context.applicationContext)
+
+        MapView(context).apply {
+            onCreate(null)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, mapView) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> mapView.onStart()
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_STOP -> mapView.onStop()
+                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+                else -> Unit
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(initialLatitude, initialLongitude) {
+        mapView.getMapAsync { map ->
+            map.setStyle("https://tiles.openfreemap.org/styles/liberty") {
+                map.uiSettings.apply {
+                    isCompassEnabled = false
+                    isLogoEnabled = false
+                    isAttributionEnabled = true
+                    isZoomGesturesEnabled = true
+                    isScrollGesturesEnabled = true
+                    isRotateGesturesEnabled = true
+                    isTiltGesturesEnabled = true
+                }
+
+                map.cameraPosition = CameraPosition.Builder()
+                    .target(defaultLocation)
+                    .zoom(
+                        if (initialLatitude != null && initialLongitude != null) {
+                            15.0
+                        } else {
+                            12.0
+                        }
+                    )
+                    .build()
+
+                if (initialLatitude != null && initialLongitude != null) {
+                    map.clear()
+                    map.addMarker(
+                        MarkerOptions()
+                            .position(defaultLocation)
+                            .title("Localização selecionada")
+                    )
+                }
+
+                map.addOnMapClickListener { point ->
+                    map.clear()
+
+                    map.addMarker(
+                        MarkerOptions()
+                            .position(point)
+                            .title("Localização selecionada")
+                    )
+
+                    map.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(point, 15.0),
+                        400
+                    )
+
+                    onLocationSelected(point.latitude, point.longitude)
+
+                    true
+                }
+            }
+        }
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { mapView }
+    )
+}
+
+@Composable
+private fun LocationPreviewCard(
+    latitude: Double?,
+    longitude: Double?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+    ) {
+        if (latitude != null && longitude != null) {
+            MapLibreLocationPreview(
+                latitude = latitude,
+                longitude = longitude,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color.Black.copy(alpha = 0.05f),
+                                Color.Black.copy(alpha = 0.45f)
+                            )
+                        )
+                    )
+            )
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(14.dp)
+            ) {
+                Text(
+                    text = "Localização selecionada",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                Text(
+                    text = "Toca para alterar",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White.copy(alpha = 0.9f)
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.linearGradient(
+                            listOf(Color(0xFF2D5A27), Color(0xFF4A7C59))
+                        )
+                    ),
+                contentAlignment = Alignment.BottomStart
+            ) {
+                Text(
+                    text = stringResource(R.string.createEvent_step3_heading),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.padding(14.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MapLibreLocationPreview(
+    latitude: Double,
+    longitude: Double,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val selectedLocation = remember(latitude, longitude) {
+        LatLng(latitude, longitude)
+    }
+
+    val mapView = remember {
+        MapLibre.getInstance(context.applicationContext)
+
+        MapView(context).apply {
+            onCreate(null)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, mapView) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> mapView.onStart()
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_STOP -> mapView.onStop()
+                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+                else -> Unit
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(latitude, longitude) {
+        mapView.getMapAsync { map ->
+            map.setStyle("https://tiles.openfreemap.org/styles/liberty") {
+                map.uiSettings.apply {
+                    isCompassEnabled = false
+                    isLogoEnabled = false
+                    isAttributionEnabled = false
+                    isZoomGesturesEnabled = false
+                    isScrollGesturesEnabled = false
+                    isRotateGesturesEnabled = false
+                    isTiltGesturesEnabled = false
+                }
+
+                map.clear()
+
+                map.cameraPosition = CameraPosition.Builder()
+                    .target(selectedLocation)
+                    .zoom(15.0)
+                    .build()
+
+                map.addMarker(
+                    MarkerOptions()
+                        .position(selectedLocation)
+                        .title("Localização selecionada")
+                )
+            }
+        }
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { mapView }
+    )
 }
 

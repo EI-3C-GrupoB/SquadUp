@@ -60,6 +60,8 @@ class CreateEventRepository(
                     CreateEventInsertRow(
                         title = state.eventName.trim(),
                         address = state.venue.takeIf { it.isNotBlank() },
+                        latitude = state.latitude,
+                        longitude = state.longitude,
                         isPrivate = !state.isPublicEvent,
                         startDate = combineDateTime(state.eventDate, state.startTime),
                         endDate = combineDateTime(state.eventDate, state.endTime),

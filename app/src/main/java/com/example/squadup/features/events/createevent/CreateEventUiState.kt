@@ -34,6 +34,8 @@ data class CreateEventUiState(
 
     // Step 3 — Location & Time
     val venue: String = "",
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val eventDate: String = "",
     val startTime: String = "",
     val endTime: String = "",

@@ -64,6 +64,8 @@
 
     <!-- Register Screen -->
     <string name="register_login_action">Entrar</string>
+    <string name="register_confirm_email_title">Confirma o teu email</string>
+    <string name="register_confirm_email_message">Enviámos um link de confirmação para o teu email. Por favor, verifica a tua caixa de entrada e clica no link para ativares a tua conta.</string>
     <string name="register_title">Criar Perfil</string>
     <string name="register_subtitle">Entra em campo. Demora menos de um minuto.</string>
 

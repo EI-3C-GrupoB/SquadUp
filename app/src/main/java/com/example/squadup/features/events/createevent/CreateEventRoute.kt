@@ -37,6 +37,7 @@ fun CreateEventRoute(
         onAllowTeamsToggle = viewModel::onAllowTeamsToggle,
         onAllowFreeAgentsToggle = viewModel::onAllowFreeAgentsToggle,
         onVenueChange = viewModel::onVenueChange,
+        onLocationSelected = viewModel::onLocationSelected,
         onEventDateChange = viewModel::onEventDateChange,
         onStartTimeChange = viewModel::onStartTimeChange,
         onEndTimeChange = viewModel::onEndTimeChange,
