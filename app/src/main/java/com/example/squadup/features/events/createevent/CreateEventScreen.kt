@@ -1,6 +1,8 @@
 package com.example.squadup.features.events.createevent
 
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +38,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
@@ -87,17 +90,18 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.rememberAsyncImagePainter
 import com.example.squadup.R
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.DateTimePickerMode
+import com.example.squadup.core.ui.components.LocationPickerDialog
 import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
-import com.example.squadup.core.ui.components.SquadDateTimePickerField
-import com.example.squadup.core.ui.components.LocationPickerDialog
 import com.example.squadup.core.ui.components.SelectedLocation
+import com.example.squadup.core.ui.components.SquadDateTimePickerField
 import com.example.squadup.core.ui.theme.SquadGray
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
@@ -112,10 +116,6 @@ import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material.icons.outlined.Image
-import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun CreateEventScreen(
@@ -149,6 +149,10 @@ fun CreateEventScreen(
     onEventDateChange: (String) -> Unit,
     onStartTimeChange: (String) -> Unit,
     onEndTimeChange: (String) -> Unit,
+    onRegistrationStartDateChange: (String) -> Unit,
+    onRegistrationStartTimeChange: (String) -> Unit,
+    onRegistrationEndDateChange: (String) -> Unit,
+    onRegistrationEndTimeChange: (String) -> Unit,
     onRecurringToggle: (Boolean) -> Unit,
     onShowRecurrenceDialog: (Boolean) -> Unit,
     onRecurrenceTypeChange: (RecurrenceType) -> Unit,
@@ -245,6 +249,10 @@ fun CreateEventScreen(
                         onEventDateChange = onEventDateChange,
                         onStartTimeChange = onStartTimeChange,
                         onEndTimeChange = onEndTimeChange,
+                        onRegistrationStartDateChange = onRegistrationStartDateChange,
+                        onRegistrationStartTimeChange = onRegistrationStartTimeChange,
+                        onRegistrationEndDateChange = onRegistrationEndDateChange,
+                        onRegistrationEndTimeChange = onRegistrationEndTimeChange,
                         onRecurringToggle = onRecurringToggle,
                         onNextStep = onNextStep
                     )
@@ -275,8 +283,6 @@ fun CreateEventScreen(
     }
 }
 
-// ─── Progress Bar ─────────────────────────────────────────────────────────────
-
 @Composable
 private fun StepProgressBar(
     totalSteps: Int,
@@ -300,8 +306,6 @@ private fun StepProgressBar(
         }
     }
 }
-
-// ─── Step 1: Basic Info ───────────────────────────────────────────────────────
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -411,8 +415,6 @@ private fun BasicInfoStep(
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
-
-// ─── Step 2: Format & Players ─────────────────────────────────────────────────
 
 @Composable
 private fun FormatPlayersStep(
@@ -686,8 +688,6 @@ private fun FormatPlayersStep(
     }
 }
 
-// ─── Step 3: Location & Time ──────────────────────────────────────────────────
-
 @Composable
 private fun LocationTimeStep(
     uiState: CreateEventUiState,
@@ -696,6 +696,10 @@ private fun LocationTimeStep(
     onEventDateChange: (String) -> Unit,
     onStartTimeChange: (String) -> Unit,
     onEndTimeChange: (String) -> Unit,
+    onRegistrationStartDateChange: (String) -> Unit,
+    onRegistrationStartTimeChange: (String) -> Unit,
+    onRegistrationEndDateChange: (String) -> Unit,
+    onRegistrationEndTimeChange: (String) -> Unit,
     onRecurringToggle: (Boolean) -> Unit,
     onNextStep: () -> Unit
 ) {
@@ -814,6 +818,68 @@ private fun LocationTimeStep(
             )
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Período de inscrições",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = SquadTextPrimary
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = "Opcional. Se deixares vazio, as inscrições ficam abertas até ao início do evento.",
+            fontSize = 12.sp,
+            lineHeight = 17.sp,
+            color = SquadTextSecondary
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        SquadDateTimePickerField(
+            value = uiState.registrationStartDate,
+            onValueChange = onRegistrationStartDateChange,
+            label = "Data de início das inscrições",
+            placeholder = "YYYY-MM-DD",
+            mode = DateTimePickerMode.DATE,
+            leadingIcon = Icons.Outlined.CalendarMonth
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        SquadDateTimePickerField(
+            value = uiState.registrationStartTime,
+            onValueChange = onRegistrationStartTimeChange,
+            label = "Hora de início das inscrições",
+            placeholder = "09:00",
+            mode = DateTimePickerMode.TIME,
+            leadingIcon = Icons.Outlined.AccessTime
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        SquadDateTimePickerField(
+            value = uiState.registrationEndDate,
+            onValueChange = onRegistrationEndDateChange,
+            label = "Data de fim das inscrições",
+            placeholder = "YYYY-MM-DD",
+            mode = DateTimePickerMode.DATE,
+            leadingIcon = Icons.Outlined.CalendarMonth
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        SquadDateTimePickerField(
+            value = uiState.registrationEndTime,
+            onValueChange = onRegistrationEndTimeChange,
+            label = "Hora de fim das inscrições",
+            placeholder = "23:59",
+            mode = DateTimePickerMode.TIME,
+            leadingIcon = Icons.Outlined.AccessTime
+        )
+
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(
@@ -872,18 +938,16 @@ private fun LocationTimeStep(
         Spacer(modifier = Modifier.height(24.dp))
     }
 
-        if (showMapDialog) {
-            LocationPickerDialog(
-                onDismiss = { showMapDialog = false },
-                onLocationSelected = { location ->
-                    onLocationSelected(location)
-                    showMapDialog = false
-                }
-            )
-        }
+    if (showMapDialog) {
+        LocationPickerDialog(
+            onDismiss = { showMapDialog = false },
+            onLocationSelected = { location ->
+                onLocationSelected(location)
+                showMapDialog = false
+            }
+        )
+    }
 }
-
-// ─── Review Step ─────────────────────────────────────────────────────────────
 
 @Composable
 private fun ReviewStep(
@@ -1109,6 +1173,53 @@ private fun ReviewStep(
             }
         }
 
+        val hasRegistrationPeriod = uiState.registrationStartDate.isNotBlank() ||
+                uiState.registrationStartTime.isNotBlank() ||
+                uiState.registrationEndDate.isNotBlank() ||
+                uiState.registrationEndTime.isNotBlank()
+
+        if (hasRegistrationPeriod) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            ReviewCard {
+                Text(
+                    text = "PERÍODO DE INSCRIÇÕES",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SquadTextSecondary,
+                    letterSpacing = 0.8.sp
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = buildString {
+                        append("Início: ")
+                        append(uiState.registrationStartDate.ifBlank { "—" })
+
+                        if (uiState.registrationStartTime.isNotBlank()) {
+                            append(" às ")
+                            append(uiState.registrationStartTime)
+                        }
+
+                        append("\n")
+
+                        append("Fim: ")
+                        append(uiState.registrationEndDate.ifBlank { "—" })
+
+                        if (uiState.registrationEndTime.isNotBlank()) {
+                            append(" às ")
+                            append(uiState.registrationEndTime)
+                        }
+                    },
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = SquadTextPrimary,
+                    lineHeight = 20.sp
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(10.dp))
 
         ReviewCard {
@@ -1253,8 +1364,6 @@ private fun ReviewStep(
     }
 }
 
-// ─── Recurrence Dialog ────────────────────────────────────────────────────────
-
 @Composable
 private fun RecurrenceDialog(
     uiState: CreateEventUiState,
@@ -1375,8 +1484,6 @@ private fun RecurrenceDialog(
         }
     }
 }
-
-// ─── Private helpers ─────────────────────────────────────────────────────────
 
 @Composable
 private fun EventFormatCard(
@@ -1722,7 +1829,6 @@ private fun ReviewCard(
         )
     }
 }
-
 
 @Composable
 private fun LocationPreviewCard(

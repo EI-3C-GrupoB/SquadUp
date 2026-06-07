@@ -133,6 +133,9 @@ fun EventsRoute(
         onFilterByMyTeamsClick = onFilterByMyTeamsClick,
         onMapClick = onMapClick,
         onCreateEventClick = onCreateEventClick,
+        onRefreshLocationClick = {
+            loadEventsFromCurrentLocation()
+        },
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         onAdminViewChange = appViewModel::onAdminViewChange,

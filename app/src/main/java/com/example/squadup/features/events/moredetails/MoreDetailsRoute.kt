@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.squadup.core.app.AppViewModel
+import com.example.squadup.core.utils.AppLanguage
 
 @Composable
 fun MoreDetailsRoute(
@@ -17,12 +18,12 @@ fun MoreDetailsRoute(
     appViewModel: AppViewModel,
     viewModel: MoreDetailsViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
+
     LaunchedEffect(eventId) {
         viewModel.loadEvent(eventId)
     }
-
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
     MoreDetailsScreen(
         uiState = uiState,

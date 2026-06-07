@@ -107,6 +107,21 @@ class CreateEventRepository(
                 date = state.eventDate,
                 time = state.endTime
             )
+            val registrationStartDateTime = combineOptionalDateTime(
+                date = state.registrationStartDate,
+                time = state.registrationStartTime
+            )
+
+            val registrationEndDateTime = combineOptionalDateTime(
+                date = state.registrationEndDate,
+                time = state.registrationEndTime
+            )
+
+            validateRegistrationPeriod(
+                registrationStartDateTime = registrationStartDateTime,
+                registrationEndDateTime = registrationEndDateTime,
+                eventStartDateTime = startDateTime
+            )
 
             supabaseClient
                 .from("evento")
@@ -123,6 +138,8 @@ class CreateEventRepository(
                         isPrivate = !state.isPublicEvent,
                         startDate = startDateTime,
                         endDate = endDateTime,
+                        registrationStartDate = registrationStartDateTime,
+                        registrationEndDate = registrationEndDateTime,
                         maxTeams = state.maxTeams.takeIf { state.allowTeams },
                         participationLimit = state.maxTeams.takeIf { state.allowTeams },
                         price = entryFee,
@@ -253,6 +270,45 @@ class CreateEventRepository(
             SportType.PADDLE -> normalized in listOf("paddle", "padel")
             SportType.VOLLEYBALL -> normalized in listOf("volleyball", "voleibol")
             SportType.FUTSAL -> normalized == "futsal"
+        }
+    }
+
+    private fun combineOptionalDateTime(
+        date: String,
+        time: String
+    ): String? {
+        if (date.isBlank() && time.isBlank()) return null
+
+        if (date.isBlank() || time.isBlank()) {
+            throw IllegalArgumentException("Preenche a data e a hora do período de inscrições.")
+        }
+
+        return "${date}T${time}:00"
+    }
+
+    private fun validateRegistrationPeriod(
+        registrationStartDateTime: String?,
+        registrationEndDateTime: String?,
+        eventStartDateTime: String?
+    ) {
+        if (registrationStartDateTime == null && registrationEndDateTime == null) return
+
+        if (registrationStartDateTime == null || registrationEndDateTime == null) {
+            throw IllegalArgumentException("Define o início e o fim das inscrições.")
+        }
+
+        val registrationStart = java.time.LocalDateTime.parse(registrationStartDateTime)
+        val registrationEnd = java.time.LocalDateTime.parse(registrationEndDateTime)
+        val eventStart = eventStartDateTime?.let {
+            java.time.LocalDateTime.parse(it)
+        }
+
+        if (!registrationStart.isBefore(registrationEnd)) {
+            throw IllegalArgumentException("O início das inscrições tem de ser antes do fim.")
+        }
+
+        if (eventStart != null && registrationEnd.isAfter(eventStart)) {
+            throw IllegalArgumentException("As inscrições têm de terminar antes do início do evento.")
         }
     }
 }

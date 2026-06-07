@@ -163,6 +163,22 @@ class CreateEventViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(endTime = value)
     }
 
+    fun onRegistrationStartDateChange(value: String) {
+        _uiState.value = _uiState.value.copy(registrationStartDate = value)
+    }
+
+    fun onRegistrationStartTimeChange(value: String) {
+        _uiState.value = _uiState.value.copy(registrationStartTime = value)
+    }
+
+    fun onRegistrationEndDateChange(value: String) {
+        _uiState.value = _uiState.value.copy(registrationEndDate = value)
+    }
+
+    fun onRegistrationEndTimeChange(value: String) {
+        _uiState.value = _uiState.value.copy(registrationEndTime = value)
+    }
+
     fun onRecurringToggle(value: Boolean) {
         _uiState.value = _uiState.value.copy(
             isRecurring = value,

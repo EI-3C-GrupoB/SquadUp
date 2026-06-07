@@ -213,13 +213,26 @@ class EventsRepository(
         )
     }
 
+    private fun List<EventsNearbyEventRow>.sortedByFeaturedPriority(): List<EventsNearbyEventRow> {
+        return sortedWith(
+            compareBy<EventsNearbyEventRow> {
+                it.startDate.toLocalDateTimeOrNull() ?: LocalDateTime.MAX
+            }.thenBy {
+                it.distanceKm ?: Double.MAX_VALUE
+            }
+        )
+    }
+
     private fun List<EventsNearbyEventRow>.toEventsData(): EventsData {
+        val orderedForBrowse = sortedByDistanceAndDate()
+        val orderedForFeatured = sortedByFeaturedPriority()
+
         return EventsData(
-            featuredEvent = firstOrNull()?.toFeaturedEvent(),
-            upcomingEvents = take(3).map { event ->
+            featuredEvent = orderedForFeatured.firstOrNull()?.toFeaturedEvent(),
+            upcomingEvents = orderedForFeatured.take(3).map { event ->
                 event.toUpcomingEvent()
             },
-            browseEvents = map { event ->
+            browseEvents = orderedForBrowse.map { event ->
                 event.toBrowseEvent()
             }
         )
@@ -231,7 +244,7 @@ class EventsRepository(
             seriesName = formatName ?: eventStatus.toEntryType(),
             title = title,
             dateTime = startDate.toDateTimeLabel(),
-            venue = address.orEmpty(),
+            venue = address.toShortVenue(maxLength = 44),
             sportType = sportTypeFrom(modalityName),
             distance = distanceKm.toDistanceLabel(),
             distanceKm = distanceKm,
@@ -269,7 +282,7 @@ class EventsRepository(
             title = title,
             price = priceLabel(price ?: entryFee, currency),
             dateTime = startDate.toDateTimeLabel(),
-            venue = address.orEmpty(),
+            venue = address.toShortVenue(maxLength = 62),
             sportType = sportTypeFrom(modalityName),
             entryType = formatName ?: eventStatus.toEntryType(),
             requiresTeam = maxTeams != null,
@@ -351,5 +364,20 @@ class EventsRepository(
             normalized == "futsal" -> SportType.FUTSAL
             else -> SportType.SOCCER
         }
+    }
+
+    private fun String?.toShortVenue(maxLength: Int = 48): String {
+        val value = this
+            ?.replace("\n", " ")
+            ?.replace(Regex("\\s+"), " ")
+            ?.trim()
+            .orEmpty()
+
+        if (value.length <= maxLength) return value
+
+        return value
+            .take(maxLength)
+            .trimEnd(',', '.', ' ')
+            .plus("...")
     }
 }

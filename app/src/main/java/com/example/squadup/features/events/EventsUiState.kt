@@ -2,15 +2,31 @@ package com.example.squadup.features.events
 
 import com.example.squadup.core.enums.SportType
 
+enum class EventsLocationSource {
+    DEVICE,
+    PROFILE,
+    UNKNOWN
+}
+
 data class EventsUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val searchQuery: String = "",
     val selectedSport: SportType? = null,
+    val locationSource: EventsLocationSource = EventsLocationSource.UNKNOWN,
     val featuredEvent: FeaturedEventItem? = null,
     val upcomingEvents: List<UpcomingEventItem> = emptyList(),
     val browseEvents: List<BrowseEventItem> = emptyList()
 ) {
+    val filteredFeaturedEvent: FeaturedEventItem?
+        get() = featuredEvent
+            ?.takeIf { selectedSport == null || it.sportType == selectedSport }
+            ?.takeIf {
+                searchQuery.isBlank() ||
+                        it.title.contains(searchQuery, ignoreCase = true) ||
+                        it.venue.contains(searchQuery, ignoreCase = true)
+            }
+
     val filteredBrowseEvents: List<BrowseEventItem>
         get() = browseEvents
             .filter { selectedSport == null || it.sportType == selectedSport }
@@ -23,6 +39,10 @@ data class EventsUiState(
     val filteredUpcomingEvents: List<UpcomingEventItem>
         get() = upcomingEvents
             .filter { selectedSport == null || it.sportType == selectedSport }
+            .filter {
+                searchQuery.isBlank() ||
+                        it.title.contains(searchQuery, ignoreCase = true)
+            }
 }
 
 data class FeaturedEventItem(

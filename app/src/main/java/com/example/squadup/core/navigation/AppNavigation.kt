@@ -542,6 +542,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("eventId") { type = NavType.StringType })
         ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+
             MoreDetailsRoute(
                 eventId = eventId,
                 selectedRoute = AppRoutes.Events.route,

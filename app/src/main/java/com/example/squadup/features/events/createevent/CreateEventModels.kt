@@ -72,6 +72,12 @@ data class CreateEventInsertRow(
     @SerialName("data_fim")
     val endDate: String?,
 
+    @SerialName("data_ini_inscricao")
+    val registrationStartDate: String?,
+
+    @SerialName("data_fim_inscricao")
+    val registrationEndDate: String?,
+
     @SerialName("max_equipas")
     val maxTeams: Int?,
 

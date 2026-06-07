@@ -17,9 +17,11 @@ class EventsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(
         EventsUiState(
             isLoading = true,
-            errorMessage = null
+            errorMessage = null,
+            locationSource = EventsLocationSource.UNKNOWN
         )
     )
+
     val uiState: StateFlow<EventsUiState> = _uiState.asStateFlow()
 
     fun observeEventsFromDeviceLocation(
@@ -31,7 +33,8 @@ class EventsViewModel : ViewModel() {
         eventsObservationJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessage = null,
+                locationSource = EventsLocationSource.DEVICE
             )
 
             repository.getEventsRealtime(
@@ -43,7 +46,8 @@ class EventsViewModel : ViewModel() {
                     featuredEvent = eventsData.featuredEvent,
                     upcomingEvents = eventsData.upcomingEvents,
                     browseEvents = eventsData.browseEvents,
-                    errorMessage = null
+                    errorMessage = null,
+                    locationSource = EventsLocationSource.DEVICE
                 )
             }
         }
@@ -55,7 +59,8 @@ class EventsViewModel : ViewModel() {
         eventsObservationJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessage = null,
+                locationSource = EventsLocationSource.PROFILE
             )
 
             repository.getEventsRealtimeFromProfileLocation()
@@ -65,7 +70,8 @@ class EventsViewModel : ViewModel() {
                         featuredEvent = eventsData.featuredEvent,
                         upcomingEvents = eventsData.upcomingEvents,
                         browseEvents = eventsData.browseEvents,
-                        errorMessage = null
+                        errorMessage = null,
+                        locationSource = EventsLocationSource.PROFILE
                     )
                 }
         }
@@ -81,5 +87,10 @@ class EventsViewModel : ViewModel() {
 
     fun onSportFilterChange(sport: SportType?) {
         _uiState.value = _uiState.value.copy(selectedSport = sport)
+    }
+
+    override fun onCleared() {
+        eventsObservationJob?.cancel()
+        super.onCleared()
     }
 }
