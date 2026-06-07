@@ -216,8 +216,8 @@ fun AppNavigation() {
                 onCreateTeamClick = {
                     navController.navigate(AppRoutes.CreateTeam.route)
                 },
-                onInviteMembersClick = {
-                    navController.navigate(AppRoutes.InviteTeam.route)
+                onInviteMembersClick = { teamId ->
+                    navController.navigate(AppRoutes.InviteTeam.createRoute(teamId))
                 },
                 onNotificationsClick = openNotifications,
                 onLoginClick = {
@@ -250,8 +250,14 @@ fun AppNavigation() {
             )
         }
 
-        composable(AppRoutes.InviteTeam.route) {
+        composable(
+            route = AppRoutes.InviteTeam.route,
+            arguments = listOf(navArgument("teamId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val teamId = backStackEntry.arguments?.getString("teamId") ?: ""
+
             InviteTeamRoute(
+                teamId = teamId,
                 onBackClick = {
                     navController.navigate(AppRoutes.Teams.route) {
                         popUpTo(AppRoutes.Teams.route) {

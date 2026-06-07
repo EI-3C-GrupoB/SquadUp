@@ -32,24 +32,29 @@ data class TeamListItem(
 data class TeamsUiState(
     val selectedTab: TeamsTab = TeamsTab.MY_TEAMS,
     val searchQuery: String = "",
+    val myTeams: List<TeamListItem> = emptyList(),
+    val discoverTeams: List<TeamListItem> = emptyList(),
     val expandedTeamId: String? = null,
     val settingsTeamId: String? = null,
     val pendingJoinRequests: Set<String> = emptySet(),
-    val myTeams: List<TeamListItem> = emptyList(),
-    val discoverTeams: List<TeamListItem> = emptyList()
+
+    val showJoinByCodeDialog: Boolean = false,
+    val joinByCodeValue: String = "",
+    val joinByCodeError: String? = null,
+    val isJoiningByCode: Boolean = false
 ) {
     val visibleTeams: List<TeamListItem>
         get() {
-            val teams = when (selectedTab) {
+            val source = when (selectedTab) {
                 TeamsTab.MY_TEAMS -> myTeams
                 TeamsTab.DISCOVER -> discoverTeams
             }
 
             if (searchQuery.isBlank()) {
-                return teams
+                return source
             }
 
-            return teams.filter { team ->
+            return source.filter { team ->
                 team.name.contains(searchQuery, ignoreCase = true)
             }
         }

@@ -38,7 +38,11 @@ class TeamsViewModel : ViewModel() {
                     } else {
                         null
                     },
-                    pendingJoinRequests = teams.pendingJoinRequests + currentState.pendingJoinRequests
+                    pendingJoinRequests = teams.pendingJoinRequests + currentState.pendingJoinRequests,
+                    showJoinByCodeDialog = currentState.showJoinByCodeDialog,
+                    joinByCodeValue = currentState.joinByCodeValue,
+                    joinByCodeError = currentState.joinByCodeError,
+                    isJoiningByCode = currentState.isJoiningByCode
                 )
             }
         }
@@ -153,6 +157,65 @@ class TeamsViewModel : ViewModel() {
                     error
                 )
             }
+        }
+    }
+
+    fun onJoinByCodeDialogOpen() {
+        _uiState.value = _uiState.value.copy(
+            showJoinByCodeDialog = true,
+            joinByCodeValue = "",
+            joinByCodeError = null
+        )
+    }
+
+    fun onJoinByCodeDialogDismiss() {
+        if (_uiState.value.isJoiningByCode) return
+
+        _uiState.value = _uiState.value.copy(
+            showJoinByCodeDialog = false,
+            joinByCodeValue = "",
+            joinByCodeError = null
+        )
+    }
+
+    fun onJoinByCodeChange(value: String) {
+        _uiState.value = _uiState.value.copy(
+            joinByCodeValue = value.uppercase(),
+            joinByCodeError = null
+        )
+    }
+
+    fun onJoinByCodeSubmit() {
+        val code = _uiState.value.joinByCodeValue.trim()
+
+        if (code.isBlank()) {
+            _uiState.value = _uiState.value.copy(
+                joinByCodeError = "Introduz um código de convite."
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isJoiningByCode = true,
+                joinByCodeError = null
+            )
+
+            repository.requestToJoinTeamByInviteCode(code)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(
+                        showJoinByCodeDialog = false,
+                        joinByCodeValue = "",
+                        joinByCodeError = null,
+                        isJoiningByCode = false
+                    )
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        joinByCodeError = error.message ?: "Não foi possível enviar o pedido.",
+                        isJoiningByCode = false
+                    )
+                }
         }
     }
 }

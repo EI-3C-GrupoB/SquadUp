@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class NotificationsUserRow(
     val id: Int,
+    @SerialName("nome")
+    val name: String = "",
     @SerialName("auth_user_id")
     val authUserId: String? = null
 )

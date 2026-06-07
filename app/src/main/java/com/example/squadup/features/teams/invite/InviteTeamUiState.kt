@@ -13,10 +13,11 @@ data class SuggestedContactItem(
     val username: String,
     val subtitle: String,
     val initials: String,
-    val status: InviteStatus = InviteStatus.NOT_SENT
+    val status: InviteStatus = InviteStatus.INVITE
 )
 
 enum class InviteStatus {
-    NOT_SENT,
-    SENT
+    INVITE,
+    SENT,
+    MEMBER
 }

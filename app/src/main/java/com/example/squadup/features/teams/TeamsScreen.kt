@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.PersonRemove
@@ -73,6 +74,7 @@ import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,7 +89,7 @@ fun TeamsScreen(
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
     onCreateTeamClick: () -> Unit,
-    onInviteMembersClick: () -> Unit,
+    onInviteMembersClick: (String) -> Unit,
     onTabSelected: (TeamsTab) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onTeamToggle: (String) -> Unit,
@@ -96,6 +98,10 @@ fun TeamsScreen(
     onAskToJoinClick: (String) -> Unit,
     onPromoteMemberClick: (teamId: String, memberId: String) -> Unit,
     onRemoveMemberClick: (teamId: String, memberId: String) -> Unit,
+    onJoinByCodeDialogOpen: () -> Unit,
+    onJoinByCodeDialogDismiss: () -> Unit,
+    onJoinByCodeChange: (String) -> Unit,
+    onJoinByCodeSubmit: () -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -105,6 +111,17 @@ fun TeamsScreen(
     onDarkModeChange: (Boolean) -> Unit,
     notificationsCount: Int = 0
 ) {
+    if (uiState.showJoinByCodeDialog) {
+        JoinByCodeDialog(
+            code = uiState.joinByCodeValue,
+            errorMessage = uiState.joinByCodeError,
+            isLoading = uiState.isJoiningByCode,
+            onCodeChange = onJoinByCodeChange,
+            onDismiss = onJoinByCodeDialogDismiss,
+            onSubmit = onJoinByCodeSubmit
+        )
+    }
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -153,10 +170,21 @@ fun TeamsScreen(
             if (uiState.selectedTab == TeamsTab.DISCOVER) {
                 Spacer(modifier = Modifier.height(14.dp))
 
-                TeamsSearchField(
-                    value = uiState.searchQuery,
-                    onValueChange = onSearchQueryChange
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TeamsSearchField(
+                        value = uiState.searchQuery,
+                        onValueChange = onSearchQueryChange,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    JoinByCodeButton(
+                        onClick = onJoinByCodeDialogOpen
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -199,7 +227,7 @@ fun TeamsScreen(
                             expanded = uiState.expandedTeamId == team.id,
                             settingsActive = uiState.settingsTeamId == team.id,
                             onToggle = { onTeamToggle(team.id) },
-                            onInviteMembersClick = onInviteMembersClick,
+                            onInviteMembersClick = { onInviteMembersClick(team.id) },
                             onTeamSettingsToggle = { onTeamSettingsToggle(team.id) },
                             onAskToJoinClick = { onAskToJoinClick(team.id) },
                             onPromoteMemberClick = onPromoteMemberClick,
@@ -350,7 +378,8 @@ private fun CreateTeamButton(
 @Composable
 private fun TeamsSearchField(
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     BasicTextField(
         value = value,
@@ -361,7 +390,7 @@ private fun TeamsSearchField(
             fontWeight = FontWeight.Medium,
             color = SquadTextPrimary
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(38.dp)
             .background(
@@ -860,22 +889,6 @@ private fun TeamExpandedHero(
                         color = SquadGrayLight
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
-                        text = "INVITE CODE",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = SquadTextSecondary,
-                        letterSpacing = 2.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    InviteCodePill(
-                        inviteCode = team.inviteCode ?: "—"
-                    )
-
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Row(
@@ -907,36 +920,6 @@ private fun TeamExpandedHero(
         }
     }
 }
-
-@Composable
-private fun InviteCodePill(
-    inviteCode: String
-) {
-    Row(
-        modifier = Modifier
-            .background(Color(0xFFF6F4F3), RoundedCornerShape(12.dp))
-            .padding(horizontal = 18.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = inviteCode,
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Icon(
-            imageVector = Icons.Outlined.ContentCopy,
-            contentDescription = null,
-            tint = SquadOrange,
-            modifier = Modifier.size(19.dp)
-        )
-    }
-}
-
 @Composable
 private fun TeamSimpleActionButton(
     text: String,
@@ -1192,4 +1175,126 @@ private fun TeamSportIcon(
             )
         }
     }
+}
+
+@Composable
+private fun JoinByCodeButton(
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .size(38.dp)
+            .clickable(onClick = onClick),
+        color = SquadOrange,
+        shape = RoundedCornerShape(10.dp),
+        shadowElevation = 2.dp
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Key,
+                contentDescription = "Join by code",
+                tint = SquadWhite,
+                modifier = Modifier.size(19.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun JoinByCodeDialog(
+    code: String,
+    errorMessage: String?,
+    isLoading: Boolean,
+    onCodeChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onSubmit: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = SquadSurface,
+        title = {
+            Text(
+                text = "Join by invite code",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = SquadTextPrimary
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    text = "Enter the team invite code to request access.",
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    color = SquadTextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = code,
+                    onValueChange = onCodeChange,
+                    enabled = !isLoading,
+                    singleLine = true,
+                    placeholder = {
+                        Text(
+                            text = "TEA-3502",
+                            color = SquadTextSecondary
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SquadTextPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                if (errorMessage != null) {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = errorMessage,
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp,
+                        color = Color(0xFFD32F2F)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onSubmit,
+                enabled = !isLoading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SquadOrange,
+                    contentColor = SquadWhite,
+                    disabledContainerColor = SquadOrange.copy(alpha = 0.45f),
+                    disabledContentColor = SquadWhite.copy(alpha = 0.75f)
+                ),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text(
+                    text = if (isLoading) "Sending..." else "Request",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isLoading
+            ) {
+                Text(
+                    text = "Cancel",
+                    color = SquadTextSecondary,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    )
 }

@@ -8,6 +8,7 @@ import com.example.squadup.core.app.AppViewModel
 
 @Composable
 fun InviteTeamRoute(
+    teamId: String,
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     appViewModel: AppViewModel,
@@ -15,6 +16,10 @@ fun InviteTeamRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
+
+    androidx.compose.runtime.LaunchedEffect(teamId) {
+        viewModel.loadInviteState(teamId)
+    }
 
     InviteTeamScreen(
         uiState = uiState,

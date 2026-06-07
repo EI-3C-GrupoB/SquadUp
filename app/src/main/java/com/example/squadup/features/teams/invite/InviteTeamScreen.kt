@@ -54,6 +54,13 @@ import com.example.squadup.core.ui.theme.SquadTextPrimary
 import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
+import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun InviteTeamScreen(
@@ -123,18 +130,15 @@ fun InviteTeamScreen(
                 inviteCode = uiState.inviteCode
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            InviteSectionHeader(
-                title = "Share Invite Link",
-                action = null
+            InviteByUsernameCard(
+                value = uiState.usernameOrEmail,
+                onValueChange = onUsernameOrEmailChange,
+                onSendClick = onSendInviteClick
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            ShareInviteOptions()
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
             InviteSectionHeader(
                 title = "Suggested Contacts",
@@ -148,12 +152,17 @@ fun InviteTeamScreen(
                 onInviteContactClick = onInviteContactClick
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            InviteByUsernameCard(
-                value = uiState.usernameOrEmail,
-                onValueChange = onUsernameOrEmailChange,
-                onSendClick = onSendInviteClick
+            InviteSectionHeader(
+                title = "Share Invite Link",
+                action = null
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            ShareInviteOptions(
+                inviteCode = uiState.inviteCode
             )
         }
     }
@@ -163,6 +172,8 @@ fun InviteTeamScreen(
 private fun InviteCodeCard(
     inviteCode: String
 ) {
+    val context = LocalContext.current
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = SquadSurface,
@@ -199,17 +210,24 @@ private fun InviteCodeCard(
                 ) {
                     Text(
                         text = inviteCode,
-                        fontSize = 25.sp,
-                        lineHeight = 30.sp,
+                        fontSize = 23.sp,
+                        lineHeight = 28.sp,
                         fontWeight = FontWeight.Black,
                         color = SquadOrange,
-                        letterSpacing = 2.5.sp,
+                        letterSpacing = 2.2.sp,
                         modifier = Modifier.weight(1f)
                     )
 
                     Button(
-                        onClick = {},
-                        modifier = Modifier.height(38.dp),
+                        onClick = {
+                            copyInviteCode(
+                                context = context,
+                                inviteCode = inviteCode
+                            )
+                        },
+                        modifier = Modifier
+                            .height(38.dp)
+                            .width(92.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = SquadOrange,
@@ -266,37 +284,55 @@ private fun InviteSectionHeader(
 }
 
 @Composable
-private fun ShareInviteOptions() {
+private fun ShareInviteOptions(
+    inviteCode: String
+) {
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         ShareOption(
             label = "WhatsApp",
             icon = Icons.Outlined.Share,
             backgroundColor = Color(0xFFE7FFF0),
-            iconColor = Color(0xFF00A85A)
+            iconColor = Color(0xFF00A85A),
+            onClick = {
+                shareInviteCode(
+                    context = context,
+                    inviteCode = inviteCode,
+                    packageName = "com.whatsapp"
+                )
+            }
         )
 
         ShareOption(
             label = "Instagram",
             icon = Icons.Outlined.PhotoCamera,
             backgroundColor = Color(0xFFFFEDF5),
-            iconColor = Color(0xFFE83A7A)
+            iconColor = Color(0xFFE83A7A),
+            onClick = {
+                shareInviteCode(
+                    context = context,
+                    inviteCode = inviteCode,
+                    packageName = "com.instagram.android"
+                )
+            }
         )
 
         ShareOption(
             label = "Messenger",
             icon = Icons.Outlined.Forum,
             backgroundColor = Color(0xFFEAF3FF),
-            iconColor = Color(0xFF276EF1)
-        )
-
-        ShareOption(
-            label = "More",
-            icon = Icons.Outlined.MoreHoriz,
-            backgroundColor = Color(0xFFF1EEF4),
-            iconColor = SquadTextSecondary
+            iconColor = Color(0xFF276EF1),
+            onClick = {
+                shareInviteCode(
+                    context = context,
+                    inviteCode = inviteCode,
+                    packageName = "com.facebook.orca"
+                )
+            }
         )
     }
 }
@@ -306,20 +342,22 @@ private fun ShareOption(
     label: String,
     icon: ImageVector,
     backgroundColor: Color,
-    iconColor: Color
+    iconColor: Color,
+    onClick: () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
         Box(
             modifier = Modifier
-                .size(46.dp)
+                .size(48.dp)
                 .background(backgroundColor, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = label,
                 tint = iconColor,
                 modifier = Modifier.size(22.dp)
             )
@@ -435,18 +473,36 @@ private fun InviteStatusButton(
     status: InviteStatus,
     onClick: () -> Unit
 ) {
-    val sent = status == InviteStatus.SENT
+    val enabled = status == InviteStatus.INVITE
+
+    val label = when (status) {
+        InviteStatus.INVITE -> "Invite"
+        InviteStatus.SENT -> "✓ Sent"
+        InviteStatus.MEMBER -> "Member"
+    }
+
+    val backgroundColor = when (status) {
+        InviteStatus.INVITE -> SquadSurface
+        InviteStatus.SENT -> Color(0xFF26323F)
+        InviteStatus.MEMBER -> Color(0xFFE0E0E0)
+    }
+
+    val textColor = when (status) {
+        InviteStatus.INVITE -> SquadOrange
+        InviteStatus.SENT -> SquadWhite
+        InviteStatus.MEMBER -> SquadTextSecondary
+    }
 
     Surface(
         modifier = Modifier
             .height(36.dp)
-            .clickable(enabled = !sent, onClick = onClick),
-        color = if (sent) SquadOrange else SquadSurface,
+            .clickable(enabled = enabled, onClick = onClick),
+        color = backgroundColor,
         shape = RoundedCornerShape(999.dp),
-        border = if (sent) {
-            null
-        } else {
+        border = if (status == InviteStatus.INVITE) {
             BorderStroke(1.4.dp, SquadOrange)
+        } else {
+            null
         }
     ) {
         Box(
@@ -454,10 +510,10 @@ private fun InviteStatusButton(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (sent) "✓ Sent" else "Invite",
+                text = label,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (sent) SquadWhite else SquadOrange
+                color = textColor
             )
         }
     }
@@ -528,20 +584,79 @@ private fun InviteByUsernameCard(
                     onClick = onSendClick,
                     modifier = Modifier
                         .height(42.dp)
-                        .width(74.dp),
+                        .width(88.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SquadOrange,
                         contentColor = SquadWhite
-                    )
+                    ),
+                    contentPadding = ButtonDefaults.ContentPadding
                 ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Send,
+                        contentDescription = null,
+                        modifier = Modifier.size(15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
                     Text(
                         text = "Send",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
                     )
                 }
             }
         }
+    }
+}
+private fun copyInviteCode(
+    context: Context,
+    inviteCode: String
+) {
+    if (inviteCode.isBlank()) return
+
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("SquadUp invite code", inviteCode)
+
+    clipboard.setPrimaryClip(clip)
+
+    Toast.makeText(
+        context,
+        "Código copiado.",
+        Toast.LENGTH_SHORT
+    ).show()
+}
+
+private fun shareInviteCode(
+    context: Context,
+    inviteCode: String,
+    packageName: String
+) {
+    if (inviteCode.isBlank()) return
+
+    val message = "Junta-te à minha equipa no SquadUp com este código: $inviteCode"
+
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, message)
+        setPackage(packageName)
+    }
+
+    try {
+        context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        val fallbackIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, message)
+        }
+
+        context.startActivity(
+            Intent.createChooser(
+                fallbackIntent,
+                "Partilhar convite"
+            )
+        )
     }
 }

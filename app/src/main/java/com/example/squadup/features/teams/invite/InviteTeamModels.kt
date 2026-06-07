@@ -38,3 +38,23 @@ data class InviteTeamInsertRow(
     @SerialName("tipo")
     val type: String = "convite"
 )
+
+@Serializable
+data class InviteTeamRegistrationRow(
+    val id: Int,
+    @SerialName("equipa_id")
+    val teamId: Int? = null,
+    @SerialName("user_id")
+    val userId: Int? = null
+)
+
+@Serializable
+data class InviteTeamInviteRow(
+    val id: Int,
+    @SerialName("equipa_id")
+    val teamId: Int? = null,
+    @SerialName("convidado_user_id")
+    val invitedUserId: Int? = null,
+    val estado: String? = null,
+    val tipo: String? = null
+)

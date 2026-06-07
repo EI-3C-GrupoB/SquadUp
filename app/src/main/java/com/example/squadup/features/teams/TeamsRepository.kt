@@ -264,6 +264,101 @@ class TeamsRepository(
         }
     }
 
+    suspend fun requestToJoinTeamByInviteCode(inviteCode: String): Result<Unit> {
+        return try {
+            val normalizedInviteCode = inviteCode
+                .trim()
+                .uppercase()
+
+            if (normalizedInviteCode.isBlank()) {
+                throw Exception("Introduz um código de convite.")
+            }
+
+            val currentUser = getCurrentUserRow()
+                ?: throw Exception("Utilizador não encontrado.")
+
+            val matchingTeams = supabaseClient
+                .from("equipa")
+                .select {
+                    filter {
+                        eq("codigo_convite", normalizedInviteCode)
+                    }
+                }
+                .decodeList<TeamsTeamRow>()
+
+            val team = matchingTeams.firstOrNull()
+                ?: throw Exception("Código de convite inválido.")
+
+            if (team.ownerId == currentUser.id) {
+                throw Exception("Não podes pedir para entrar na tua própria equipa.")
+            }
+
+            val existingRegistrations = supabaseClient
+                .from("inscricao")
+                .select {
+                    filter {
+                        eq("equipa_id", team.id)
+                        eq("user_id", currentUser.id)
+                    }
+                }
+                .decodeList<TeamsRegistrationRow>()
+
+            if (existingRegistrations.isNotEmpty()) {
+                throw Exception("Já pertences a esta equipa.")
+            }
+
+            val pendingRequests = supabaseClient
+                .from("convite")
+                .select {
+                    filter {
+                        eq("equipa_id", team.id)
+                        eq("convidado_user_id", currentUser.id)
+                        eq("tipo", "pedido_adesao")
+                        eq("estado", "pendente")
+                    }
+                }
+                .decodeList<TeamsInviteRow>()
+
+            if (pendingRequests.isNotEmpty()) {
+                throw Exception("Já tens um pedido pendente para esta equipa.")
+            }
+
+            val insertResult = supabaseClient
+                .from("convite")
+                .insert(
+                    InviteInsert(
+                        teamId = team.id,
+                        invitedUserId = currentUser.id,
+                        tipo = "pedido_adesao",
+                        estado = "pendente"
+                    )
+                ) {
+                    select()
+                }
+
+            val createdInvite = insertResult.decodeSingle<TeamsInviteRow>()
+
+            if (team.ownerId != null) {
+                supabaseClient
+                    .from("notificacao")
+                    .insert(
+                        NotificationInsert(
+                            userId = team.ownerId,
+                            title = "Novo pedido de adesão",
+                            description = "${currentUser.name} pediu para se juntar à equipa ${team.name}.",
+                            tipo = "equipa",
+                            referenceId = createdInvite.id,
+                            referenceType = "convite"
+                        )
+                    )
+            }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
+    }
+
     suspend fun promoteMemberToCaptain(
         teamId: Int,
         memberUserId: Int

@@ -10,16 +10,15 @@ import kotlinx.coroutines.launch
 class InviteTeamViewModel : ViewModel() {
 
     private val repository = InviteTeamRepository()
+
     private val _uiState = MutableStateFlow(InviteTeamUiState())
     val uiState: StateFlow<InviteTeamUiState> = _uiState.asStateFlow()
 
-    init {
-        loadInviteState()
-    }
+    fun loadInviteState(teamId: String) {
+        if (teamId.isBlank()) return
 
-    private fun loadInviteState() {
         viewModelScope.launch {
-            repository.getInviteState().onSuccess { inviteState ->
+            repository.getInviteState(teamId).onSuccess { inviteState ->
                 _uiState.value = inviteState
             }
         }
@@ -36,9 +35,16 @@ class InviteTeamViewModel : ViewModel() {
         viewModelScope.launch {
             repository.inviteUser(teamId, contactId).onSuccess {
                 val updatedContacts = _uiState.value.suggestedContacts.map { contact ->
-                    if (contact.id == contactId) contact.copy(status = InviteStatus.SENT) else contact
+                    if (contact.id == contactId) {
+                        contact.copy(status = InviteStatus.SENT)
+                    } else {
+                        contact
+                    }
                 }
-                _uiState.value = _uiState.value.copy(suggestedContacts = updatedContacts)
+
+                _uiState.value = _uiState.value.copy(
+                    suggestedContacts = updatedContacts
+                )
             }
         }
     }
@@ -46,6 +52,7 @@ class InviteTeamViewModel : ViewModel() {
     fun onSendInvite() {
         val teamId = _uiState.value.selectedTeamId
         val value = _uiState.value.usernameOrEmail
+
         if (teamId.isBlank()) return
 
         viewModelScope.launch {

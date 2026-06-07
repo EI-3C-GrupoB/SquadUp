@@ -12,7 +12,9 @@ sealed class AppRoutes(val route: String) {
 
     data object CreateTeam : AppRoutes("create_team")
 
-    data object InviteTeam : AppRoutes("invite_team")
+    data object InviteTeam : AppRoutes("invite_team/{teamId}") {
+        fun createRoute(teamId: String) = "invite_team/$teamId"
+    }
     data object Profile      : AppRoutes("profile")
     data object EditProfile      : AppRoutes("edit_profile")
     data object ChangePassword   : AppRoutes("change_password")
