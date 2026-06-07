@@ -88,7 +88,7 @@ data class CreateEventInsertRow(
     val currency: String = "EUR",
 
     @SerialName("estado_evento")
-    val eventStatus: String = "publicado",
+    val eventStatus: String,
 
     @SerialName("regras")
     val rules: String?,
