@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.createevent
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.enums.EventFormat
@@ -14,6 +16,7 @@ import kotlinx.coroutines.launch
 class CreateEventViewModel : ViewModel() {
 
     private val repository = CreateEventRepository()
+
     private val _uiState = MutableStateFlow(CreateEventUiState())
     val uiState: StateFlow<CreateEventUiState> = _uiState.asStateFlow()
 
@@ -21,59 +24,72 @@ class CreateEventViewModel : ViewModel() {
         loadUserContext()
     }
 
+    fun onCoverImageSelected(uri: Uri?) {
+        _uiState.value = _uiState.value.copy(
+            coverImageUri = uri
+        )
+    }
+
     private fun loadUserContext() {
         viewModelScope.launch {
-            repository.getUserContext().onSuccess { context ->
-                _uiState.value = _uiState.value.copy(
-                    userRole = context.userRole,
-                    userTeams = context.userTeams,
-                    formatOptions = context.formatOptions,
-                    format = context.formatOptions.firstOrNull() ?: _uiState.value.format
-                )
-            }
+            repository.getUserContext()
+                .onSuccess { context ->
+                    _uiState.value = _uiState.value.copy(
+                        userRole = context.userRole,
+                        userTeams = context.userTeams,
+                        formatOptions = context.formatOptions,
+                        format = context.formatOptions.firstOrNull() ?: _uiState.value.format
+                    )
+                }
         }
     }
 
-    // Navigation
     fun onNextStep() {
         val next = when (_uiState.value.currentStep) {
-            CreateEventStep.BASIC_INFO     -> CreateEventStep.FORMAT_PLAYERS
+            CreateEventStep.BASIC_INFO -> CreateEventStep.FORMAT_PLAYERS
             CreateEventStep.FORMAT_PLAYERS -> CreateEventStep.LOCATION_TIME
-            CreateEventStep.LOCATION_TIME  -> CreateEventStep.REVIEW
-            CreateEventStep.REVIEW         -> CreateEventStep.REVIEW
+            CreateEventStep.LOCATION_TIME -> CreateEventStep.REVIEW
+            CreateEventStep.REVIEW -> CreateEventStep.REVIEW
         }
+
         _uiState.value = _uiState.value.copy(currentStep = next)
     }
 
     fun onPreviousStep() {
-        val prev = when (_uiState.value.currentStep) {
-            CreateEventStep.BASIC_INFO     -> null
+        val previous = when (_uiState.value.currentStep) {
+            CreateEventStep.BASIC_INFO -> null
             CreateEventStep.FORMAT_PLAYERS -> CreateEventStep.BASIC_INFO
-            CreateEventStep.LOCATION_TIME  -> CreateEventStep.FORMAT_PLAYERS
-            CreateEventStep.REVIEW         -> CreateEventStep.LOCATION_TIME
+            CreateEventStep.LOCATION_TIME -> CreateEventStep.FORMAT_PLAYERS
+            CreateEventStep.REVIEW -> CreateEventStep.LOCATION_TIME
         }
-        if (prev != null) _uiState.value = _uiState.value.copy(currentStep = prev)
+
+        if (previous != null) {
+            _uiState.value = _uiState.value.copy(currentStep = previous)
+        }
     }
 
     fun onGoToStep(step: CreateEventStep) {
         _uiState.value = _uiState.value.copy(currentStep = step)
     }
 
-    // Step 1
     fun onEventNameChange(value: String) {
         _uiState.value = _uiState.value.copy(eventName = value)
     }
 
     fun onPrivacyChange(isPublic: Boolean) {
-        _uiState.value = _uiState.value.copy(isPublic = isPublic)
+        _uiState.value = _uiState.value.copy(
+            isPublic = isPublic,
+            isPublicEvent = isPublic
+        )
     }
 
     fun onSportSelect(sport: SportType) {
-        val current = _uiState.value.selectedSport
-        // toggle: clicking the same sport deselects it
+        val currentSport = _uiState.value.selectedSport
+        val newSport = if (currentSport == sport) null else sport
+
         _uiState.value = _uiState.value.copy(
-            selectedSport = if (current == sport) null else sport,
-            format = formatsFor(if (current == sport) null else sport).firstOrNull().orEmpty()
+            selectedSport = newSport,
+            format = formatsFor(newSport).firstOrNull().orEmpty()
         )
     }
 
@@ -83,7 +99,6 @@ class CreateEventViewModel : ViewModel() {
         }
     }
 
-    // Step 2
     fun onEventFormatChange(eventFormat: EventFormat) {
         _uiState.value = _uiState.value.copy(eventFormat = eventFormat)
     }
@@ -93,17 +108,21 @@ class CreateEventViewModel : ViewModel() {
     }
 
     fun onMaxTeamsChange(delta: Int) {
-        val new = (_uiState.value.maxTeams + delta).coerceIn(2, 64)
-        _uiState.value = _uiState.value.copy(maxTeams = new)
+        val newMaxTeams = (_uiState.value.maxTeams + delta).coerceIn(2, 64)
+        _uiState.value = _uiState.value.copy(maxTeams = newMaxTeams)
     }
 
     fun onGeneralRulesChange(value: String) {
-        if (value.length <= 2000)
+        if (value.length <= 2000) {
             _uiState.value = _uiState.value.copy(generalRules = value)
+        }
     }
 
     fun onPublicEventToggle(value: Boolean) {
-        _uiState.value = _uiState.value.copy(isPublicEvent = value)
+        _uiState.value = _uiState.value.copy(
+            isPublicEvent = value,
+            isPublic = value
+        )
     }
 
     fun onEntryFeeChange(value: String) {
@@ -111,18 +130,15 @@ class CreateEventViewModel : ViewModel() {
     }
 
     fun onAllowTeamsToggle(value: Boolean) {
-        // pelo menos um tipo tem de estar ativo
         if (!value && !_uiState.value.allowFreeAgents) return
         _uiState.value = _uiState.value.copy(allowTeams = value)
     }
 
     fun onAllowFreeAgentsToggle(value: Boolean) {
-        // pelo menos um tipo tem de estar ativo
         if (!value && !_uiState.value.allowTeams) return
         _uiState.value = _uiState.value.copy(allowFreeAgents = value)
     }
 
-    // Step 3
     fun onVenueChange(value: String) {
         _uiState.value = _uiState.value.copy(venue = value)
     }
@@ -134,6 +150,7 @@ class CreateEventViewModel : ViewModel() {
             venue = location.address
         )
     }
+
     fun onEventDateChange(value: String) {
         _uiState.value = _uiState.value.copy(eventDate = value)
     }
@@ -162,33 +179,57 @@ class CreateEventViewModel : ViewModel() {
     }
 
     fun onRecurringDayToggle(day: Int) {
-        val current = _uiState.value.recurringDays
+        val currentDays = _uiState.value.recurringDays
+
         _uiState.value = _uiState.value.copy(
-            recurringDays = if (day in current) current - day else current + day
+            recurringDays = if (day in currentDays) {
+                currentDays - day
+            } else {
+                currentDays + day
+            }
         )
     }
 
-    // Review
     fun onTeamNotifyToggle(teamId: String) {
-        val current = _uiState.value.teamsToNotify
+        val currentTeams = _uiState.value.teamsToNotify
+
         _uiState.value = _uiState.value.copy(
-            teamsToNotify = if (teamId in current) current - teamId else current + teamId
+            teamsToNotify = if (teamId in currentTeams) {
+                currentTeams - teamId
+            } else {
+                currentTeams + teamId
+            }
         )
     }
 
-    fun createEvent(onSuccess: () -> Unit) {
+    fun createEvent(
+        context: Context,
+        onSuccess: () -> Unit
+    ) {
         val currentState = _uiState.value
-        if (currentState.eventName.isBlank()) return
 
         viewModelScope.launch {
-            _uiState.value = currentState.copy(isSaving = true)
-            repository.createEvent(currentState)
+            _uiState.value = currentState.copy(
+                isSaving = true,
+                errorMessage = null
+            )
+
+            repository.createEvent(
+                state = currentState,
+                context = context
+            )
                 .onSuccess {
-                    _uiState.value = _uiState.value.copy(isSaving = false)
+                    _uiState.value = _uiState.value.copy(
+                        isSaving = false,
+                        errorMessage = null
+                    )
                     onSuccess()
                 }
-                .onFailure {
-                    _uiState.value = _uiState.value.copy(isSaving = false)
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        isSaving = false,
+                        errorMessage = exception.message
+                    )
                 }
         }
     }

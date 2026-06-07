@@ -3,6 +3,8 @@ package com.example.squadup.features.events
 import com.example.squadup.core.enums.SportType
 
 data class EventsUiState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
     val searchQuery: String = "",
     val selectedSport: SportType? = null,
     val featuredEvent: FeaturedEventItem? = null,
@@ -14,8 +16,8 @@ data class EventsUiState(
             .filter { selectedSport == null || it.sportType == selectedSport }
             .filter {
                 searchQuery.isBlank() ||
-                it.title.contains(searchQuery, ignoreCase = true) ||
-                it.venue.contains(searchQuery, ignoreCase = true)
+                        it.title.contains(searchQuery, ignoreCase = true) ||
+                        it.venue.contains(searchQuery, ignoreCase = true)
             }
 
     val filteredUpcomingEvents: List<UpcomingEventItem>
@@ -29,7 +31,10 @@ data class FeaturedEventItem(
     val title: String,
     val dateTime: String,
     val venue: String,
-    val sportType: SportType
+    val sportType: SportType,
+    val distance: String = "",
+    val distanceKm: Double? = null,
+    val imageUrl: String? = null
 )
 
 data class UpcomingEventItem(
@@ -38,7 +43,10 @@ data class UpcomingEventItem(
     val day: String,
     val title: String,
     val sportType: SportType,
-    val time: String
+    val time: String,
+    val distance: String = "",
+    val distanceKm: Double? = null,
+    val imageUrl: String? = null
 )
 
 data class BrowseEventItem(
@@ -51,5 +59,11 @@ data class BrowseEventItem(
     val entryType: String = "OPEN MATCH",
     val requiresTeam: Boolean = true,
     val spotsLeft: Int = 0,
-    val totalSpots: Int = 0
+    val totalSpots: Int = 0,
+    val registeredTeams: Int = 0,
+    val distance: String = "",
+    val distanceKm: Double? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val imageUrl: String? = null
 )

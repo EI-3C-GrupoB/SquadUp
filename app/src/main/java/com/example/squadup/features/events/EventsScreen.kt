@@ -31,6 +31,10 @@ import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
 import com.example.squadup.core.utils.toIcon
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun EventsScreen(
@@ -339,28 +343,45 @@ private fun FeaturedEventCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(event.sportType.color)
+                .clip(RoundedCornerShape(14.dp))
         ) {
-            // Sport icon background
-            Icon(
-                imageVector = event.sportType.toIcon(),
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.12f),
-                modifier = Modifier
-                    .size(160.dp)
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-            )
+            if (!event.imageUrl.isNullOrBlank()) {
+                Image(
+                    painter = rememberAsyncImagePainter(event.imageUrl),
+                    contentDescription = event.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(event.sportType.color)
+                )
+
+                Icon(
+                    imageVector = event.sportType.toIcon(),
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.12f),
+                    modifier = Modifier
+                        .size(160.dp)
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 16.dp)
+                )
+            }
 
             // Dark gradient overlay at bottom
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.65f)
+                    .fillMaxHeight(0.75f)
                     .align(Alignment.BottomCenter)
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color.Transparent, Color.Black.copy(alpha = 0.75f))
+                            listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.78f)
+                            )
                         )
                     )
             )
@@ -391,14 +412,18 @@ private fun FeaturedEventCard(
                     color = Color.White.copy(alpha = 0.8f),
                     letterSpacing = 0.5.sp
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = event.title,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
+
                 Spacer(modifier = Modifier.height(6.dp))
+
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -407,13 +432,16 @@ private fun FeaturedEventCard(
                             tint = Color.White.copy(alpha = 0.85f),
                             modifier = Modifier.size(13.dp)
                         )
+
                         Spacer(modifier = Modifier.width(4.dp))
+
                         Text(
                             text = event.dateTime,
                             fontSize = 12.sp,
                             color = Color.White.copy(alpha = 0.85f)
                         )
                     }
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Outlined.LocationOn,
@@ -421,7 +449,9 @@ private fun FeaturedEventCard(
                             tint = Color.White.copy(alpha = 0.85f),
                             modifier = Modifier.size(13.dp)
                         )
+
                         Spacer(modifier = Modifier.width(4.dp))
+
                         Text(
                             text = event.venue,
                             fontSize = 12.sp,
@@ -517,24 +547,51 @@ private fun BrowseEventCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                event.sportType.color,
-                                event.sportType.color.copy(alpha = 0.7f)
-                            )
-                        )
-                    )
+                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
             ) {
-                Icon(
-                    imageVector = event.sportType.toIcon(),
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.15f),
-                    modifier = Modifier
-                        .size(110.dp)
-                        .align(Alignment.Center)
-                )
-                // Sport badge top-left
+                if (!event.imageUrl.isNullOrBlank()) {
+                    Image(
+                        painter = rememberAsyncImagePainter(event.imageUrl),
+                        contentDescription = event.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        Color.Black.copy(alpha = 0.05f),
+                                        Color.Black.copy(alpha = 0.35f)
+                                    )
+                                )
+                            )
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(
+                                        event.sportType.color,
+                                        event.sportType.color.copy(alpha = 0.7f)
+                                    )
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = event.sportType.toIcon(),
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.15f),
+                            modifier = Modifier.size(110.dp)
+                        )
+                    }
+                }
+
                 Text(
                     text = event.sportType.toDisplayName(context).uppercase(),
                     fontSize = 10.sp,

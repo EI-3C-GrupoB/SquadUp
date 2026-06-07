@@ -1,5 +1,6 @@
 package com.example.squadup.features.events.createevent
 
+import android.net.Uri
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.RecurrenceType
 import com.example.squadup.core.enums.SportType
@@ -16,6 +17,9 @@ data class NotifyTeamItem(
 
 data class CreateEventUiState(
     val currentStep: CreateEventStep = CreateEventStep.BASIC_INFO,
+
+    val coverImageUri: Uri? = null,
+    val coverImageUrl: String? = null,
 
     // Step 1 — Basic Info
     val eventName: String = "",
@@ -41,24 +45,27 @@ data class CreateEventUiState(
     val endTime: String = "",
     val isRecurring: Boolean = false,
     val recurrenceType: RecurrenceType = RecurrenceType.WEEKLY,
-    val recurringDays: Set<Int> = emptySet(), // 0=Sun … 6=Sat
+    val recurringDays: Set<Int> = emptySet(),
     val showRecurrenceDialog: Boolean = false,
 
-    // User context (loaded from session)
+    // User context
     val userRole: UserRole? = null,
     val userTeams: List<NotifyTeamItem> = emptyList(),
     val formatOptions: List<String> = emptyList(),
 
     // Review
     val teamsToNotify: Set<String> = emptySet(),
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val errorMessage: String? = null
 ) {
-    val isPlayerOrganizer get() = userRole == UserRole.PLAYER_ORGANIZER
+    val isPlayerOrganizer: Boolean
+        get() = userRole == UserRole.PLAYER_ORGANIZER
 
-    val progressStep: Int get() = when (currentStep) {
-        CreateEventStep.BASIC_INFO      -> 1
-        CreateEventStep.FORMAT_PLAYERS  -> 2
-        CreateEventStep.LOCATION_TIME   -> 3
-        CreateEventStep.REVIEW          -> 3
-    }
+    val progressStep: Int
+        get() = when (currentStep) {
+            CreateEventStep.BASIC_INFO -> 1
+            CreateEventStep.FORMAT_PLAYERS -> 2
+            CreateEventStep.LOCATION_TIME -> 3
+            CreateEventStep.REVIEW -> 3
+        }
 }

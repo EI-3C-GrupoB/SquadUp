@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.createevent
 
+import android.content.Context
+import android.net.Uri
 import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.SportType
@@ -7,6 +9,8 @@ import com.example.squadup.core.enums.UserRole
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.storage.storage
+import java.util.UUID
 
 class CreateEventRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
@@ -16,6 +20,7 @@ class CreateEventRepository(
             val user = getCurrentUserRow()
             val role = user?.let { getUserRole(it.id) }
             val teams = user?.let { getUserTeams(it.id) }.orEmpty()
+
             val formats = supabaseClient
                 .from("formato")
                 .select()
@@ -36,41 +41,95 @@ class CreateEventRepository(
         }
     }
 
-    suspend fun createEvent(state: CreateEventUiState): Result<Unit> {
+    suspend fun createEvent(
+        state: CreateEventUiState,
+        context: Context
+    ): Result<Unit> {
         return try {
             val user = getCurrentUserRow()
+                ?: throw Exception("Utilizador não encontrado.")
+
+            if (state.eventName.isBlank()) {
+                throw Exception("O nome do evento é obrigatório.")
+            }
+
+            if (state.selectedSport == null) {
+                throw Exception("Seleciona uma modalidade.")
+            }
+
+            if (state.latitude == null || state.longitude == null || state.venue.isBlank()) {
+                throw Exception("Seleciona a localização do evento.")
+            }
+
+            if (state.eventDate.isBlank() || state.startTime.isBlank()) {
+                throw Exception("Seleciona a data e a hora de início.")
+            }
+
             val modalities = supabaseClient
                 .from("modalidade")
                 .select()
                 .decodeList<CreateEventModalityRow>()
+
             val formats = supabaseClient
                 .from("formato")
                 .select()
                 .decodeList<CreateEventFormatRow>()
 
-            val modalityId = state.selectedSport?.let { sport ->
-                modalities.firstOrNull { sport.matchesModality(it.name) }?.id
+            val modalityId = state.selectedSport.let { sport ->
+                modalities.firstOrNull { modality ->
+                    sport.matchesModality(modality.name)
+                }?.id
+            } ?: throw Exception("Modalidade não encontrada na base de dados.")
+
+            val formatId = formats.firstOrNull { format ->
+                format.name.equals(state.format, ignoreCase = true)
+            }?.id
+
+            val entryFee = state.entryFee
+                .replace(",", ".")
+                .toDoubleOrNull()
+                ?: 0.0
+
+            val coverImageUrl = state.coverImageUri?.let { uri ->
+                uploadEventCoverImage(
+                    uri = uri,
+                    context = context,
+                    userId = user.id
+                )
             }
-            val formatId = formats.firstOrNull { it.name.equals(state.format, ignoreCase = true) }?.id
-            val entryFee = state.entryFee.replace(",", ".").toDoubleOrNull() ?: 0.0
+
+            val startDateTime = combineDateTime(
+                date = state.eventDate,
+                time = state.startTime
+            )
+
+            val endDateTime = combineDateTime(
+                date = state.eventDate,
+                time = state.endTime
+            )
 
             supabaseClient
                 .from("evento")
                 .insert(
                     CreateEventInsertRow(
                         title = state.eventName.trim(),
-                        address = state.venue.takeIf { it.isNotBlank() },
+                        description = state.generalRules
+                            .takeIf { it.isNotBlank() }
+                            ?.take(180),
+                        imageUrl = coverImageUrl,
+                        address = state.venue.trim(),
                         latitude = state.latitude,
                         longitude = state.longitude,
                         isPrivate = !state.isPublicEvent,
-                        startDate = combineDateTime(state.eventDate, state.startTime),
-                        endDate = combineDateTime(state.eventDate, state.endTime),
+                        startDate = startDateTime,
+                        endDate = endDateTime,
                         maxTeams = state.maxTeams.takeIf { state.allowTeams },
+                        participationLimit = state.maxTeams.takeIf { state.allowTeams },
                         price = entryFee,
                         entryFee = entryFee,
-                        eventType = state.eventFormat.toDatabaseType(),
+                        eventStatus = "publicado",
                         rules = state.generalRules.takeIf { it.isNotBlank() },
-                        creatorId = user?.id,
+                        creatorId = user.id,
                         modalityId = modalityId,
                         formatId = formatId
                     )
@@ -82,8 +141,32 @@ class CreateEventRepository(
         }
     }
 
+    private suspend fun uploadEventCoverImage(
+        uri: Uri,
+        context: Context,
+        userId: Int
+    ): String {
+        val bytes = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            inputStream.readBytes()
+        } ?: throw Exception("Não foi possível ler a imagem selecionada.")
+
+        val fileName = "event_${userId}_${UUID.randomUUID()}.jpg"
+
+        supabaseClient.storage
+            .from("event-covers")
+            .upload(
+                path = fileName,
+                data = bytes
+            )
+
+        return supabaseClient.storage
+            .from("event-covers")
+            .publicUrl(fileName)
+    }
+
     private suspend fun getCurrentUserRow(): CreateEventUserRow? {
         val authUserId = supabaseClient.auth.currentUserOrNull()?.id ?: return null
+
         return runCatching {
             supabaseClient
                 .from("utilizador")
@@ -100,7 +183,9 @@ class CreateEventRepository(
         val user = supabaseClient
             .from("utilizador")
             .select(io.github.jan.supabase.postgrest.query.Columns.raw("tipo_conta")) {
-                filter { eq("id", userId) }
+                filter {
+                    eq("id", userId)
+                }
             }
             .decodeSingle<CreateEventUserRow>()
 
@@ -112,7 +197,9 @@ class CreateEventRepository(
             .from("equipa")
             .select()
             .decodeList<CreateEventTeamRow>()
-            .filter { it.ownerId == userId }
+            .filter { team ->
+                team.ownerId == userId
+            }
 
         if (teams.isEmpty()) return emptyList()
 
@@ -120,7 +207,12 @@ class CreateEventRepository(
             .from("inscricao")
             .select()
             .decodeList<CreateEventTeamMemberRow>()
-            .groupingBy { it.teamId }
+            .filter { registration ->
+                registration.eventId == null
+            }
+            .groupingBy { registration ->
+                registration.teamId
+            }
             .eachCount()
 
         return teams.map { team ->
@@ -133,12 +225,15 @@ class CreateEventRepository(
         }
     }
 
-    private fun combineDateTime(date: String, time: String): String? {
-        if (date.isBlank()) return null
-        val normalizedTime = time.takeIf { it.isNotBlank() } ?: "00:00"
-        return "${date.trim()}T${normalizedTime.trim()}:00"
+    private fun combineDateTime(
+        date: String,
+        time: String
+    ): String? {
+        if (date.isBlank() || time.isBlank()) return null
+        return "${date}T${time}:00"
     }
 
+    @Suppress("unused")
     private fun EventFormat.toDatabaseType(): String {
         return when (this) {
             EventFormat.SINGLE_MATCH -> "jogo_amigavel"
@@ -151,6 +246,7 @@ class CreateEventRepository(
 
     private fun SportType.matchesModality(value: String): Boolean {
         val normalized = value.lowercase()
+
         return when (this) {
             SportType.SOCCER -> normalized in listOf("soccer", "football", "futebol")
             SportType.BASKETBALL -> normalized in listOf("basketball", "basquetebol")

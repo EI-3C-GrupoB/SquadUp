@@ -11,22 +11,33 @@ import kotlinx.coroutines.launch
 class EventsViewModel : ViewModel() {
 
     private val repository = EventsRepository()
-    private val _uiState = MutableStateFlow(EventsUiState())
+
+    private val _uiState = MutableStateFlow(
+        EventsUiState(isLoading = true)
+    )
     val uiState: StateFlow<EventsUiState> = _uiState.asStateFlow()
 
     init {
-        loadEvents()
+        observeEvents()
     }
 
-    private fun loadEvents() {
+    private fun observeEvents() {
         viewModelScope.launch {
-            repository.getEvents().onSuccess { eventsData ->
-                _uiState.value = _uiState.value.copy(
-                    featuredEvent = eventsData.featuredEvent,
-                    upcomingEvents = eventsData.upcomingEvents,
-                    browseEvents = eventsData.browseEvents
-                )
-            }
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null
+            )
+
+            repository.getEventsRealtime()
+                .collect { eventsData ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        featuredEvent = eventsData.featuredEvent,
+                        upcomingEvents = eventsData.upcomingEvents,
+                        browseEvents = eventsData.browseEvents,
+                        errorMessage = null
+                    )
+                }
         }
     }
 

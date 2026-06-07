@@ -24,7 +24,9 @@ data class CreateEventTeamRow(
 @Serializable
 data class CreateEventTeamMemberRow(
     @SerialName("equipa_id")
-    val teamId: Int? = null
+    val teamId: Int? = null,
+    @SerialName("evento_id")
+    val eventId: Int? = null
 )
 
 @Serializable
@@ -45,6 +47,12 @@ data class CreateEventFormatRow(
 data class CreateEventInsertRow(
     @SerialName("titulo")
     val title: String,
+
+    @SerialName("descricao")
+    val description: String? = null,
+
+    @SerialName("imagem_url")
+    val imageUrl: String? = null,
 
     @SerialName("morada")
     val address: String?,
@@ -67,6 +75,9 @@ data class CreateEventInsertRow(
     @SerialName("max_equipas")
     val maxTeams: Int?,
 
+    @SerialName("limite_participacoes")
+    val participationLimit: Int?,
+
     @SerialName("preco")
     val price: Double,
 
@@ -76,11 +87,8 @@ data class CreateEventInsertRow(
     @SerialName("moeda")
     val currency: String = "EUR",
 
-    @SerialName("tipo_evento")
-    val eventType: String,
-
     @SerialName("estado_evento")
-    val eventStatus: String = "rascunho",
+    val eventStatus: String = "publicado",
 
     @SerialName("regras")
     val rules: String?,

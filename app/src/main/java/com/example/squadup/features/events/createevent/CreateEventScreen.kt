@@ -1,5 +1,6 @@
 package com.example.squadup.features.events.createevent
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -111,6 +112,10 @@ import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.outlined.Image
+import coil.compose.rememberAsyncImagePainter
 
 @Composable
 fun CreateEventScreen(
@@ -125,6 +130,7 @@ fun CreateEventScreen(
     onNotificationsClick: () -> Unit,
     onPrivacyChange: (Boolean) -> Unit,
     onSportSelect: (SportType) -> Unit,
+    onCoverImageSelected: (Uri?) -> Unit,
     formatOptions: List<String>,
 
     // Step 2
@@ -246,6 +252,7 @@ fun CreateEventScreen(
                     CreateEventStep.REVIEW -> ReviewStep(
                         uiState = uiState,
                         onEditSteps = { onGoToStep(CreateEventStep.BASIC_INFO) },
+                        onCoverImageSelected = onCoverImageSelected,
                         onTeamNotifyToggle = onTeamNotifyToggle,
                         onCreateEvent = onCreateEvent
                     )
@@ -883,6 +890,7 @@ private fun ReviewStep(
     uiState: CreateEventUiState,
     onEditSteps: () -> Unit,
     onTeamNotifyToggle: (String) -> Unit,
+    onCoverImageSelected: (Uri?) -> Unit,
     onCreateEvent: () -> Unit
 ) {
     val context = LocalContext.current
@@ -899,19 +907,81 @@ private fun ReviewStep(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        val coverImagePicker = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri ->
+            onCoverImageSelected(uri)
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable {
+                    coverImagePicker.launch("image/*")
+                }
                 .background(
                     brush = Brush.linearGradient(
                         listOf(Color(0xFF2F9D73), Color(0xFF1A6B3C))
                     ),
                     shape = RoundedCornerShape(12.dp)
-                )
-                .clip(RoundedCornerShape(12.dp)),
+                ),
             contentAlignment = Alignment.Center
-        ) {}
+        ) {
+            if (uiState.coverImageUri != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(uiState.coverImageUri),
+                    contentDescription = "Capa do evento",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(10.dp),
+                    color = SquadOrange,
+                    shape = RoundedCornerShape(999.dp)
+                ) {
+                    Text(
+                        text = "Alterar imagem",
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Image,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(36.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Adicionar capa do evento",
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Toca para escolher uma imagem",
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(20.dp))
 
