@@ -34,6 +34,8 @@ fun TeamsRoute(
         onTeamSettingsToggle = viewModel::onTeamSettingsToggle,
         onLoginClick = onLoginClick,
         onAskToJoinClick = viewModel::onAskToJoinClick,
+        onPromoteMemberClick = viewModel::onPromoteMemberClick,
+        onRemoveMemberClick = viewModel::onRemoveMemberClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         selectedLanguage = appUiState.selectedLanguage,

@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 class TeamsViewModel : ViewModel() {
 
     private val repository = TeamsRepository()
+
     private val _uiState = MutableStateFlow(TeamsUiState())
     val uiState: StateFlow<TeamsUiState> = _uiState.asStateFlow()
 
@@ -20,11 +21,24 @@ class TeamsViewModel : ViewModel() {
     private fun loadTeams() {
         viewModelScope.launch {
             repository.getTeamsRealtime().collect { teams ->
+                val currentState = _uiState.value
+
+                val shouldKeepSettingsActive = currentState.settingsTeamId?.let { settingsTeamId ->
+                    teams.myTeams.any { team ->
+                        team.id == settingsTeamId && team.isCaptain
+                    }
+                } ?: false
+
                 _uiState.value = teams.copy(
-                    selectedTab = _uiState.value.selectedTab,
-                    searchQuery = _uiState.value.searchQuery,
-                    // Keep local pending requests that might not have reached the server yet
-                    pendingJoinRequests = teams.pendingJoinRequests + _uiState.value.pendingJoinRequests
+                    selectedTab = currentState.selectedTab,
+                    searchQuery = currentState.searchQuery,
+                    expandedTeamId = currentState.expandedTeamId,
+                    settingsTeamId = if (shouldKeepSettingsActive) {
+                        currentState.settingsTeamId
+                    } else {
+                        null
+                    },
+                    pendingJoinRequests = teams.pendingJoinRequests + currentState.pendingJoinRequests
                 )
             }
         }
@@ -63,27 +77,82 @@ class TeamsViewModel : ViewModel() {
 
     fun onAskToJoinClick(teamId: String) {
         val currentRequests = _uiState.value.pendingJoinRequests
-        android.util.Log.d("TeamsViewModel", "Click onAskToJoin for team: $teamId. Current requests: $currentRequests")
+
+        android.util.Log.d(
+            "TeamsViewModel",
+            "Click onAskToJoin for team: $teamId. Current requests: $currentRequests"
+        )
+
         if (currentRequests.contains(teamId)) return
-        
+
         viewModelScope.launch {
-            // Optimistic update: show as pending immediately
             _uiState.value = _uiState.value.copy(
                 pendingJoinRequests = currentRequests + teamId
             )
+
             android.util.Log.d("TeamsViewModel", "Optimistic update done for: $teamId")
-            
+
             repository.requestToJoinTeam(teamId.toInt())
                 .onSuccess {
                     android.util.Log.d("TeamsViewModel", "Success joining team: $teamId")
                 }
                 .onFailure { error ->
-                    android.util.Log.e("TeamsViewModel", "Error joining team: ${error.message}", error)
-                    // Rollback on error
+                    android.util.Log.e(
+                        "TeamsViewModel",
+                        "Error joining team: ${error.message}",
+                        error
+                    )
+
                     _uiState.value = _uiState.value.copy(
                         pendingJoinRequests = _uiState.value.pendingJoinRequests - teamId
                     )
                 }
+        }
+    }
+
+    fun onPromoteMemberClick(
+        teamId: String,
+        memberId: String
+    ) {
+        viewModelScope.launch {
+            repository.promoteMemberToCaptain(
+                teamId = teamId.toInt(),
+                memberUserId = memberId.toInt()
+            ).onSuccess {
+                android.util.Log.d(
+                    "TeamsViewModel",
+                    "Member $memberId promoted to captain in team $teamId"
+                )
+            }.onFailure { error ->
+                android.util.Log.e(
+                    "TeamsViewModel",
+                    "Error promoting member $memberId in team $teamId: ${error.message}",
+                    error
+                )
+            }
+        }
+    }
+
+    fun onRemoveMemberClick(
+        teamId: String,
+        memberId: String
+    ) {
+        viewModelScope.launch {
+            repository.removeMemberFromTeam(
+                teamId = teamId.toInt(),
+                memberUserId = memberId.toInt()
+            ).onSuccess {
+                android.util.Log.d(
+                    "TeamsViewModel",
+                    "Member $memberId removed from team $teamId"
+                )
+            }.onFailure { error ->
+                android.util.Log.e(
+                    "TeamsViewModel",
+                    "Error removing member $memberId from team $teamId: ${error.message}",
+                    error
+                )
+            }
         }
     }
 }

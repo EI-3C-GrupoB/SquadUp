@@ -14,56 +14,106 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 class NotificationsRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
 ) {
     fun getNotificationsRealtime(): Flow<NotificationsUiState> = flow {
         val user = getCurrentUserRow()
+
         if (user == null) {
-            android.util.Log.d("NotificationsRepo", "No user logged in for realtime notifications")
+            android.util.Log.d(
+                "NotificationsRepo",
+                "No user logged in for realtime notifications"
+            )
             emit(NotificationsUiState())
             return@flow
         }
 
-        android.util.Log.d("NotificationsRepo", "Setting up realtime notifications for user: ${user.id}")
-        val channel = supabaseClient.channel("notifications_realtime_${user.id}")
-        val notificationsFlow = channel.postgresListDataFlow<NotificationsRow, Int>(
-            schema = "public",
-            table = "notificacao",
-            primaryKey = NotificationsRow::id
+        android.util.Log.d(
+            "NotificationsRepo",
+            "Setting up realtime notifications for user: ${user.id}"
         )
 
-        emitAll(notificationsFlow.map { rows ->
-            // Filtro de segurança ADICIONAL para garantir que apenas as notificações do Simão aparecem
-            val myNotifications = rows
-                .filter { it.userId == user.id && it.isRead != true }
-                .sortedByDescending { it.createdAt.orEmpty() }
-                .map { it.toNotificationItem() }
-            
-            android.util.Log.d("NotificationsRepo", "Received ${myNotifications.size} notifications for user ${user.id}")
-            
-            val today = LocalDate.now()
-            NotificationsUiState(
-                todayNotifications = myNotifications.filter {
-                    it.createdAt?.toLocalDate() == today
-                },
-                earlierNotifications = myNotifications.filter {
-                    it.createdAt?.toLocalDate() != today
-                }
-            )
-        })
+        val channel = supabaseClient.channel(
+            "notifications_realtime_${user.id}_${System.currentTimeMillis()}"
+        )
+
+        val changes = channel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "notificacao"
+            }
+            .map { Unit }
 
         channel.subscribe()
+
+        emitAll(
+            changes
+                .onStart {
+                    emit(Unit)
+                }
+                .map {
+                    loadNotificationsUiState(user.id)
+                }
+        )
+    }
+
+    private suspend fun loadNotificationsUiState(
+        userId: Int
+    ): NotificationsUiState {
+        val rows = supabaseClient
+            .from("notificacao")
+            .select {
+                filter {
+                    eq("user_id", userId)
+                    eq("is_lida", false)
+                }
+            }
+            .decodeList<NotificationsRow>()
+
+        val myNotifications = rows
+            .sortedByDescending { it.createdAt.orEmpty() }
+            .map { it.toNotificationItem() }
+
+        android.util.Log.d(
+            "NotificationsRepo",
+            "Loaded ${myNotifications.size} notifications for user $userId"
+        )
+
+        val today = LocalDate.now()
+
+        return NotificationsUiState(
+            todayNotifications = myNotifications.filter {
+                it.createdAt?.toLocalDate() == today
+            },
+            earlierNotifications = myNotifications.filter {
+                it.createdAt?.toLocalDate() != today
+            }
+        )
     }
 
     suspend fun deleteNotification(notificationId: String): Result<Unit> {
         return try {
-            supabaseClient.from("notificacao").update(com.example.squadup.features.teams.NotificationUpdate(isRead = true)) {
-                filter { eq("id", notificationId.toInt()) }
-            }
+            supabaseClient
+                .from("notificacao")
+                .update(
+                    NotificationReadUpdate(
+                        isRead = true
+                    )
+                ) {
+                    filter {
+                        eq("id", notificationId.toInt())
+                    }
+                }
+
             Result.success(Unit)
         } catch (e: Exception) {
+            android.util.Log.e("NotificationsRepo", "Error deleting notification", e)
             Result.failure(e)
         }
     }
@@ -125,70 +175,143 @@ class NotificationsRepository(
         return runCatching { LocalDateTime.parse(replace(" ", "T").take(19)) }.getOrNull()
     }
 
-    suspend fun respondToJoinRequest(notificationId: String, conviteId: Int, accept: Boolean): Result<Unit> {
-        android.util.Log.d("NotificationsRepo", "Responding to join request: notificationId=$notificationId, conviteId=$conviteId, accept=$accept")
+    suspend fun respondToJoinRequest(
+        notificationId: String,
+        conviteId: Int,
+        accept: Boolean
+    ): Result<Unit> {
+        android.util.Log.d(
+            "NotificationsRepo",
+            "Responding to join request: notificationId=$notificationId, conviteId=$conviteId, accept=$accept"
+        )
+
         return try {
-            val currentUser = getCurrentUserRow() ?: throw Exception("User not found")
-            
-            // 1. Obter detalhes do convite
-            val convite = supabaseClient.from("convite")
-                .select { filter { eq("id", conviteId) } }
+            val currentUser = getCurrentUserRow()
+                ?: throw Exception("Utilizador não encontrado")
+
+            val convite = supabaseClient
+                .from("convite")
+                .select {
+                    filter {
+                        eq("id", conviteId)
+                    }
+                }
                 .decodeSingle<com.example.squadup.features.teams.TeamsInviteRow>()
-            
-            android.util.Log.d("NotificationsRepo", "Found convite: $convite")
 
-            val newState = if (accept) "aceite" else "recusado"
-            
-            // 2. Atualizar o estado do convite
-            val inviteUpdate = com.example.squadup.features.teams.InviteUpdate(
-                estado = newState,
-                responseDate = java.time.OffsetDateTime.now().toString()
-            )
-            supabaseClient.from("convite").update(inviteUpdate) {
-                filter { eq("id", conviteId) }
-            }
+            val teamId = convite.teamId
+                ?: throw Exception("Convite sem equipa associada")
 
-            // 3. Obter nome da equipa para a notificação
-            val teamId = convite.teamId ?: 0
-            val team = supabaseClient.from("equipa")
-                .select { filter { eq("id", teamId) } }
+            val invitedUserId = convite.invitedUserId
+                ?: throw Exception("Convite sem utilizador associado")
+
+            val team = supabaseClient
+                .from("equipa")
+                .select {
+                    filter {
+                        eq("id", teamId)
+                    }
+                }
                 .decodeSingle<com.example.squadup.features.teams.TeamsTeamRow>()
 
-            if (accept) {
-                // 4. Se aceite, adicionar à equipa (inscricao)
-                val registration = com.example.squadup.features.teams.RegistrationInsert(
-                    teamId = teamId,
-                    userId = convite.invitedUserId ?: 0
-                )
-                supabaseClient.from("inscricao").insert(registration)
+            if (team.ownerId != currentUser.id) {
+                throw Exception("Apenas o capitão pode responder a este pedido.")
+            }
 
-                // 5. Notificar o utilizador que foi aceite
-                val notification = com.example.squadup.features.teams.NotificationInsert(
-                    userId = convite.invitedUserId ?: 0,
-                    title = "Pedido Aceite!",
-                    description = "Agora fazes parte da equipa ${team.name}.",
-                    tipo = "equipa",
-                    referenceId = team.id,
-                    referenceType = "equipa"
-                )
-                supabaseClient.from("notificacao").insert(notification)
+            if (convite.estado != "pendente") {
+                supabaseClient
+                    .from("notificacao")
+                    .update(
+                        NotificationReadUpdate(
+                            isRead = true
+                        )
+                    ) {
+                        filter {
+                            eq("id", notificationId.toInt())
+                        }
+                    }
+
+                return Result.success(Unit)
+            }
+
+            val newState = if (accept) {
+                "aceite"
             } else {
-                // 5. Notificar o utilizador que foi recusado
-                val notification = com.example.squadup.features.teams.NotificationInsert(
-                    userId = convite.invitedUserId ?: 0,
-                    title = "Pedido Recusado",
-                    description = "O teu pedido para entrar na equipa ${team.name} foi recusado.",
-                    tipo = "equipa",
-                    referenceId = team.id,
-                    referenceType = "equipa"
-                )
-                supabaseClient.from("notificacao").insert(notification)
+                "recusado"
             }
 
-            // 6. Marcar notificação original como lida
-            supabaseClient.from("notificacao").update(com.example.squadup.features.teams.NotificationUpdate(isRead = true)) {
-                filter { eq("id", notificationId.toInt()) }
+            supabaseClient
+                .from("convite")
+                .update(
+                    com.example.squadup.features.teams.InviteUpdate(
+                        estado = newState,
+                        responseDate = java.time.OffsetDateTime.now().toString()
+                    )
+                ) {
+                    filter {
+                        eq("id", conviteId)
+                    }
+                }
+
+            if (accept) {
+                val existingRegistrations = supabaseClient
+                    .from("inscricao")
+                    .select {
+                        filter {
+                            eq("equipa_id", teamId)
+                            eq("user_id", invitedUserId)
+                        }
+                    }
+                    .decodeList<com.example.squadup.features.teams.TeamsRegistrationRow>()
+
+                if (existingRegistrations.isEmpty()) {
+                    supabaseClient
+                        .from("inscricao")
+                        .insert(
+                            com.example.squadup.features.teams.RegistrationInsert(
+                                teamId = teamId,
+                                userId = invitedUserId
+                            )
+                        )
+                }
+
+                supabaseClient
+                    .from("notificacao")
+                    .insert(
+                        com.example.squadup.features.teams.NotificationInsert(
+                            userId = invitedUserId,
+                            title = "Pedido aceite",
+                            description = "Agora fazes parte da equipa ${team.name}.",
+                            tipo = "equipa",
+                            referenceId = team.id,
+                            referenceType = "equipa"
+                        )
+                    )
+            } else {
+                supabaseClient
+                    .from("notificacao")
+                    .insert(
+                        com.example.squadup.features.teams.NotificationInsert(
+                            userId = invitedUserId,
+                            title = "Pedido recusado",
+                            description = "O teu pedido para entrar na equipa ${team.name} foi recusado.",
+                            tipo = "equipa",
+                            referenceId = team.id,
+                            referenceType = "equipa"
+                        )
+                    )
             }
+
+            supabaseClient
+                .from("notificacao")
+                .update(
+                    NotificationReadUpdate(
+                        isRead = true
+                    )
+                ) {
+                    filter {
+                        eq("id", notificationId.toInt())
+                    }
+                }
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -197,3 +320,9 @@ class NotificationsRepository(
         }
     }
 }
+
+@Serializable
+private data class NotificationReadUpdate(
+    @SerialName("is_lida")
+    val isRead: Boolean
+)

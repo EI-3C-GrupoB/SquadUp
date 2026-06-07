@@ -72,7 +72,13 @@ import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
-
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.squadup.core.ui.theme.SquadError
 @Composable
 fun TeamsScreen(
     uiState: TeamsUiState,
@@ -88,6 +94,8 @@ fun TeamsScreen(
     onTeamSettingsToggle: (String) -> Unit,
     onLoginClick: () -> Unit,
     onAskToJoinClick: (String) -> Unit,
+    onPromoteMemberClick: (teamId: String, memberId: String) -> Unit,
+    onRemoveMemberClick: (teamId: String, memberId: String) -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -193,7 +201,9 @@ fun TeamsScreen(
                             onToggle = { onTeamToggle(team.id) },
                             onInviteMembersClick = onInviteMembersClick,
                             onTeamSettingsToggle = { onTeamSettingsToggle(team.id) },
-                            onAskToJoinClick = { onAskToJoinClick(team.id) }
+                            onAskToJoinClick = { onAskToJoinClick(team.id) },
+                            onPromoteMemberClick = onPromoteMemberClick,
+                            onRemoveMemberClick = onRemoveMemberClick
                         )
                     }
                 }
@@ -404,7 +414,9 @@ private fun ExpandableTeamCard(
     onToggle: () -> Unit,
     onInviteMembersClick: () -> Unit,
     onTeamSettingsToggle: () -> Unit,
-    onAskToJoinClick: () -> Unit
+    onAskToJoinClick: () -> Unit,
+    onPromoteMemberClick: (teamId: String, memberId: String) -> Unit,
+    onRemoveMemberClick: (teamId: String, memberId: String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -427,7 +439,9 @@ private fun ExpandableTeamCard(
                 settingsActive = settingsActive,
                 onInviteMembersClick = onInviteMembersClick,
                 onTeamSettingsToggle = onTeamSettingsToggle,
-                onAskToJoinClick = onAskToJoinClick
+                onAskToJoinClick = onAskToJoinClick,
+                onPromoteMemberClick = onPromoteMemberClick,
+                onRemoveMemberClick = onRemoveMemberClick
             )
         }
     }
@@ -520,8 +534,125 @@ private fun TeamExpandedContent(
     settingsActive: Boolean,
     onInviteMembersClick: () -> Unit,
     onTeamSettingsToggle: () -> Unit,
-    onAskToJoinClick: () -> Unit
+    onAskToJoinClick: () -> Unit,
+    onPromoteMemberClick: (teamId: String, memberId: String) -> Unit,
+    onRemoveMemberClick: (teamId: String, memberId: String) -> Unit
 ) {
+    var memberPendingPromotion by remember { mutableStateOf<TeamRosterMember?>(null) }
+    var memberPendingRemoval by remember { mutableStateOf<TeamRosterMember?>(null) }
+
+    val promotionTarget = memberPendingPromotion
+    if (promotionTarget != null) {
+        AlertDialog(
+            onDismissRequest = {
+                memberPendingPromotion = null
+            },
+            title = {
+                Text(
+                    text = "Promover jogador?",
+                    fontWeight = FontWeight.Bold,
+                    color = SquadTextPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = "Tens a certeza que queres promover ${promotionTarget.name} a capitão? O capitão actual deixará de ser capitão e passará a membro.",
+                    color = SquadTextSecondary,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onPromoteMemberClick(team.id, promotionTarget.id)
+                        memberPendingPromotion = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = SquadOrange,
+                        contentColor = SquadWhite
+                    ),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(
+                        text = "Promover",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        memberPendingPromotion = null
+                    }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        color = SquadTextSecondary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            containerColor = SquadSurface
+        )
+    }
+
+    val removalTarget = memberPendingRemoval
+    if (removalTarget != null) {
+        AlertDialog(
+            onDismissRequest = {
+                memberPendingRemoval = null
+            },
+            title = {
+                Text(
+                    text = "Remover jogador?",
+                    fontWeight = FontWeight.Bold,
+                    color = SquadTextPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = "Tens a certeza que queres remover ${removalTarget.name} da equipa ${team.name}? Este jogador receberá uma notificação.",
+                    color = SquadTextSecondary,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onRemoveMemberClick(team.id, removalTarget.id)
+                        memberPendingRemoval = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = SquadError,
+                        contentColor = SquadWhite
+                    ),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(
+                        text = "Remover",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        memberPendingRemoval = null
+                    }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        color = SquadTextSecondary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            containerColor = SquadSurface
+        )
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -548,7 +679,7 @@ private fun TeamExpandedContent(
             ) {
                 if (selectedTab == TeamsTab.DISCOVER) {
                     val isPending = uiState.pendingJoinRequests.contains(team.id)
-                    
+
                     Button(
                         onClick = onAskToJoinClick,
                         enabled = !isPending,
@@ -589,7 +720,13 @@ private fun TeamExpandedContent(
                             RosterMemberCard(
                                 member = member,
                                 selectedTab = selectedTab,
-                                settingsActive = settingsActive
+                                settingsActive = settingsActive,
+                                onPromoteClick = {
+                                    memberPendingPromotion = member
+                                },
+                                onRemoveClick = {
+                                    memberPendingRemoval = member
+                                }
                             )
                         }
                     }
@@ -763,8 +900,6 @@ private fun TeamExpandedHero(
                                 onClick = onTeamSettingsToggle,
                                 modifier = Modifier.weight(1f)
                             )
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -889,7 +1024,9 @@ private fun RosterHeader(
 private fun RosterMemberCard(
     member: TeamRosterMember,
     selectedTab: TeamsTab,
-    settingsActive: Boolean
+    settingsActive: Boolean,
+    onPromoteClick: () -> Unit,
+    onRemoveClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -973,7 +1110,7 @@ private fun RosterMemberCard(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Surface(
-                                modifier = Modifier.clickable { /* TODO: Promote */ },
+                                modifier = Modifier.clickable(onClick = onPromoteClick),
                                 color = Color(0xFF26323F),
                                 shape = RoundedCornerShape(999.dp)
                             ) {
@@ -992,7 +1129,7 @@ private fun RosterMemberCard(
                                 tint = SquadTextSecondary,
                                 modifier = Modifier
                                     .size(20.dp)
-                                    .clickable { /* TODO: Remove */ }
+                                    .clickable(onClick = onRemoveClick)
                             )
                         }
                     }

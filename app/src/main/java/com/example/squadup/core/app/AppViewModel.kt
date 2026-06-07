@@ -15,11 +15,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private val appRepository = AppRepository()
-
+    private var notificationsRealtimeJob: Job? = null
+    private var notificationsRealtimeUserId: Int? = null
     private val _uiState = MutableStateFlow(
         AppUiState(selectedLanguage = getCurrentLanguage(application))
     )
@@ -74,23 +78,42 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setupNotificationsRealtime() {
         val userId = _uiState.value.userId ?: return
-        viewModelScope.launch {
+
+        if (
+            notificationsRealtimeUserId == userId &&
+            notificationsRealtimeJob?.isActive == true
+        ) {
+            return
+        }
+
+        notificationsRealtimeJob?.cancel()
+        notificationsRealtimeUserId = userId
+
+        notificationsRealtimeJob = viewModelScope.launch {
             try {
                 val client = com.example.squadup.core.SupabaseClientProvider.client
-                val channel = client.channel("notifications_count")
-                val changes = channel.postgresChangeFlow<PostgresAction>(schema = "public") {
-                    table = "notificacao"
-                }
-                
-                launch {
-                    changes.collect {
+
+                val channel = client.channel(
+                    "notifications_count_${userId}_${System.currentTimeMillis()}"
+                )
+
+                val changes = channel
+                    .postgresChangeFlow<PostgresAction>(schema = "public") {
+                        table = "notificacao"
+                    }
+                    .map { Unit }
+
+                channel.subscribe()
+
+                changes
+                    .onStart {
+                        emit(Unit)
+                    }
+                    .collect {
                         loadNotificationsCount()
                     }
-                }
-                
-                channel.subscribe()
             } catch (e: Exception) {
-                android.util.Log.e("AppViewModel", "Error setup realtime", e)
+                android.util.Log.e("AppViewModel", "Error setup notifications realtime", e)
             }
         }
     }
@@ -118,6 +141,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
             appRepository.logout().onSuccess {
+                notificationsRealtimeJob?.cancel()
+                notificationsRealtimeJob = null
+                notificationsRealtimeUserId = null
+
                 _uiState.value = AppUiState(
                     isInitializing = false,
                     isLoggedIn = false,
