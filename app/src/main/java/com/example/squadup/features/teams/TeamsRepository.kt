@@ -85,10 +85,14 @@ class TeamsRepository(
             .decodeList<TeamsUserRow>()
             .associateBy { it.id }
 
-        val registrations = supabaseClient
+        val allRegistrations = supabaseClient
             .from("inscricao")
             .select()
             .decodeList<TeamsRegistrationRow>()
+
+        val teamMemberRegistrations = allRegistrations.filter { registration ->
+            registration.eventId == null
+        }
 
         val pendingInvites = supabaseClient
             .from("convite")
@@ -101,7 +105,7 @@ class TeamsRepository(
             }
             .decodeList<TeamsInviteRow>()
 
-        val myTeamIds = registrations
+        val myTeamIds = teamMemberRegistrations
             .filter { registration ->
                 registration.userId == currentUser.id &&
                         registration.teamId != null
@@ -124,7 +128,7 @@ class TeamsRepository(
                 }
                 .map { team ->
                     team.toTeamListItem(
-                        registrations = registrations,
+                        registrations = teamMemberRegistrations,
                         users = users,
                         currentUserId = currentUser.id
                     )
@@ -136,7 +140,7 @@ class TeamsRepository(
                 }
                 .map { team ->
                     team.toTeamListItem(
-                        registrations = registrations,
+                        registrations = teamMemberRegistrations,
                         users = users,
                         currentUserId = currentUser.id
                     )
@@ -170,7 +174,8 @@ class TeamsRepository(
         currentUserId: Int?
     ): TeamListItem {
         val teamRegistrations = registrations.filter { registration ->
-            registration.teamId == id
+            registration.teamId == id &&
+                    registration.eventId == null
         }
 
         val currentUserRegistration = teamRegistrations.find { registration ->
@@ -302,6 +307,9 @@ class TeamsRepository(
                     }
                 }
                 .decodeList<TeamsRegistrationRow>()
+                .filter { registration ->
+                    registration.eventId == null
+                }
 
             if (existingRegistrations.isNotEmpty()) {
                 throw Exception("Já pertences a esta equipa.")
@@ -385,7 +393,11 @@ class TeamsRepository(
                 }
                 .decodeList<TeamsRegistrationRow>()
 
-            val currentUserRegistration = registrations.find { registration ->
+            val teamMemberRegistrations = registrations.filter { registration ->
+                registration.eventId == null
+            }
+
+            val currentUserRegistration = teamMemberRegistrations.find { registration ->
                 registration.userId == currentUser.id
             }
 
@@ -397,7 +409,7 @@ class TeamsRepository(
                 throw Exception("Apenas o capitão pode promover membros.")
             }
 
-            val promotedMemberRegistration = registrations.find { registration ->
+            val promotedMemberRegistration = teamMemberRegistrations.find { registration ->
                 registration.userId == memberUserId
             }
 
@@ -412,29 +424,37 @@ class TeamsRepository(
                 return Result.success(Unit)
             }
 
-            supabaseClient
-                .from("inscricao")
-                .update(
-                    TeamRegistrationCaptainFlagUpdate(
-                        isCaptain = false
-                    )
-                ) {
-                    filter {
-                        eq("equipa_id", teamId)
+            teamMemberRegistrations.forEach { registration ->
+                supabaseClient
+                    .from("inscricao")
+                    .update(
+                        TeamRegistrationCaptainFlagUpdate(
+                            isCaptain = false
+                        )
+                    ) {
+                        filter {
+                            eq("id", registration.id)
+                        }
                     }
-                }
+            }
 
-            supabaseClient
-                .from("inscricao")
-                .update(
-                    TeamRegistrationRoleUpdate(
-                        role = "membro"
-                    )
-                ) {
-                    filter {
-                        eq("equipa_id", teamId)
-                        eq("role", "capitao")
-                    }
+            teamMemberRegistrations
+                .filter { registration ->
+                    registration.role == "capitao" ||
+                            registration.isCaptain == true
+                }
+                .forEach { registration ->
+                    supabaseClient
+                        .from("inscricao")
+                        .update(
+                            TeamRegistrationRoleUpdate(
+                                role = "membro"
+                            )
+                        ) {
+                            filter {
+                                eq("id", registration.id)
+                            }
+                        }
                 }
 
             supabaseClient
@@ -446,8 +466,7 @@ class TeamsRepository(
                     )
                 ) {
                     filter {
-                        eq("equipa_id", teamId)
-                        eq("user_id", memberUserId)
+                        eq("id", promotedMemberRegistration.id)
                     }
                 }
 
@@ -495,7 +514,11 @@ class TeamsRepository(
                 }
                 .decodeList<TeamsRegistrationRow>()
 
-            val currentUserRegistration = registrations.find { registration ->
+            val teamMemberRegistrations = registrations.filter { registration ->
+                registration.eventId == null
+            }
+
+            val currentUserRegistration = teamMemberRegistrations.find { registration ->
                 registration.userId == currentUser.id
             }
 
@@ -507,7 +530,7 @@ class TeamsRepository(
                 throw Exception("Apenas o capitão pode remover membros.")
             }
 
-            val memberRegistration = registrations.find { registration ->
+            val memberRegistration = teamMemberRegistrations.find { registration ->
                 registration.userId == memberUserId
             }
 
@@ -527,8 +550,7 @@ class TeamsRepository(
                 .from("inscricao")
                 .delete {
                     filter {
-                        eq("equipa_id", teamId)
-                        eq("user_id", memberUserId)
+                        eq("id", memberRegistration.id)
                     }
                 }
 

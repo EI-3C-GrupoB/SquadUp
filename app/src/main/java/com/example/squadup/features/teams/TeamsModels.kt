@@ -41,6 +41,8 @@ data class TeamsRegistrationRow(
     val isCaptain: Boolean? = null,
     @SerialName("equipa_id")
     val teamId: Int? = null,
+    @SerialName("evento_id")
+    val eventId: Int? = null,
     @SerialName("user_id")
     val userId: Int? = null
 )
@@ -94,6 +96,8 @@ data class RegistrationInsert(
     val teamId: Int,
     @SerialName("user_id")
     val userId: Int,
+    @SerialName("evento_id")
+    val eventId: Int? = null,
     val role: String = "membro",
     @SerialName("estado_inscricao")
     val status: String = "aceite"
