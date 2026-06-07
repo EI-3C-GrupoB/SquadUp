@@ -72,6 +72,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:3.1.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.maplibre.gl:android-sdk:13.0.2")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.coil.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

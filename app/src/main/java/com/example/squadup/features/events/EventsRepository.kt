@@ -23,7 +23,10 @@ import kotlinx.serialization.json.put
 class EventsRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
 ) {
-    fun getEventsRealtime(): Flow<EventsData> = flow {
+    fun getEventsRealtime(
+        latitude: Double,
+        longitude: Double
+    ): Flow<EventsData> = flow {
         val currentUser = getCurrentUserRow()
 
         if (currentUser == null) {
@@ -87,28 +90,45 @@ class EventsRepository(
                     emit(Unit)
                 }
                 .map {
-                    loadNearbyEvents(currentUser.id).getOrElse {
+                    loadNearbyEvents(
+                        userId = currentUser.id,
+                        latitude = latitude,
+                        longitude = longitude
+                    ).getOrElse {
                         EventsData.empty()
                     }
                 }
         )
     }
 
-    suspend fun getEvents(): Result<EventsData> {
+    suspend fun getEvents(
+        latitude: Double,
+        longitude: Double
+    ): Result<EventsData> {
         val currentUser = getCurrentUserRow()
             ?: return Result.success(EventsData.empty())
 
-        return loadNearbyEvents(currentUser.id)
+        return loadNearbyEvents(
+            userId = currentUser.id,
+            latitude = latitude,
+            longitude = longitude
+        )
     }
 
-    private suspend fun loadNearbyEvents(userId: Int): Result<EventsData> {
+    private suspend fun loadNearbyEvents(
+        userId: Int,
+        latitude: Double,
+        longitude: Double
+    ): Result<EventsData> {
         return try {
             val events = supabaseClient
                 .postgrest
                 .rpc(
-                    function = "get_nearby_events",
+                    function = "get_nearby_events_by_location",
                     parameters = buildJsonObject {
                         put("p_user_id", userId)
+                        put("p_latitude", latitude)
+                        put("p_longitude", longitude)
                     }
                 )
                 .decodeList<EventsNearbyEventRow>()
@@ -281,7 +301,117 @@ class EventsRepository(
             else -> SportType.SOCCER
         }
     }
+
+    fun getEventsRealtimeFromProfileLocation(): Flow<EventsData> = flow {
+        val currentUser = getCurrentUserRow()
+
+        if (currentUser == null) {
+            emit(EventsData.empty())
+            return@flow
+        }
+
+        val channelSuffix = "${currentUser.id}_profile_${System.currentTimeMillis()}"
+
+        val eventsChannel = supabaseClient.channel("events_profile_evento_$channelSuffix")
+        val registrationsChannel = supabaseClient.channel("events_profile_inscricao_$channelSuffix")
+        val gamesChannel = supabaseClient.channel("events_profile_jogo_$channelSuffix")
+        val usersChannel = supabaseClient.channel("events_profile_utilizador_$channelSuffix")
+        val locationsChannel = supabaseClient.channel("events_profile_localizacao_$channelSuffix")
+
+        val eventsChanges = eventsChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "evento"
+            }
+            .map { Unit }
+
+        val registrationsChanges = registrationsChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "inscricao"
+            }
+            .map { Unit }
+
+        val gamesChanges = gamesChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "jogo"
+            }
+            .map { Unit }
+
+        val usersChanges = usersChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "utilizador"
+            }
+            .map { Unit }
+
+        val locationsChanges = locationsChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "localizacao"
+            }
+            .map { Unit }
+
+        eventsChannel.subscribe()
+        registrationsChannel.subscribe()
+        gamesChannel.subscribe()
+        usersChannel.subscribe()
+        locationsChannel.subscribe()
+
+        emitAll(
+            merge(
+                eventsChanges,
+                registrationsChanges,
+                gamesChanges,
+                usersChanges,
+                locationsChanges
+            )
+                .onStart {
+                    emit(Unit)
+                }
+                .map {
+                    loadNearbyEventsFromProfileLocation(currentUser.id).getOrElse {
+                        EventsData.empty()
+                    }
+                }
+        )
+    }
+
+    private suspend fun loadNearbyEventsFromProfileLocation(
+        userId: Int
+    ): Result<EventsData> {
+        return try {
+            val events = supabaseClient
+                .postgrest
+                .rpc(
+                    function = "get_nearby_events",
+                    parameters = buildJsonObject {
+                        put("p_user_id", userId)
+                    }
+                )
+                .decodeList<EventsNearbyEventRow>()
+                .sortedWith(
+                    compareBy<EventsNearbyEventRow> {
+                        it.distanceKm ?: Double.MAX_VALUE
+                    }.thenBy {
+                        it.startDate.orEmpty()
+                    }
+                )
+
+            Result.success(
+                EventsData(
+                    featuredEvent = events.firstOrNull()?.toFeaturedEvent(),
+                    upcomingEvents = events.take(3).map { event ->
+                        event.toUpcomingEvent()
+                    },
+                    browseEvents = events.map { event ->
+                        event.toBrowseEvent()
+                    }
+                )
+            )
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
+    }
 }
+
+
 
 data class EventsData(
     val featuredEvent: FeaturedEventItem?,
