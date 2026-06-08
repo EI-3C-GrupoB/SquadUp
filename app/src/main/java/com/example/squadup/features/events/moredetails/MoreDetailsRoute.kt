@@ -15,14 +15,23 @@ fun MoreDetailsRoute(
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onManageEventClick: (Int) -> Unit,
     appViewModel: AppViewModel,
     viewModel: MoreDetailsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(eventId) {
-        viewModel.loadEvent(eventId)
+    LaunchedEffect(
+        eventId,
+        appUiState.userId,
+        appUiState.userRole
+    ) {
+        viewModel.loadEvent(
+            eventId = eventId,
+            currentUserId = appUiState.userId,
+            userRole = appUiState.userRole
+        )
     }
 
     MoreDetailsScreen(
@@ -31,6 +40,7 @@ fun MoreDetailsRoute(
         onNavItemClick = onNavItemClick,
         onNotificationsClick = onNotificationsClick,
         onBackClick = onBackClick,
+        onManageEventClick = onManageEventClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = appViewModel::onLanguageChange,

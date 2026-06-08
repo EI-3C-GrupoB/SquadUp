@@ -34,7 +34,14 @@ data class MoreDetailsUiState(
     val latitude: Double? = null,
     val longitude: Double? = null,
 
-    val creatorId: Int? = null
+    val creatorId: Int? = null,
+
+    val participationType: String = "individual",
+
+    val canManageEvent: Boolean = false,
+    val canParticipate: Boolean = false,
+    val canParticipateIndividually: Boolean = false,
+    val canParticipateWithTeam: Boolean = false
 ) {
     val hasImage: Boolean
         get() = !imageUrl.isNullOrBlank()

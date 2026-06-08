@@ -222,31 +222,27 @@ class CreateEventViewModel : ViewModel() {
         context: Context,
         onSuccess: () -> Unit
     ) {
-        val currentState = _uiState.value
-
         viewModelScope.launch {
-            _uiState.value = currentState.copy(
+            _uiState.value = _uiState.value.copy(
                 isSaving = true,
                 errorMessage = null
             )
 
             repository.createEvent(
-                state = currentState,
+                state = _uiState.value,
                 context = context
-            )
-                .onSuccess {
-                    _uiState.value = _uiState.value.copy(
-                        isSaving = false,
-                        errorMessage = null
-                    )
-                    onSuccess()
-                }
-                .onFailure { exception ->
-                    _uiState.value = _uiState.value.copy(
-                        isSaving = false,
-                        errorMessage = exception.message
-                    )
-                }
+            ).onSuccess {
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    errorMessage = null
+                )
+                onSuccess()
+            }.onFailure { exception ->
+                _uiState.value = _uiState.value.copy(
+                    isSaving = false,
+                    errorMessage = exception.message ?: "Não foi possível criar o evento."
+                )
+            }
         }
     }
 }

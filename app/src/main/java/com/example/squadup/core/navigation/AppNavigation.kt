@@ -550,8 +550,14 @@ fun AppNavigation() {
                 onBackClick = {
                     navController.popBackStack()
                 },
+                onManageEventClick = { targetEventId ->
+                    navController.navigate(
+                        AppRoutes.ManageEvent.createRoute(targetEventId.toString())
+                    )
+                },
                 onNotificationsClick = openNotifications,
                 appViewModel = appViewModel
+
             )
         }
     }

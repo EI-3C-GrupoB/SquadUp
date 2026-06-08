@@ -96,6 +96,9 @@ data class CreateEventInsertRow(
     @SerialName("estado_evento")
     val eventStatus: String,
 
+    @SerialName("tipo_participacao")
+    val participationType: String = "individual",
+
     @SerialName("regras")
     val rules: String?,
 

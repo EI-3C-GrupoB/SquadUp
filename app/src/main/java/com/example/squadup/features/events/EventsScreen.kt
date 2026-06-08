@@ -35,11 +35,14 @@ import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
 import com.example.squadup.core.utils.toIcon
+import com.example.squadup.core.enums.UserRole
+import com.example.squadup.core.permissions.EventPermissions
 
 @Composable
 fun EventsScreen(
     uiState: EventsUiState,
     selectedRoute: String,
+    userRole: UserRole,
     onNavItemClick: (String) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSportFilterChange: (SportType?) -> Unit,
@@ -95,7 +98,9 @@ fun EventsScreen(
             )
         },
         floatingActionButton = {
-            SquadFab(onClick = onCreateEventClick)
+            if (EventPermissions.shouldShowCreateEventAction(userRole)) {
+                SquadFab(onClick = onCreateEventClick)
+            }
         }
     ) { innerPadding ->
         Column(

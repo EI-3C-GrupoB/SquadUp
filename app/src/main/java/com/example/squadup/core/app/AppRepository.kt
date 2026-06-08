@@ -42,7 +42,8 @@ class AppRepository(
                     displayName = userRow.name.orEmpty(),
                     username = userRow.username.orEmpty(),
                     isAdmin = userRow.isAdmin ?: false,
-                    photoUrl = userRow.photoUrl
+                    photoUrl = userRow.photoUrl,
+                    userRole = com.example.squadup.core.enums.UserRole.fromInt(userRow.accountType)
                 )
             )
         } catch (exception: Exception) {

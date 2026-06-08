@@ -63,7 +63,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                         displayName = user.displayName,
                         username = user.username,
                         photoUrl = user.photoUrl,
-                        isAdmin = user.isAdmin
+                        isAdmin = user.isAdmin,
+                        userRole = user.userRole
                     )
                     loadNotificationsCount()
                     setupNotificationsRealtime()

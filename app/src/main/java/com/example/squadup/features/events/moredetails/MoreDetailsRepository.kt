@@ -218,7 +218,8 @@ class MoreDetailsRepository(
             latitude = latitude,
             longitude = longitude,
 
-            creatorId = creatorId
+            creatorId = creatorId,
+            participationType = participationType ?: "individual"
         )
     }
 

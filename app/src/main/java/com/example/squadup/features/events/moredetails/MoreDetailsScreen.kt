@@ -83,6 +83,7 @@ fun MoreDetailsScreen(
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
+    onManageEventClick: (Int) -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -267,23 +268,18 @@ fun MoreDetailsScreen(
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        Button(
-                            onClick = {
-                                // Próxima fase: Join Event
+                        EventActionButtons(
+                            uiState = uiState,
+                            onManageEventClick = {
+                                uiState.eventId?.let(onManageEventClick)
                             },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = SquadOrange,
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text(
-                                text = "Participar",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                            onJoinIndividuallyClick = {
+                                // Próxima fase: participação individual
+                            },
+                            onJoinWithTeamClick = {
+                                // Próxima fase: participação por equipa
+                            }
+                        )
 
                         Spacer(modifier = Modifier.height(28.dp))
                     }
@@ -293,6 +289,111 @@ fun MoreDetailsScreen(
     }
 }
 
+@Composable
+private fun EventActionButtons(
+    uiState: MoreDetailsUiState,
+    onManageEventClick: () -> Unit,
+    onJoinIndividuallyClick: () -> Unit,
+    onJoinWithTeamClick: () -> Unit
+) {
+    when {
+        uiState.canManageEvent -> {
+            Button(
+                onClick = onManageEventClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SquadOrange,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Gerir evento",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        uiState.canParticipateIndividually && uiState.canParticipateWithTeam -> {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    onClick = onJoinIndividuallyClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = SquadOrange,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "Participar individualmente",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Button(
+                    onClick = onJoinWithTeamClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = SquadSurface,
+                        contentColor = SquadOrange
+                    ),
+                    border = BorderStroke(1.dp, SquadOrange)
+                ) {
+                    Text(
+                        text = "Participar com equipa",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
+        uiState.canParticipateIndividually -> {
+            Button(
+                onClick = onJoinIndividuallyClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SquadOrange,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Participar individualmente",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        uiState.canParticipateWithTeam -> {
+            Button(
+                onClick = onJoinWithTeamClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SquadOrange,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Participar com equipa",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        else -> Unit
+    }
+}
 @Composable
 private fun HeroSection(
     title: String,

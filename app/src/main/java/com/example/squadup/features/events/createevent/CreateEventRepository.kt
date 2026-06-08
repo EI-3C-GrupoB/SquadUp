@@ -10,6 +10,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
+import com.example.squadup.core.enums.EventParticipationType
+import com.example.squadup.core.permissions.EventPermissions
 import java.util.UUID
 
 class CreateEventRepository(
@@ -48,6 +50,12 @@ class CreateEventRepository(
         return try {
             val user = getCurrentUserRow()
                 ?: throw Exception("Utilizador não encontrado.")
+
+            val userRole = UserRole.fromInt(user.accountType)
+
+            if (!EventPermissions.canCreateEvent(userRole)) {
+                throw Exception("A tua conta não tem permissão para criar eventos.")
+            }
 
             if (state.eventName.isBlank()) {
                 throw Exception("O nome do evento é obrigatório.")
@@ -145,6 +153,7 @@ class CreateEventRepository(
                         price = entryFee,
                         entryFee = entryFee,
                         eventStatus = "publicado",
+                        participationType = resolveParticipationType(state).dbValue,
                         rules = state.generalRules.takeIf { it.isNotBlank() },
                         creatorId = user.id,
                         modalityId = modalityId,
@@ -155,6 +164,22 @@ class CreateEventRepository(
             Result.success(Unit)
         } catch (exception: Exception) {
             Result.failure(exception)
+        }
+    }
+
+    private fun resolveParticipationType(state: CreateEventUiState): EventParticipationType {
+        return when {
+            state.allowTeams && state.allowFreeAgents -> {
+                EventParticipationType.INDIVIDUAL_AND_TEAM
+            }
+
+            state.allowTeams -> {
+                EventParticipationType.TEAM
+            }
+
+            else -> {
+                EventParticipationType.INDIVIDUAL
+            }
         }
     }
 
