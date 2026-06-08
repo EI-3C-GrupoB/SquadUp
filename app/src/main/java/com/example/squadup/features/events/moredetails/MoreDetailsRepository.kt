@@ -19,7 +19,10 @@ import java.util.Locale
 class MoreDetailsRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
 ) {
-    fun observeEventDetails(eventId: String): Flow<MoreDetailsUiState> = flow {
+    fun observeEventDetails(
+        eventId: String,
+        currentUserId: Int?
+    ): Flow<MoreDetailsUiState> = flow {
         val parsedEventId = eventId.toIntOrNull()
 
         if (parsedEventId == null) {
@@ -35,7 +38,10 @@ class MoreDetailsRepository(
         emitAll(
             observeEventTables(parsedEventId)
                 .map {
-                    getEventDetails(parsedEventId).getOrElse { exception ->
+                    getEventDetails(
+                        eventId = parsedEventId,
+                        currentUserId = currentUserId
+                    ).getOrElse { exception ->
                         MoreDetailsUiState(
                             isLoading = false,
                             errorMessage = exception.message ?: "Não foi possível carregar o evento."
@@ -45,7 +51,10 @@ class MoreDetailsRepository(
         )
     }
 
-    suspend fun getEventDetails(eventId: Int): Result<MoreDetailsUiState> {
+    suspend fun getEventDetails(
+        eventId: Int,
+        currentUserId: Int?
+    ): Result<MoreDetailsUiState> {
         return try {
             val event = supabaseClient
                 .from("evento")
@@ -66,11 +75,17 @@ class MoreDetailsRepository(
 
             val acceptedRegistrations = getAcceptedRegistrationsCount(eventId)
 
+            val currentUserRegistration = getCurrentUserEventRegistration(
+                eventId = eventId,
+                currentUserId = currentUserId
+            )
+
             Result.success(
                 event.toUiState(
                     modalityName = modality,
                     formatName = format,
-                    acceptedRegistrations = acceptedRegistrations
+                    acceptedRegistrations = acceptedRegistrations,
+                    currentUserRegistration = currentUserRegistration
                 )
             )
         } catch (exception: Exception) {
@@ -78,6 +93,33 @@ class MoreDetailsRepository(
         }
     }
 
+    private suspend fun getCurrentUserEventRegistration(
+        eventId: Int,
+        currentUserId: Int?
+    ): MoreDetailsRegistrationRow? {
+        if (currentUserId == null) {
+            return null
+        }
+
+        val registrations = supabaseClient
+            .from("inscricao")
+            .select {
+                filter {
+                    eq("evento_id", eventId)
+                    eq("user_id", currentUserId)
+                }
+            }
+            .decodeList<MoreDetailsRegistrationRow>()
+
+        return registrations.firstOrNull { registration ->
+            registration.registrationStatus != "recusada" &&
+                    (
+                            registration.registrationType == "evento_individual" ||
+                                    registration.registrationType == "evento_equipa" ||
+                                    registration.registrationType == "pedido_evento_equipa"
+                            )
+        }
+    }
     private fun observeEventTables(eventId: Int): Flow<Unit> = flow {
         val channelSuffix = "${eventId}_${System.currentTimeMillis()}"
 
@@ -155,7 +197,8 @@ class MoreDetailsRepository(
     private fun MoreDetailsEventRow.toUiState(
         modalityName: String,
         formatName: String,
-        acceptedRegistrations: Int
+        acceptedRegistrations: Int,
+        currentUserRegistration: MoreDetailsRegistrationRow?
     ): MoreDetailsUiState {
         val start = startDate.toLocalDateTimeOrNull()
         val end = endDate.toLocalDateTimeOrNull()
@@ -219,7 +262,10 @@ class MoreDetailsRepository(
             longitude = longitude,
 
             creatorId = creatorId,
-            participationType = participationType ?: "individual"
+            participationType = participationType ?: "individual",
+
+            userEventRegistrationStatus = currentUserRegistration?.registrationStatus,
+            userEventRegistrationType = currentUserRegistration?.registrationType
         )
     }
 
@@ -307,5 +353,48 @@ class MoreDetailsRepository(
         return runCatching {
             LocalDateTime.parse(normalized)
         }.getOrNull()
+    }
+
+    suspend fun joinEventIndividually(
+        eventId: Int,
+        currentUserId: Int?
+    ): Result<Unit> {
+        return try {
+            if (currentUserId == null) {
+                throw Exception("Utilizador não encontrado.")
+            }
+
+            val existingRegistration = supabaseClient
+                .from("inscricao")
+                .select {
+                    filter {
+                        eq("evento_id", eventId)
+                        eq("user_id", currentUserId)
+                        eq("tipo_inscricao", "evento_individual")
+                    }
+                }
+                .decodeList<MoreDetailsRegistrationRow>()
+
+            if (existingRegistration.isNotEmpty()) {
+                throw Exception("Já tens uma inscrição individual neste evento.")
+            }
+
+            supabaseClient
+                .from("inscricao")
+                .insert(
+                    MoreDetailsIndividualRegistrationInsertRow(
+                        eventId = eventId,
+                        userId = currentUserId,
+                        teamId = null,
+                        registrationStatus = "pendente",
+                        registrationType = "evento_individual",
+                        isCaptain = false,
+                        role = "membro"
+                    )
+                )
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
     }
 }

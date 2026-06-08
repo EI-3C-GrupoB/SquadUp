@@ -84,6 +84,8 @@ fun MoreDetailsScreen(
     onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
     onManageEventClick: (Int) -> Unit,
+    onJoinIndividuallyClick: () -> Unit,
+    onJoinWithTeamClick: () -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -273,12 +275,8 @@ fun MoreDetailsScreen(
                             onManageEventClick = {
                                 uiState.eventId?.let(onManageEventClick)
                             },
-                            onJoinIndividuallyClick = {
-                                // Próxima fase: participação individual
-                            },
-                            onJoinWithTeamClick = {
-                                // Próxima fase: participação por equipa
-                            }
+                            onJoinIndividuallyClick = onJoinIndividuallyClick,
+                            onJoinWithTeamClick = onJoinWithTeamClick
                         )
 
                         Spacer(modifier = Modifier.height(28.dp))
@@ -296,6 +294,39 @@ private fun EventActionButtons(
     onJoinIndividuallyClick: () -> Unit,
     onJoinWithTeamClick: () -> Unit
 ) {
+    val hasUserEventRegistration =
+        !uiState.userEventRegistrationStatus.isNullOrBlank()
+
+    val registrationButtonText = when {
+        uiState.userEventRegistrationStatus == "pendente" &&
+                uiState.userEventRegistrationType == "evento_individual" -> {
+            "Inscrição individual pendente"
+        }
+
+        uiState.userEventRegistrationStatus == "pendente" &&
+                uiState.userEventRegistrationType == "pedido_evento_equipa" -> {
+            "Pedido de equipa pendente"
+        }
+
+        uiState.userEventRegistrationStatus == "aceite" &&
+                uiState.userEventRegistrationType == "evento_individual" -> {
+            "Já estás inscrito individualmente"
+        }
+
+        uiState.userEventRegistrationStatus == "aceite" &&
+                uiState.userEventRegistrationType == "evento_equipa" -> {
+            "Já estás inscrito com equipa"
+        }
+
+        uiState.userEventRegistrationStatus == "recusada" -> {
+            "Inscrição recusada"
+        }
+
+        else -> {
+            "Inscrição registada"
+        }
+    }
+
     when {
         uiState.canManageEvent -> {
             Button(
@@ -315,6 +346,29 @@ private fun EventActionButtons(
             }
         }
 
+        hasUserEventRegistration -> {
+            Button(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    disabledContainerColor = SquadSurface,
+                    disabledContentColor = SquadTextSecondary
+                ),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = SquadTextSecondary.copy(alpha = 0.35f)
+                )
+            ) {
+                Text(
+                    text = registrationButtonText,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
         uiState.canParticipateIndividually && uiState.canParticipateWithTeam -> {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -322,15 +376,30 @@ private fun EventActionButtons(
             ) {
                 Button(
                     onClick = onJoinIndividuallyClick,
+                    enabled = !uiState.isJoining,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SquadOrange,
-                        contentColor = Color.White
+                        contentColor = Color.White,
+                        disabledContainerColor = SquadSurface,
+                        disabledContentColor = SquadTextSecondary
                     )
                 ) {
                     Text(
-                        text = "Participar individualmente",
+                        text = when {
+                            uiState.joiningRegistrationType == "evento_individual" -> {
+                                "A pedir inscrição individual..."
+                            }
+
+                            uiState.isJoining -> {
+                                "Bloqueado"
+                            }
+
+                            else -> {
+                                "Participar individualmente"
+                            }
+                        },
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -338,16 +407,38 @@ private fun EventActionButtons(
 
                 Button(
                     onClick = onJoinWithTeamClick,
+                    enabled = !uiState.isJoining,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SquadSurface,
-                        contentColor = SquadOrange
+                        contentColor = SquadOrange,
+                        disabledContainerColor = SquadSurface,
+                        disabledContentColor = SquadTextSecondary
                     ),
-                    border = BorderStroke(1.dp, SquadOrange)
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = if (uiState.isJoining) {
+                            SquadTextSecondary.copy(alpha = 0.35f)
+                        } else {
+                            SquadOrange
+                        }
+                    )
                 ) {
                     Text(
-                        text = "Participar com equipa",
+                        text = when {
+                            uiState.joiningRegistrationType == "pedido_evento_equipa" -> {
+                                "A pedir participação com equipa..."
+                            }
+
+                            uiState.isJoining -> {
+                                "Bloqueado"
+                            }
+
+                            else -> {
+                                "Participar com equipa"
+                            }
+                        },
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -358,15 +449,22 @@ private fun EventActionButtons(
         uiState.canParticipateIndividually -> {
             Button(
                 onClick = onJoinIndividuallyClick,
+                enabled = !uiState.isJoining,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SquadOrange,
-                    contentColor = Color.White
+                    contentColor = Color.White,
+                    disabledContainerColor = SquadSurface,
+                    disabledContentColor = SquadTextSecondary
                 )
             ) {
                 Text(
-                    text = "Participar individualmente",
+                    text = if (uiState.joiningRegistrationType == "evento_individual") {
+                        "A pedir inscrição individual..."
+                    } else {
+                        "Participar individualmente"
+                    },
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -376,15 +474,30 @@ private fun EventActionButtons(
         uiState.canParticipateWithTeam -> {
             Button(
                 onClick = onJoinWithTeamClick,
+                enabled = !uiState.isJoining,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = SquadOrange,
-                    contentColor = Color.White
+                    containerColor = SquadSurface,
+                    contentColor = SquadOrange,
+                    disabledContainerColor = SquadSurface,
+                    disabledContentColor = SquadTextSecondary
+                ),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = if (uiState.isJoining) {
+                        SquadTextSecondary.copy(alpha = 0.35f)
+                    } else {
+                        SquadOrange
+                    }
                 )
             ) {
                 Text(
-                    text = "Participar com equipa",
+                    text = if (uiState.joiningRegistrationType == "pedido_evento_equipa") {
+                        "A pedir participação com equipa..."
+                    } else {
+                        "Participar com equipa"
+                    },
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )

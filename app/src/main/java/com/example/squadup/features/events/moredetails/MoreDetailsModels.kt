@@ -132,3 +132,28 @@ data class MoreDetailsEventTeamRow(
     @SerialName("data_inscricao")
     val createdAt: String? = null
 )
+
+
+@Serializable
+data class MoreDetailsIndividualRegistrationInsertRow(
+    @SerialName("evento_id")
+    val eventId: Int,
+
+    @SerialName("user_id")
+    val userId: Int,
+
+    @SerialName("equipa_id")
+    val teamId: Int?,
+
+    @SerialName("estado_inscricao")
+    val registrationStatus: String,
+
+    @SerialName("tipo_inscricao")
+    val registrationType: String,
+
+    @SerialName("is_capitao")
+    val isCaptain: Boolean,
+
+    @SerialName("role")
+    val role: String
+)

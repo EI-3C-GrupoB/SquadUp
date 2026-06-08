@@ -41,6 +41,12 @@ fun MoreDetailsRoute(
         onNotificationsClick = onNotificationsClick,
         onBackClick = onBackClick,
         onManageEventClick = onManageEventClick,
+        onJoinIndividuallyClick = {
+            viewModel.joinIndividually(appUiState.userId)
+        },
+        onJoinWithTeamClick = {
+            // Próxima fase: participação com equipa
+        },
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = appViewModel::onLanguageChange,

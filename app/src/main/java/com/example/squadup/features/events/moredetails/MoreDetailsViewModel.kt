@@ -45,9 +45,26 @@ class MoreDetailsViewModel : ViewModel() {
                 errorMessage = null
             )
 
-            repository.observeEventDetails(eventId)
+            repository.observeEventDetails(
+                eventId = eventId,
+                currentUserId = currentUserId
+            )
                 .collect { details ->
+                    val previousState = _uiState.value
+
+                    val preservedRegistrationStatus =
+                        details.userEventRegistrationStatus
+                            ?: previousState.userEventRegistrationStatus
+
+                    val preservedRegistrationType =
+                        details.userEventRegistrationType
+                            ?: previousState.userEventRegistrationType
+
                     _uiState.value = details
+                        .copy(
+                            userEventRegistrationStatus = preservedRegistrationStatus,
+                            userEventRegistrationType = preservedRegistrationType
+                        )
                         .withPermissions(
                             currentUserId = currentUserId,
                             userRole = userRole
@@ -100,5 +117,51 @@ class MoreDetailsViewModel : ViewModel() {
     override fun onCleared() {
         eventDetailsJob?.cancel()
         super.onCleared()
+    }
+
+    fun joinIndividually(currentUserId: Int?) {
+        val currentState = _uiState.value
+        val eventId = currentState.eventId
+
+        if (eventId == null) {
+            _uiState.value = currentState.copy(
+                errorMessage = "Evento inválido."
+            )
+            return
+        }
+
+        if (!currentState.canParticipateIndividually) {
+            _uiState.value = currentState.copy(
+                errorMessage = "Não podes participar individualmente neste evento."
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isJoining = true,
+                joiningRegistrationType = "evento_individual",
+                errorMessage = null
+            )
+
+            repository.joinEventIndividually(
+                eventId = eventId,
+                currentUserId = currentUserId
+            ).onSuccess {
+                _uiState.value = _uiState.value.copy(
+                    isJoining = false,
+                    joiningRegistrationType = null,
+                    errorMessage = null,
+                    userEventRegistrationStatus = "pendente",
+                    userEventRegistrationType = "evento_individual"
+                )
+            }.onFailure { exception ->
+                _uiState.value = _uiState.value.copy(
+                    isJoining = false,
+                    joiningRegistrationType = null,
+                    errorMessage = exception.message ?: "Não foi possível participar no evento."
+                )
+            }
+        }
     }
 }

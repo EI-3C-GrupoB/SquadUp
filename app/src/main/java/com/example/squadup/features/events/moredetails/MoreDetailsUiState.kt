@@ -2,6 +2,8 @@ package com.example.squadup.features.events.moredetails
 
 data class MoreDetailsUiState(
     val isLoading: Boolean = false,
+    val isJoining: Boolean = false,
+    val joiningRegistrationType: String? = null,
     val errorMessage: String? = null,
 
     val eventId: Int? = null,
@@ -37,6 +39,8 @@ data class MoreDetailsUiState(
     val creatorId: Int? = null,
 
     val participationType: String = "individual",
+    val userEventRegistrationStatus: String? = null,
+    val userEventRegistrationType: String? = null,
 
     val canManageEvent: Boolean = false,
     val canParticipate: Boolean = false,
