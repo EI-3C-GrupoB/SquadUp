@@ -184,6 +184,12 @@ class ManageEventRepository(
                 }
                 .decodeSingle<ManageEventRegistrationRow>()
 
+            if (status == "aceite") {
+                val eventId = registration.eventId
+                    ?: throw Exception("Evento não encontrado na inscrição.")
+                checkIndividualCapacity(eventId)
+            }
+
             supabaseClient
                 .from("inscricao")
                 .update(ManageEventRegistrationStatusUpdateRow(status)) {
@@ -226,6 +232,10 @@ class ManageEventRepository(
                 }
                 .decodeSingle<ManageEventTeamRegistrationRow>()
 
+            if (registrationStatus == "aceite") {
+                checkTeamCapacity(eventTeamRegistration.eventId)
+            }
+
             supabaseClient
                 .from("evento_equipa")
                 .update(ManageEventEventTeamStatusUpdateRow(eventTeamStatus)) {
@@ -267,6 +277,57 @@ class ManageEventRepository(
         }
     }
 
+
+    private suspend fun checkIndividualCapacity(eventId: Int) {
+        val event = supabaseClient
+            .from("evento")
+            .select { filter { eq("id", eventId) } }
+            .decodeSingle<ManageEventRow>()
+
+        val limit = event.participationLimit ?: return
+        if (limit <= 0) return
+
+        val accepted = supabaseClient
+            .from("inscricao")
+            .select {
+                filter {
+                    eq("evento_id", eventId)
+                    eq("tipo_inscricao", "evento_individual")
+                    eq("estado_inscricao", "aceite")
+                }
+            }
+            .decodeList<ManageEventRegistrationRow>()
+            .size
+
+        if (accepted >= limit) {
+            throw Exception("Não é possível aceitar. O evento já atingiu o limite.")
+        }
+    }
+
+    private suspend fun checkTeamCapacity(eventId: Int) {
+        val event = supabaseClient
+            .from("evento")
+            .select { filter { eq("id", eventId) } }
+            .decodeSingle<ManageEventRow>()
+
+        val maxTeams = event.maxTeams ?: return
+        if (maxTeams <= 0) return
+
+        val confirmed = supabaseClient
+            .from("evento_equipa")
+            .select {
+                filter {
+                    eq("evento_id", eventId)
+                    eq("estado", "confirmada")
+                }
+            }
+            .decodeList<ManageEventTeamRegistrationRow>()
+            .size
+
+        if (confirmed >= maxTeams) {
+            throw Exception("Não é possível aceitar. O evento já atingiu o limite.")
+        }
+    }
 
     private suspend fun notifyUserAboutIndividualDecision(
         eventId: Int,

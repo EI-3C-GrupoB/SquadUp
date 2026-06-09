@@ -25,9 +25,7 @@ class CreateEventViewModel : ViewModel() {
     }
 
     fun onCoverImageSelected(uri: Uri?) {
-        _uiState.value = _uiState.value.copy(
-            coverImageUri = uri
-        )
+        _uiState.value = _uiState.value.copy(coverImageUri = uri)
     }
 
     private fun loadUserContext() {
@@ -45,6 +43,12 @@ class CreateEventViewModel : ViewModel() {
     }
 
     fun onNextStep() {
+        val error = validateCurrentStep()
+        if (error != null) {
+            _uiState.value = _uiState.value.copy(errorMessage = error)
+            return
+        }
+
         val next = when (_uiState.value.currentStep) {
             CreateEventStep.BASIC_INFO -> CreateEventStep.FORMAT_PLAYERS
             CreateEventStep.FORMAT_PLAYERS -> CreateEventStep.LOCATION_TIME
@@ -70,6 +74,48 @@ class CreateEventViewModel : ViewModel() {
 
     fun onGoToStep(step: CreateEventStep) {
         _uiState.value = _uiState.value.copy(currentStep = step)
+    }
+
+    fun dismissError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    private fun validateCurrentStep(): String? {
+        val state = _uiState.value
+        return when (state.currentStep) {
+            CreateEventStep.BASIC_INFO -> when {
+                state.eventName.isBlank() -> "Preenche o nome do evento."
+                state.selectedSport == null -> "Seleciona uma modalidade."
+                else -> null
+            }
+
+            CreateEventStep.FORMAT_PLAYERS -> {
+                val fee = state.entryFee.replace(",", ".").toDoubleOrNull()
+                when {
+                    !state.allowTeams && !state.allowFreeAgents ->
+                        "Seleciona pelo menos um tipo de participação."
+                    fee != null && fee < 0 ->
+                        "A taxa de inscrição não pode ser negativa."
+                    else -> null
+                }
+            }
+
+            CreateEventStep.LOCATION_TIME -> when {
+                state.latitude == null || state.longitude == null || state.venue.isBlank() ->
+                    "Seleciona a localização do evento."
+                state.eventDate.isBlank() || state.startTime.isBlank() ->
+                    "Seleciona a data e a hora de início."
+                state.endTime.isNotBlank() && state.endTime <= state.startTime ->
+                    "A hora de fim tem de ser depois da hora de início."
+                state.registrationStartDate.isNotBlank() != state.registrationStartTime.isNotBlank() ->
+                    "Preenche a data e a hora de início das inscrições."
+                state.registrationEndDate.isNotBlank() != state.registrationEndTime.isNotBlank() ->
+                    "Preenche a data e a hora de fim das inscrições."
+                else -> null
+            }
+
+            CreateEventStep.REVIEW -> null
+        }
     }
 
     fun onEventNameChange(value: String) {
@@ -222,6 +268,8 @@ class CreateEventViewModel : ViewModel() {
         context: Context,
         onSuccess: () -> Unit
     ) {
+        if (_uiState.value.isSaving) return
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isSaving = true,

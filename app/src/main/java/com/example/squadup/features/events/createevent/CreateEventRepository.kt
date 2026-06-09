@@ -4,14 +4,15 @@ import android.content.Context
 import android.net.Uri
 import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.core.enums.EventFormat
+import com.example.squadup.core.enums.EventParticipationType
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.enums.UserRole
+import com.example.squadup.core.permissions.EventPermissions
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.storage.storage
-import com.example.squadup.core.enums.EventParticipationType
-import com.example.squadup.core.permissions.EventPermissions
+import java.time.LocalDateTime
 import java.util.UUID
 
 class CreateEventRepository(
@@ -58,7 +59,7 @@ class CreateEventRepository(
             }
 
             if (state.eventName.isBlank()) {
-                throw Exception("O nome do evento é obrigatório.")
+                throw Exception("Preenche o nome do evento.")
             }
 
             if (state.selectedSport == null) {
@@ -71,6 +72,62 @@ class CreateEventRepository(
 
             if (state.eventDate.isBlank() || state.startTime.isBlank()) {
                 throw Exception("Seleciona a data e a hora de início.")
+            }
+
+            if (!state.allowTeams && !state.allowFreeAgents) {
+                throw Exception("Seleciona pelo menos um tipo de participação.")
+            }
+
+            val entryFee = state.entryFee
+                .replace(",", ".")
+                .toDoubleOrNull()
+                ?: 0.0
+
+            if (entryFee < 0) {
+                throw Exception("A taxa de inscrição não pode ser negativa.")
+            }
+
+            val startDateTime = combineDateTime(
+                date = state.eventDate,
+                time = state.startTime
+            )
+
+            val endDateTime = combineDateTime(
+                date = state.eventDate,
+                time = state.endTime
+            )
+
+            if (startDateTime != null && endDateTime != null) {
+                val start = LocalDateTime.parse(startDateTime)
+                val end = LocalDateTime.parse(endDateTime)
+                if (!end.isAfter(start)) {
+                    throw IllegalArgumentException("A data/hora de fim tem de ser depois da data/hora de início.")
+                }
+            }
+
+            val registrationStartDateTime = combineOptionalDateTime(
+                date = state.registrationStartDate,
+                time = state.registrationStartTime
+            )
+
+            val registrationEndDateTime = combineOptionalDateTime(
+                date = state.registrationEndDate,
+                time = state.registrationEndTime
+            )
+
+            validateRegistrationPeriod(
+                registrationStartDateTime = registrationStartDateTime,
+                registrationEndDateTime = registrationEndDateTime,
+                eventStartDateTime = startDateTime
+            )
+
+            if (state.latitude != null && state.longitude != null && startDateTime != null && endDateTime != null) {
+                checkLocationConflict(
+                    latitude = state.latitude,
+                    longitude = state.longitude,
+                    startDateTime = startDateTime,
+                    endDateTime = endDateTime
+                )
             }
 
             val modalities = supabaseClient
@@ -93,11 +150,6 @@ class CreateEventRepository(
                 format.name.equals(state.format, ignoreCase = true)
             }?.id
 
-            val entryFee = state.entryFee
-                .replace(",", ".")
-                .toDoubleOrNull()
-                ?: 0.0
-
             val coverImageUrl = state.coverImageUri?.let { uri ->
                 uploadEventCoverImage(
                     uri = uri,
@@ -106,30 +158,22 @@ class CreateEventRepository(
                 )
             }
 
-            val startDateTime = combineDateTime(
-                date = state.eventDate,
-                time = state.startTime
-            )
+            val participationType = resolveParticipationType(state)
+            val tipoEvento = state.eventFormat.toDatabaseType()
 
-            val endDateTime = combineDateTime(
-                date = state.eventDate,
-                time = state.endTime
-            )
-            val registrationStartDateTime = combineOptionalDateTime(
-                date = state.registrationStartDate,
-                time = state.registrationStartTime
-            )
+            val maxTeamsValue = when (participationType) {
+                EventParticipationType.TEAM,
+                EventParticipationType.INDIVIDUAL_AND_TEAM -> state.maxTeams
 
-            val registrationEndDateTime = combineOptionalDateTime(
-                date = state.registrationEndDate,
-                time = state.registrationEndTime
-            )
+                else -> null
+            }
 
-            validateRegistrationPeriod(
-                registrationStartDateTime = registrationStartDateTime,
-                registrationEndDateTime = registrationEndDateTime,
-                eventStartDateTime = startDateTime
-            )
+            val participationLimitValue = when (participationType) {
+                EventParticipationType.INDIVIDUAL,
+                EventParticipationType.INDIVIDUAL_AND_TEAM -> state.maxTeams
+
+                else -> null
+            }
 
             supabaseClient
                 .from("evento")
@@ -138,7 +182,7 @@ class CreateEventRepository(
                         title = state.eventName.trim(),
                         description = state.generalRules
                             .takeIf { it.isNotBlank() }
-                            ?.take(180),
+                            ?.take(500),
                         imageUrl = coverImageUrl,
                         address = state.venue.trim(),
                         latitude = state.latitude,
@@ -148,16 +192,17 @@ class CreateEventRepository(
                         endDate = endDateTime,
                         registrationStartDate = registrationStartDateTime,
                         registrationEndDate = registrationEndDateTime,
-                        maxTeams = state.maxTeams.takeIf { state.allowTeams },
-                        participationLimit = state.maxTeams.takeIf { state.allowTeams },
+                        maxTeams = maxTeamsValue,
+                        participationLimit = participationLimitValue,
                         price = entryFee,
                         entryFee = entryFee,
                         eventStatus = "publicado",
-                        participationType = resolveParticipationType(state).dbValue,
+                        participationType = participationType.dbValue,
                         rules = state.generalRules.takeIf { it.isNotBlank() },
                         creatorId = user.id,
                         modalityId = modalityId,
-                        formatId = formatId
+                        formatId = formatId,
+                        eventType = tipoEvento
                     )
                 )
 
@@ -167,19 +212,42 @@ class CreateEventRepository(
         }
     }
 
+    private suspend fun checkLocationConflict(
+        latitude: Double,
+        longitude: Double,
+        startDateTime: String,
+        endDateTime: String
+    ) {
+        val delta = 0.005 // ~500 m
+
+        val conflicts = runCatching {
+            supabaseClient
+                .from("evento")
+                .select {
+                    filter {
+                        gte("latitude", latitude - delta)
+                        lte("latitude", latitude + delta)
+                        gte("longitude", longitude - delta)
+                        lte("longitude", longitude + delta)
+                        neq("estado_evento", "cancelado")
+                        neq("estado_evento", "terminado")
+                        lt("data_inicio", endDateTime)
+                        gt("data_fim", startDateTime)
+                    }
+                }
+                .decodeList<CreateEventConflictRow>()
+        }.getOrDefault(emptyList())
+
+        if (conflicts.isNotEmpty()) {
+            throw Exception("Já existe um evento neste local nesse horário.")
+        }
+    }
+
     private fun resolveParticipationType(state: CreateEventUiState): EventParticipationType {
         return when {
-            state.allowTeams && state.allowFreeAgents -> {
-                EventParticipationType.INDIVIDUAL_AND_TEAM
-            }
-
-            state.allowTeams -> {
-                EventParticipationType.TEAM
-            }
-
-            else -> {
-                EventParticipationType.INDIVIDUAL
-            }
+            state.allowTeams && state.allowFreeAgents -> EventParticipationType.INDIVIDUAL_AND_TEAM
+            state.allowTeams -> EventParticipationType.TEAM
+            else -> EventParticipationType.INDIVIDUAL
         }
     }
 
@@ -275,7 +343,6 @@ class CreateEventRepository(
         return "${date}T${time}:00"
     }
 
-    @Suppress("unused")
     private fun EventFormat.toDatabaseType(): String {
         return when (this) {
             EventFormat.SINGLE_MATCH -> "jogo_amigavel"
@@ -322,10 +389,10 @@ class CreateEventRepository(
             throw IllegalArgumentException("Define o início e o fim das inscrições.")
         }
 
-        val registrationStart = java.time.LocalDateTime.parse(registrationStartDateTime)
-        val registrationEnd = java.time.LocalDateTime.parse(registrationEndDateTime)
+        val registrationStart = LocalDateTime.parse(registrationStartDateTime)
+        val registrationEnd = LocalDateTime.parse(registrationEndDateTime)
         val eventStart = eventStartDateTime?.let {
-            java.time.LocalDateTime.parse(it)
+            LocalDateTime.parse(it)
         }
 
         if (!registrationStart.isBefore(registrationEnd)) {

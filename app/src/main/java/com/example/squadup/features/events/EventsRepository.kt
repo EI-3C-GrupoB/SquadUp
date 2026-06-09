@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import com.example.squadup.core.enums.EventParticipationType
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -275,7 +276,14 @@ class EventsRepository(
 
     private fun EventsNearbyEventRow.toBrowseEvent(): BrowseEventItem {
         val registered = registeredTeams?.toInt() ?: 0
-        val totalSpots = participationLimit ?: maxTeams ?: 0
+        val parsedParticipationType = EventParticipationType.fromDbValue(participationType)
+        val totalSpots = when (parsedParticipationType) {
+            EventParticipationType.TEAM -> maxTeams ?: 0
+            EventParticipationType.INDIVIDUAL -> participationLimit ?: 0
+            EventParticipationType.INDIVIDUAL_AND_TEAM -> maxTeams ?: participationLimit ?: 0
+        }
+        val spotsLeft = (totalSpots - registered).coerceAtLeast(0)
+        val full = totalSpots > 0 && spotsLeft == 0
 
         return BrowseEventItem(
             id = id.toString(),
@@ -285,16 +293,56 @@ class EventsRepository(
             venue = address.toShortVenue(maxLength = 62),
             sportType = sportTypeFrom(modalityName),
             entryType = formatName ?: eventStatus.toEntryType(),
-            requiresTeam = maxTeams != null,
-            spotsLeft = (totalSpots - registered).coerceAtLeast(0),
+            requiresTeam = parsedParticipationType != EventParticipationType.INDIVIDUAL,
+            spotsLeft = spotsLeft,
             totalSpots = totalSpots,
             registeredTeams = registered,
             distance = distanceKm.toDistanceLabel(),
             distanceKm = distanceKm,
             latitude = latitude,
             longitude = longitude,
-            imageUrl = imageUrl
+            imageUrl = imageUrl,
+            participationTypeLabel = parsedParticipationType.toLabel(),
+            formatLabel = formatName.orEmpty(),
+            isPrivate = isPrivate == true,
+            eventStatusLabel = eventStatus.toEventStatusLabel(),
+            registrationStatusLabel = resolveRegistrationStatusLabel(
+                regStart = registrationStartDate,
+                regEnd = registrationEndDate,
+                isFull = full
+            ),
+            isFull = full
         )
+    }
+
+    private fun EventParticipationType.toLabel(): String = when (this) {
+        EventParticipationType.INDIVIDUAL -> "Individual"
+        EventParticipationType.TEAM -> "Equipas"
+        EventParticipationType.INDIVIDUAL_AND_TEAM -> "Individual + Equipas"
+    }
+
+    private fun String?.toEventStatusLabel(): String = when (this) {
+        "a_decorrer" -> "A decorrer"
+        "terminado" -> "Terminado"
+        "cancelado" -> "Cancelado"
+        "rascunho" -> "Rascunho"
+        else -> ""
+    }
+
+    private fun resolveRegistrationStatusLabel(
+        regStart: String?,
+        regEnd: String?,
+        isFull: Boolean
+    ): String {
+        if (isFull) return "Cheio"
+        val now = LocalDateTime.now()
+        val start = regStart.toLocalDateTimeOrNull()
+        val end = regEnd.toLocalDateTimeOrNull()
+        return when {
+            start != null && now.isBefore(start) -> "Inscrições não abertas"
+            end != null && now.isAfter(end) -> "Inscrições encerradas"
+            else -> ""
+        }
     }
 
     private fun priceLabel(value: Double?, currency: String?): String {

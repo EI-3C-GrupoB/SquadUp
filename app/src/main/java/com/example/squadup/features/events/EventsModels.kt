@@ -57,7 +57,11 @@ data class EventsNearbyEventRow(
     @SerialName("equipas_inscritas")
     val registeredTeams: Long? = 0,
     @SerialName("distancia_km")
-    val distanceKm: Double? = null
+    val distanceKm: Double? = null,
+    @SerialName("tipo_participacao")
+    val participationType: String? = null,
+    @SerialName("tipo_evento")
+    val eventType: String? = null
 )
 
 @Serializable

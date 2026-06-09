@@ -53,6 +53,7 @@ fun CreateEventRoute(
         onRecurrenceTypeChange = viewModel::onRecurrenceTypeChange,
         onRecurringDayToggle = viewModel::onRecurringDayToggle,
         onTeamNotifyToggle = viewModel::onTeamNotifyToggle,
+        onDismissError = viewModel::dismissError,
         onCreateEvent = {
             viewModel.createEvent(
                 context = context,

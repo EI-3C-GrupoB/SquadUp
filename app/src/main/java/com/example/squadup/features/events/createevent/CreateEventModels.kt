@@ -109,7 +109,17 @@ data class CreateEventInsertRow(
     val modalityId: Int?,
 
     @SerialName("formato_id")
-    val formatId: Int?
+    val formatId: Int?,
+
+    @SerialName("tipo_evento")
+    val eventType: String? = null
+)
+
+@Serializable
+data class CreateEventConflictRow(
+    val id: Int,
+    @SerialName("titulo")
+    val title: String
 )
 
 data class CreateEventUserContext(

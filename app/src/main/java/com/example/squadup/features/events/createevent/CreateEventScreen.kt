@@ -46,6 +46,7 @@ import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.RocketLaunch
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -63,6 +64,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -161,6 +163,7 @@ fun CreateEventScreen(
     // Review
     onTeamNotifyToggle: (String) -> Unit,
     onCreateEvent: () -> Unit,
+    onDismissError: () -> Unit,
 
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
@@ -277,6 +280,38 @@ fun CreateEventScreen(
                         onShowRecurrenceDialog(false)
                         onRecurringToggle(false)
                     }
+                )
+            }
+
+            if (uiState.errorMessage != null) {
+                AlertDialog(
+                    onDismissRequest = onDismissError,
+                    title = {
+                        Text(
+                            text = "Atenção",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = SquadTextPrimary
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = uiState.errorMessage,
+                            fontSize = 14.sp,
+                            color = SquadTextPrimary
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = onDismissError) {
+                            Text(
+                                text = "OK",
+                                color = SquadOrange,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    },
+                    containerColor = Color.White,
+                    shape = RoundedCornerShape(16.dp)
                 )
             }
         }
@@ -1355,8 +1390,13 @@ private fun ReviewStep(
         Spacer(modifier = Modifier.height(20.dp))
 
         PrimaryButton(
-            text = stringResource(R.string.createEvent_create_button),
+            text = if (uiState.isSaving) {
+                "A criar evento..."
+            } else {
+                stringResource(R.string.createEvent_create_button)
+            },
             onClick = onCreateEvent,
+            enabled = !uiState.isSaving,
             trailingIcon = Icons.Outlined.RocketLaunch
         )
 

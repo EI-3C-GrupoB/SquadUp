@@ -417,6 +417,14 @@ class MoreDetailsRepository(
                 throw Exception("Utilizador não encontrado.")
             }
 
+            val event = supabaseClient
+                .from("evento")
+                .select { filter { eq("id", eventId) } }
+                .decodeSingle<MoreDetailsEventRow>()
+
+            validateRegistrationPeriod(event)
+            validateCapacity(event, isTeam = false)
+
             val existingRegistration = supabaseClient
                 .from("inscricao")
                 .select {
@@ -543,6 +551,14 @@ class MoreDetailsRepository(
             if (currentUserId == null) {
                 throw Exception("Utilizador não encontrado.")
             }
+
+            val event = supabaseClient
+                .from("evento")
+                .select { filter { eq("id", eventId) } }
+                .decodeSingle<MoreDetailsEventRow>()
+
+            validateRegistrationPeriod(event)
+            validateCapacity(event, isTeam = true)
 
             val currentUserRegistrations = supabaseClient
                 .from("inscricao")
@@ -748,6 +764,53 @@ class MoreDetailsRepository(
                     "evento_equipa",
                     "pedido_evento_equipa"
                 )
+    }
+
+    private fun validateRegistrationPeriod(event: MoreDetailsEventRow) {
+        val now = LocalDateTime.now()
+        val regStart = event.registrationStartDate.toLocalDateTimeOrNull()
+        val regEnd = event.registrationEndDate.toLocalDateTimeOrNull()
+
+        if (regStart != null && now.isBefore(regStart)) {
+            throw Exception("As inscrições ainda não estão abertas.")
+        }
+        if (regEnd != null && now.isAfter(regEnd)) {
+            throw Exception("O período de inscrições já terminou.")
+        }
+    }
+
+    private suspend fun validateCapacity(event: MoreDetailsEventRow, isTeam: Boolean) {
+        val participationType = event.participationType ?: "individual"
+
+        if (isTeam || participationType == "equipa") {
+            val maxTeams = event.maxTeams ?: return
+            if (maxTeams <= 0) return
+            val confirmed = supabaseClient
+                .from("evento_equipa")
+                .select { filter { eq("evento_id", event.id); eq("estado", "confirmada") } }
+                .decodeList<MoreDetailsEventTeamRow>()
+                .size
+            if (confirmed >= maxTeams) {
+                throw Exception("O evento já atingiu o limite de equipas.")
+            }
+        } else {
+            val limit = event.participationLimit ?: return
+            if (limit <= 0) return
+            val accepted = supabaseClient
+                .from("inscricao")
+                .select {
+                    filter {
+                        eq("evento_id", event.id)
+                        eq("tipo_inscricao", "evento_individual")
+                        eq("estado_inscricao", "aceite")
+                    }
+                }
+                .decodeList<MoreDetailsRegistrationRow>()
+                .size
+            if (accepted >= limit) {
+                throw Exception("O evento já atingiu o limite de participações.")
+            }
+        }
     }
 
     private suspend fun deleteEventTeamRegistration(eventTeamRegistrationId: Long) {

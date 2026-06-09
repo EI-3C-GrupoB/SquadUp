@@ -85,5 +85,12 @@ data class BrowseEventItem(
     val distanceKm: Double? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    // Rich metadata
+    val participationTypeLabel: String = "",
+    val formatLabel: String = "",
+    val isPrivate: Boolean = false,
+    val eventStatusLabel: String = "",
+    val registrationStatusLabel: String = "",
+    val isFull: Boolean = false
 )

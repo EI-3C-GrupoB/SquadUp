@@ -788,6 +788,73 @@ private fun BrowseEventCard(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Meta row: Sport · Participation · Format
+                val metaLine = buildString {
+                    append(event.sportType.toDisplayName(context))
+                    if (event.participationTypeLabel.isNotBlank()) {
+                        append(" · ")
+                        append(event.participationTypeLabel)
+                    }
+                    if (event.formatLabel.isNotBlank()) {
+                        append(" · ")
+                        append(event.formatLabel)
+                    }
+                }
+                Text(
+                    text = metaLine,
+                    fontSize = 12.sp,
+                    color = SquadTextSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                // Badge row: Privado / status
+                val badges = buildList {
+                    if (event.isPrivate) add("Privado" to Color(0xFF6B7280))
+                    if (event.registrationStatusLabel.isNotBlank()) {
+                        val color = when (event.registrationStatusLabel) {
+                            "Cheio" -> Color(0xFFDC2626)
+                            "Inscrições encerradas" -> Color(0xFF6B7280)
+                            "Inscrições não abertas" -> Color(0xFF2563EB)
+                            else -> SquadOrange
+                        }
+                        add(event.registrationStatusLabel to color)
+                    }
+                    if (event.eventStatusLabel.isNotBlank()) {
+                        val color = when (event.eventStatusLabel) {
+                            "A decorrer" -> Color(0xFF059669)
+                            "Terminado" -> Color(0xFF6B7280)
+                            "Cancelado" -> Color(0xFFDC2626)
+                            else -> SquadTextSecondary
+                        }
+                        add(event.eventStatusLabel to color)
+                    }
+                }
+
+                if (badges.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        badges.forEach { (label, color) ->
+                            Surface(
+                                color = color.copy(alpha = 0.12f),
+                                shape = RoundedCornerShape(4.dp)
+                            ) {
+                                Text(
+                                    text = label,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = color,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
