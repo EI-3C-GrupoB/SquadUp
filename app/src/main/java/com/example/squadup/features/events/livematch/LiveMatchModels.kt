@@ -20,7 +20,16 @@ data class LiveMatchGameRow(
 data class LiveMatchEventRow(
     val id: Int,
     @SerialName("modalidade_id")
-    val modalityId: Int? = null
+    val modalityId: Int? = null,
+    @SerialName("formato_id")
+    val formatoId: Int? = null
+)
+
+@Serializable
+data class LiveMatchFormatoRow(
+    val id: Int,
+    @SerialName("nome")
+    val name: String
 )
 
 @Serializable
@@ -131,4 +140,25 @@ data class LiveMatchTimelineInsertRow(
 data class LiveMatchGameStatusUpdateRow(
     @SerialName("estado_jogo")
     val status: String
+)
+
+@Serializable
+data class LiveMatchInscricaoRow(
+    val id: Int,
+    @SerialName("user_id") val userId: Int? = null,
+    @SerialName("equipa_id") val teamId: Int? = null
+)
+
+@Serializable
+data class LiveMatchScoreUpdateRow(
+    @SerialName("resultado")
+    val resultado: String,
+    @SerialName("is_vencedor")
+    val isVencedor: Boolean? = null
+)
+
+@Serializable
+data class LiveMatchEventoEquipaStatusRow(
+    @SerialName("estado")
+    val estado: String
 )

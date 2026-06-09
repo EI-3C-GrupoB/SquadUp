@@ -16,10 +16,12 @@ fun LiveMatchScreen(
     onShowGoalForm: (Boolean) -> Unit,
     onShowInfractionForm: (Boolean) -> Unit,
     onShowSubstitutionForm: (Boolean) -> Unit,
-    onRecordGoal: (Boolean, String, String) -> Unit,
+    onShowAdvancedStatsForm: (Boolean) -> Unit,
+    onRecordGoal: (Boolean, String, String, Int) -> Unit,
     onRecordInfraction: (Boolean, String, String) -> Unit,
     onRecordSubstitution: (Boolean, String, String) -> Unit,
     onRecordTimeout: (Boolean) -> Unit,
+    onRecordAdvancedStat: (Boolean, String, Int) -> Unit,
 ) {
     when (uiState.phase) {
         LiveMatchPhase.PRE_MATCH -> LiveMatchPreMatch(
@@ -28,7 +30,7 @@ fun LiveMatchScreen(
             onStartMatch = onStartMatch
         )
         LiveMatchPhase.LIVE,
-        LiveMatchPhase.FINISHED  -> LiveMatchContent(
+        LiveMatchPhase.FINISHED -> LiveMatchContent(
             uiState = uiState,
             onBackClick = onBackClick,
             onEndMatch = onEndMatch,
@@ -38,10 +40,12 @@ fun LiveMatchScreen(
             onShowGoalForm = onShowGoalForm,
             onShowInfractionForm = onShowInfractionForm,
             onShowSubstitutionForm = onShowSubstitutionForm,
+            onShowAdvancedStatsForm = onShowAdvancedStatsForm,
             onRecordGoal = onRecordGoal,
             onRecordInfraction = onRecordInfraction,
             onRecordSubstitution = onRecordSubstitution,
             onRecordTimeout = onRecordTimeout,
+            onRecordAdvancedStat = onRecordAdvancedStat,
             selectedRoute = selectedRoute,
             onNavItemClick = onNavItemClick,
         )

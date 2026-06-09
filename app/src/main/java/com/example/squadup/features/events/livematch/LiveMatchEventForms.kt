@@ -125,20 +125,32 @@ private fun FormBottomSheet(
     }
 }
 
-// ─── Goal Form ────────────────────────────────────────────────────────────────
+// ─── Goal / Score Form (sport-aware) ─────────────────────────────────────────
 
 @Composable
 fun GoalFormSheet(
     uiState: LiveMatchUiState,
     onDismiss: () -> Unit,
-    onSave: (isHome: Boolean, playerName: String, description: String) -> Unit
+    onSave: (isHome: Boolean, playerName: String, description: String, delta: Int) -> Unit
+) {
+    when (uiState.sportType) {
+        SportType.BASKETBALL -> BasketballScoreFormSheet(uiState, onDismiss, onSave)
+        SportType.VOLLEYBALL, SportType.PADDLE -> SimpleScoreFormSheet(uiState, onDismiss, onSave)
+        else -> FootballScoreFormSheet(uiState, onDismiss, onSave)
+    }
+}
+
+@Composable
+private fun FootballScoreFormSheet(
+    uiState: LiveMatchUiState,
+    onDismiss: () -> Unit,
+    onSave: (isHome: Boolean, playerName: String, description: String, delta: Int) -> Unit
 ) {
     var isHome by remember { mutableStateOf(true) }
     var scorer by remember { mutableStateOf<LiveMatchPlayer?>(null) }
     var assist by remember { mutableStateOf<LiveMatchPlayer?>(null) }
-    var goalType by remember { mutableStateOf("Open Play") }
-
-    val goalTypes = listOf("Open Play", "Header", "Free Kick", "Penalty", "Own Goal")
+    var goalType by remember { mutableStateOf("Jogo aberto") }
+    val goalTypes = listOf("Jogo aberto", "Cabeceamento", "Livre", "Penálti", "Autogolo")
     val players = if (isHome) uiState.homePlayers else uiState.awayPlayers
 
     FormBottomSheet(
@@ -146,48 +158,108 @@ fun GoalFormSheet(
         onDismiss = onDismiss,
         onSave = {
             val desc = "$goalType${if (assist != null) " • Assist: ${assist!!.name}" else ""}"
-            onSave(isHome, scorer?.name ?: "", desc)
+            onSave(isHome, scorer?.name ?: "", desc, 1)
         }
     ) {
-        // Team
         FormSection(stringResource(R.string.liveMatch_form_team)) {
-            TeamSelector(uiState.homeTeamAbbr, uiState.awayTeamAbbr, isHome) {
-                isHome = it; scorer = null; assist = null
-            }
+            TeamSelector(uiState.homeTeamAbbr, uiState.awayTeamAbbr, isHome) { isHome = it; scorer = null; assist = null }
         }
-        Spacer(modifier = Modifier.height(14.dp))
-
-        // Scorer
+        Spacer(Modifier.height(14.dp))
         FormSection(stringResource(R.string.liveMatch_form_goal_scorer)) {
             FormPlayerDropdown("", players, scorer) { scorer = it }
         }
-        Spacer(modifier = Modifier.height(14.dp))
-
-        // Goal type
+        Spacer(Modifier.height(14.dp))
         FormSection(stringResource(R.string.liveMatch_form_goal_type)) {
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-                OutlinedTextField(
-                    value = goalType,
-                    onValueChange = {},
-                    readOnly = true,
+                OutlinedTextField(value = goalType, onValueChange = {}, readOnly = true,
                     trailingIcon = { Icon(Icons.Outlined.KeyboardArrowDown, null) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = SquadGrayLight)
-                )
+                    modifier = Modifier.fillMaxWidth().menuAnchor(), shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = SquadGrayLight))
                 ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    goalTypes.forEach { type ->
-                        DropdownMenuItem(text = { Text(type) }, onClick = { goalType = type; expanded = false })
+                    goalTypes.forEach { type -> DropdownMenuItem(text = { Text(type) }, onClick = { goalType = type; expanded = false }) }
+                }
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+        FormSection(stringResource(R.string.liveMatch_form_assist)) {
+            FormPlayerDropdown("", players, assist) { assist = it }
+        }
+    }
+}
+
+@Composable
+private fun BasketballScoreFormSheet(
+    uiState: LiveMatchUiState,
+    onDismiss: () -> Unit,
+    onSave: (isHome: Boolean, playerName: String, description: String, delta: Int) -> Unit
+) {
+    var isHome by remember { mutableStateOf(true) }
+    var scorer by remember { mutableStateOf<LiveMatchPlayer?>(null) }
+    var selectedDelta by remember { mutableStateOf(2) }
+    val players = if (isHome) uiState.homePlayers else uiState.awayPlayers
+    val scoreOptions = listOf(1 to "Livre (+1)", 2 to "2 Pontos (+2)", 3 to "3 Pontos (+3)")
+
+    FormBottomSheet(
+        title = "Registar Pontos",
+        onDismiss = onDismiss,
+        onSave = {
+            val desc = scoreOptions.firstOrNull { it.first == selectedDelta }?.second ?: "+$selectedDelta"
+            onSave(isHome, scorer?.name ?: "", desc, selectedDelta)
+        }
+    ) {
+        FormSection(stringResource(R.string.liveMatch_form_team)) {
+            TeamSelector(uiState.homeTeamAbbr, uiState.awayTeamAbbr, isHome) { isHome = it; scorer = null }
+        }
+        Spacer(Modifier.height(14.dp))
+        FormSection("TIPO DE PONTUAÇÃO") {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                scoreOptions.forEach { (delta, label) ->
+                    val selected = selectedDelta == delta
+                    Surface(
+                        onClick = { selectedDelta = delta },
+                        modifier = Modifier.weight(1f),
+                        color = if (selected) SquadOrange else SquadGrayLight,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("+$delta", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold,
+                                color = if (selected) Color.White else SquadTextPrimary)
+                            Text(label.substringBefore(" ("), fontSize = 9.sp,
+                                color = if (selected) Color.White.copy(alpha = 0.85f) else SquadTextSecondary,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        }
                     }
                 }
             }
         }
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(Modifier.height(14.dp))
+        FormSection(stringResource(R.string.liveMatch_form_goal_scorer)) {
+            FormPlayerDropdown("", players, scorer) { scorer = it }
+        }
+    }
+}
 
-        // Assist (optional)
-        FormSection(stringResource(R.string.liveMatch_form_assist)) {
-            FormPlayerDropdown("", players, assist) { assist = it }
+@Composable
+private fun SimpleScoreFormSheet(
+    uiState: LiveMatchUiState,
+    onDismiss: () -> Unit,
+    onSave: (isHome: Boolean, playerName: String, description: String, delta: Int) -> Unit
+) {
+    var isHome by remember { mutableStateOf(true) }
+    var scorer by remember { mutableStateOf<LiveMatchPlayer?>(null) }
+    val players = if (isHome) uiState.homePlayers else uiState.awayPlayers
+    val title = if (uiState.sportType == SportType.VOLLEYBALL) "Registar Ponto" else "Registar Ponto/Set"
+
+    FormBottomSheet(title = title, onDismiss = onDismiss, onSave = {
+        onSave(isHome, scorer?.name ?: "", "Ponto", 1)
+    }) {
+        FormSection(stringResource(R.string.liveMatch_form_team)) {
+            TeamSelector(uiState.homeTeamAbbr, uiState.awayTeamAbbr, isHome) { isHome = it; scorer = null }
+        }
+        Spacer(Modifier.height(14.dp))
+        FormSection(stringResource(R.string.liveMatch_form_player)) {
+            FormPlayerDropdown("", players, scorer) { scorer = it }
         }
     }
 }
@@ -252,6 +324,8 @@ fun InfractionFormSheet(
 
 // ─── Substitution Form ────────────────────────────────────────────────────────
 
+private data class SubPair(val playerOut: LiveMatchPlayer? = null, val playerIn: LiveMatchPlayer? = null)
+
 @Composable
 fun SubstitutionFormSheet(
     uiState: LiveMatchUiState,
@@ -259,36 +333,143 @@ fun SubstitutionFormSheet(
     onSave: (isHome: Boolean, playerOut: String, playerIn: String) -> Unit
 ) {
     var isHome by remember { mutableStateOf(true) }
-    var playerOut by remember { mutableStateOf<LiveMatchPlayer?>(null) }
-    var playerInName by remember { mutableStateOf("") }
+    var pairs by remember { mutableStateOf(listOf(SubPair())) }
 
     val players = if (isHome) uiState.homePlayers else uiState.awayPlayers
 
     FormBottomSheet(
         title = stringResource(R.string.liveMatch_form_sub_title),
         onDismiss = onDismiss,
-        onSave = { onSave(isHome, playerOut?.name ?: "", playerInName) }
+        onSave = {
+            pairs.forEach { pair ->
+                if (pair.playerOut != null || pair.playerIn != null) {
+                    onSave(isHome, pair.playerOut?.name ?: "", pair.playerIn?.name ?: "")
+                }
+            }
+        }
     ) {
         FormSection(stringResource(R.string.liveMatch_form_team)) {
-            TeamSelector(uiState.homeTeamAbbr, uiState.awayTeamAbbr, isHome) { isHome = it; playerOut = null }
+            TeamSelector(uiState.homeTeamAbbr, uiState.awayTeamAbbr, isHome) {
+                isHome = it
+                pairs = listOf(SubPair())
+            }
         }
         Spacer(modifier = Modifier.height(14.dp))
 
-        FormSection(stringResource(R.string.liveMatch_form_player_out)) {
-            FormPlayerDropdown("", players, playerOut) { playerOut = it }
+        pairs.forEachIndexed { index, pair ->
+            if (index > 0) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), color = SquadGrayLight)
+            }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
+                    FormSection(stringResource(R.string.liveMatch_form_player_out)) {
+                        FormPlayerDropdown("", players, pair.playerOut) { selected ->
+                            pairs = pairs.toMutableList().also { it[index] = it[index].copy(playerOut = selected) }
+                        }
+                    }
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    FormSection(stringResource(R.string.liveMatch_form_player_in)) {
+                        FormPlayerDropdown("", players, pair.playerIn) { selected ->
+                            pairs = pairs.toMutableList().also { it[index] = it[index].copy(playerIn = selected) }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+        TextButton(
+            onClick = { pairs = pairs + SubPair() },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Outlined.Add, null, modifier = Modifier.size(16.dp), tint = SquadOrange)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(stringResource(R.string.liveMatch_form_sub_add), color = SquadOrange, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+// ─── Advanced Stats Form ──────────────────────────────────────────────────────
+
+@Composable
+fun AdvancedStatsFormSheet(
+    uiState: LiveMatchUiState,
+    onDismiss: () -> Unit,
+    onSave: (isHome: Boolean, statName: String, value: Int) -> Unit
+) {
+    var isHome by remember { mutableStateOf(true) }
+    var selectedStat by remember { mutableStateOf("") }
+    var statValue by remember { mutableStateOf(1) }
+
+    val statOptions = when (uiState.sportType) {
+        SportType.SOCCER, SportType.FUTSAL -> listOf("Shots", "Shots on Goal", "Corners", "Fouls", "Offsides", "Saves")
+        SportType.BASKETBALL               -> listOf("Assists", "Rebounds", "Blocks", "Steals", "Turnovers", "3-Pointers")
+        SportType.VOLLEYBALL               -> listOf("Aces", "Blocks", "Digs", "Errors", "Sets Won")
+        SportType.PADDLE                   -> listOf("Winners", "Errors", "Aces", "Smashes")
+    }
+    if (selectedStat.isBlank()) selectedStat = statOptions.first()
+
+    FormBottomSheet(
+        title = stringResource(R.string.liveMatch_form_stats_title),
+        onDismiss = onDismiss,
+        onSave = { onSave(isHome, selectedStat, statValue) }
+    ) {
+        FormSection(stringResource(R.string.liveMatch_form_team)) {
+            TeamSelector(uiState.homeTeamAbbr, uiState.awayTeamAbbr, isHome) { isHome = it }
         }
         Spacer(modifier = Modifier.height(14.dp))
 
-        FormSection(stringResource(R.string.liveMatch_form_player_in)) {
-            OutlinedTextField(
-                value = playerInName,
-                onValueChange = { playerInName = it },
-                placeholder = { Text(stringResource(R.string.liveMatch_form_player_in_hint), color = SquadTextSecondary, fontSize = 13.sp) },
+        FormSection(stringResource(R.string.liveMatch_form_stats_type)) {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+                OutlinedTextField(
+                    value = selectedStat,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { Icon(Icons.Outlined.KeyboardArrowDown, null) },
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = SquadGrayLight)
+                )
+                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    statOptions.forEach { stat ->
+                        DropdownMenuItem(text = { Text(stat) }, onClick = { selectedStat = stat; expanded = false })
+                    }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(14.dp))
+
+        FormSection(stringResource(R.string.liveMatch_form_stats_value)) {
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = SquadGrayLight)
-            )
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Surface(
+                    onClick = { if (statValue > 1) statValue-- },
+                    color = SquadGrayLight,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.Remove, null, tint = SquadTextPrimary, modifier = Modifier.size(20.dp))
+                    }
+                }
+                Text("$statValue", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextPrimary, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Surface(
+                    onClick = { statValue++ },
+                    color = SquadOrange,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.size(44.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.Add, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
         }
     }
 }

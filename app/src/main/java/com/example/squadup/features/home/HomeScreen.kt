@@ -29,7 +29,7 @@ fun HomeScreen(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
-    onViewMatchDetailsClick: () -> Unit,
+    onViewMatchDetailsClick: (gameId: String) -> Unit,
     onSeeAllEventsClick: () -> Unit,
     onJoinEventClick: (String) -> Unit,
     onEventDetailsClick: (String) -> Unit,
@@ -144,7 +144,7 @@ fun HomeScreen(
                     date = uiState.currentMatch.date,
                     location = uiState.currentMatch.location,
                     sportType = uiState.currentMatch.sportType,
-                    onViewDetailsClick = onViewMatchDetailsClick
+                    onViewDetailsClick = { onViewMatchDetailsClick(uiState.currentMatch.id) }
                 )
             } else {
                 EmptyStateCard(

@@ -41,10 +41,12 @@ fun LiveMatchContent(
     onShowGoalForm: (Boolean) -> Unit,
     onShowInfractionForm: (Boolean) -> Unit,
     onShowSubstitutionForm: (Boolean) -> Unit,
-    onRecordGoal: (Boolean, String, String) -> Unit,
+    onShowAdvancedStatsForm: (Boolean) -> Unit = {},
+    onRecordGoal: (Boolean, String, String, Int) -> Unit,
     onRecordInfraction: (Boolean, String, String) -> Unit,
     onRecordSubstitution: (Boolean, String, String) -> Unit,
     onRecordTimeout: (Boolean) -> Unit,
+    onRecordAdvancedStat: (Boolean, String, Int) -> Unit = { _, _, _ -> },
     selectedRoute: String = "",
     onNavItemClick: (String) -> Unit = {},
 ) {
@@ -136,6 +138,7 @@ fun LiveMatchContent(
                     onShowGoalForm = onShowGoalForm,
                     onShowInfractionForm = onShowInfractionForm,
                     onShowSubstitutionForm = onShowSubstitutionForm,
+                    onShowAdvancedStatsForm = onShowAdvancedStatsForm,
                     onRecordTimeout = onRecordTimeout,
                 )
                 LiveMatchTab.STATS -> MatchStatsTab(uiState = uiState)
@@ -163,6 +166,13 @@ fun LiveMatchContent(
             uiState = uiState,
             onDismiss = { onShowSubstitutionForm(false) },
             onSave = onRecordSubstitution
+        )
+    }
+    if (uiState.showAdvancedStatsForm) {
+        AdvancedStatsFormSheet(
+            uiState = uiState,
+            onDismiss = { onShowAdvancedStatsForm(false) },
+            onSave = onRecordAdvancedStat
         )
     }
 }
@@ -305,19 +315,20 @@ private fun MatchEventsTab(
     onShowGoalForm: (Boolean) -> Unit,
     onShowInfractionForm: (Boolean) -> Unit,
     onShowSubstitutionForm: (Boolean) -> Unit,
+    onShowAdvancedStatsForm: (Boolean) -> Unit,
     onRecordTimeout: (Boolean) -> Unit,
 ) {
     val isLive = uiState.phase == LiveMatchPhase.LIVE
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Action buttons (só organizador no LIVE)
         if (isLive && isOrganizer) {
             ActionButtonsRow(
                 sportType = uiState.sportType,
                 onGoalClick = { onShowGoalForm(true) },
                 onInfractionClick = { onShowInfractionForm(true) },
                 onSubClick = { onShowSubstitutionForm(true) },
-                onTimeoutClick = { onRecordTimeout(true) }
+                onTimeoutClick = { onRecordTimeout(true) },
+                onAdvancedStatsClick = { onShowAdvancedStatsForm(true) }
             )
         }
 
@@ -353,7 +364,8 @@ private fun ActionButtonsRow(
     onGoalClick: () -> Unit,
     onInfractionClick: () -> Unit,
     onSubClick: () -> Unit,
-    onTimeoutClick: () -> Unit
+    onTimeoutClick: () -> Unit,
+    onAdvancedStatsClick: () -> Unit
 ) {
     val goalLabel = when (sportType) {
         SportType.SOCCER, SportType.FUTSAL -> R.string.liveMatch_action_goal
@@ -369,18 +381,24 @@ private fun ActionButtonsRow(
         SportType.BASKETBALL               -> Icons.Outlined.SportsBasketball
         else                               -> Icons.Outlined.EmojiEvents
     }
+    // Basketball and Volleyball use advanced stats instead of timeout
+    val showTimeout = sportType == SportType.SOCCER || sportType == SportType.FUTSAL || sportType == SportType.BASKETBALL
+    val showAdvancedStats = sportType != SportType.SOCCER && sportType != SportType.FUTSAL
 
     Surface(shadowElevation = 2.dp, color = Color.White) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            ActionButton(icon = goalIcon,       labelRes = goalLabel,                        color = SquadOrange,             onClick = onGoalClick,       modifier = Modifier.weight(1f))
-            ActionButton(icon = Icons.Outlined.Flag,        labelRes = infractionLabel,      color = Color(0xFFE53935),       onClick = onInfractionClick, modifier = Modifier.weight(1f))
-            ActionButton(icon = Icons.Outlined.SwapHoriz,   labelRes = R.string.liveMatch_action_sub,     color = Color(0xFF1565C0), onClick = onSubClick,        modifier = Modifier.weight(1f))
-            ActionButton(icon = Icons.Outlined.Timer,       labelRes = R.string.liveMatch_action_timeout, color = Color(0xFF2E7D32), onClick = onTimeoutClick,    modifier = Modifier.weight(1f))
+            ActionButton(icon = goalIcon, labelRes = goalLabel, color = SquadOrange, onClick = onGoalClick, modifier = Modifier.weight(1f))
+            ActionButton(icon = Icons.Outlined.Flag, labelRes = infractionLabel, color = Color(0xFFE53935), onClick = onInfractionClick, modifier = Modifier.weight(1f))
+            ActionButton(icon = Icons.Outlined.SwapHoriz, labelRes = R.string.liveMatch_action_sub, color = Color(0xFF1565C0), onClick = onSubClick, modifier = Modifier.weight(1f))
+            if (showTimeout) {
+                ActionButton(icon = Icons.Outlined.Timer, labelRes = R.string.liveMatch_action_timeout, color = Color(0xFF2E7D32), onClick = onTimeoutClick, modifier = Modifier.weight(1f))
+            }
+            if (showAdvancedStats) {
+                ActionButton(icon = Icons.Outlined.BarChart, labelRes = R.string.liveMatch_form_stats_title, color = Color(0xFF6A1B9A), onClick = onAdvancedStatsClick, modifier = Modifier.weight(1f))
+            }
         }
     }
 }
@@ -459,49 +477,59 @@ private fun MatchEventRow(event: MatchEventItem) {
     }
 }
 
-// ─── Stats Tab ────────────────────────────────────────────────────────────────
+// ─── Stats Tab (sport-specific) ───────────────────────────────────────────────
 
 @Composable
 private fun MatchStatsTab(uiState: LiveMatchUiState) {
-    val s = uiState.homeStats
+    val h = uiState.homeStats
     val a = uiState.awayStats
-    val events = uiState.events
 
-    // Infrações derivadas dos eventos registados (separadas por tipo)
-    val infractionEvents = events.filter { it.type == MatchEventType.INFRACTION }
-    val infractionTypes  = infractionEvents.map { it.description }.distinct()
-
-    val rows = buildList {
-        add(Triple(stringResource(R.string.liveMatch_stat_shots),      s.shots,      a.shots))
-        add(Triple(stringResource(R.string.liveMatch_stat_shots_goal), s.shotsOnGoal,a.shotsOnGoal))
-        add(Triple(stringResource(R.string.liveMatch_stat_corners),    s.corners,    a.corners))
-        add(Triple(stringResource(R.string.liveMatch_stat_fouls),      s.fouls,      a.fouls))
-        // Infrações por tipo dos eventos registados
-        if (infractionTypes.isEmpty()) {
-            add(Triple(stringResource(R.string.stats_event_infractions), 0, 0))
-        } else {
-            infractionTypes.forEach { type ->
-                val hCount = infractionEvents.count { it.isHome && it.description == type }
-                val aCount = infractionEvents.count { !it.isHome && it.description == type }
-                add(Triple(type.split(" ").joinToString(" ") { w -> w.lowercase().replaceFirstChar { it.uppercase() } }, hCount, aCount))
-            }
+    val rows: List<Triple<String, Int, Int>> = when (uiState.sportType) {
+        SportType.SOCCER, SportType.FUTSAL -> buildList {
+            add(Triple(stringResource(R.string.liveMatch_stat_shots),      h.shots,      a.shots))
+            add(Triple(stringResource(R.string.liveMatch_stat_shots_goal), h.shotsOnGoal,a.shotsOnGoal))
+            add(Triple(stringResource(R.string.liveMatch_stat_corners),    h.corners,    a.corners))
+            add(Triple(stringResource(R.string.liveMatch_stat_fouls),      h.fouls,      a.fouls))
+            add(Triple(stringResource(R.string.stats_yellow_cards),        h.yellowCards, a.yellowCards))
+            add(Triple(stringResource(R.string.stats_red_cards),           h.redCards,   a.redCards))
+            add(Triple(stringResource(R.string.liveMatch_stat_offsides),   h.offsides,   a.offsides))
+            add(Triple(stringResource(R.string.liveMatch_stat_saves),      h.saves,      a.saves))
         }
-        add(Triple(stringResource(R.string.liveMatch_stat_offsides), s.offsides, a.offsides))
-        add(Triple(stringResource(R.string.liveMatch_stat_saves),    s.saves,    a.saves))
+        SportType.BASKETBALL -> buildList {
+            val hTotal = h.points1 + h.points2 * 2 + h.points3 * 3
+            val aTotal = a.points1 + a.points2 * 2 + a.points3 * 3
+            add(Triple("PONTOS TOTAIS",     hTotal,        aTotal))
+            add(Triple("LANCES LIVRES (+1)", h.points1,   a.points1))
+            add(Triple("2 PONTOS",          h.points2,     a.points2))
+            add(Triple("3 PONTOS",          h.points3,     a.points3))
+            add(Triple(stringResource(R.string.stats_personal_fouls),   h.personalFouls, a.personalFouls))
+            add(Triple(stringResource(R.string.stats_technical_fouls),  h.technicalFouls,a.technicalFouls))
+            add(Triple("ASSISTÊNCIAS",      h.assists,     a.assists))
+            add(Triple("RESSALTOS",         h.rebounds,    a.rebounds))
+        }
+        SportType.VOLLEYBALL -> buildList {
+            add(Triple("SETS GANHOS",       h.setsWon,     a.setsWon))
+            add(Triple("ACES",              h.aces,        a.aces))
+            add(Triple("BLOCOS",            h.blocks,      a.blocks))
+            add(Triple("ERROS",             h.errors,      a.errors))
+        }
+        SportType.PADDLE -> buildList {
+            add(Triple("SETS GANHOS",       h.setsWon,     a.setsWon))
+            add(Triple("WINNERS",           h.aces,        a.aces))
+            add(Triple("ERROS NÃO FORÇADOS",h.errors,      a.errors))
+            add(Triple("BLOCOS",            h.blocks,      a.blocks))
+        }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)) {
         Surface(modifier = Modifier.fillMaxWidth(), color = Color.White, shape = RoundedCornerShape(12.dp), shadowElevation = 2.dp) {
             Column {
-                Row(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+                Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(32.dp).background(SquadOrange, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
                         Text(uiState.homeTeamAbbr, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                     }
-                    Spacer(modifier = Modifier.weight(1f))
+                    Text(uiState.homeTeamName, fontSize = 11.sp, color = SquadTextSecondary, modifier = Modifier.padding(start = 6.dp).weight(1f))
+                    Text(uiState.awayTeamName, fontSize = 11.sp, color = SquadTextSecondary, modifier = Modifier.padding(end = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
                     Box(modifier = Modifier.size(32.dp).background(SquadGrayLight, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
                         Text(uiState.awayTeamAbbr, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextSecondary)
                     }
@@ -510,6 +538,24 @@ private fun MatchStatsTab(uiState: LiveMatchUiState) {
                 rows.forEachIndexed { index, (label, homeVal, awayVal) ->
                     StatCompareRow(label, homeVal, awayVal)
                     if (index < rows.lastIndex) HorizontalDivider(modifier = Modifier.padding(horizontal = 12.dp), color = SquadGrayLight)
+                }
+            }
+        }
+
+        // KNOCKOUT indicator
+        if (uiState.isKnockout && uiState.phase == LiveMatchPhase.FINISHED) {
+            Spacer(Modifier.height(16.dp))
+            val homeWon = uiState.homeScore > uiState.awayScore
+            val awayWon = uiState.awayScore > uiState.homeScore
+            Surface(modifier = Modifier.fillMaxWidth(), color = Color(0xFFFFEBEE), shape = RoundedCornerShape(10.dp)) {
+                Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Icon(Icons.Outlined.EmojiEvents, null, tint = Color(0xFFD32F2F), modifier = Modifier.size(20.dp))
+                    Column {
+                        Text("ELIMINATÓRIA", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F), letterSpacing = 0.5.sp)
+                        val loser = if (homeWon) uiState.awayTeamName else if (awayWon) uiState.homeTeamName else null
+                        if (loser != null) Text("$loser foi eliminado do torneio", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                        else Text("Empate — prolongamento necessário", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                    }
                 }
             }
         }

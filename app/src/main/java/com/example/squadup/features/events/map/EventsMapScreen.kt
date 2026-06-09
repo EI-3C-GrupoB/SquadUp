@@ -25,19 +25,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,11 +66,16 @@ import com.example.squadup.core.utils.toIcon
 import org.maplibre.android.MapLibre
 import org.maplibre.android.annotations.IconFactory
 import org.maplibre.android.annotations.MarkerOptions
+import org.maplibre.android.annotations.PolylineOptions
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapView
+import kotlin.math.asin
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 private const val OPEN_FREE_MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty"
 
@@ -77,6 +87,8 @@ fun EventsMapScreen(
     onSportFilterChange: (SportType?) -> Unit,
     onPinSelected: (String?) -> Unit,
     onEventClick: (String) -> Unit,
+    onRadiusChange: (Float) -> Unit,
+    onMyLocationClick: () -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -114,6 +126,10 @@ fun EventsMapScreen(
                 pins = uiState.visiblePins,
                 selectedPin = uiState.selectedPin,
                 onPinSelected = onPinSelected,
+                userLatitude = uiState.userLatitude,
+                userLongitude = uiState.userLongitude,
+                userRadiusKm = uiState.userRadiusKm,
+                centerOnUserTrigger = uiState.centerOnUserRequest,
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -127,6 +143,10 @@ fun EventsMapScreen(
 
             MapActionButtons(
                 onClearSelectionClick = { onPinSelected(null) },
+                onMyLocationClick = {
+                    onPinSelected(null)
+                    onMyLocationClick()
+                },
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 14.dp)
@@ -136,6 +156,7 @@ fun EventsMapScreen(
                 availableCount = uiState.availableCount,
                 fullCount = uiState.fullCount,
                 privateCount = uiState.privateCount,
+                cancelledCount = uiState.cancelledCount,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 80.dp, end = 14.dp)
@@ -157,11 +178,9 @@ fun EventsMapScreen(
                             modifier = Modifier.size(22.dp),
                             strokeWidth = 2.dp
                         )
-
                         Spacer(modifier = Modifier.width(12.dp))
-
                         Text(
-                            text = "Loading events...",
+                            text = "A carregar eventos...",
                             color = SquadTextPrimary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
@@ -170,12 +189,21 @@ fun EventsMapScreen(
                 }
             }
 
+            // Radius slider: shown when no pin is selected and user location is known
+            if (uiState.selectedPin == null && uiState.userLatitude != null) {
+                RadiusSliderCard(
+                    radiusKm = uiState.userRadiusKm,
+                    onRadiusChange = onRadiusChange,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 16.dp, vertical = 18.dp)
+                )
+            }
+
             uiState.selectedPin?.let { selectedPin ->
                 SelectedEventCard(
                     pin = selectedPin,
-                    onOpenDetailsClick = {
-                        onEventClick(selectedPin.eventId)
-                    },
+                    onOpenDetailsClick = { onEventClick(selectedPin.eventId) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(horizontal = 16.dp, vertical = 18.dp)
@@ -190,6 +218,10 @@ private fun MapLibreEventsMap(
     pins: List<EventsMapPin>,
     selectedPin: EventsMapPin?,
     onPinSelected: (String?) -> Unit,
+    userLatitude: Double?,
+    userLongitude: Double?,
+    userRadiusKm: Float,
+    centerOnUserTrigger: Int,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -197,11 +229,12 @@ private fun MapLibreEventsMap(
 
     val mapView = remember {
         MapLibre.getInstance(context.applicationContext)
-
-        MapView(context).apply {
-            onCreate(null)
-        }
+        MapView(context).apply { onCreate(null) }
     }
+
+    var styleReady by remember { mutableStateOf(false) }
+    val initialCameraSet = remember { intArrayOf(0) }
+    val lastCenterTrigger = remember { intArrayOf(0) }
 
     DisposableEffect(lifecycleOwner, mapView) {
         val observer = LifecycleEventObserver { _, event ->
@@ -214,15 +247,12 @@ private fun MapLibreEventsMap(
                 else -> Unit
             }
         }
-
         lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(pins, selectedPin?.eventId) {
+    // Initialize style ONCE
+    LaunchedEffect(mapView) {
         mapView.getMapAsync { map ->
             map.setStyle(OPEN_FREE_MAP_STYLE_URL) {
                 map.uiSettings.apply {
@@ -234,68 +264,95 @@ private fun MapLibreEventsMap(
                     isZoomGesturesEnabled = true
                     isScrollGesturesEnabled = true
                 }
+                styleReady = true
+            }
+        }
+    }
 
-                map.clear()
+    // Update markers + circle whenever data changes (only after style is ready)
+    LaunchedEffect(styleReady, pins, selectedPin?.eventId, userLatitude, userLongitude, userRadiusKm, centerOnUserTrigger) {
+        if (!styleReady) return@LaunchedEffect
+        mapView.getMapAsync { map ->
+            map.clear()
 
-                val markerEventIds = mutableMapOf<Long, String>()
+            val markerEventIds = mutableMapOf<Long, String>()
 
-                pins.forEach { pin ->
-                    val marker = map.addMarker(
-                        MarkerOptions()
-                            .position(LatLng(pin.latitude, pin.longitude))
-                            .title(pin.title)
-                            .snippet(pin.venue)
-                            .icon(
-                                IconFactory
-                                    .getInstance(context)
-                                    .fromBitmap(
-                                        createPinBitmap(
-                                            color = pinColor(pin.status),
-                                            selected = selectedPin?.eventId == pin.eventId
-                                        )
-                                    )
+            // Radius circle (outline only) + user location pin
+            if (userLatitude != null && userLongitude != null) {
+                val userLatLng = LatLng(userLatitude, userLongitude)
+                map.addPolyline(
+                    PolylineOptions()
+                        .addAll(createCirclePoints(userLatLng, userRadiusKm.toDouble()))
+                        .color(AndroidColor.argb(210, 255, 100, 20))
+                        .width(2.5f)
+                )
+                map.addMarker(
+                    MarkerOptions()
+                        .position(userLatLng)
+                        .title("A tua localização")
+                        .icon(IconFactory.getInstance(context).fromBitmap(createUserLocationBitmap()))
+                )
+            }
+
+            // Event pins
+            pins.forEach { pin ->
+                val marker = map.addMarker(
+                    MarkerOptions()
+                        .position(LatLng(pin.latitude, pin.longitude))
+                        .title(pin.title)
+                        .snippet(pin.venue)
+                        .icon(
+                            IconFactory.getInstance(context).fromBitmap(
+                                createPinBitmap(
+                                    color = pinColor(pin.status),
+                                    selected = selectedPin?.eventId == pin.eventId
+                                )
                             )
+                        )
+                )
+                marker?.let { markerEventIds[it.id] = pin.eventId }
+            }
+
+            map.setOnMarkerClickListener { marker ->
+                onPinSelected(markerEventIds[marker.id])
+                true
+            }
+
+            // Camera logic — "center on user" always wins over selected pin
+            when {
+                centerOnUserTrigger != lastCenterTrigger[0] && userLatitude != null && userLongitude != null -> {
+                    lastCenterTrigger[0] = centerOnUserTrigger
+                    map.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(LatLng(userLatitude, userLongitude), 13.0),
+                        800
                     )
-
-                    marker?.let {
-                        markerEventIds[it.id] = pin.eventId
-                    }
                 }
-
-                map.setOnMarkerClickListener { marker ->
-                    onPinSelected(markerEventIds[marker.id])
-                    true
+                selectedPin != null -> {
+                    map.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(selectedPin.latitude, selectedPin.longitude), 14.5
+                        ), 600
+                    )
                 }
-
-                when {
-                    selectedPin != null -> {
-                        map.animateCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(selectedPin.latitude, selectedPin.longitude),
-                                14.5
-                            ),
-                            600
-                        )
-                    }
-
-                    pins.isNotEmpty() -> {
-                        val bounds = LatLngBounds.Builder().apply {
-                            pins.forEach { pin ->
-                                include(LatLng(pin.latitude, pin.longitude))
-                            }
-                        }.build()
-
-                        map.animateCamera(
-                            CameraUpdateFactory.newLatLngBounds(bounds, 90),
-                            700
-                        )
-                    }
-
-                    else -> {
-                        map.cameraPosition = CameraPosition.Builder()
-                            .target(LatLng(41.6932, -8.8329)) // Viana do Castelo
-                            .zoom(12.0)
-                            .build()
+                initialCameraSet[0] == 0 -> {
+                    initialCameraSet[0] = 1
+                    when {
+                        userLatitude != null && userLongitude != null ->
+                            map.animateCamera(
+                                CameraUpdateFactory.newLatLngZoom(LatLng(userLatitude, userLongitude), 13.0),
+                                600
+                            )
+                        pins.isNotEmpty() -> {
+                            val bounds = LatLngBounds.Builder().apply {
+                                pins.forEach { include(LatLng(it.latitude, it.longitude)) }
+                            }.build()
+                            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 90), 700)
+                        }
+                        else ->
+                            map.cameraPosition = CameraPosition.Builder()
+                                .target(LatLng(41.6932, -8.8329))
+                                .zoom(12.0)
+                                .build()
                     }
                 }
             }
@@ -310,55 +367,77 @@ private fun MapLibreEventsMap(
 
 private fun pinColor(status: EventsMapPinStatus): Int {
     return when (status) {
-        EventsMapPinStatus.AVAILABLE -> AndroidColor.rgb(46, 125, 50)     // verde
-        EventsMapPinStatus.FULL -> AndroidColor.rgb(211, 47, 47)          // vermelho
-        EventsMapPinStatus.PRIVATE -> AndroidColor.rgb(123, 31, 162)      // roxo
-        EventsMapPinStatus.CANCELLED -> AndroidColor.rgb(117, 117, 117)   // cinzento
-        EventsMapPinStatus.FINISHED -> AndroidColor.rgb(117, 117, 117)    // cinzento
+        EventsMapPinStatus.AVAILABLE -> AndroidColor.rgb(46, 125, 50)
+        EventsMapPinStatus.FULL -> AndroidColor.rgb(211, 47, 47)
+        EventsMapPinStatus.PRIVATE -> AndroidColor.rgb(123, 31, 162)
+        EventsMapPinStatus.CANCELLED -> AndroidColor.rgb(117, 117, 117)
+        EventsMapPinStatus.FINISHED -> AndroidColor.rgb(117, 117, 117)
     }
 }
 
-private fun createPinBitmap(
-    color: Int,
-    selected: Boolean
-): Bitmap {
-    val size = if (selected) 58 else 46
-    val radius = if (selected) 18f else 15f
+private fun createPinBitmap(color: Int, selected: Boolean): Bitmap {
+    val size = if (selected) 84 else 68
+    val radius = if (selected) 26f else 21f
+    val centerX = size / 2f
+    val centerY = if (selected) 30f else 24f
 
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
 
-    val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    canvas.drawCircle(centerX + 2f, centerY + 3f, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
         this.color = AndroidColor.argb(70, 0, 0, 0)
-    }
-
-    val pinPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    })
+    canvas.drawCircle(centerX, centerY, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
         this.color = color
-    }
-
-    val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    })
+    canvas.drawCircle(centerX, centerY, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
         this.color = AndroidColor.WHITE
         style = Paint.Style.STROKE
-        strokeWidth = if (selected) 5f else 4f
-    }
-
-    val centerX = size / 2f
-    val centerY = if (selected) 22f else 18f
-
-    canvas.drawCircle(centerX + 2f, centerY + 3f, radius, shadowPaint)
-    canvas.drawCircle(centerX, centerY, radius, pinPaint)
-    canvas.drawCircle(centerX, centerY, radius, borderPaint)
-
-    canvas.drawCircle(
-        centerX,
-        centerY,
-        if (selected) 6f else 5f,
-        Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            this.color = AndroidColor.WHITE
-        }
-    )
-
+        strokeWidth = if (selected) 6f else 5f
+    })
+    canvas.drawCircle(centerX, centerY, if (selected) 8f else 6f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        this.color = AndroidColor.WHITE
+    })
     return bitmap
+}
+
+private fun createUserLocationBitmap(): Bitmap {
+    val size = 60
+    val center = size / 2f
+    val radius = 20f
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    canvas.drawCircle(center + 2f, center + 3f, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.argb(60, 0, 0, 0)
+    })
+    canvas.drawCircle(center, center, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.rgb(25, 118, 210)
+    })
+    canvas.drawCircle(center, center, radius, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.WHITE
+        style = Paint.Style.STROKE
+        strokeWidth = 5f
+    })
+    canvas.drawCircle(center, center, 6f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = AndroidColor.WHITE
+    })
+    return bitmap
+}
+
+private fun createCirclePoints(center: LatLng, radiusKm: Double, numPoints: Int = 64): List<LatLng> {
+    val earthRadius = 6371.0
+    val d = radiusKm / earthRadius
+    val latRad = Math.toRadians(center.latitude)
+    val lonRad = Math.toRadians(center.longitude)
+    return (0..numPoints).map { i ->
+        val angle = Math.toRadians((360.0 / numPoints) * i)
+        val newLatRad = asin(sin(latRad) * cos(d) + cos(latRad) * sin(d) * cos(angle))
+        val newLonRad = lonRad + atan2(
+            sin(angle) * sin(d) * cos(latRad),
+            cos(d) - sin(latRad) * sin(newLatRad)
+        )
+        LatLng(Math.toDegrees(newLatRad), Math.toDegrees(newLonRad))
+    }
 }
 
 @Composable
@@ -375,11 +454,10 @@ private fun SportFilterRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SportFilterChip(
-            text = "All",
+            text = "Todos",
             selected = selectedSport == null,
             onClick = { onSportFilterChange(null) }
         )
-
         SportType.entries.forEach { sportType ->
             SportFilterChip(
                 text = sportType.name.lowercase().replaceFirstChar { it.uppercase() },
@@ -411,13 +489,14 @@ private fun SportFilterChip(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Icon(
-                imageVector = icon?.toIcon() ?: Icons.Outlined.SportsSoccer,
-                contentDescription = null,
-                tint = if (selected) Color.White else SquadOrange,
-                modifier = Modifier.size(18.dp)
-            )
-
+            if (icon != null) {
+                Icon(
+                    imageVector = icon.toIcon(),
+                    contentDescription = null,
+                    tint = if (selected) Color.White else SquadOrange,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
             Text(
                 text = text,
                 color = if (selected) Color.White else SquadTextPrimary,
@@ -431,21 +510,15 @@ private fun SportFilterChip(
 @Composable
 private fun MapActionButtons(
     onClearSelectionClick: () -> Unit,
+    onMyLocationClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        FloatingMapButton(
-            icon = Icons.Outlined.Tune,
-            onClick = {}
-        )
-
-        FloatingMapButton(
-            icon = Icons.Outlined.MyLocation,
-            onClick = onClearSelectionClick
-        )
+        FloatingMapButton(icon = Icons.Outlined.Tune, onClick = onClearSelectionClick)
+        FloatingMapButton(icon = Icons.Outlined.MyLocation, onClick = onMyLocationClick)
     }
 }
 
@@ -477,6 +550,7 @@ private fun MapStatsCard(
     availableCount: Int,
     fullCount: Int,
     privateCount: Int,
+    cancelledCount: Int,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -489,34 +563,83 @@ private fun MapStatsCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            MapStatRow("Available", availableCount, Color(0xFF2E7D32))
-            MapStatRow("Full", fullCount, Color(0xFFD32F2F))
-            MapStatRow("Private", privateCount, Color(0xFF7B1FA2))
+            MapStatRow("Disponível", availableCount, Color(0xFF2E7D32))
+            MapStatRow("Cheio", fullCount, Color(0xFFD32F2F))
+            MapStatRow("Privado", privateCount, Color(0xFF7B1FA2))
+            MapStatRow("Cancelado", cancelledCount, Color(0xFF757575))
         }
     }
 }
 
 @Composable
-private fun MapStatRow(
-    label: String,
-    value: Int,
-    color: Color
-) {
+private fun MapStatRow(label: String, value: Int, color: Color) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .background(color, CircleShape)
-        )
-
+        Box(modifier = Modifier.size(8.dp).background(color, CircleShape))
         Spacer(modifier = Modifier.width(6.dp))
-
         Text(
             text = "$value $label",
             fontSize = 11.sp,
             color = SquadTextPrimary,
             fontWeight = FontWeight.SemiBold
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RadiusSliderCard(
+    radiusKm: Float,
+    onRadiusChange: (Float) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = SquadSurface.copy(alpha = 0.96f),
+        shape = RoundedCornerShape(18.dp),
+        shadowElevation = 8.dp
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(SquadOrange.copy(alpha = 0.25f), CircleShape)
+                )
+                Box(
+                    modifier = Modifier
+                        .padding(start = 3.dp)
+                        .size(7.dp)
+                        .background(SquadOrange, CircleShape)
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    text = "Raio de pesquisa",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = SquadTextSecondary,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "${radiusKm.toInt()} km",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SquadOrange
+                )
+            }
+            Slider(
+                value = radiusKm,
+                onValueChange = onRadiusChange,
+                valueRange = 1f..50f,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp),
+                colors = SliderDefaults.colors(
+                    thumbColor = SquadOrange,
+                    activeTrackColor = SquadOrange,
+                    inactiveTrackColor = SquadOrange.copy(alpha = 0.2f)
+                )
+            )
+        }
     }
 }
 
@@ -532,12 +655,8 @@ private fun SelectedEventCard(
         shape = RoundedCornerShape(18.dp),
         shadowElevation = 10.dp
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = pin.sportType.name.lowercase().replaceFirstChar { it.uppercase() },
                     color = SquadOrange,
@@ -547,28 +666,17 @@ private fun SelectedEventCard(
                         .background(SquadOrangeLight, RoundedCornerShape(999.dp))
                         .padding(horizontal = 10.dp, vertical = 5.dp)
                 )
-
                 Spacer(modifier = Modifier.weight(1f))
-
                 Text(
-                    text = pin.startsAt.ifBlank { "Soon" },
+                    text = pin.startsAt.ifBlank { "Em breve" },
                     color = SquadOrange,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
-
             Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = pin.title,
-                color = SquadTextPrimary,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold
-            )
-
+            Text(text = pin.title, color = SquadTextPrimary, fontSize = 17.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
-
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
@@ -576,55 +684,36 @@ private fun SelectedEventCard(
                     tint = SquadTextSecondary,
                     modifier = Modifier.size(16.dp)
                 )
-
                 Spacer(modifier = Modifier.width(4.dp))
-
                 Text(
-                    text = pin.venue.ifBlank { "Location not available" },
+                    text = pin.venue.ifBlank { "Localização não disponível" },
                     color = SquadTextSecondary,
                     fontSize = 13.sp
                 )
             }
-
             Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Outlined.People,
                         contentDescription = null,
                         tint = SquadTextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
-
                     Spacer(modifier = Modifier.width(6.dp))
-
                     Text(
-                        text = "${pin.registeredCount}/${pin.totalSpots} registered",
+                        text = "${pin.registeredCount}/${pin.totalSpots} inscritos",
                         color = SquadTextSecondary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-
                 Button(
                     onClick = onOpenDetailsClick,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = SquadOrange,
-                        contentColor = Color.White
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White)
                 ) {
-                    Text(
-                        text = "View Details",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(text = "Ver Detalhes", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

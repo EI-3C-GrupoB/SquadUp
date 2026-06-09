@@ -12,10 +12,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
@@ -44,137 +46,174 @@ fun LiveMatchPreMatch(
                 .background(SquadBackground)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Hero matchup card
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
-                shape = RoundedCornerShape(16.dp),
-                shadowElevation = 3.dp
+            // ── Hero gradient banner ──────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.linearGradient(listOf(Color(0xFFB80000), SquadOrange, Color(0xFFFF6D00)))
+                    )
+                    .padding(horizontal = 24.dp, vertical = 28.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    // Teams
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Badge PRÉ-JOGO
+                    Surface(
+                        color = Color.White.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(999.dp)
+                    ) {
+                        Text(
+                            "PRÉ-JOGO",
+                            fontSize = 10.sp, fontWeight = FontWeight.ExtraBold,
+                            color = Color.White, letterSpacing = 1.sp,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp)
+                        )
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+
+                    // Teams VS
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        TeamBadge(uiState.homeTeamAbbr, uiState.homeTeamName, modifier = Modifier.weight(1f))
-                        Text(
-                            "VS",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = SquadGray,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        TeamBadge(uiState.awayTeamAbbr, uiState.awayTeamName, modifier = Modifier.weight(1f))
+                        HeroTeamBadge(uiState.homeTeamAbbr, uiState.homeTeamName, Modifier.weight(1f))
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        ) {
+                            Text("VS", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                            Text("0  –  0", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.5f))
+                        }
+                        HeroTeamBadge(uiState.awayTeamAbbr, uiState.awayTeamName, Modifier.weight(1f))
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider(color = SquadGrayLight)
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(24.dp))
 
-                    // Date + Venue
+                    // Date & venue chips
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                            Icon(Icons.Outlined.CalendarMonth, null, tint = SquadOrange, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Column {
-                                Text(uiState.scheduledDate, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
-                                Text(uiState.scheduledTime, fontSize = 12.sp, color = SquadTextSecondary)
-                            }
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                            Icon(Icons.Outlined.LocationOn, null, tint = SquadOrange, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(uiState.venue, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = SquadTextPrimary)
+                        InfoChip(icon = Icons.Outlined.CalendarMonth, text = "${uiState.scheduledDate}  ${uiState.scheduledTime}")
+                        if (uiState.venue.isNotBlank()) {
+                            Spacer(Modifier.width(8.dp))
+                            InfoChip(
+                                icon = Icons.Outlined.LocationOn,
+                                text = uiState.venue,
+                                maxLines = 1
+                            )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            // ── Players section ───────────────────────────────────────────────
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                Spacer(Modifier.height(24.dp))
 
-            // Players per team
-            Text(
-                stringResource(R.string.liveMatch_players_title),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = SquadTextSecondary,
-                letterSpacing = 0.5.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(R.string.liveMatch_players_title),
+                        fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                        color = SquadTextSecondary, letterSpacing = 0.6.sp,
+                        modifier = Modifier.weight(1f)
+                    )
+                    val totalPlayers = uiState.homePlayers.size + uiState.awayPlayers.size
+                    if (totalPlayers > 0) {
+                        Surface(color = SquadOrangeLight, shape = RoundedCornerShape(999.dp)) {
+                            Text(
+                                "$totalPlayers jogadores",
+                                fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = SquadOrange,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                PlayerListCard(
-                    teamAbbr = uiState.homeTeamAbbr,
-                    teamName = uiState.homeTeamName,
-                    players = uiState.homePlayers,
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                PlayerListCard(
-                    teamAbbr = uiState.awayTeamAbbr,
-                    teamName = uiState.awayTeamName,
-                    players = uiState.awayPlayers,
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
+                Spacer(Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    PlayerListCard(
+                        teamAbbr = uiState.homeTeamAbbr,
+                        teamName = uiState.homeTeamName,
+                        players = uiState.homePlayers,
+                        modifier = Modifier.weight(1f)
+                    )
+                    PlayerListCard(
+                        teamAbbr = uiState.awayTeamAbbr,
+                        teamName = uiState.awayTeamName,
+                        players = uiState.awayPlayers,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(Modifier.height(28.dp))
+
+                Button(
+                    onClick = onStartMatch,
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                ) {
+                    Icon(Icons.Outlined.PlayArrow, null, modifier = Modifier.size(22.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.liveMatch_start_match), fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+                }
+
+                Spacer(Modifier.height(88.dp))
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Start Match
-            Button(
-                onClick = onStartMatch,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = SquadOrange,
-                    contentColor = Color.White
-                )
-            ) {
-                Icon(Icons.Outlined.PlayArrow, null, modifier = Modifier.size(22.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    stringResource(R.string.liveMatch_start_match),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            }
-
-            Spacer(modifier = Modifier.height(88.dp))
         }
     }
 }
 
 @Composable
-private fun TeamBadge(abbr: String, name: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+private fun HeroTeamBadge(abbr: String, name: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
-                .size(52.dp)
-                .background(SquadOrange, RoundedCornerShape(12.dp)),
+                .size(64.dp)
+                .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Text(abbr, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+            Text(abbr, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(name, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            name, fontSize = 13.sp, fontWeight = FontWeight.Bold,
+            color = Color.White, textAlign = TextAlign.Center, maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun InfoChip(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    maxLines: Int = 2
+) {
+    Surface(
+        color = Color.White.copy(alpha = 0.18f),
+        shape = RoundedCornerShape(999.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Icon(icon, null, tint = Color.White, modifier = Modifier.size(13.dp))
+            Text(text, fontSize = 11.sp, color = Color.White, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
+        }
     }
 }
 
@@ -188,57 +227,54 @@ private fun PlayerListCard(
     Surface(
         modifier = modifier,
         color = Color.White,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         shadowElevation = 2.dp
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            // Header
+        Column(modifier = Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .background(SquadOrange, RoundedCornerShape(6.dp)),
+                    modifier = Modifier.size(30.dp).background(SquadOrange, RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(teamAbbr, fontSize = 8.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                 }
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    "${players.size} players",
-                    fontSize = 11.sp,
-                    color = SquadTextSecondary
-                )
+                Spacer(Modifier.width(8.dp))
+                Column {
+                    Text(teamName, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text("${players.size} jogadores", fontSize = 10.sp, color = SquadTextSecondary)
+                }
             }
 
             if (players.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
                 HorizontalDivider(color = SquadGrayLight)
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(Modifier.height(8.dp))
 
-                players.forEach { player ->
+                players.take(6).forEach { player ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 3.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .background(SquadOrangeLight, CircleShape),
+                            modifier = Modifier.size(26.dp).background(SquadOrangeLight, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(player.initials, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
                         }
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            player.name,
-                            fontSize = 11.sp,
-                            color = SquadTextPrimary,
-                            maxLines = 1
-                        )
+                        Spacer(Modifier.width(7.dp))
+                        Text(player.name, fontSize = 12.sp, color = SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
+                if (players.size > 6) {
+                    Spacer(Modifier.height(4.dp))
+                    Text("+ ${players.size - 6} mais", fontSize = 10.sp, color = SquadTextSecondary)
+                }
+            } else {
+                Spacer(Modifier.height(12.dp))
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text("Sem jogadores", fontSize = 11.sp, color = SquadGray, textAlign = TextAlign.Center)
+                }
+                Spacer(Modifier.height(8.dp))
             }
         }
     }

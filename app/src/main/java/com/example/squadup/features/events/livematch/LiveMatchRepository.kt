@@ -1,6 +1,7 @@
 package com.example.squadup.features.events.livematch
 
 import com.example.squadup.core.SupabaseClientProvider
+import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.SportType
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -23,6 +24,7 @@ class LiveMatchRepository(
                 .decodeSingle<LiveMatchGameRow>()
             val event = game.eventId?.let { getEvent(it) }
             val modality = event?.modalityId?.let { getModality(it) }
+            val formato = event?.formatoId?.let { getFormato(it) }
             val gameTeams = supabaseClient
                 .from("jogo_equipa")
                 .select {
@@ -32,14 +34,21 @@ class LiveMatchRepository(
                 }
                 .decodeList<LiveMatchGameTeamRow>()
             val teams = supabaseClient.from("equipa").select().decodeList<LiveMatchTeamRow>().associateBy { it.id }
-            val lineups = supabaseClient
-                .from("lineup")
-                .select {
-                    filter {
-                        eq("jogo_id", game.id)
+            // Jogadores via inscricao.equipa_id (onde estão realmente atribuídos)
+            val eventId = game.eventId
+            val registrations: List<LiveMatchLineupRow> = if (eventId != null) {
+                supabaseClient.from("inscricao")
+                    .select {
+                        filter {
+                            eq("evento_id", eventId)
+                            eq("estado_inscricao", "aceite")
+                        }
                     }
-                }
-                .decodeList<LiveMatchLineupRow>()
+                    .decodeList<LiveMatchInscricaoRow>()
+                    .filter { it.teamId != null }
+                    .map { LiveMatchLineupRow(id = it.id, teamId = it.teamId, userId = it.userId, gameId = game.id) }
+            } else emptyList()
+            val lineups = registrations
             val users = supabaseClient.from("utilizador").select().decodeList<LiveMatchUserRow>().associateBy { it.id }
             val stats = supabaseClient
                 .from("estatistica_jogo")
@@ -60,7 +69,7 @@ class LiveMatchRepository(
                 }
                 .decodeList<LiveMatchTimelineRow>()
 
-            Result.success(game.toUiState(event, modality, gameTeams, teams, lineups, users, stats, actions, timeline))
+            Result.success(game.toUiState(event, modality, formato, gameTeams, teams, lineups, users, stats, actions, timeline))
         } catch (exception: Exception) {
             Result.failure(exception)
         }
@@ -110,6 +119,51 @@ class LiveMatchRepository(
         } catch (exception: Exception) {
             Result.failure(exception)
         }
+    }
+
+    suspend fun updateScore(gameId: String, homeTeamId: Int?, awayTeamId: Int?, homeScore: Int, awayScore: Int): Result<Unit> {
+        return try {
+            val gid = gameId.toIntOrNull() ?: return Result.failure(Exception("gameId inválido"))
+            val homeWon = homeScore > awayScore
+            val awayWon = awayScore > homeScore
+            if (homeTeamId != null) {
+                supabaseClient.from("jogo_equipa")
+                    .update(LiveMatchScoreUpdateRow(resultado = homeScore.toString(), isVencedor = if (homeWon) true else if (awayWon) false else null)) {
+                        filter { eq("jogo_id", gid); eq("equipa_id", homeTeamId) }
+                    }
+            }
+            if (awayTeamId != null) {
+                supabaseClient.from("jogo_equipa")
+                    .update(LiveMatchScoreUpdateRow(resultado = awayScore.toString(), isVencedor = if (awayWon) true else if (homeWon) false else null)) {
+                        filter { eq("jogo_id", gid); eq("equipa_id", awayTeamId) }
+                    }
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun markLoserEliminated(eventId: String, loserTeamId: Int?): Result<Unit> {
+        if (loserTeamId == null) return Result.success(Unit)
+        return try {
+            val eid = eventId.toIntOrNull() ?: return Result.failure(Exception("eventId inválido"))
+            supabaseClient.from("evento_equipa")
+                .update(LiveMatchEventoEquipaStatusRow(estado = "eliminada")) {
+                    filter { eq("evento_id", eid); eq("equipa_id", loserTeamId) }
+                }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun getFormato(formatoId: Int): LiveMatchFormatoRow? {
+        return runCatching {
+            supabaseClient.from("formato")
+                .select { filter { eq("id", formatoId) } }
+                .decodeSingle<LiveMatchFormatoRow>()
+        }.getOrNull()
     }
 
     private suspend fun getEvent(eventId: Int): LiveMatchEventRow? {
@@ -174,6 +228,7 @@ class LiveMatchRepository(
     private fun LiveMatchGameRow.toUiState(
         event: LiveMatchEventRow?,
         modality: LiveMatchModalityRow?,
+        formato: LiveMatchFormatoRow?,
         gameTeams: List<LiveMatchGameTeamRow>,
         teams: Map<Int, LiveMatchTeamRow>,
         lineups: List<LiveMatchLineupRow>,
@@ -198,8 +253,10 @@ class LiveMatchRepository(
 
         return LiveMatchUiState(
             gameId = id.toString(),
+            eventId = event?.id?.toString().orEmpty(),
             phase = status.toPhase(),
             sportType = sportTypeFrom(modality?.name),
+            eventFormat = eventFormatFrom(formato?.name),
             homeTeamId = homeTeamId,
             awayTeamId = awayTeamId,
             homeTeamName = homeTeam?.name.orEmpty(),
@@ -317,6 +374,18 @@ class LiveMatchRepository(
             .take(3)
             .joinToString("") { it.first().uppercase() }
             .ifBlank { take(3).uppercase() }
+    }
+
+    private fun eventFormatFrom(name: String?): EventFormat? {
+        val n = name.orEmpty().lowercase()
+        return when {
+            "single" in n || "unico" in n || "único" in n -> EventFormat.SINGLE_MATCH
+            "liga" in n || "league" in n -> EventFormat.LEAGUE
+            "eliminat" in n && "grupo" !in n -> EventFormat.KNOCKOUT
+            "grupo" in n || "group" in n -> EventFormat.GROUP_KNOCKOUT
+            "livre" in n || "free" in n -> EventFormat.FREE
+            else -> null
+        }
     }
 
     private fun sportTypeFrom(name: String?): SportType {

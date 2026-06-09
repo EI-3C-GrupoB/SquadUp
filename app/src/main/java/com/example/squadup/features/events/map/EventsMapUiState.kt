@@ -7,7 +7,11 @@ data class EventsMapUiState(
     val selectedSport: SportType? = null,
     val selectedPinId: String? = null,
     val pins: List<EventsMapPin> = emptyList(),
-    val cameraBounds: EventsMapCameraBounds? = null
+    val cameraBounds: EventsMapCameraBounds? = null,
+    val userLatitude: Double? = null,
+    val userLongitude: Double? = null,
+    val userRadiusKm: Float = 5f,
+    val centerOnUserRequest: Int = 0
 ) {
     val visiblePins: List<EventsMapPin>
         get() = pins.filter { selectedSport == null || it.sportType == selectedSport }
@@ -23,4 +27,7 @@ data class EventsMapUiState(
 
     val privateCount: Int
         get() = pins.count { it.status == EventsMapPinStatus.PRIVATE }
+
+    val cancelledCount: Int
+        get() = pins.count { it.status == EventsMapPinStatus.CANCELLED || it.status == EventsMapPinStatus.FINISHED }
 }

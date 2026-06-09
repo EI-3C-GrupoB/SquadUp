@@ -33,9 +33,11 @@ fun LiveMatchRoute(
         onShowGoalForm = viewModel::onShowGoalForm,
         onShowInfractionForm = viewModel::onShowInfractionForm,
         onShowSubstitutionForm = viewModel::onShowSubstitutionForm,
+        onShowAdvancedStatsForm = viewModel::onShowAdvancedStatsForm,
         onRecordGoal = viewModel::onRecordGoal,
         onRecordInfraction = viewModel::onRecordInfraction,
         onRecordSubstitution = viewModel::onRecordSubstitution,
         onRecordTimeout = viewModel::onRecordTimeout,
+        onRecordAdvancedStat = viewModel::onRecordAdvancedStat,
     )
 }

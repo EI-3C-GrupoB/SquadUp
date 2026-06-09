@@ -12,7 +12,7 @@ fun HomeRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
-    onViewMatchDetailsClick: () -> Unit,
+    onViewMatchDetailsClick: (gameId: String) -> Unit,
     onSeeAllEventsClick: () -> Unit,
     onJoinEventClick: (String) -> Unit,
     onEventDetailsClick: (String) -> Unit,

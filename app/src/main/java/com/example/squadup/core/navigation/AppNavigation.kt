@@ -167,8 +167,8 @@ fun AppNavigation() {
                 selectedRoute = AppRoutes.Home.route,
                 onNavItemClick = navigateWithBottomBar,
                 onNotificationsClick = openNotifications,
-                onViewMatchDetailsClick = {
-                    // TODO: navegar para detalhe do jogo
+                onViewMatchDetailsClick = { gameId ->
+                    navController.navigate(AppRoutes.LiveMatch.createRoute(gameId))
                 },
                 onSeeAllEventsClick = {
                     navController.navigate(AppRoutes.MyEvents.route)

@@ -6,6 +6,7 @@ import com.example.squadup.core.enums.SportType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class EventsMapViewModel : ViewModel() {
@@ -37,10 +38,26 @@ class EventsMapViewModel : ViewModel() {
     }
 
     fun onSportFilterChange(sportType: SportType?) {
-        _uiState.value = _uiState.value.copy(selectedSport = sportType)
+        _uiState.update { it.copy(selectedSport = sportType) }
     }
 
     fun onPinSelected(eventId: String?) {
-        _uiState.value = _uiState.value.copy(selectedPinId = eventId)
+        _uiState.update { it.copy(selectedPinId = eventId) }
+    }
+
+    fun onUserLocationReady(lat: Double, lon: Double) {
+        _uiState.update { it.copy(userLatitude = lat, userLongitude = lon) }
+    }
+
+    fun requestCenterOnUser(lat: Double, lon: Double) {
+        _uiState.update { it.copy(
+            userLatitude = lat,
+            userLongitude = lon,
+            centerOnUserRequest = it.centerOnUserRequest + 1
+        ) }
+    }
+
+    fun onRadiusChange(radius: Float) {
+        _uiState.update { it.copy(userRadiusKm = radius) }
     }
 }

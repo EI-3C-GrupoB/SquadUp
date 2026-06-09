@@ -102,7 +102,7 @@ fun CurrentMatchCard(
                     )
                 ) {
                     Text(
-                        text = stringResource(R.string.currentMatchCard_btn_details),
+                        text = "GERIR JOGO",
                         fontWeight = FontWeight.Bold
                     )
                 }

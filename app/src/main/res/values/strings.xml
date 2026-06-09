@@ -419,6 +419,10 @@
     <string name="liveMatch_form_team">TEAM</string>
     <string name="liveMatch_form_save">Save</string>
     <string name="liveMatch_form_optional">Optional</string>
+    <string name="liveMatch_form_sub_add">+ Adicionar substituição</string>
+    <string name="liveMatch_form_stats_title">Estatísticas</string>
+    <string name="liveMatch_form_stats_type">TIPO</string>
+    <string name="liveMatch_form_stats_value">VALOR</string>
     <string name="liveMatch_stat_shots">Shots</string>
     <string name="liveMatch_stat_shots_goal">Shots on Goal</string>
     <string name="liveMatch_stat_corners">Corners</string>
