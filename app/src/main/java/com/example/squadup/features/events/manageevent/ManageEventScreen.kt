@@ -48,6 +48,8 @@ fun ManageEventScreen(
     onEditEventClick: () -> Unit,
     onStatusActionClick: () -> Unit,
     onCancelEventClick: () -> Unit,
+    onAcceptIndividualRegistration: (Int) -> Unit,
+    onRejectIndividualRegistration: (Int) -> Unit,
     onViewAllRegistrationsClick: () -> Unit,
     onManageLiveClick: (String) -> Unit = {},
     isAdmin: Boolean,
@@ -125,6 +127,18 @@ fun ManageEventScreen(
                 color = SquadGray
             )
 
+            uiState.errorMessage?.let { message ->
+                Text(
+                    text = message,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = SquadError,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                )
+            }
+
             when (uiState.selectedTab) {
                 ManageEventTab.OVERVIEW -> OverviewTabContent(
                     uiState = uiState,
@@ -133,6 +147,8 @@ fun ManageEventScreen(
                     onStatusActionClick = onStatusActionClick,
                     onCancelEventClick = onCancelEventClick,
                     onViewAllRegistrationsClick = onViewAllRegistrationsClick,
+                    onAcceptIndividualRegistration = onAcceptIndividualRegistration,
+                    onRejectIndividualRegistration = onRejectIndividualRegistration,
                 )
                 ManageEventTab.TEAMS -> TeamsTabContent(
                     uiState = uiState,
@@ -145,6 +161,8 @@ fun ManageEventScreen(
                     onEditTeamClick = onEditTeamClick,
                     onDeleteTeamClick = onDeleteTeamClick,
                     onPlayerRemove = onPlayerRemove,
+                    onAcceptIndividualRegistration = onAcceptIndividualRegistration,
+                    onRejectIndividualRegistration = onRejectIndividualRegistration,
                 )
                 ManageEventTab.GAMES -> GamesTabContent(
                     uiState = uiState,

@@ -2,7 +2,11 @@ package com.example.squadup.features.events.manageevent
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -111,4 +115,114 @@ internal fun StatusBadge(status: EventStatus) {
             .background(bgColor, RoundedCornerShape(999.dp))
             .padding(horizontal = 10.dp, vertical = 4.dp)
     )
+}
+
+@Composable
+internal fun IndividualRegistrationRequestRow(
+    request: IndividualRegistrationRequestItem,
+    isLoading: Boolean,
+    actionsEnabled: Boolean,
+    onAccept: () -> Unit,
+    onReject: () -> Unit
+) {
+    val expLabel = request.experienceLevel?.toExperienceLabel() ?: "Experiência não definida"
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(SquadOrangeLight, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = request.initials,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SquadOrange
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = request.name,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = SquadTextPrimary
+                )
+                Text(
+                    text = expLabel,
+                    fontSize = 12.sp,
+                    color = SquadTextSecondary
+                )
+            }
+            if (request.requestedAt.isNotBlank()) {
+                Text(
+                    text = request.requestedAt,
+                    fontSize = 11.sp,
+                    color = SquadTextSecondary
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = onReject,
+                enabled = actionsEnabled && !isLoading,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = SquadError,
+                    disabledContentColor = SquadTextSecondary
+                )
+            ) {
+                Icon(Icons.Outlined.Close, null, modifier = Modifier.size(15.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Recusar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Button(
+                onClick = onAccept,
+                enabled = actionsEnabled && !isLoading,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SquadOrange,
+                    contentColor = Color.White,
+                    disabledContainerColor = SquadGray,
+                    disabledContentColor = SquadTextSecondary
+                )
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(15.dp),
+                        strokeWidth = 2.dp,
+                        color = Color.White
+                    )
+                } else {
+                    Icon(Icons.Outlined.Check, null, modifier = Modifier.size(15.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Aceitar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+private fun Int.toExperienceLabel(): String {
+    return when (this) {
+        1 -> "Beginner"
+        2 -> "Intermediate"
+        3 -> "Advanced"
+        else -> "Nível $this"
+    }
 }

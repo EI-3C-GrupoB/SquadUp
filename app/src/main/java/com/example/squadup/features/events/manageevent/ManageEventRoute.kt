@@ -51,6 +51,8 @@ fun ManageEventRoute(
         onEditEventClick = onEditEventClick,
         onStatusActionClick = viewModel::onStatusAction,
         onCancelEventClick = viewModel::onCancelEvent,
+        onAcceptIndividualRegistration = viewModel::acceptIndividualRegistration,
+        onRejectIndividualRegistration = viewModel::rejectIndividualRegistration,
         onManageLiveClick = onManageLiveClick,
         onViewAllRegistrationsClick = {},
         isAdmin = appUiState.isAdmin,

@@ -143,6 +143,8 @@ internal fun OverviewTabContent(
     onStatusActionClick: () -> Unit,
     onCancelEventClick: () -> Unit,
     onViewAllRegistrationsClick: () -> Unit,
+    onAcceptIndividualRegistration: (Int) -> Unit,
+    onRejectIndividualRegistration: (Int) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -241,6 +243,45 @@ internal fun OverviewTabContent(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        if (uiState.individualRegistrationRequests.isNotEmpty()) {
+            Text(
+                text = "Pedidos de participação",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = SquadTextPrimary
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.White,
+                shape = RoundedCornerShape(12.dp),
+                shadowElevation = 2.dp
+            ) {
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    uiState.individualRegistrationRequests.forEachIndexed { index, request ->
+                        IndividualRegistrationRequestRow(
+                            request = request,
+                            isLoading = uiState.activeRegistrationActionId == request.registrationId,
+                            actionsEnabled = uiState.activeRegistrationActionId == null ||
+                                    uiState.activeRegistrationActionId == request.registrationId,
+                            onAccept = { onAcceptIndividualRegistration(request.registrationId) },
+                            onReject = { onRejectIndividualRegistration(request.registrationId) }
+                        )
+                        if (index < uiState.individualRegistrationRequests.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                color = SquadGrayLight
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         // 5 — Inscrições recentes
         Row(

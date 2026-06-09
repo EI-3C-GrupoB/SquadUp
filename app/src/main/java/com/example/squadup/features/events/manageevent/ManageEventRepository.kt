@@ -8,6 +8,15 @@ import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.enums.TeamEventStatus
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -15,6 +24,31 @@ import java.util.Locale
 class ManageEventRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
 ) {
+    fun observeEvent(eventId: String): Flow<ManageEventUiState> = flow {
+        val parsedEventId = eventId.toIntOrNull()
+
+        if (parsedEventId == null) {
+            emit(
+                ManageEventUiState(
+                    errorMessage = "Evento inválido."
+                )
+            )
+            return@flow
+        }
+
+        emitAll(
+            observeEventTables(parsedEventId)
+                .map {
+                    getEvent(eventId).getOrElse { exception ->
+                        ManageEventUiState(
+                            eventId = eventId,
+                            errorMessage = exception.message ?: "Não foi possível carregar o evento."
+                        )
+                    }
+                }
+        )
+    }
+
     suspend fun getEvent(eventId: String): Result<ManageEventUiState> {
         return try {
             val event = supabaseClient
@@ -61,6 +95,44 @@ class ManageEventRepository(
         }
     }
 
+    suspend fun getPendingIndividualRegistrations(
+        eventId: String
+    ): Result<List<ManageEventRegistrationRow>> {
+        return try {
+            val parsedEventId = eventId.toIntOrNull()
+                ?: throw IllegalArgumentException("Evento inválido.")
+
+            val registrations = supabaseClient
+                .from("inscricao")
+                .select {
+                    filter {
+                        eq("evento_id", parsedEventId)
+                        eq("tipo_inscricao", "evento_individual")
+                        eq("estado_inscricao", "pendente")
+                    }
+                }
+                .decodeList<ManageEventRegistrationRow>()
+
+            Result.success(registrations)
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun acceptIndividualRegistration(registrationId: Int): Result<Unit> {
+        return updateIndividualRegistrationStatus(
+            registrationId = registrationId,
+            status = "aceite"
+        )
+    }
+
+    suspend fun rejectIndividualRegistration(registrationId: Int): Result<Unit> {
+        return updateIndividualRegistrationStatus(
+            registrationId = registrationId,
+            status = "recusada"
+        )
+    }
+
     suspend fun updateStatus(eventId: String, status: EventStatus): Result<Unit> {
         return try {
             supabaseClient
@@ -74,6 +146,56 @@ class ManageEventRepository(
         } catch (exception: Exception) {
             Result.failure(exception)
         }
+    }
+
+    private suspend fun updateIndividualRegistrationStatus(
+        registrationId: Int,
+        status: String
+    ): Result<Unit> {
+        return try {
+            supabaseClient
+                .from("inscricao")
+                .update(ManageEventRegistrationStatusUpdateRow(status)) {
+                    filter {
+                        eq("id", registrationId)
+                        eq("tipo_inscricao", "evento_individual")
+                    }
+                }
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
+    }
+
+    private fun observeEventTables(eventId: Int): Flow<Unit> = flow {
+        val channelSuffix = "${eventId}_${System.currentTimeMillis()}"
+
+        val eventChannel = supabaseClient.channel("manage_event_evento_$channelSuffix")
+        val registrationsChannel = supabaseClient.channel("manage_event_inscricao_$channelSuffix")
+
+        val eventChanges = eventChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "evento"
+            }
+            .map { Unit }
+
+        val registrationChanges = registrationsChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "inscricao"
+            }
+            .map { Unit }
+
+        eventChannel.subscribe()
+        registrationsChannel.subscribe()
+
+        emitAll(
+            merge(
+                eventChanges,
+                registrationChanges
+            ).onStart {
+                emit(Unit)
+            }
+        )
     }
 
     private suspend fun getModality(modalityId: Int): ManageEventModalityRow? {
@@ -123,8 +245,24 @@ class ManageEventRepository(
     ): ManageEventUiState {
         val usersById = users.associateBy { it.id }
         val teamsById = teams.associateBy { it.id }
-        val teamRegistrations = registrations.filter { it.teamId != null }
-        val freeAgentRegistrations = registrations.filter { it.teamId == null && it.userId != null }
+        val teamRegistrations = registrations.filter {
+            it.teamId != null &&
+                    it.registrationType != "equipa_global" &&
+                    it.status != "recusada" &&
+                    it.status != "recusado" &&
+                    it.status != "banido"
+        }
+        val individualRegistrations = registrations.filter {
+            it.teamId == null &&
+                    it.userId != null &&
+                    it.registrationType == "evento_individual"
+        }
+        val acceptedIndividualRegistrations = individualRegistrations.filter { it.status == "aceite" }
+        val pendingIndividualRegistrations = individualRegistrations.filter { it.status == "pendente" }
+        val waitlistRegistrations = registrations.filter { registration ->
+            registration.status == "pendente" &&
+                    registration.registrationType != "evento_individual"
+        }
         val sportType = sportTypeFrom(modality?.name)
         val scheduledGames = games.map { game ->
             game.toScheduledGame(
@@ -153,13 +291,16 @@ class ManageEventRepository(
             status = status.toEventStatus(),
             isPublic = isPrivate != true,
             allowTeams = maxTeams != null,
-            allowFreeAgents = freeAgentRegistrations.isNotEmpty(),
+            allowFreeAgents = participationType == "individual" ||
+                    participationType == "individual_e_equipa" ||
+                    acceptedIndividualRegistrations.isNotEmpty() ||
+                    pendingIndividualRegistrations.isNotEmpty(),
             registeredTeams = teamRegistrations.mapNotNull { it.teamId }.distinct().size,
             maxTeams = maxTeams ?: participationLimit ?: 0,
-            activePlayers = registrations.count { it.status != "recusado" && it.status != "banido" },
-            freeAgentsCount = freeAgentRegistrations.size,
+            activePlayers = acceptedIndividualRegistrations.size + teamRegistrations.count { it.status == "aceite" },
+            freeAgentsCount = acceptedIndividualRegistrations.size,
             entryFee = priceLabel(price ?: entryFee),
-            waitlistCount = registrations.count { it.status == "pendente" },
+            waitlistCount = waitlistRegistrations.size + pendingIndividualRegistrations.size,
             isSingleMatch = eventType == "jogo_amigavel" || games.size <= 1,
             completedGames = games.count { it.status == "terminado" },
             totalGames = games.size,
@@ -185,7 +326,7 @@ class ManageEventRepository(
                         usersById = usersById
                     )
                 },
-            freeAgents = freeAgentRegistrations.mapNotNull { registration ->
+            freeAgents = acceptedIndividualRegistrations.mapNotNull { registration ->
                 val user = registration.userId?.let { usersById[it] } ?: return@mapNotNull null
                 FreeAgentItem(
                     id = user.id.toString(),
@@ -195,8 +336,7 @@ class ManageEventRepository(
                     experienceLevel = user.experienceLevel ?: 1
                 )
             },
-            waitlistItems = registrations
-                .filter { it.status == "pendente" }
+            waitlistItems = waitlistRegistrations
                 .mapIndexed { index, registration ->
                     val user = registration.userId?.let { usersById[it] }
                     val team = registration.teamId?.let { teamsById[it] }
@@ -206,6 +346,19 @@ class ManageEventRepository(
                         initials = (team?.name ?: user?.name.orEmpty()).initials(),
                         isTeam = team != null,
                         waitlistPosition = index + 1
+                    )
+                },
+            individualRegistrationRequests = pendingIndividualRegistrations
+                .sortedBy { it.createdAt.orEmpty() }
+                .mapNotNull { registration ->
+                    val user = registration.userId?.let { usersById[it] } ?: return@mapNotNull null
+                    IndividualRegistrationRequestItem(
+                        registrationId = registration.id,
+                        userId = user.id,
+                        name = user.name,
+                        initials = user.name.initials(),
+                        experienceLevel = user.experienceLevel,
+                        requestedAt = registration.createdAt.toShortDateTime()
                     )
                 },
             currentGame = scheduledGames.firstOrNull { it.status == GameStatus.LIVE }?.let {
@@ -357,7 +510,7 @@ class ManageEventRepository(
     private fun String?.toTeamEventStatus(): TeamEventStatus {
         return when (this) {
             "aceite" -> TeamEventStatus.CONFIRMED
-            "recusado", "banido" -> TeamEventStatus.WITHDRAWN
+            "recusada", "recusado", "banido" -> TeamEventStatus.WITHDRAWN
             else -> TeamEventStatus.PENDING
         }
     }

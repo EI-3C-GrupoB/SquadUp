@@ -29,6 +29,8 @@ data class ManageEventUiState(
     val totalGames: Int = 0,
     val matchProgress: Float = 0f,
     val selectedTab: ManageEventTab = ManageEventTab.OVERVIEW,
+    val errorMessage: String? = null,
+    val activeRegistrationActionId: Int? = null,
 
     // Overview
     val recentRegistrations: List<RecentRegistrationItem> = emptyList(),
@@ -42,6 +44,7 @@ data class ManageEventUiState(
     val freeAgents: List<FreeAgentItem> = emptyList(),
     val freeAgentsDisplayCount: Int = 5,
     val waitlistItems: List<WaitlistItem> = emptyList(),
+    val individualRegistrationRequests: List<IndividualRegistrationRequestItem> = emptyList(),
     val currentGame: CurrentGameBanner? = null,
 
     // Games
@@ -102,6 +105,15 @@ data class WaitlistItem(
     val initials: String,
     val isTeam: Boolean,
     val waitlistPosition: Int
+)
+
+data class IndividualRegistrationRequestItem(
+    val registrationId: Int,
+    val userId: Int,
+    val name: String,
+    val initials: String,
+    val experienceLevel: Int?,
+    val requestedAt: String
 )
 
 data class CurrentGameBanner(

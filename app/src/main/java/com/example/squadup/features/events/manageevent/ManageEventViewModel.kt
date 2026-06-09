@@ -3,9 +3,11 @@ package com.example.squadup.features.events.manageevent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.enums.EventStatus
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -14,19 +16,29 @@ class ManageEventViewModel : ViewModel() {
     private val repository = ManageEventRepository()
     private val _uiState = MutableStateFlow(ManageEventUiState())
     val uiState: StateFlow<ManageEventUiState> = _uiState.asStateFlow()
+    private var eventRealtimeJob: Job? = null
 
     fun loadEvent(eventId: String) {
         if (eventId.isBlank()) return
 
-        viewModelScope.launch {
-            repository.getEvent(eventId).onSuccess { event ->
-                _uiState.value = event.copy(
-                    selectedTab = _uiState.value.selectedTab,
-                    teamSearchQuery = _uiState.value.teamSearchQuery,
-                    freeAgentSearchQuery = _uiState.value.freeAgentSearchQuery,
-                    gameSearchQuery = _uiState.value.gameSearchQuery
-                )
-            }
+        eventRealtimeJob?.cancel()
+        eventRealtimeJob = viewModelScope.launch {
+            repository.observeEvent(eventId)
+                .catch { exception ->
+                    _uiState.update {
+                        it.copy(errorMessage = exception.message ?: "Não foi possível carregar o evento.")
+                    }
+                }
+                .collect { event ->
+                    _uiState.value = event.copy(
+                        selectedTab = _uiState.value.selectedTab,
+                        teamSearchQuery = _uiState.value.teamSearchQuery,
+                        freeAgentSearchQuery = _uiState.value.freeAgentSearchQuery,
+                        gameSearchQuery = _uiState.value.gameSearchQuery,
+                        activeRegistrationActionId = _uiState.value.activeRegistrationActionId,
+                        errorMessage = _uiState.value.errorMessage ?: event.errorMessage
+                    )
+                }
         }
     }
 
@@ -64,6 +76,20 @@ class ManageEventViewModel : ViewModel() {
         // Remoção ainda depende de regra de backend para inscrição/lineup.
     }
 
+    fun acceptIndividualRegistration(registrationId: Int) {
+        updateIndividualRegistrationStatus(
+            registrationId = registrationId,
+            update = repository::acceptIndividualRegistration
+        )
+    }
+
+    fun rejectIndividualRegistration(registrationId: Int) {
+        updateIndividualRegistrationStatus(
+            registrationId = registrationId,
+            update = repository::rejectIndividualRegistration
+        )
+    }
+
     fun onStatusAction() {
         val next = when (_uiState.value.status) {
             EventStatus.DRAFT -> EventStatus.REGISTRATION_OPEN
@@ -86,7 +112,45 @@ class ManageEventViewModel : ViewModel() {
 
         viewModelScope.launch {
             repository.updateStatus(eventId, status).onSuccess {
-                _uiState.update { it.copy(status = status) }
+                _uiState.update { it.copy(status = status, errorMessage = null) }
+            }.onFailure { exception ->
+                _uiState.update {
+                    it.copy(errorMessage = exception.message ?: "Não foi possível atualizar o evento.")
+                }
+            }
+        }
+    }
+
+    private fun updateIndividualRegistrationStatus(
+        registrationId: Int,
+        update: suspend (Int) -> Result<Unit>
+    ) {
+        if (_uiState.value.activeRegistrationActionId != null) return
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    activeRegistrationActionId = registrationId,
+                    errorMessage = null
+                )
+            }
+
+            update(registrationId).onSuccess {
+                _uiState.update { state ->
+                    state.copy(
+                        activeRegistrationActionId = null,
+                        errorMessage = null,
+                        individualRegistrationRequests = state.individualRegistrationRequests
+                            .filterNot { it.registrationId == registrationId }
+                    )
+                }
+            }.onFailure { exception ->
+                _uiState.update {
+                    it.copy(
+                        activeRegistrationActionId = null,
+                        errorMessage = exception.message ?: "Não foi possível atualizar a inscrição."
+                    )
+                }
             }
         }
     }
