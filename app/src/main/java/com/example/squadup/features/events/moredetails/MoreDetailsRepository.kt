@@ -111,20 +111,64 @@ class MoreDetailsRepository(
             }
             .decodeList<MoreDetailsRegistrationRow>()
 
-        return registrations.firstOrNull { registration ->
-            registration.registrationStatus != "recusada" &&
+        val activeRegistration = registrations.firstOrNull { registration ->
+            registration.registrationStatus.isActiveRegistrationStatus() &&
                     (
                             registration.registrationType == "evento_individual" ||
                                     registration.registrationType == "evento_equipa" ||
                                     registration.registrationType == "pedido_evento_equipa"
                             )
         }
+
+        if (activeRegistration != null) {
+            return activeRegistration
+        }
+
+        return getCurrentUserEventTeamRegistration(
+            eventId = eventId,
+            currentUserId = currentUserId
+        )
+    }
+
+    private suspend fun getCurrentUserEventTeamRegistration(
+        eventId: Int,
+        currentUserId: Int
+    ): MoreDetailsRegistrationRow? {
+        val eventTeam = supabaseClient
+            .from("evento_equipa")
+            .select {
+                filter {
+                    eq("evento_id", eventId)
+                    eq("capitao_user_id", currentUserId)
+                }
+            }
+            .decodeList<MoreDetailsEventTeamRow>()
+            .firstOrNull { it.status.isActiveEventTeamStatus() }
+            ?: return null
+
+        val status = when (eventTeam.status) {
+            "confirmada" -> "aceite"
+            "recusada", "cancelada" -> "recusada"
+            else -> "pendente"
+        }
+
+        return MoreDetailsRegistrationRow(
+            id = eventTeam.id.toInt(),
+            eventId = eventId,
+            teamId = eventTeam.teamId,
+            userId = currentUserId,
+            registrationStatus = status,
+            registrationType = if (status == "aceite") "evento_equipa" else "pedido_evento_equipa",
+            role = "capitao",
+            isCaptain = true
+        )
     }
     private fun observeEventTables(eventId: Int): Flow<Unit> = flow {
         val channelSuffix = "${eventId}_${System.currentTimeMillis()}"
 
         val eventChannel = supabaseClient.channel("more_details_evento_$channelSuffix")
         val registrationsChannel = supabaseClient.channel("more_details_inscricao_$channelSuffix")
+        val eventTeamsChannel = supabaseClient.channel("more_details_evento_equipa_$channelSuffix")
 
         val eventChanges = eventChannel
             .postgresChangeFlow<PostgresAction>(schema = "public") {
@@ -138,13 +182,21 @@ class MoreDetailsRepository(
             }
             .map { Unit }
 
+        val eventTeamChanges = eventTeamsChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") {
+                table = "evento_equipa"
+            }
+            .map { Unit }
+
         eventChannel.subscribe()
         registrationsChannel.subscribe()
+        eventTeamsChannel.subscribe()
 
         emitAll(
             merge(
                 eventChanges,
-                registrationChanges
+                registrationChanges,
+                eventTeamChanges
             ).onStart {
                 emit(Unit)
             }
@@ -370,13 +422,12 @@ class MoreDetailsRepository(
                     filter {
                         eq("evento_id", eventId)
                         eq("user_id", currentUserId)
-                        eq("tipo_inscricao", "evento_individual")
                     }
                 }
                 .decodeList<MoreDetailsRegistrationRow>()
 
-            if (existingRegistration.isNotEmpty()) {
-                throw Exception("Já tens uma inscrição individual neste evento.")
+            if (existingRegistration.any { it.isActiveEventParticipation() }) {
+                throw Exception("Já tens uma inscrição ou pedido activo neste evento.")
             }
 
             supabaseClient
@@ -396,5 +447,210 @@ class MoreDetailsRepository(
         } catch (exception: Exception) {
             Result.failure(exception)
         }
+    }
+
+    suspend fun getAvailableTeamsForEvent(
+        eventId: Int,
+        currentUserId: Int?
+    ): Result<List<MoreDetailsAvailableTeam>> {
+        return try {
+            if (currentUserId == null) {
+                throw Exception("Utilizador não encontrado.")
+            }
+
+            val teams = supabaseClient
+                .from("equipa")
+                .select()
+                .decodeList<MoreDetailsTeamRow>()
+
+            val registrations = supabaseClient
+                .from("inscricao")
+                .select()
+                .decodeList<MoreDetailsRegistrationRow>()
+
+            val eventTeams = supabaseClient
+                .from("evento_equipa")
+                .select {
+                    filter {
+                        eq("evento_id", eventId)
+                    }
+                }
+                .decodeList<MoreDetailsEventTeamRow>()
+
+            val teamsWithActiveEventRegistration = registrations
+                .filter { registration ->
+                    registration.eventId == eventId &&
+                            registration.teamId != null &&
+                            registration.registrationType in setOf("pedido_evento_equipa", "evento_equipa") &&
+                            registration.registrationStatus.isActiveRegistrationStatus()
+                }
+                .mapNotNull { it.teamId }
+                .toSet()
+
+            val unavailableTeamIds = eventTeams
+                .filter { eventTeam ->
+                    eventTeam.status.isActiveEventTeamStatus() &&
+                            eventTeam.teamId in teamsWithActiveEventRegistration
+                }
+                .map { it.teamId }
+                .toSet() + teamsWithActiveEventRegistration
+
+            val globalRegistrationsByTeam = registrations
+                .filter { registration ->
+                    registration.eventId == null &&
+                            registration.teamId != null &&
+                            registration.userId == currentUserId &&
+                            registration.registrationStatus.isActiveRegistrationStatus()
+                }
+                .associateBy { it.teamId }
+
+            val availableTeams = teams
+                .filter { team ->
+                    val currentUserTeamRegistration = globalRegistrationsByTeam[team.id]
+                    val canRegisterTeam = team.ownerId == currentUserId ||
+                            currentUserTeamRegistration?.role == "capitao" ||
+                            currentUserTeamRegistration?.isCaptain == true
+
+                    canRegisterTeam && team.id !in unavailableTeamIds
+                }
+                .sortedBy { it.name }
+                .map { team ->
+                    MoreDetailsAvailableTeam(
+                        id = team.id,
+                        name = team.name
+                    )
+                }
+
+            Result.success(availableTeams)
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
+    }
+
+    suspend fun joinEventWithTeam(
+        eventId: Int,
+        currentUserId: Int?,
+        teamId: Int
+    ): Result<Unit> {
+        return try {
+            if (currentUserId == null) {
+                throw Exception("Utilizador não encontrado.")
+            }
+
+            val currentUserRegistrations = supabaseClient
+                .from("inscricao")
+                .select {
+                    filter {
+                        eq("evento_id", eventId)
+                        eq("user_id", currentUserId)
+                    }
+                }
+                .decodeList<MoreDetailsRegistrationRow>()
+
+            if (currentUserRegistrations.any { it.isActiveEventParticipation() }) {
+                throw Exception("Já tens uma inscrição ou pedido activo neste evento.")
+            }
+
+            val availableTeams = getAvailableTeamsForEvent(
+                eventId = eventId,
+                currentUserId = currentUserId
+            ).getOrThrow()
+
+            if (availableTeams.none { it.id == teamId }) {
+                throw Exception("Esta equipa já está inscrita ou não pode ser usada neste evento.")
+            }
+
+            val existingEventTeam = supabaseClient
+                .from("evento_equipa")
+                .select {
+                    filter {
+                        eq("evento_id", eventId)
+                        eq("equipa_id", teamId)
+                        eq("capitao_user_id", currentUserId)
+                    }
+                }
+                .decodeList<MoreDetailsEventTeamRow>()
+                .firstOrNull { it.status.isActiveEventTeamStatus() }
+
+            val createdEventTeam = existingEventTeam ?: supabaseClient
+                .from("evento_equipa")
+                .insert(
+                    MoreDetailsEventTeamInsertRow(
+                        eventId = eventId,
+                        teamId = teamId,
+                        status = "pendente",
+                        captainUserId = currentUserId
+                    )
+                ) {
+                    select()
+                }
+                .decodeSingle<MoreDetailsEventTeamRow>()
+
+            try {
+                supabaseClient
+                    .from("inscricao")
+                    .insert(
+                        MoreDetailsIndividualRegistrationInsertRow(
+                            eventId = eventId,
+                            userId = currentUserId,
+                            teamId = teamId,
+                            registrationStatus = "pendente",
+                            registrationType = "pedido_evento_equipa",
+                            isCaptain = true,
+                            role = "capitao"
+                        )
+                    )
+            } catch (exception: Exception) {
+                if (exception.isDuplicateTeamUserRegistration()) {
+                    return Result.success(Unit)
+                }
+                if (existingEventTeam == null) {
+                    deleteEventTeamRegistration(createdEventTeam.id)
+                }
+                throw exception
+            }
+
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            Result.failure(exception)
+        }
+    }
+
+    private fun MoreDetailsRegistrationRow.isActiveEventParticipation(): Boolean {
+        return registrationStatus.isActiveRegistrationStatus() &&
+                registrationType in setOf(
+                    "evento_individual",
+                    "evento_equipa",
+                    "pedido_evento_equipa"
+                )
+    }
+
+    private suspend fun deleteEventTeamRegistration(eventTeamRegistrationId: Long) {
+        runCatching {
+            supabaseClient
+                .from("evento_equipa")
+                .delete {
+                    filter {
+                        eq("id", eventTeamRegistrationId)
+                    }
+                }
+        }
+    }
+
+    private fun String?.isActiveRegistrationStatus(): Boolean {
+        return this != "recusada" && this != "recusado" && this != "banido"
+    }
+
+    private fun String?.isActiveEventTeamStatus(): Boolean {
+        return this != "recusada" &&
+                this != "recusado" &&
+                this != "cancelada" &&
+                this != "cancelado"
+    }
+
+    private fun Exception.isDuplicateTeamUserRegistration(): Boolean {
+        val message = message.orEmpty()
+        return "duplicate key value" in message &&
+                "unique_team_user_registration" in message
     }
 }

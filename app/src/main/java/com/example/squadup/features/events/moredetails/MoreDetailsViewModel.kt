@@ -52,18 +52,13 @@ class MoreDetailsViewModel : ViewModel() {
                 .collect { details ->
                     val previousState = _uiState.value
 
-                    val preservedRegistrationStatus =
-                        details.userEventRegistrationStatus
-                            ?: previousState.userEventRegistrationStatus
-
-                    val preservedRegistrationType =
-                        details.userEventRegistrationType
-                            ?: previousState.userEventRegistrationType
-
                     _uiState.value = details
                         .copy(
-                            userEventRegistrationStatus = preservedRegistrationStatus,
-                            userEventRegistrationType = preservedRegistrationType
+                            isJoining = previousState.isJoining,
+                            joiningRegistrationType = previousState.joiningRegistrationType,
+                            isTeamPickerVisible = previousState.isTeamPickerVisible,
+                            isLoadingAvailableTeams = previousState.isLoadingAvailableTeams,
+                            availableTeams = previousState.availableTeams
                         )
                         .withPermissions(
                             currentUserId = currentUserId,
@@ -112,6 +107,105 @@ class MoreDetailsViewModel : ViewModel() {
             canParticipateIndividually = canParticipateIndividual,
             canParticipateWithTeam = canParticipateTeam
         )
+    }
+
+    fun openTeamPicker(currentUserId: Int?) {
+        val currentState = _uiState.value
+        val eventId = currentState.eventId
+
+        if (eventId == null) {
+            _uiState.value = currentState.copy(errorMessage = "Evento inválido.")
+            return
+        }
+
+        if (!currentState.canParticipateWithTeam) {
+            _uiState.value = currentState.copy(errorMessage = "Não podes participar com equipa neste evento.")
+            return
+        }
+
+        if (!currentState.userEventRegistrationStatus.isNullOrBlank()) {
+            _uiState.value = currentState.copy(errorMessage = "Já tens uma inscrição ou pedido activo neste evento.")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isTeamPickerVisible = true,
+                isLoadingAvailableTeams = true,
+                availableTeams = emptyList(),
+                errorMessage = null
+            )
+
+            repository.getAvailableTeamsForEvent(
+                eventId = eventId,
+                currentUserId = currentUserId
+            ).onSuccess { teams ->
+                _uiState.value = _uiState.value.copy(
+                    isLoadingAvailableTeams = false,
+                    availableTeams = teams
+                )
+            }.onFailure { exception ->
+                _uiState.value = _uiState.value.copy(
+                    isLoadingAvailableTeams = false,
+                    errorMessage = exception.message ?: "Não foi possível carregar as tuas equipas."
+                )
+            }
+        }
+    }
+
+    fun closeTeamPicker() {
+        _uiState.value = _uiState.value.copy(
+            isTeamPickerVisible = false,
+            isLoadingAvailableTeams = false
+        )
+    }
+
+    fun joinWithTeam(
+        teamId: Int,
+        currentUserId: Int?
+    ) {
+        val currentState = _uiState.value
+        val eventId = currentState.eventId
+
+        if (eventId == null) {
+            _uiState.value = currentState.copy(errorMessage = "Evento inválido.")
+            return
+        }
+
+        if (!currentState.canParticipateWithTeam) {
+            _uiState.value = currentState.copy(errorMessage = "Não podes participar com equipa neste evento.")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isJoining = true,
+                joiningRegistrationType = "pedido_evento_equipa",
+                errorMessage = null
+            )
+
+            repository.joinEventWithTeam(
+                eventId = eventId,
+                currentUserId = currentUserId,
+                teamId = teamId
+            ).onSuccess {
+                _uiState.value = _uiState.value.copy(
+                    isJoining = false,
+                    joiningRegistrationType = null,
+                    isTeamPickerVisible = false,
+                    availableTeams = emptyList(),
+                    errorMessage = null,
+                    userEventRegistrationStatus = "pendente",
+                    userEventRegistrationType = "pedido_evento_equipa"
+                )
+            }.onFailure { exception ->
+                _uiState.value = _uiState.value.copy(
+                    isJoining = false,
+                    joiningRegistrationType = null,
+                    errorMessage = exception.message ?: "Não foi possível pedir participação com equipa."
+                )
+            }
+        }
     }
 
     override fun onCleared() {

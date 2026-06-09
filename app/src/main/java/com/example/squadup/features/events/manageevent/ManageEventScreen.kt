@@ -50,6 +50,8 @@ fun ManageEventScreen(
     onCancelEventClick: () -> Unit,
     onAcceptIndividualRegistration: (Int) -> Unit,
     onRejectIndividualRegistration: (Int) -> Unit,
+    onAcceptTeamRegistration: (Int) -> Unit,
+    onRejectTeamRegistration: (Int) -> Unit,
     onViewAllRegistrationsClick: () -> Unit,
     onManageLiveClick: (String) -> Unit = {},
     isAdmin: Boolean,
@@ -149,6 +151,8 @@ fun ManageEventScreen(
                     onViewAllRegistrationsClick = onViewAllRegistrationsClick,
                     onAcceptIndividualRegistration = onAcceptIndividualRegistration,
                     onRejectIndividualRegistration = onRejectIndividualRegistration,
+                    onAcceptTeamRegistration = onAcceptTeamRegistration,
+                    onRejectTeamRegistration = onRejectTeamRegistration,
                 )
                 ManageEventTab.TEAMS -> TeamsTabContent(
                     uiState = uiState,
@@ -163,6 +167,8 @@ fun ManageEventScreen(
                     onPlayerRemove = onPlayerRemove,
                     onAcceptIndividualRegistration = onAcceptIndividualRegistration,
                     onRejectIndividualRegistration = onRejectIndividualRegistration,
+                    onAcceptTeamRegistration = onAcceptTeamRegistration,
+                    onRejectTeamRegistration = onRejectTeamRegistration,
                 )
                 ManageEventTab.GAMES -> GamesTabContent(
                     uiState = uiState,

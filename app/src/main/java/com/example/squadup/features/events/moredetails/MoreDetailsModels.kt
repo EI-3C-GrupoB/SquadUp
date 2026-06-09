@@ -110,7 +110,13 @@ data class MoreDetailsRegistrationRow(
     val registrationStatus: String? = null,
 
     @SerialName("tipo_inscricao")
-    val registrationType: String? = null
+    val registrationType: String? = null,
+
+    @SerialName("role")
+    val role: String? = null,
+
+    @SerialName("is_capitao")
+    val isCaptain: Boolean? = null
 )
 
 @Serializable
@@ -131,6 +137,32 @@ data class MoreDetailsEventTeamRow(
 
     @SerialName("data_inscricao")
     val createdAt: String? = null
+)
+
+@Serializable
+data class MoreDetailsTeamRow(
+    val id: Int,
+
+    @SerialName("nome")
+    val name: String,
+
+    @SerialName("user_id")
+    val ownerId: Int? = null
+)
+
+@Serializable
+data class MoreDetailsEventTeamInsertRow(
+    @SerialName("evento_id")
+    val eventId: Int,
+
+    @SerialName("equipa_id")
+    val teamId: Int,
+
+    @SerialName("estado")
+    val status: String,
+
+    @SerialName("capitao_user_id")
+    val captainUserId: Int
 )
 
 

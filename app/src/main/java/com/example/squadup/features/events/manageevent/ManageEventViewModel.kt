@@ -90,6 +90,20 @@ class ManageEventViewModel : ViewModel() {
         )
     }
 
+    fun acceptTeamRegistration(registrationId: Int) {
+        updateIndividualRegistrationStatus(
+            registrationId = registrationId,
+            update = repository::acceptTeamRegistration
+        )
+    }
+
+    fun rejectTeamRegistration(registrationId: Int) {
+        updateIndividualRegistrationStatus(
+            registrationId = registrationId,
+            update = repository::rejectTeamRegistration
+        )
+    }
+
     fun onStatusAction() {
         val next = when (_uiState.value.status) {
             EventStatus.DRAFT -> EventStatus.REGISTRATION_OPEN
@@ -141,6 +155,8 @@ class ManageEventViewModel : ViewModel() {
                         activeRegistrationActionId = null,
                         errorMessage = null,
                         individualRegistrationRequests = state.individualRegistrationRequests
+                            .filterNot { it.registrationId == registrationId },
+                        teamRegistrationRequests = state.teamRegistrationRequests
                             .filterNot { it.registrationId == registrationId }
                     )
                 }

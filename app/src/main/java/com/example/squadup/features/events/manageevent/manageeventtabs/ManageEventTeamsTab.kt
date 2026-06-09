@@ -47,6 +47,8 @@ internal fun TeamsTabContent(
     onPlayerRemove: (String, String) -> Unit,
     onAcceptIndividualRegistration: (Int) -> Unit,
     onRejectIndividualRegistration: (Int) -> Unit,
+    onAcceptTeamRegistration: (Int) -> Unit,
+    onRejectTeamRegistration: (Int) -> Unit,
 ) {
     val filteredTeams = if (uiState.teamSearchQuery.isBlank()) uiState.teams
     else uiState.teams.filter { it.name.contains(uiState.teamSearchQuery, ignoreCase = true) }
@@ -108,6 +110,44 @@ internal fun TeamsTabContent(
                                     onReject = { onRejectIndividualRegistration(request.registrationId) }
                                 )
                                 if (index < uiState.individualRegistrationRequests.lastIndex) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        color = SquadGrayLight
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (uiState.teamRegistrationRequests.isNotEmpty()) {
+            item {
+                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                    TabSectionHeader(
+                        label = "Pedidos de equipa",
+                        count = uiState.teamRegistrationRequests.size,
+                        isWarning = true
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.White,
+                        shape = RoundedCornerShape(12.dp),
+                        shadowElevation = 2.dp
+                    ) {
+                        Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                            uiState.teamRegistrationRequests.forEachIndexed { index, request ->
+                                TeamRegistrationRequestRow(
+                                    request = request,
+                                    isLoading = uiState.activeRegistrationActionId == request.registrationId,
+                                    actionsEnabled = uiState.activeRegistrationActionId == null ||
+                                            uiState.activeRegistrationActionId == request.registrationId,
+                                    onAccept = { onAcceptTeamRegistration(request.registrationId) },
+                                    onReject = { onRejectTeamRegistration(request.registrationId) }
+                                )
+                                if (index < uiState.teamRegistrationRequests.lastIndex) {
                                     HorizontalDivider(
                                         modifier = Modifier.padding(horizontal = 16.dp),
                                         color = SquadGrayLight

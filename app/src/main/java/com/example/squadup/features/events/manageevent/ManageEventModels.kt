@@ -176,6 +176,21 @@ data class ManageEventRegistrationStatusUpdateRow(
 )
 
 @Serializable
+data class ManageEventTeamRegistrationStatusUpdateRow(
+    @SerialName("estado_inscricao")
+    val status: String,
+
+    @SerialName("tipo_inscricao")
+    val registrationType: String
+)
+
+@Serializable
+data class ManageEventEventTeamStatusUpdateRow(
+    @SerialName("estado")
+    val status: String
+)
+
+@Serializable
 data class ManageEventTeamRegistrationRow(
     val id: Long,
 

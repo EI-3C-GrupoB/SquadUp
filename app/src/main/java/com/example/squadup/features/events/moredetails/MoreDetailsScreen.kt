@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,11 +36,14 @@ import androidx.compose.material.icons.outlined.SportsVolleyball
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -86,11 +91,21 @@ fun MoreDetailsScreen(
     onManageEventClick: (Int) -> Unit,
     onJoinIndividuallyClick: () -> Unit,
     onJoinWithTeamClick: () -> Unit,
+    onDismissTeamPicker: () -> Unit,
+    onTeamSelected: (Int) -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit
 ) {
+    if (uiState.isTeamPickerVisible) {
+        TeamPickerBottomSheet(
+            uiState = uiState,
+            onDismiss = onDismissTeamPicker,
+            onTeamSelected = onTeamSelected
+        )
+    }
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -126,7 +141,7 @@ fun MoreDetailsScreen(
                 }
             }
 
-            uiState.errorMessage != null -> {
+            uiState.errorMessage != null && !uiState.isTeamPickerVisible -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -282,6 +297,175 @@ fun MoreDetailsScreen(
                         Spacer(modifier = Modifier.height(28.dp))
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TeamPickerBottomSheet(
+    uiState: MoreDetailsUiState,
+    onDismiss: () -> Unit,
+    onTeamSelected: (Int) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = {
+            if (!uiState.isJoining) {
+                onDismiss()
+            }
+        },
+        containerColor = SquadBackground
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 28.dp)
+        ) {
+            Text(
+                text = "Escolhe a equipa",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = SquadTextPrimary
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Só aparecem equipas onde podes pedir participação e que ainda não estão inscritas neste evento.",
+                fontSize = 13.sp,
+                lineHeight = 18.sp,
+                color = SquadTextSecondary
+            )
+
+            if (!uiState.errorMessage.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color(0xFFFFF5F5),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, Color(0xFFFFD6D6))
+                ) {
+                    Text(
+                        text = uiState.errorMessage,
+                        fontSize = 12.sp,
+                        lineHeight = 17.sp,
+                        color = Color(0xFFB3261E),
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when {
+                uiState.isLoadingAvailableTeams -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = SquadOrange)
+                    }
+                }
+
+                uiState.availableTeams.isEmpty() -> {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = SquadSurface,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFFF0E1DC))
+                    ) {
+                        Text(
+                            text = "Não tens equipas disponíveis para este evento.",
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                            color = SquadTextSecondary,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(260.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(
+                            items = uiState.availableTeams,
+                            key = { it.id }
+                        ) { team ->
+                            Button(
+                                onClick = { onTeamSelected(team.id) },
+                                enabled = !uiState.isJoining,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = SquadSurface,
+                                    contentColor = SquadTextPrimary,
+                                    disabledContainerColor = SquadSurface,
+                                    disabledContentColor = SquadTextSecondary
+                                ),
+                                border = BorderStroke(1.dp, Color(0xFFF0E1DC))
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Groups,
+                                        contentDescription = null,
+                                        tint = SquadOrange,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+                                    Text(
+                                        text = team.name,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+
+                                    if (uiState.isJoining &&
+                                        uiState.joiningRegistrationType == "pedido_evento_equipa"
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(18.dp),
+                                            strokeWidth = 2.dp,
+                                            color = SquadOrange
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            TextButton(
+                onClick = onDismiss,
+                enabled = !uiState.isJoining,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Cancelar",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SquadTextSecondary
+                )
             }
         }
     }

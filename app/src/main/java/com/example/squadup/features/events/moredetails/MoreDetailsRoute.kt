@@ -45,7 +45,14 @@ fun MoreDetailsRoute(
             viewModel.joinIndividually(appUiState.userId)
         },
         onJoinWithTeamClick = {
-            // Próxima fase: participação com equipa
+            viewModel.openTeamPicker(appUiState.userId)
+        },
+        onDismissTeamPicker = viewModel::closeTeamPicker,
+        onTeamSelected = { teamId ->
+            viewModel.joinWithTeam(
+                teamId = teamId,
+                currentUserId = appUiState.userId
+            )
         },
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,

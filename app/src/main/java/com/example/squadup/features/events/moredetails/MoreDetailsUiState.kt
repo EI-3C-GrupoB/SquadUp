@@ -4,6 +4,9 @@ data class MoreDetailsUiState(
     val isLoading: Boolean = false,
     val isJoining: Boolean = false,
     val joiningRegistrationType: String? = null,
+    val isTeamPickerVisible: Boolean = false,
+    val isLoadingAvailableTeams: Boolean = false,
+    val availableTeams: List<MoreDetailsAvailableTeam> = emptyList(),
     val errorMessage: String? = null,
 
     val eventId: Int? = null,
@@ -59,3 +62,8 @@ data class MoreDetailsUiState(
     val hasLocation: Boolean
         get() = latitude != null && longitude != null
 }
+
+data class MoreDetailsAvailableTeam(
+    val id: Int,
+    val name: String
+)

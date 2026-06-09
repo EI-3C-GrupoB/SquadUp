@@ -145,6 +145,8 @@ internal fun OverviewTabContent(
     onViewAllRegistrationsClick: () -> Unit,
     onAcceptIndividualRegistration: (Int) -> Unit,
     onRejectIndividualRegistration: (Int) -> Unit,
+    onAcceptTeamRegistration: (Int) -> Unit,
+    onRejectTeamRegistration: (Int) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -284,6 +286,45 @@ internal fun OverviewTabContent(
         }
 
         // 5 — Inscrições recentes
+        if (uiState.teamRegistrationRequests.isNotEmpty()) {
+            Text(
+                text = "Pedidos de equipa",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = SquadTextPrimary
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.White,
+                shape = RoundedCornerShape(12.dp),
+                shadowElevation = 2.dp
+            ) {
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    uiState.teamRegistrationRequests.forEachIndexed { index, request ->
+                        TeamRegistrationRequestRow(
+                            request = request,
+                            isLoading = uiState.activeRegistrationActionId == request.registrationId,
+                            actionsEnabled = uiState.activeRegistrationActionId == null ||
+                                    uiState.activeRegistrationActionId == request.registrationId,
+                            onAccept = { onAcceptTeamRegistration(request.registrationId) },
+                            onReject = { onRejectTeamRegistration(request.registrationId) }
+                        )
+                        if (index < uiState.teamRegistrationRequests.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                color = SquadGrayLight
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
