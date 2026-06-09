@@ -354,6 +354,26 @@
     <string name="stats_score_points">Points</string>
     <string name="stats_score_wins">Wins</string>
     <string name="stats_event_infractions">INFRACTIONS</string>
+    <string name="stats_yellow_cards">YELLOW CARDS</string>
+    <string name="stats_red_cards">RED CARDS</string>
+    <string name="stats_clean_sheets">CLEAN SHEETS</string>
+    <string name="stats_personal_fouls">PERSONAL FOULS</string>
+    <string name="stats_technical_fouls">TECHNICAL FOULS</string>
+    <string name="stats_sets_played">SETS PLAYED</string>
+    <string name="stats_section_discipline">DISCIPLINA</string>
+    <string name="stats_section_discipline_basketball">FALTAS</string>
+    <string name="stats_section_sets">SETS</string>
+    <string name="stats_section_standings">CLASSIFICAÇÃO</string>
+    <string name="stats_section_results">RESULTADOS</string>
+    <string name="stats_section_top_performers">TOP JOGADORES</string>
+    <string name="stats_goals_for">GF</string>
+    <string name="stats_goals_against">GA</string>
+    <string name="stats_goal_diff">+/-</string>
+    <string name="stats_sets_won">SW</string>
+    <string name="stats_top_infractors">MAIS FALTAS / CARTÕES</string>
+    <string name="stats_no_data">Sem dados disponíveis ainda.</string>
+    <string name="stats_knockout_results">RESULTADOS ELIMINATÓRIAS</string>
+    <string name="stats_group_stage">FASE DE GRUPOS</string>
     <!-- Infractions -->
     <string name="infraction_yellow_card">Yellow Card</string>
     <string name="infraction_red_card">Red Card</string>

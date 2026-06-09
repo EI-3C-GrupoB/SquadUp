@@ -27,7 +27,7 @@ class FormTeamsRepository(
                 }.getOrNull()
             }
 
-            // All accepted individual registrations for this event
+            // All accepted individual registrations for this event — deduplicated by userId
             val registrations = supabaseClient.from("inscricao")
                 .select {
                     filter {
@@ -37,6 +37,7 @@ class FormTeamsRepository(
                     }
                 }
                 .decodeList<FormRegistrationRow>()
+                .distinctBy { it.userId }
 
             val userIds = registrations.mapNotNull { it.userId }.toSet()
             val users: Map<Int, FormUserRow> = if (userIds.isEmpty()) emptyMap() else {
@@ -67,7 +68,7 @@ class FormTeamsRepository(
                 val user = users[uid] ?: return null
                 return FormTeamPlayer(
                     userId = user.userId,
-                    registrationId = id,
+                    registrationId = this.id,
                     name = user.userName,
                     initials = user.userName.initials(),
                     experienceLevel = user.playStyle ?: 1
@@ -79,7 +80,10 @@ class FormTeamsRepository(
 
             if (existingTeamIds.isNotEmpty()) {
                 // Already saved — restore state from DB
-                val teamsList = existingEventTeams.mapIndexed { i, et ->
+                // Deduplicate: only keep one entry per unique teamId
+                val deduplicatedEventTeams = existingEventTeams.distinctBy { it.teamId }
+
+                val teamsList = deduplicatedEventTeams.mapIndexed { i, et ->
                     val teamName = existingTeams[et.teamId] ?: "Equipa ${('A' + i)}"
                     val assigned = registrations
                         .filter { it.teamId == et.teamId }
@@ -92,7 +96,13 @@ class FormTeamsRepository(
                         savedTeamId = et.teamId
                     )
                 }
-                val assignedRegIds = registrations.filter { it.teamId != null }.map { it.id }.toSet()
+
+                // A player is only "assigned" if their equipa_id points to an ACTIVE event team.
+                // If equipa_id points to a stale/removed team they return to unassigned.
+                val activeTeamIds = deduplicatedEventTeams.map { it.teamId }.toSet()
+                val assignedRegIds = registrations
+                    .filter { it.teamId != null && it.teamId in activeTeamIds }
+                    .map { it.id }.toSet()
                 unassigned = registrations
                     .filter { it.id !in assignedRegIds }
                     .mapNotNull { it.toPlayer() }
@@ -140,8 +150,14 @@ class FormTeamsRepository(
                     }
             }
 
-            // 2. Process each non-empty team
-            teams.filter { it.players.isNotEmpty() }.forEach { team ->
+            // 2. Load current evento_equipa for this event to avoid duplicates
+            val currentEventTeams = supabaseClient.from("evento_equipa")
+                .select { filter { eq("evento_id", id) } }
+                .decodeList<FormEventTeamRow>()
+            val currentLinkedTeamIds = currentEventTeams.map { it.teamId }.toSet()
+
+            // 3. Process each team (empty or not — always persist the link)
+            teams.forEach { team ->
                 val teamId: Int
 
                 if (team.savedTeamId != null) {
@@ -151,8 +167,14 @@ class FormTeamsRepository(
                         .update(FormTeamNameUpdateRow(name = team.name)) {
                             filter { eq("id", teamId) }
                         }
+                    // Ensure the evento_equipa link still exists
+                    if (teamId !in currentLinkedTeamIds) {
+                        supabaseClient.from("evento_equipa")
+                            .insert(FormEventTeamInsertRow(eventId = id, teamId = teamId, status = "confirmada"))
+                    }
                 } else {
-                    // Create new equipa
+                    // Create new equipa only if we have players for it
+                    if (team.players.isEmpty()) return@forEach
                     val insertResult = supabaseClient.from("equipa")
                         .insert(FormTeamInsertRow(name = team.name, modalityId = modalityId)) {
                             select()
@@ -160,12 +182,14 @@ class FormTeamsRepository(
                     val newTeam = insertResult.decodeSingle<FormTeamCreatedRow>()
                     teamId = newTeam.teamId
 
-                    // Link to event
-                    supabaseClient.from("evento_equipa")
-                        .insert(FormEventTeamInsertRow(eventId = id, teamId = teamId, status = "confirmada"))
+                    // Link to event (only if not already linked to avoid PK conflicts)
+                    if (teamId !in currentLinkedTeamIds) {
+                        supabaseClient.from("evento_equipa")
+                            .insert(FormEventTeamInsertRow(eventId = id, teamId = teamId, status = "confirmada"))
+                    }
                 }
 
-                // Assign players
+                // 4. Assign players to this team
                 team.players.forEach { player ->
                     supabaseClient.from("inscricao")
                         .update(FormRegistrationUpdateRow(teamId = teamId)) {

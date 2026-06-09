@@ -171,6 +171,60 @@ class ManageEventViewModel : ViewModel() {
         }
     }
 
+    // ── Edit Game Dialog ──────────────────────────────────────────────────────
+
+    fun onShowEditGameDialog(gameId: String) {
+        val game = _uiState.value.scheduledGames.firstOrNull { it.id == gameId } ?: return
+        _uiState.update { it.copy(
+            showEditGameDialog = true,
+            editGameId = gameId,
+            editGameHomeTeamId = game.homeTeamId,
+            editGameAwayTeamId = game.awayTeamId,
+            editGameDate = game.rawDate,
+            editGameTime = game.time,
+            editGameVenue = game.venue,
+            editGameError = null
+        ) }
+    }
+
+    fun onDismissEditGameDialog() {
+        _uiState.update { it.copy(showEditGameDialog = false, editGameError = null) }
+    }
+
+    fun onEditGameHomeTeamChange(id: String) { _uiState.update { it.copy(editGameHomeTeamId = id) } }
+    fun onEditGameAwayTeamChange(id: String) { _uiState.update { it.copy(editGameAwayTeamId = id) } }
+    fun onEditGameDateChange(date: String) { _uiState.update { it.copy(editGameDate = date) } }
+    fun onEditGameTimeChange(time: String) { _uiState.update { it.copy(editGameTime = time) } }
+    fun onEditGameVenueChange(venue: String) { _uiState.update { it.copy(editGameVenue = venue) } }
+
+    fun onConfirmEditGame() {
+        val state = _uiState.value
+        if (state.editGameDate.isBlank() || state.editGameTime.isBlank()) {
+            _uiState.update { it.copy(editGameError = "Preenche a data e hora do jogo.") }
+            return
+        }
+        if (state.editGameHomeTeamId.isBlank() || state.editGameAwayTeamId.isBlank()) {
+            _uiState.update { it.copy(editGameError = "Seleciona ambas as equipas.") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isEditingGame = true, editGameError = null) }
+            repository.updateGame(
+                gameId = state.editGameId,
+                homeTeamId = state.editGameHomeTeamId,
+                awayTeamId = state.editGameAwayTeamId,
+                date = state.editGameDate,
+                time = state.editGameTime,
+                venue = state.editGameVenue
+            ).onSuccess {
+                _uiState.update { it.copy(isEditingGame = false, showEditGameDialog = false) }
+            }.onFailure { e ->
+                _uiState.update { it.copy(isEditingGame = false, editGameError = e.message ?: "Erro ao guardar jogo.") }
+            }
+        }
+    }
+
     fun onStatusAction() {
         val next = when (_uiState.value.status) {
             EventStatus.DRAFT -> EventStatus.REGISTRATION_OPEN

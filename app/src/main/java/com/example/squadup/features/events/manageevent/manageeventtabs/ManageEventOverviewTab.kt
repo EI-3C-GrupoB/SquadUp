@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
+import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.EventStatus
 import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.toDisplayName
@@ -59,8 +60,8 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Badges: Sport + Public/Private
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Badges: Sport + Format + Public/Private
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 // Sport badge
                 Surface(
                     color = uiState.sportType.color.copy(alpha = 0.12f),
@@ -83,6 +84,32 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
                             fontWeight = FontWeight.SemiBold,
                             color = uiState.sportType.color
                         )
+                    }
+                }
+                // Format badge
+                if (uiState.formatName.isNotBlank()) {
+                    Surface(
+                        color = Color(0xFFE3F2FD),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.EmojiEvents,
+                                contentDescription = null,
+                                tint = Color(0xFF1565C0),
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Text(
+                                text = uiState.formatName,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF1565C0)
+                            )
+                        }
                     }
                 }
                 // Public/Private badge
@@ -195,8 +222,8 @@ internal fun OverviewTabContent(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Form Teams — só se há agentes livres e evento não terminado/cancelado
-        if (uiState.allowFreeAgents &&
+        // Form Teams — for any event that has player/team management and isn't over
+        if ((uiState.allowFreeAgents || uiState.allowTeams) &&
             uiState.status != EventStatus.FINISHED &&
             uiState.status != EventStatus.CANCELLED
         ) {
@@ -597,7 +624,5 @@ private fun RecentRegistrationRow(item: RecentRegistrationItem) {
             Text(text = item.position, fontSize = 12.sp, color = SquadTextSecondary)
         }
         Text(text = item.timeAgo, fontSize = 11.sp, color = SquadTextSecondary)
-        Spacer(modifier = Modifier.width(8.dp))
-        Icon(Icons.Outlined.MoreVert, null, tint = SquadTextSecondary, modifier = Modifier.size(18.dp))
     }
 }

@@ -2,6 +2,7 @@ package com.example.squadup.features.events.manageevent
 
 import android.util.Log
 import com.example.squadup.core.SupabaseClientProvider
+import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.EventStatus
 import com.example.squadup.core.enums.GameStatus
 import com.example.squadup.core.enums.PlayerValidationState
@@ -62,10 +63,26 @@ class ManageEventRepository(
                 .decodeSingle<ManageEventRow>()
 
             val modality = event.modalityId?.let { getModality(it) }
+            val formato = event.formatoId?.let { getFormato(it) }
             val registrations = getRegistrations(event.id)
             val eventTeamRegistrations = getEventTeamRegistrations(event.id)
-            val teams = supabaseClient.from("equipa").select().decodeList<ManageEventTeamRow>()
-            val users = supabaseClient.from("utilizador").select().decodeList<ManageEventUserRow>()
+
+            // Only load teams relevant to this event (performance optimisation)
+            val eventTeamIds = eventTeamRegistrations.map { it.teamId }.toSet()
+            val inscricaoTeamIds = registrations.mapNotNull { it.teamId }.toSet()
+            val allRelevantTeamIds = eventTeamIds + inscricaoTeamIds
+            val teams = if (allRelevantTeamIds.isEmpty()) emptyList() else {
+                supabaseClient.from("equipa").select().decodeList<ManageEventTeamRow>()
+                    .filter { it.id in allRelevantTeamIds }
+            }
+
+            // Only load users who are registered to this event
+            val registeredUserIds = registrations.mapNotNull { it.userId }.toSet()
+            val users = if (registeredUserIds.isEmpty()) emptyList() else {
+                supabaseClient.from("utilizador").select().decodeList<ManageEventUserRow>()
+                    .filter { it.id in registeredUserIds }
+            }
+
             val games = getGames(event.id)
             val gameIds = games.map { it.id }.toSet()
             val gameTeams = supabaseClient
@@ -83,6 +100,7 @@ class ManageEventRepository(
             Result.success(
                 event.toUiState(
                     modality = modality,
+                    formato = formato,
                     registrations = registrations,
                     eventTeamRegistrations = eventTeamRegistrations,
                     teams = teams,
@@ -313,6 +331,50 @@ class ManageEventRepository(
         }
     }
 
+    suspend fun updateGame(
+        gameId: String,
+        homeTeamId: String,
+        awayTeamId: String,
+        date: String,
+        time: String,
+        venue: String
+    ): Result<Unit> {
+        return try {
+            val id = gameId.toIntOrNull() ?: throw Exception("Jogo inválido.")
+            val homeId = homeTeamId.toIntOrNull() ?: throw Exception("Equipa casa inválida.")
+            val awayId = awayTeamId.toIntOrNull() ?: throw Exception("Equipa visitante inválida.")
+            if (homeId == awayId) throw Exception("As equipas têm de ser diferentes.")
+
+            val scheduledAt = "${date}T${time}:00"
+            supabaseClient.from("jogo")
+                .update(ManageEventGameUpdateRow(
+                    scheduledAt = scheduledAt,
+                    venue = venue.takeIf { it.isNotBlank() }
+                )) { filter { eq("id", id) } }
+
+            // Update teams: delete existing jogo_equipa rows and re-insert
+            // Get existing rows first to avoid altering scores/results
+            val existing = supabaseClient.from("jogo_equipa")
+                .select { filter { eq("jogo_id", id) } }
+                .decodeList<ManageEventGameTeamRow>()
+            val existingIds = existing.map { it.teamId }.toSet()
+            val newIds = setOf(homeId, awayId)
+            if (existingIds != newIds) {
+                // Only touch teams if the pair actually changed
+                supabaseClient.from("jogo_equipa")
+                    .delete { filter { eq("jogo_id", id) } }
+                supabaseClient.from("jogo_equipa")
+                    .insert(ManageEventGameTeamInsertRow(gameId = id, teamId = homeId))
+                supabaseClient.from("jogo_equipa")
+                    .insert(ManageEventGameTeamInsertRow(gameId = id, teamId = awayId))
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private suspend fun checkIndividualCapacity(eventId: Int) {
         val event = supabaseClient
             .from("evento")
@@ -465,50 +527,45 @@ class ManageEventRepository(
         val eventChannel = supabaseClient.channel("manage_event_evento_$channelSuffix")
         val registrationsChannel = supabaseClient.channel("manage_event_inscricao_$channelSuffix")
         val eventTeamsChannel = supabaseClient.channel("manage_event_evento_equipa_$channelSuffix")
+        val jogoChannel = supabaseClient.channel("manage_event_jogo_$channelSuffix")
+        val jogoEquipaChannel = supabaseClient.channel("manage_event_jogo_equipa_$channelSuffix")
 
         val eventChanges = eventChannel
-            .postgresChangeFlow<PostgresAction>(schema = "public") {
-                table = "evento"
-            }
-            .map { Unit }
-
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "evento" }.map { Unit }
         val registrationChanges = registrationsChannel
-            .postgresChangeFlow<PostgresAction>(schema = "public") {
-                table = "inscricao"
-            }
-            .map { Unit }
-
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "inscricao" }.map { Unit }
         val eventTeamChanges = eventTeamsChannel
-            .postgresChangeFlow<PostgresAction>(schema = "public") {
-                table = "evento_equipa"
-            }
-            .map { Unit }
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "evento_equipa" }.map { Unit }
+        val jogoChanges = jogoChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "jogo" }.map { Unit }
+        val jogoEquipaChanges = jogoEquipaChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "jogo_equipa" }.map { Unit }
 
         eventChannel.subscribe()
         registrationsChannel.subscribe()
         eventTeamsChannel.subscribe()
+        jogoChannel.subscribe()
+        jogoEquipaChannel.subscribe()
 
         emitAll(
-            merge(
-                eventChanges,
-                registrationChanges,
-                eventTeamChanges
-            ).onStart {
-                emit(Unit)
-            }
+            merge(eventChanges, registrationChanges, eventTeamChanges, jogoChanges, jogoEquipaChanges)
+                .onStart { emit(Unit) }
         )
     }
 
     private suspend fun getModality(modalityId: Int): ManageEventModalityRow? {
         return runCatching {
-            supabaseClient
-                .from("modalidade")
-                .select {
-                    filter {
-                        eq("id", modalityId)
-                    }
-                }
+            supabaseClient.from("modalidade")
+                .select { filter { eq("id", modalityId) } }
                 .decodeSingle<ManageEventModalityRow>()
+        }.getOrNull()
+    }
+
+    private suspend fun getFormato(formatoId: Int): ManageEventFormatoRow? {
+        return runCatching {
+            supabaseClient.from("formato")
+                .select { filter { eq("id", formatoId) } }
+                .decodeSingle<ManageEventFormatoRow>()
         }.getOrNull()
     }
 
@@ -547,6 +604,7 @@ class ManageEventRepository(
 
     private fun ManageEventRow.toUiState(
         modality: ManageEventModalityRow?,
+        formato: ManageEventFormatoRow?,
         registrations: List<ManageEventRegistrationRow>,
         eventTeamRegistrations: List<ManageEventTeamRegistrationRow>,
         teams: List<ManageEventTeamRow>,
@@ -588,6 +646,7 @@ class ManageEventRepository(
         }
         val confirmedTeamIds = (confirmedEventTeamIds + confirmedTeamRegistrations.mapNotNull { it.teamId }).toSet()
         val sportType = sportTypeFrom(modality?.name)
+        val eventFormat = eventFormatFrom(formato?.name)
         val scheduledGames = games.map { game ->
             game.toScheduledGame(
                 gameTeams = gameTeams.filter { it.gameId == game.id },
@@ -612,6 +671,8 @@ class ManageEventRepository(
             venue = address.orEmpty(),
             dateRange = dateRangeLabel(startDate, endDate),
             sportType = sportType,
+            eventFormat = eventFormat,
+            formatName = formato?.name.orEmpty(),
             status = status.toEventStatus(),
             isPublic = isPrivate != true,
             allowTeams = participationType == "equipa" || participationType == "individual_e_equipa",
@@ -627,7 +688,6 @@ class ManageEventRepository(
             freeAgentsCount = acceptedIndividualRegistrations.size,
             entryFee = priceLabel(price ?: entryFee),
             waitlistCount = waitlistRegistrations.size + pendingIndividualRegistrations.size + pendingTeamRegistrations.size,
-            isSingleMatch = eventType == "jogo_amigavel" || games.size <= 1,
             completedGames = games.count { it.status == "terminado" },
             totalGames = games.size,
             matchProgress = if (games.isEmpty()) 0f else games.count { it.status == "terminado" } / games.size.toFloat(),
@@ -718,14 +778,9 @@ class ManageEventRepository(
                 .firstOrNull { it.isAfter(LocalDateTime.now()) }
                 ?.format(DateTimeFormatter.ofPattern("dd MMM, HH:mm", Locale.US))
                 .orEmpty(),
-            standings = buildStandings(confirmedTeamRegistrations, gameTeams, teamsById),
+            standings = buildStandings(confirmedTeamRegistrations, gameTeams, teamsById, sportType),
             topScorers = topScorers,
-            eventSummaryStats = EventSummaryStats(
-                totalScore = topScorers.sumOf { it.score },
-                totalInfractions = timeline.count { row ->
-                    row.actionTypeId?.let { actionById[it]?.name?.isInfractionAction() } == true
-                }
-            )
+            eventSummaryStats = buildEventSummaryStats(timeline, actionById, usersById, sportType, games, gameTeams)
         )
     }
 
@@ -767,16 +822,21 @@ class ManageEventRepository(
         val secondTeam = gameTeams.getOrNull(1)?.teamId?.let { teamsById[it] }
         val dateTime = scheduledAt.toLocalDateTimeOrNull()
 
+        val firstTeamId = gameTeams.getOrNull(0)?.teamId
+        val secondTeamId = gameTeams.getOrNull(1)?.teamId
         return ScheduledGameItem(
             id = id.toString(),
             homeTeam = firstTeam?.name ?: "TBD",
             awayTeam = secondTeam?.name ?: "TBD",
             homeTeamAbbr = firstTeam?.name?.abbreviation().orEmpty(),
             awayTeamAbbr = secondTeam?.name?.abbreviation().orEmpty(),
+            homeTeamId = firstTeamId?.toString().orEmpty(),
+            awayTeamId = secondTeamId?.toString().orEmpty(),
             sport = sportType.name.lowercase().replaceFirstChar { it.uppercase() },
             month = dateTime?.format(DateTimeFormatter.ofPattern("MMM", Locale.US))?.uppercase().orEmpty(),
             day = dateTime?.dayOfMonth?.toString().orEmpty(),
             time = dateTime?.format(DateTimeFormatter.ofPattern("HH:mm")).orEmpty(),
+            rawDate = dateTime?.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).orEmpty(),
             venue = address.orEmpty(),
             status = status.toGameStatus(),
             homeScore = gameTeams.getOrNull(0)?.result.toScoreOrNull(),
@@ -787,16 +847,37 @@ class ManageEventRepository(
     private fun buildStandings(
         registrations: List<ManageEventRegistrationRow>,
         gameTeams: List<ManageEventGameTeamRow>,
-        teamsById: Map<Int, ManageEventTeamRow>
+        teamsById: Map<Int, ManageEventTeamRow>,
+        sportType: SportType
     ): List<StandingItem> {
         val teamIds = registrations.mapNotNull { it.teamId }.distinct()
+        val gameTeamsByGameId = gameTeams.groupBy { it.gameId }
 
         return teamIds.mapNotNull { teamId ->
             val team = teamsById[teamId] ?: return@mapNotNull null
             val rows = gameTeams.filter { it.teamId == teamId }
-            val wins = rows.count { it.isWinner == true }
+            val wins   = rows.count { it.isWinner == true }
             val losses = rows.count { it.isWinner == false }
-            val draws = rows.count { it.isWinner == null && it.result != null }
+            val draws  = rows.count { it.isWinner == null && it.result != null }
+
+            // Goals For / Against (Soccer, Futsal)
+            val goalsFor = rows.sumOf { it.result.toScoreOrNull() ?: 0 }
+            val goalsAgainst = rows.sumOf { row ->
+                val others = gameTeamsByGameId[row.gameId]?.filter { it.teamId != teamId } ?: emptyList()
+                others.sumOf { it.result.toScoreOrNull() ?: 0 }
+            }
+
+            // Sets Won / Lost (Volleyball, Paddle)
+            // For volleyball/paddle: result = sets won in that game
+            val setsWon  = if (sportType == SportType.VOLLEYBALL || sportType == SportType.PADDLE) goalsFor else 0
+            val setsLost = if (sportType == SportType.VOLLEYBALL || sportType == SportType.PADDLE) goalsAgainst else 0
+
+            val points = when (sportType) {
+                SportType.SOCCER, SportType.FUTSAL -> wins * 3 + draws
+                SportType.BASKETBALL               -> wins * 2
+                SportType.VOLLEYBALL               -> wins * 3 + draws
+                SportType.PADDLE                   -> wins * 2
+            }
 
             StandingItem(
                 position = 0,
@@ -806,10 +887,16 @@ class ManageEventRepository(
                 wins = wins,
                 draws = draws,
                 losses = losses,
-                points = wins * 3 + draws
+                points = points,
+                goalsFor = if (sportType == SportType.SOCCER || sportType == SportType.FUTSAL) goalsFor else 0,
+                goalsAgainst = if (sportType == SportType.SOCCER || sportType == SportType.FUTSAL) goalsAgainst else 0,
+                setsWon = setsWon,
+                setsLost = setsLost
             )
         }
-            .sortedByDescending { it.points }
+            .sortedWith(compareByDescending<StandingItem> { it.points }
+                .thenByDescending { it.goalDiff }
+                .thenByDescending { it.goalsFor })
             .mapIndexed { index, standing -> standing.copy(position = index + 1) }
     }
 
@@ -914,14 +1001,86 @@ class ManageEventRepository(
     }
 
     private fun sportTypeFrom(name: String?): SportType {
-        val normalized = name.orEmpty().lowercase()
+        val n = name.orEmpty().lowercase()
         return when {
-            normalized in listOf("soccer", "football", "futebol") -> SportType.SOCCER
-            normalized in listOf("basketball", "basquetebol") -> SportType.BASKETBALL
-            normalized in listOf("paddle", "padel") -> SportType.PADDLE
-            normalized in listOf("volleyball", "voleibol") -> SportType.VOLLEYBALL
-            normalized == "futsal" -> SportType.FUTSAL
+            "futsal" in n -> SportType.FUTSAL
+            "futeb" in n || "soccer" in n || "football" in n -> SportType.SOCCER
+            "basket" in n || "basquete" in n -> SportType.BASKETBALL
+            "volei" in n || "volley" in n -> SportType.VOLLEYBALL
+            "padel" in n || "paddle" in n || "tenis" in n || "tennis" in n -> SportType.PADDLE
             else -> SportType.SOCCER
+        }
+    }
+
+    private fun buildEventSummaryStats(
+        timeline: List<ManageEventTimelineRow>,
+        actionById: Map<Int, ManageEventActionTypeRow>,
+        usersById: Map<Int, ManageEventUserRow>,
+        sportType: SportType,
+        games: List<ManageEventGameRow>,
+        gameTeams: List<ManageEventGameTeamRow>
+    ): EventSummaryStats {
+        fun actionName(row: ManageEventTimelineRow) =
+            row.actionTypeId?.let { actionById[it]?.name }.orEmpty().lowercase()
+
+        val totalScore = timeline.count { actionName(it).isScoreAction() }
+        val totalInfractions = timeline.count { actionName(it).isInfractionAction() }
+
+        // Soccer / Futsal discipline
+        val yellowCards = timeline.count { "amarelo" in actionName(it) || "yellow" in actionName(it) }
+        val redCards = timeline.count {
+            val n = actionName(it)
+            ("vermelho" in n || "red_card" in n || "red card" in n) && "amarelo" !in n
+        }
+        val gameTeamsByGameId = gameTeams.groupBy { it.gameId }
+        val finishedGameIds = games.filter { it.status == "terminado" }.map { it.id }.toSet()
+        val cleanSheets = finishedGameIds.count { gameId ->
+            val rows = gameTeamsByGameId[gameId] ?: return@count false
+            rows.any { (it.result.toScoreOrNull() ?: 0) == 0 }
+        }
+
+        // Basketball fouls
+        val personalFouls = timeline.count { "pessoal" in actionName(it) || "personal" in actionName(it) }
+        val technicalFouls = timeline.count { "tecnic" in actionName(it) || "technical" in actionName(it) }
+
+        // Volleyball / Paddle sets
+        val totalSetsWon = if (sportType == SportType.VOLLEYBALL || sportType == SportType.PADDLE) {
+            gameTeams.sumOf { it.result.toScoreOrNull() ?: 0 }
+        } else 0
+
+        // Top infractors (all infractions by player)
+        val infractorCounts = timeline
+            .filter { actionName(it).isInfractionAction() }
+            .groupingBy { it.userId }
+            .eachCount()
+        val topInfractors = infractorCounts
+            .mapNotNull { (uid, count) -> uid?.let { usersById[it] }?.let { ScorerItem(it.name, "", count) } }
+            .sortedByDescending { it.score }
+            .take(5)
+
+        return EventSummaryStats(
+            totalScore = totalScore,
+            totalInfractions = totalInfractions,
+            yellowCards = yellowCards,
+            redCards = redCards,
+            cleanSheets = cleanSheets,
+            personalFouls = personalFouls,
+            technicalFouls = technicalFouls,
+            totalSetsWon = totalSetsWon,
+            topInfractors = topInfractors
+        )
+    }
+
+    private fun eventFormatFrom(name: String?): EventFormat? {
+        val n = name.orEmpty().lowercase()
+        return when {
+            "unic" in n || "amig" in n || "single" in n || "jogo_unic" in n -> EventFormat.SINGLE_MATCH
+            "liga" in n || "league" in n -> EventFormat.LEAGUE
+            "grupo" in n || "group" in n -> EventFormat.GROUP_KNOCKOUT
+            "eliminat" in n || "knockout" in n || "copa" in n || "cup" in n -> EventFormat.KNOCKOUT
+            "livre" in n || "free" in n || "aberto" in n -> EventFormat.FREE
+            n.isBlank() -> null
+            else -> null
         }
     }
 }

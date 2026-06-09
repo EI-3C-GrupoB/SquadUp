@@ -12,16 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.utils.toIcon
-import com.example.squadup.core.utils.toCardColor
 
 @Composable
 fun CurrentMatchCard(
@@ -73,55 +71,40 @@ fun CurrentMatchCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Outlined.CalendarToday,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                    Text(text = date, color = Color.White, fontSize = 13.sp)
-
-                    Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-
-                    Icon(
-                        imageVector = Icons.Outlined.LocationOn,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                    Text(text = location, color = Color.White, fontSize = 13.sp)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(Icons.Outlined.CalendarToday, null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(14.dp))
+                    Text(text = date, color = Color.White.copy(alpha = 0.95f), fontSize = 12.sp)
                 }
 
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(
-                        onClick = onViewDetailsClick,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = SquadOrange
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(R.string.currentMatchCard_btn_details),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(Icons.Outlined.LocationOn, null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(14.dp))
+                    Text(
+                        text = location,
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
-                    Button(
-                        onClick = {},
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFFC107),
-                            contentColor = Color(0xFF241600)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = sportType.toIcon(),
-                            contentDescription = null
-                        )
-                    }
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = onViewDetailsClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = SquadOrange
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.currentMatchCard_btn_details),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

@@ -44,7 +44,18 @@ data class ManageEventRow(
     val participationType: String? = null,
 
     @SerialName("modalidade_id")
-    val modalityId: Int? = null
+    val modalityId: Int? = null,
+
+    @SerialName("formato_id")
+    val formatoId: Int? = null
+)
+
+@Serializable
+data class ManageEventFormatoRow(
+    val id: Int,
+
+    @SerialName("nome")
+    val name: String
 )
 
 @Serializable
@@ -96,7 +107,7 @@ data class ManageEventUserRow(
     @SerialName("nome")
     val name: String,
 
-    @SerialName("nivel_experiencia")
+    @SerialName("play_style")
     val experienceLevel: Int? = null
 )
 
@@ -227,6 +238,12 @@ data class ManageEventGameCreatedRow(
 data class ManageEventGameTeamInsertRow(
     @SerialName("jogo_id") val gameId: Int,
     @SerialName("equipa_id") val teamId: Int
+)
+
+@Serializable
+data class ManageEventGameUpdateRow(
+    @SerialName("data_hora_prevista") val scheduledAt: String,
+    @SerialName("morada") val venue: String? = null
 )
 
 @Serializable

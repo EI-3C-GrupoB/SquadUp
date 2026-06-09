@@ -2,7 +2,6 @@ package com.example.squadup.features.events.manageevent.manageeventtabs
 
 import com.example.squadup.features.events.manageevent.*
 import com.example.squadup.core.enums.GameStatus
-import com.example.squadup.core.enums.PlayerValidationState
 import com.example.squadup.core.enums.TeamEventStatus
 
 import androidx.compose.animation.AnimatedVisibility
@@ -509,21 +508,9 @@ private fun PlayerRow(player: ManagePlayerItem, onRemove: () -> Unit) {
             Text(player.initials, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(player.name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = SquadTextPrimary)
-            Text("ID: ${player.playerId}", fontSize = 10.sp, color = SquadTextSecondary)
-        }
-        val (stateText, stateColor) = when (player.state) {
-            PlayerValidationState.VALIDATED -> stringResource(R.string.manageEvent_validated) to Color(0xFF2F9D73)
-            PlayerValidationState.PENDING   -> stringResource(R.string.manageEvent_pending)   to Color(0xFFFFA000)
-        }
-        Text(
-            text = stateText,
-            fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = stateColor,
-            modifier = Modifier.width(90.dp)
-        )
+        Text(player.name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = SquadTextPrimary, modifier = Modifier.weight(1f))
         IconButton(onClick = onRemove, modifier = Modifier.size(28.dp)) {
-            Icon(Icons.Outlined.Close, null, tint = SquadTextSecondary, modifier = Modifier.size(14.dp))
+            Icon(Icons.Outlined.Close, null, tint = Color(0xFFD32F2F), modifier = Modifier.size(16.dp))
         }
     }
 }

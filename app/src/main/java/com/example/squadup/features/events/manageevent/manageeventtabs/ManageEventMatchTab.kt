@@ -33,7 +33,7 @@ internal fun MatchTabContent(
     onTeamExpand: (String) -> Unit,
     onCreateGameClick: () -> Unit = {},
 ) {
-    val game = uiState.scheduledGames.firstOrNull()
+    val games = uiState.scheduledGames
     val homeTeam = uiState.teams.getOrNull(0)
     val awayTeam = uiState.teams.getOrNull(1)
 
@@ -45,64 +45,45 @@ internal fun MatchTabContent(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ── Matchup Card ──────────────────────────────────────────────────────
-        if (game != null) {
-            SingleMatchHeroCard(
-                game = game,
-                homeTeam = homeTeam,
-                awayTeam = awayTeam,
-                onManageLive = { onManageLiveClick(game.id) },
-                onEdit = onEditMatchClick
+        // ── Header com botão criar ────────────────────────────────────────────
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "JOGOS (${games.size})",
+                fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.6.sp,
+                modifier = Modifier.weight(1f)
             )
-        } else {
-            MatchEmptyState(onCreateGameClick = onCreateGameClick)
+            OutlinedButton(
+                onClick = onCreateGameClick,
+                shape = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = SquadOrange),
+                border = androidx.compose.foundation.BorderStroke(1.dp, SquadOrange),
+                modifier = Modifier.height(34.dp)
+            ) {
+                Icon(Icons.Outlined.Add, null, modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Novo Jogo", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // ── Match Info ────────────────────────────────────────────────────────
-        game?.let { g ->
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
-                shape = RoundedCornerShape(12.dp),
-                shadowElevation = 2.dp
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Data
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(Icons.Outlined.CalendarMonth, null, tint = SquadOrange, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("${g.month} ${g.day}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
-                        Text(g.time, fontSize = 12.sp, color = SquadTextSecondary)
-                    }
-                    // Divider
-                    Box(modifier = Modifier.width(1.dp).height(48.dp).background(SquadGrayLight).align(Alignment.CenterVertically))
-                    // Venue
-                    Column(
-                        modifier = Modifier.weight(2f),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(Icons.Outlined.LocationOn, null, tint = SquadOrange, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            g.venue.ifBlank { stringResource(R.string.manageEvent_match_no_venue) },
-                            fontSize = 13.sp, fontWeight = FontWeight.Medium,
-                            color = SquadTextPrimary, textAlign = TextAlign.Center
-                        )
-                    }
-                }
+        if (games.isEmpty()) {
+            MatchEmptyState(onCreateGameClick = onCreateGameClick)
+        } else {
+            games.forEach { game ->
+                SingleMatchHeroCard(
+                    game = game,
+                    homeTeam = homeTeam,
+                    awayTeam = awayTeam,
+                    onManageLive = { onManageLiveClick(game.id) },
+                    onEdit = onEditMatchClick
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
 
         Spacer(modifier = Modifier.height(88.dp))
@@ -239,6 +220,45 @@ private fun SingleMatchHeroCard(
                         color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextPrimary,
                         textAlign = TextAlign.Center
                     )
+                }
+            }
+
+            // Date + venue footer
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = if (isColored) Color.White.copy(alpha = 0.25f) else SquadGrayLight)
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(Icons.Outlined.CalendarMonth, null,
+                        tint = if (isColored) Color.White.copy(alpha = 0.8f) else SquadOrange,
+                        modifier = Modifier.size(13.dp))
+                    Text(
+                        "${game.month} ${game.day}  ${game.time}",
+                        fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+                        color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextSecondary
+                    )
+                }
+                if (game.venue.isNotBlank()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Outlined.LocationOn, null,
+                            tint = if (isColored) Color.White.copy(alpha = 0.8f) else SquadOrange,
+                            modifier = Modifier.size(13.dp))
+                        Text(
+                            game.venue,
+                            fontSize = 11.sp,
+                            color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextSecondary,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
 

@@ -42,7 +42,8 @@ fun FormTeamsScreen(
     onDarkModeChange: (Boolean) -> Unit,
 ) {
     // Player assign bottom sheet
-    if (uiState.selectedPlayerForAssign != null) {
+    val playerToAssign = uiState.selectedPlayerForAssign
+    if (playerToAssign != null) {
         ModalBottomSheet(
             onDismissRequest = { onSelectPlayerForAssign(null) },
             containerColor = SquadBackground
@@ -60,7 +61,7 @@ fun FormTeamsScreen(
                     color = SquadTextPrimary
                 )
                 Text(
-                    uiState.selectedPlayerForAssign.name,
+                    playerToAssign.name,
                     fontSize = 14.sp,
                     color = SquadTextSecondary
                 )

@@ -13,13 +13,24 @@ class FormTeamsViewModel : ViewModel() {
     private val repository = FormTeamsRepository()
     private val _uiState = MutableStateFlow(FormTeamsUiState())
     val uiState: StateFlow<FormTeamsUiState> = _uiState.asStateFlow()
+    private var hasLoaded = false
 
     fun loadEvent(eventId: String) {
+        if (hasLoaded) return
+        hasLoaded = true
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             repository.loadEvent(eventId)
-                .onSuccess { state -> _uiState.value = state }
+                .onSuccess { loaded ->
+                    // Only overwrite if we are still in the initial loading state
+                    // (user hasn't interacted yet). If the coroutine raced with user
+                    // interaction, keep the current interactive state.
+                    _uiState.update { current ->
+                        if (current.isLoading) loaded else current
+                    }
+                }
                 .onFailure { e ->
+                    hasLoaded = false
                     _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "Erro ao carregar evento.") }
                 }
         }
@@ -28,6 +39,7 @@ class FormTeamsViewModel : ViewModel() {
     fun onRandomize() {
         val state = _uiState.value
         val allPlayers = (state.unassignedPlayers + state.teams.flatMap { it.players })
+            .distinctBy { it.userId }
             .shuffled()
             .sortedByDescending { it.experienceLevel }
 
@@ -48,14 +60,13 @@ class FormTeamsViewModel : ViewModel() {
     }
 
     fun onAssignPlayerToTeam(teamIndex: Int) {
-        val player = _uiState.value.selectedPlayerForAssign ?: return
         _uiState.update { state ->
-            // Remove from unassigned or current team
-            val newUnassigned = state.unassignedPlayers.filterNot { it.registrationId == player.registrationId }
-            val newTeams = state.teams.map { team ->
-                team.copy(players = team.players.filterNot { it.registrationId == player.registrationId })
-            }.mapIndexed { i, team ->
-                if (i == teamIndex) team.copy(players = team.players + player) else team
+            val player = state.selectedPlayerForAssign ?: return@update state
+            // Use userId as the identity key — registrationId can collide in edge cases
+            val newUnassigned = state.unassignedPlayers.filterNot { it.userId == player.userId }
+            val newTeams = state.teams.mapIndexed { i, team ->
+                val filtered = team.players.filterNot { it.userId == player.userId }
+                if (i == teamIndex) team.copy(players = filtered + player) else team.copy(players = filtered)
             }
             state.copy(unassignedPlayers = newUnassigned, teams = newTeams, selectedPlayerForAssign = null)
         }
@@ -64,7 +75,7 @@ class FormTeamsViewModel : ViewModel() {
     fun onUnassignPlayer(player: FormTeamPlayer) {
         _uiState.update { state ->
             val newTeams = state.teams.map { team ->
-                team.copy(players = team.players.filterNot { it.registrationId == player.registrationId })
+                team.copy(players = team.players.filterNot { it.userId == player.userId })
             }
             state.copy(unassignedPlayers = state.unassignedPlayers + player, teams = newTeams)
         }

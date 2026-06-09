@@ -1,5 +1,6 @@
 package com.example.squadup.features.events.manageevent
 
+import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.EventStatus
 import com.example.squadup.core.enums.GameStatus
 import com.example.squadup.core.enums.PlayerValidationState
@@ -15,6 +16,8 @@ data class ManageEventUiState(
     val venue: String = "",
     val dateRange: String = "",
     val sportType: SportType = SportType.SOCCER,
+    val eventFormat: EventFormat? = null,
+    val formatName: String = "",
     val status: EventStatus = EventStatus.DRAFT,
     val isPublic: Boolean = true,
     val allowTeams: Boolean = false,
@@ -25,7 +28,6 @@ data class ManageEventUiState(
     val freeAgentsCount: Int = 0,
     val entryFee: String = "",
     val waitlistCount: Int = 0,
-    val isSingleMatch: Boolean = false,
     val completedGames: Int = 0,
     val totalGames: Int = 0,
     val matchProgress: Float = 0f,
@@ -63,6 +65,17 @@ data class ManageEventUiState(
     val isCreatingGame: Boolean = false,
     val createGameError: String? = null,
 
+    // Edit Game Dialog
+    val showEditGameDialog: Boolean = false,
+    val editGameId: String = "",
+    val editGameHomeTeamId: String = "",
+    val editGameAwayTeamId: String = "",
+    val editGameDate: String = "",
+    val editGameTime: String = "",
+    val editGameVenue: String = "",
+    val isEditingGame: Boolean = false,
+    val editGameError: String? = null,
+
     // Stats
     val bestScorer: ScorerItem? = null,
     val gamesPlayed: Int = 0,
@@ -72,9 +85,50 @@ data class ManageEventUiState(
     val topScorers: List<ScorerItem> = emptyList(),
     val eventSummaryStats: EventSummaryStats = EventSummaryStats()
 ) {
+    // Single match: only if SINGLE_MATCH format, or format not set and ≤1 game exists
+    val isSingleMatch: Boolean get() =
+        eventFormat == EventFormat.SINGLE_MATCH ||
+        (eventFormat == null && scheduledGames.size <= 1)
+
     val sportHasDraws: Boolean get() =
-        sportType == com.example.squadup.core.enums.SportType.SOCCER ||
-        sportType == com.example.squadup.core.enums.SportType.FUTSAL
+        sportType == SportType.SOCCER ||
+        sportType == SportType.FUTSAL
+
+    // Format helpers for stats tab
+    val showLeagueTable: Boolean get() =
+        standings.isNotEmpty() &&
+        (eventFormat == EventFormat.LEAGUE ||
+         eventFormat == EventFormat.GROUP_KNOCKOUT ||
+         (eventFormat == null && standings.size > 1))
+
+    val showDisciplineSection: Boolean get() =
+        sportType == SportType.SOCCER || sportType == SportType.FUTSAL ||
+        sportType == SportType.BASKETBALL
+
+    val showSetsSection: Boolean get() =
+        sportType == SportType.VOLLEYBALL || sportType == SportType.PADDLE
+
+    val standingsLabel: String get() = when (eventFormat) {
+        EventFormat.GROUP_KNOCKOUT -> "Fase de Grupos"
+        EventFormat.KNOCKOUT       -> "Eliminatórias"
+        else                       -> "Classificação"
+    }
+
+    // Points label in standings depends on sport
+    val standingsPtsLabel: String get() = when (sportType) {
+        SportType.PADDLE     -> "V"    // vitórias (no PTS concept)
+        SportType.VOLLEYBALL -> "PTS"
+        SportType.BASKETBALL -> "PTS"
+        else                 -> "PTS"
+    }
+
+    // Whether standings use goal columns
+    val standingsShowGoals: Boolean get() =
+        sportType == SportType.SOCCER || sportType == SportType.FUTSAL
+
+    // Whether standings show sets column
+    val standingsShowSets: Boolean get() =
+        sportType == SportType.VOLLEYBALL
 }
 
 data class RecentRegistrationItem(
@@ -152,10 +206,13 @@ data class ScheduledGameItem(
     val awayTeam: String,
     val homeTeamAbbr: String = "",
     val awayTeamAbbr: String = "",
+    val homeTeamId: String = "",
+    val awayTeamId: String = "",
     val sport: String,
     val month: String,
     val day: String,
     val time: String,
+    val rawDate: String = "",   // ISO date "YYYY-MM-DD" for edit form
     val venue: String = "",
     val status: GameStatus = GameStatus.SCHEDULED,
     val homeScore: Int? = null,
@@ -171,8 +228,16 @@ data class StandingItem(
     val wins: Int,
     val draws: Int = 0,
     val losses: Int,
-    val points: Int
-)
+    val points: Int,
+    // Soccer / Futsal
+    val goalsFor: Int = 0,
+    val goalsAgainst: Int = 0,
+    // Volleyball / Paddle
+    val setsWon: Int = 0,
+    val setsLost: Int = 0,
+) {
+    val goalDiff: Int get() = goalsFor - goalsAgainst
+}
 
 data class ScorerItem(
     val name: String,
@@ -181,6 +246,17 @@ data class ScorerItem(
 )
 
 data class EventSummaryStats(
-    val totalScore: Int = 0,      // golos / pontos / sets — depende do desporto
-    val totalInfractions: Int = 0 // faltas / cartões / erros — genérico
+    val totalScore: Int = 0,           // golos / pontos / vitórias — depende do desporto
+    val totalInfractions: Int = 0,     // faltas / cartões / infrações — genérico
+    // Soccer / Futsal discipline
+    val yellowCards: Int = 0,
+    val redCards: Int = 0,
+    val cleanSheets: Int = 0,          // jogos sem sofrer golos
+    // Basketball
+    val personalFouls: Int = 0,
+    val technicalFouls: Int = 0,
+    // Volleyball / Paddle sets
+    val totalSetsWon: Int = 0,
+    // Per-player discipline (top infractors)
+    val topInfractors: List<ScorerItem> = emptyList()
 )

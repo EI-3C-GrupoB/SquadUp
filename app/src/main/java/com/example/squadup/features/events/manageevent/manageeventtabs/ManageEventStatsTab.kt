@@ -1,7 +1,9 @@
 package com.example.squadup.features.events.manageevent.manageeventtabs
 
 import com.example.squadup.features.events.manageevent.*
+import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.GameStatus
+import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.utils.scoreLabelRes
 import com.example.squadup.core.utils.topPerformerLabelRes
 
@@ -18,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,17 +28,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
-import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.theme.*
-
-// scoreLabelRes() e topPerformerLabelRes() estão em core/utils/SportTypeExtensions.kt
 
 @Composable
 internal fun StatsTabContent(uiState: ManageEventUiState) {
     val recentFinished = uiState.scheduledGames
         .filter { it.status == GameStatus.FINISHED && it.homeScore != null }
         .sortedByDescending { it.day.toIntOrNull() ?: 0 }
-        .take(3)
+        .take(5)
 
     Column(
         modifier = Modifier
@@ -43,110 +43,406 @@ internal fun StatsTabContent(uiState: ManageEventUiState) {
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
 
-        // 1 — Métricas do evento (sport-aware)
-        StatsSectionLabel(stringResource(R.string.stats_section_event))
-        Spacer(modifier = Modifier.height(8.dp))
-        EventSummaryMetrics(uiState)
+        // ── 1. Resumo do evento (sempre presente) ──────────────────────────
+        SectionLabel(stringResource(R.string.stats_section_event))
+        Spacer(Modifier.height(8.dp))
+        SportSummaryMetrics(uiState)
+        Spacer(Modifier.height(20.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // 2 — Melhor performer (sport-aware)
+        // ── 2. Melhor performer (sempre presente se houver dados) ──────────
         uiState.bestScorer?.let { scorer ->
-            StatsSectionLabel(stringResource(uiState.sportType.topPerformerLabelRes()))
-            Spacer(modifier = Modifier.height(8.dp))
-            BestScorerCard(scorer, uiState.sportType)
-            Spacer(modifier = Modifier.height(20.dp))
+            SectionLabel(stringResource(uiState.sportType.topPerformerLabelRes()))
+            Spacer(Modifier.height(8.dp))
+            BestPerformerCard(scorer = scorer, sportType = uiState.sportType)
+            Spacer(Modifier.height(20.dp))
         }
 
-        // 3 — Classificação (só para formatos com tabela)
-        if (uiState.standings.isNotEmpty()) {
-            StatsSectionLabel(stringResource(R.string.manageEvent_standings))
-            Spacer(modifier = Modifier.height(8.dp))
-            StandingsTable(uiState.standings, uiState.sportHasDraws)
-            Spacer(modifier = Modifier.height(20.dp))
+        // ── 3. Secções por formato ─────────────────────────────────────────
+        when (uiState.eventFormat) {
+            EventFormat.SINGLE_MATCH -> SingleMatchSection(uiState, recentFinished)
+            EventFormat.LEAGUE       -> LeagueSection(uiState, recentFinished)
+            EventFormat.KNOCKOUT     -> KnockoutSection(uiState, recentFinished)
+            EventFormat.GROUP_KNOCKOUT -> GroupKnockoutSection(uiState, recentFinished)
+            EventFormat.FREE, null   -> FreeSection(uiState, recentFinished)
         }
 
-        // 4 — Resultados recentes
-        if (recentFinished.isNotEmpty()) {
-            StatsSectionLabel(stringResource(R.string.stats_recent_results))
-            Spacer(modifier = Modifier.height(8.dp))
-            RecentResultsSection(recentFinished)
-            Spacer(modifier = Modifier.height(20.dp))
-        }
+        Spacer(Modifier.height(88.dp))
+    }
+}
 
-        // 5 — Top scorers (sport-aware)
-        if (uiState.topScorers.isNotEmpty()) {
-            StatsSectionLabel(stringResource(R.string.manageEvent_top_scorers))
-            Spacer(modifier = Modifier.height(8.dp))
-            TopScorersList(uiState.topScorers, uiState.sportType)
-        }
+// ─── Sections by format ──────────────────────────────────────────────────────
 
-        Spacer(modifier = Modifier.height(88.dp))
+@Composable
+private fun SingleMatchSection(uiState: ManageEventUiState, recent: List<ScheduledGameItem>) {
+    // Single match: just show the result if finished, or "aguarda" if not
+    val game = uiState.scheduledGames.firstOrNull()
+    if (game != null && game.status == GameStatus.FINISHED && game.homeScore != null) {
+        SectionLabel("RESULTADO FINAL")
+        Spacer(Modifier.height(8.dp))
+        SingleMatchResultCard(game)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Top scorers for this single game
+    if (uiState.topScorers.isNotEmpty()) {
+        SectionLabel(stringResource(uiState.sportType.topScorersSectionLabel()))
+        Spacer(Modifier.height(8.dp))
+        TopPerformersList(uiState.topScorers, uiState.sportType)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Discipline (football/futsal)
+    if (uiState.showDisciplineSection) {
+        DisciplineSection(uiState)
     }
 }
 
 @Composable
-private fun StatsSectionLabel(label: String) {
-    Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp)
+private fun LeagueSection(uiState: ManageEventUiState, recent: List<ScheduledGameItem>) {
+    // Standings table
+    if (uiState.showLeagueTable) {
+        SectionLabel(stringResource(R.string.stats_section_standings))
+        Spacer(Modifier.height(8.dp))
+        StandingsTable(uiState)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Recent results
+    if (recent.isNotEmpty()) {
+        SectionLabel(stringResource(R.string.stats_section_results))
+        Spacer(Modifier.height(8.dp))
+        RecentResultsSection(recent)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Top scorers / performers
+    if (uiState.topScorers.isNotEmpty()) {
+        SectionLabel(stringResource(uiState.sportType.topScorersSectionLabel()))
+        Spacer(Modifier.height(8.dp))
+        TopPerformersList(uiState.topScorers, uiState.sportType)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Discipline (football/futsal/basketball)
+    if (uiState.showDisciplineSection) {
+        DisciplineSection(uiState)
+    }
 }
 
 @Composable
-private fun EventSummaryMetrics(uiState: ManageEventUiState) {
+private fun KnockoutSection(uiState: ManageEventUiState, recent: List<ScheduledGameItem>) {
+    // Show all finished results (bracket-style results list)
+    if (recent.isNotEmpty()) {
+        SectionLabel(stringResource(R.string.stats_knockout_results))
+        Spacer(Modifier.height(8.dp))
+        RecentResultsSection(recent)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Top performers
+    if (uiState.topScorers.isNotEmpty()) {
+        SectionLabel(stringResource(uiState.sportType.topScorersSectionLabel()))
+        Spacer(Modifier.height(8.dp))
+        TopPerformersList(uiState.topScorers, uiState.sportType)
+        Spacer(Modifier.height(20.dp))
+    }
+    if (uiState.showDisciplineSection) DisciplineSection(uiState)
+}
+
+@Composable
+private fun GroupKnockoutSection(uiState: ManageEventUiState, recent: List<ScheduledGameItem>) {
+    // Group standings
+    if (uiState.showLeagueTable) {
+        SectionLabel(stringResource(R.string.stats_group_stage))
+        Spacer(Modifier.height(8.dp))
+        StandingsTable(uiState)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Knockout results (all finished games, sorted by date desc)
+    val knockoutResults = recent.take(5)
+    if (knockoutResults.isNotEmpty()) {
+        SectionLabel(stringResource(R.string.stats_knockout_results))
+        Spacer(Modifier.height(8.dp))
+        RecentResultsSection(knockoutResults)
+        Spacer(Modifier.height(20.dp))
+    }
+    // Top scorers
+    if (uiState.topScorers.isNotEmpty()) {
+        SectionLabel(stringResource(uiState.sportType.topScorersSectionLabel()))
+        Spacer(Modifier.height(8.dp))
+        TopPerformersList(uiState.topScorers, uiState.sportType)
+        Spacer(Modifier.height(20.dp))
+    }
+    if (uiState.showDisciplineSection) DisciplineSection(uiState)
+}
+
+@Composable
+private fun FreeSection(uiState: ManageEventUiState, recent: List<ScheduledGameItem>) {
+    if (recent.isNotEmpty()) {
+        SectionLabel(stringResource(R.string.stats_section_results))
+        Spacer(Modifier.height(8.dp))
+        RecentResultsSection(recent)
+        Spacer(Modifier.height(20.dp))
+    }
+    if (uiState.topScorers.isNotEmpty()) {
+        SectionLabel(stringResource(uiState.sportType.topScorersSectionLabel()))
+        Spacer(Modifier.height(8.dp))
+        TopPerformersList(uiState.topScorers, uiState.sportType)
+        Spacer(Modifier.height(20.dp))
+    }
+    if (uiState.showDisciplineSection) DisciplineSection(uiState)
+}
+
+// ─── Sport-specific summary metrics ──────────────────────────────────────────
+
+@Composable
+private fun SportSummaryMetrics(uiState: ManageEventUiState) {
     val s = uiState.eventSummaryStats
-    // Label do score adapta-se ao desporto, tudo o resto é genérico
     val scoreLabel = stringResource(uiState.sportType.scoreLabelRes()).uppercase()
-    val metrics = buildList {
-        if (!uiState.isSingleMatch) {
-            add(Triple(Icons.Outlined.CalendarMonth, stringResource(R.string.manageEvent_games_played), "${uiState.gamesPlayed}"))
+
+    val metrics: List<Triple<ImageVector, String, String>> = when (uiState.sportType) {
+        SportType.SOCCER, SportType.FUTSAL -> buildList {
+            if (!uiState.isSingleMatch) add(Triple(Icons.Outlined.CalendarMonth, "JOGOS", "${uiState.gamesPlayed}"))
+            add(Triple(Icons.Outlined.EmojiEvents, "GOLOS", "${s.totalScore}"))
+            add(Triple(Icons.Outlined.Style, stringResource(R.string.stats_yellow_cards), "${s.yellowCards}"))
+            add(Triple(Icons.Outlined.Block, stringResource(R.string.stats_red_cards), "${s.redCards}"))
         }
-        add(Triple(Icons.Outlined.EmojiEvents, scoreLabel,                                       "${s.totalScore}"))
-        add(Triple(Icons.Outlined.Flag,         stringResource(R.string.stats_event_infractions), "${s.totalInfractions}"))
+        SportType.BASKETBALL -> buildList {
+            if (!uiState.isSingleMatch) add(Triple(Icons.Outlined.CalendarMonth, "JOGOS", "${uiState.gamesPlayed}"))
+            add(Triple(Icons.Outlined.EmojiEvents, "PONTOS", "${s.totalScore}"))
+            add(Triple(Icons.Outlined.PanTool, stringResource(R.string.stats_personal_fouls), "${s.personalFouls}"))
+            add(Triple(Icons.Outlined.Warning, stringResource(R.string.stats_technical_fouls), "${s.technicalFouls}"))
+        }
+        SportType.VOLLEYBALL -> buildList {
+            if (!uiState.isSingleMatch) add(Triple(Icons.Outlined.CalendarMonth, "JOGOS", "${uiState.gamesPlayed}"))
+            add(Triple(Icons.Outlined.EmojiEvents, "PONTOS", "${s.totalScore}"))
+            add(Triple(Icons.Outlined.ViewStream, stringResource(R.string.stats_sets_played), "${s.totalSetsWon}"))
+            add(Triple(Icons.Outlined.Flag, stringResource(R.string.stats_event_infractions), "${s.totalInfractions}"))
+        }
+        SportType.PADDLE -> buildList {
+            if (!uiState.isSingleMatch) add(Triple(Icons.Outlined.CalendarMonth, "JOGOS", "${uiState.gamesPlayed}"))
+            add(Triple(Icons.Outlined.EmojiEvents, "VITÓRIAS", "${s.totalScore}"))
+            val pairs = uiState.standings.size
+            if (pairs > 0) add(Triple(Icons.Outlined.Groups, "DUPLAS", "$pairs"))
+        }
     }
+
     MetricRow(metrics, emptySet())
+
+    // Soccer/Futsal: clean sheets badge
+    if ((uiState.sportType == SportType.SOCCER || uiState.sportType == SportType.FUTSAL) && s.cleanSheets > 0) {
+        Spacer(Modifier.height(8.dp))
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = Color(0xFFE8F5E9),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(Icons.Outlined.Shield, null, tint = Color(0xFF2E7D32), modifier = Modifier.size(16.dp))
+                Text(
+                    "${s.cleanSheets} ${stringResource(R.string.stats_clean_sheets)}",
+                    fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF2E7D32)
+                )
+            }
+        }
+    }
 }
 
+// ─── Discipline section ───────────────────────────────────────────────────────
+
 @Composable
-private fun BestScorerCard(scorer: ScorerItem, sportType: SportType) {
+private fun DisciplineSection(uiState: ManageEventUiState) {
+    val s = uiState.eventSummaryStats
+    val hasData = when (uiState.sportType) {
+        SportType.SOCCER, SportType.FUTSAL -> s.yellowCards > 0 || s.redCards > 0
+        SportType.BASKETBALL -> s.personalFouls > 0 || s.technicalFouls > 0
+        else -> s.totalInfractions > 0
+    }
+    if (!hasData) return
+
+    val sectionLabel = if (uiState.sportType == SportType.BASKETBALL)
+        stringResource(R.string.stats_section_discipline_basketball)
+    else
+        stringResource(R.string.stats_section_discipline)
+
+    SectionLabel(sectionLabel)
+    Spacer(Modifier.height(8.dp))
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = Color.White,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(SquadOrangeLight, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Outlined.EmojiEvents, null, tint = SquadOrange, modifier = Modifier.size(28.dp))
+        Column(modifier = Modifier.padding(16.dp)) {
+            when (uiState.sportType) {
+                SportType.SOCCER, SportType.FUTSAL -> {
+                    DisciplineRow(
+                        icon = Icons.Outlined.Style,
+                        iconColor = Color(0xFFFFC107),
+                        label = stringResource(R.string.infraction_yellow_card),
+                        value = "${s.yellowCards}"
+                    )
+                    if (s.yellowCards > 0 && s.redCards > 0) HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = SquadGrayLight)
+                    if (s.redCards > 0) DisciplineRow(
+                        icon = Icons.Outlined.Block,
+                        iconColor = Color(0xFFD32F2F),
+                        label = stringResource(R.string.infraction_red_card),
+                        value = "${s.redCards}"
+                    )
+                }
+                SportType.BASKETBALL -> {
+                    DisciplineRow(
+                        icon = Icons.Outlined.PanTool,
+                        iconColor = SquadOrange,
+                        label = stringResource(R.string.infraction_personal_foul),
+                        value = "${s.personalFouls}"
+                    )
+                    if (s.technicalFouls > 0) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = SquadGrayLight)
+                        DisciplineRow(
+                            icon = Icons.Outlined.Warning,
+                            iconColor = Color(0xFFD32F2F),
+                            label = stringResource(R.string.infraction_technical_foul),
+                            value = "${s.technicalFouls}"
+                        )
+                    }
+                }
+                else -> {
+                    DisciplineRow(
+                        icon = Icons.Outlined.Flag,
+                        iconColor = SquadOrange,
+                        label = stringResource(R.string.stats_event_infractions),
+                        value = "${s.totalInfractions}"
+                    )
+                }
             }
-            Spacer(modifier = Modifier.width(14.dp))
-            Column(modifier = Modifier.weight(1f)) {
+
+            // Top infractors
+            if (s.topInfractors.isNotEmpty()) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = SquadGrayLight)
                 Text(
-                    stringResource(R.string.manageEvent_best_scorer),
+                    stringResource(R.string.stats_top_infractors),
                     fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(scorer.name, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
-                Text(scorer.teamName, fontSize = 12.sp, color = SquadTextSecondary)
+                Spacer(Modifier.height(4.dp))
+                s.topInfractors.take(3).forEachIndexed { i, player ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("${i + 1}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(20.dp))
+                        Text(player.name, fontSize = 13.sp, color = SquadTextPrimary, modifier = Modifier.weight(1f))
+                        Text("${player.score}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
+                    }
+                }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("${scorer.score}", fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, color = SquadOrange)
-                Text(stringResource(sportType.scoreLabelRes()), fontSize = 10.sp, color = SquadTextSecondary)
+        }
+    }
+    Spacer(Modifier.height(20.dp))
+}
+
+@Composable
+private fun DisciplineRow(icon: ImageVector, iconColor: Color, label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, null, tint = iconColor, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(10.dp))
+        Text(label, fontSize = 13.sp, color = SquadTextPrimary, modifier = Modifier.weight(1f))
+        Text(value, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = iconColor)
+    }
+}
+
+// ─── Single match result card ─────────────────────────────────────────────────
+
+@Composable
+private fun SingleMatchResultCard(game: ScheduledGameItem) {
+    val homeWon = (game.homeScore ?: 0) > (game.awayScore ?: 0)
+    val awayWon = (game.awayScore ?: 0) > (game.homeScore ?: 0)
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Color.White,
+        shape = RoundedCornerShape(14.dp),
+        shadowElevation = 3.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier.size(52.dp)
+                            .background(if (homeWon) SquadOrange else SquadGrayLight, RoundedCornerShape(12.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(game.homeTeamAbbr.ifBlank { game.homeTeam.take(2) }, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,
+                            color = if (homeWon) Color.White else SquadTextSecondary)
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(game.homeTeam, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, textAlign = TextAlign.Center, maxLines = 2)
+                    if (homeWon) {
+                        Spacer(Modifier.height(4.dp))
+                        Surface(color = SquadOrange, shape = RoundedCornerShape(4.dp)) {
+                            Text("VENCEDOR", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                        }
+                    }
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 12.dp)) {
+                    Text("${game.homeScore}  —  ${game.awayScore}", fontSize = 32.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextPrimary)
+                    Text("FINAL", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 1.sp)
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier.size(52.dp)
+                            .background(if (awayWon) SquadOrange else SquadGrayLight, RoundedCornerShape(12.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(game.awayTeamAbbr.ifBlank { game.awayTeam.take(2) }, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,
+                            color = if (awayWon) Color.White else SquadTextSecondary)
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(game.awayTeam, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, textAlign = TextAlign.Center, maxLines = 2)
+                    if (awayWon) {
+                        Spacer(Modifier.height(4.dp))
+                        Surface(color = SquadOrange, shape = RoundedCornerShape(4.dp)) {
+                            Text("VENCEDOR", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                        }
+                    }
+                }
+            }
+
+            if (!homeWon && !awayWon) {
+                Spacer(Modifier.height(8.dp))
+                Surface(color = SquadGrayLight, shape = RoundedCornerShape(6.dp)) {
+                    Text("EMPATE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+                }
             }
         }
     }
 }
 
+// ─── Standings table (sport-aware columns) ────────────────────────────────────
+
 @Composable
-private fun StandingsTable(standings: List<StandingItem>, hasDraws: Boolean) {
+private fun StandingsTable(uiState: ManageEventUiState) {
+    val hasDraws = uiState.sportHasDraws
+    val showGoals = uiState.standingsShowGoals
+    val showSets = uiState.standingsShowSets
+    val ptsLabel = uiState.standingsPtsLabel
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = Color.White,
@@ -154,55 +450,91 @@ private fun StandingsTable(standings: List<StandingItem>, hasDraws: Boolean) {
         shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 6.dp)) {
-                Text("POS", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(32.dp))
-                Text(stringResource(R.string.manageEvent_standings_team), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.weight(1f))
-                Text("J",   fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
-                Text("V",   fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
+            // Header
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)) {
+                Text("#",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp))
+                Text("EQUIPA", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.weight(1f))
+                Text("J",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+                Text("V",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
                 if (hasDraws)
-                    Text("E", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
-                Text("D",   fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
-                Text("PTS", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(34.dp), textAlign = TextAlign.Center)
+                    Text("E", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+                Text("D",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+                if (showGoals) {
+                    Text(stringResource(R.string.stats_goals_for),    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.stats_goals_against), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.stats_goal_diff),     fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                }
+                if (showSets) {
+                    Text(stringResource(R.string.stats_sets_won), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                }
+                Text(ptsLabel, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
             }
             HorizontalDivider(color = SquadGrayLight)
-            standings.forEachIndexed { index, item ->
-                StandingRow(item, isFirst = index == 0, hasDraws = hasDraws)
-                if (index < standings.lastIndex)
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 14.dp), color = SquadGrayLight)
+            uiState.standings.forEachIndexed { index, item ->
+                StandingRow(item, isFirst = index == 0, hasDraws = hasDraws, showGoals = showGoals, showSets = showSets, ptsLabel = ptsLabel)
+                if (index < uiState.standings.lastIndex)
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 10.dp), color = SquadGrayLight)
             }
         }
     }
 }
 
 @Composable
-private fun StandingRow(item: StandingItem, isFirst: Boolean, hasDraws: Boolean) {
+private fun StandingRow(
+    item: StandingItem,
+    isFirst: Boolean,
+    hasDraws: Boolean,
+    showGoals: Boolean,
+    showSets: Boolean,
+    ptsLabel: String
+) {
     val accent = if (isFirst) SquadOrange else SquadTextSecondary
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (isFirst) SquadOrangeLight.copy(alpha = 0.5f) else Color.Transparent)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .background(if (isFirst) SquadOrangeLight.copy(alpha = 0.4f) else Color.Transparent)
+            .padding(horizontal = 10.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("${item.position}°", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = accent, modifier = Modifier.width(32.dp))
-        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+        Text("${item.position}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = accent, modifier = Modifier.width(24.dp))
+        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Box(
-                modifier = Modifier.size(26.dp).background(if (isFirst) SquadOrange else SquadGrayLight, RoundedCornerShape(4.dp)),
+                modifier = Modifier.size(22.dp).background(if (isFirst) SquadOrange else SquadGrayLight, RoundedCornerShape(4.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(item.teamAbbr.take(3), fontSize = 7.sp, fontWeight = FontWeight.ExtraBold, color = if (isFirst) Color.White else SquadTextSecondary)
+                Text(item.teamAbbr.take(3), fontSize = 6.sp, fontWeight = FontWeight.ExtraBold, color = if (isFirst) Color.White else SquadTextSecondary)
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(item.teamName, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(item.teamName, fontSize = 12.sp, color = SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        Text("${item.played}", fontSize = 13.sp, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
-        Text("${item.wins}",   fontSize = 13.sp, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
+        Text("${item.played}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+        Text("${item.wins}",   fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
         if (hasDraws)
-            Text("${item.draws}", fontSize = 13.sp, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
-        Text("${item.losses}", fontSize = 13.sp, color = SquadTextSecondary, modifier = Modifier.width(26.dp), textAlign = TextAlign.Center)
-        Text("${item.points}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isFirst) SquadOrange else SquadTextPrimary, modifier = Modifier.width(34.dp), textAlign = TextAlign.Center)
+            Text("${item.draws}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+        Text("${item.losses}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+        if (showGoals) {
+            Text("${item.goalsFor}",  fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+            Text("${item.goalsAgainst}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+            val diffColor = when {
+                item.goalDiff > 0  -> Color(0xFF2E7D32)
+                item.goalDiff < 0  -> Color(0xFFD32F2F)
+                else               -> SquadTextSecondary
+            }
+            Text(
+                if (item.goalDiff > 0) "+${item.goalDiff}" else "${item.goalDiff}",
+                fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = diffColor,
+                modifier = Modifier.width(24.dp), textAlign = TextAlign.Center
+            )
+        }
+        if (showSets) {
+            Text("${item.setsWon}-${item.setsLost}", fontSize = 11.sp, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+        }
+        Text("${item.points}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold,
+            color = if (isFirst) SquadOrange else SquadTextPrimary,
+            modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
     }
 }
+
+// ─── Recent results ───────────────────────────────────────────────────────────
 
 @Composable
 private fun RecentResultsSection(games: List<ScheduledGameItem>) {
@@ -214,6 +546,8 @@ private fun RecentResultsSection(games: List<ScheduledGameItem>) {
     ) {
         Column(modifier = Modifier.padding(vertical = 4.dp)) {
             games.forEachIndexed { index, game ->
+                val homeWon = (game.homeScore ?: 0) > (game.awayScore ?: 0)
+                val awayWon = (game.awayScore ?: 0) > (game.homeScore ?: 0)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -225,13 +559,23 @@ private fun RecentResultsSection(games: List<ScheduledGameItem>) {
                         Text(game.month, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = SquadGrayDark)
                         Text(game.day,   fontSize = 14.sp, fontWeight = FontWeight.Bold, color = SquadGrayDark)
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(game.homeTeamAbbr.ifBlank { game.homeTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary, modifier = Modifier.width(36.dp), textAlign = TextAlign.End)
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        game.homeTeamAbbr.ifBlank { game.homeTeam.take(3) },
+                        fontSize = 13.sp, fontWeight = if (homeWon) FontWeight.ExtraBold else FontWeight.Normal,
+                        color = if (homeWon) SquadTextPrimary else SquadTextSecondary,
+                        modifier = Modifier.width(36.dp), textAlign = TextAlign.End
+                    )
+                    Spacer(Modifier.width(8.dp))
                     Text("${game.homeScore}  –  ${game.awayScore}", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextPrimary)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(game.awayTeamAbbr.ifBlank { game.awayTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary, modifier = Modifier.width(36.dp))
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        game.awayTeamAbbr.ifBlank { game.awayTeam.take(3) },
+                        fontSize = 13.sp, fontWeight = if (awayWon) FontWeight.ExtraBold else FontWeight.Normal,
+                        color = if (awayWon) SquadTextPrimary else SquadTextSecondary,
+                        modifier = Modifier.width(36.dp)
+                    )
+                    Spacer(Modifier.weight(1f))
                     if (game.venue.isNotBlank()) {
                         Icon(Icons.Outlined.LocationOn, null, tint = SquadGray, modifier = Modifier.size(12.dp))
                         Text(game.venue, fontSize = 10.sp, color = SquadGray, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 80.dp))
@@ -243,8 +587,48 @@ private fun RecentResultsSection(games: List<ScheduledGameItem>) {
     }
 }
 
+// ─── Best performer card ──────────────────────────────────────────────────────
+
 @Composable
-private fun TopScorersList(scorers: List<ScorerItem>, sportType: SportType) {
+private fun BestPerformerCard(scorer: ScorerItem, sportType: SportType) {
+    val sportColor = sportType.accentColor()
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Color.White,
+        shape = RoundedCornerShape(12.dp),
+        shadowElevation = 2.dp
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier.size(52.dp).background(sportColor.copy(alpha = 0.12f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Outlined.EmojiEvents, null, tint = sportColor, modifier = Modifier.size(28.dp))
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(sportType.topPerformerLabelRes()),
+                    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(scorer.name, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                if (scorer.teamName.isNotBlank())
+                    Text(scorer.teamName, fontSize = 12.sp, color = SquadTextSecondary)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("${scorer.score}", fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, color = sportColor)
+                Text(stringResource(sportType.scoreLabelRes()), fontSize = 10.sp, color = SquadTextSecondary)
+            }
+        }
+    }
+}
+
+// ─── Top performers list ──────────────────────────────────────────────────────
+
+@Composable
+private fun TopPerformersList(scorers: List<ScorerItem>, sportType: SportType) {
+    val sportColor = sportType.accentColor()
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = Color.White,
@@ -252,54 +636,63 @@ private fun TopScorersList(scorers: List<ScorerItem>, sportType: SportType) {
         shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
-            scorers.forEachIndexed { index, scorer ->
-                TopScorerRow(rank = index + 1, scorer = scorer, sportType = sportType)
-                if (index < scorers.lastIndex) {
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 14.dp), color = SquadGrayLight)
+            scorers.take(10).forEachIndexed { index, scorer ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val rankColor = when (index + 1) {
+                        1 -> Color(0xFFFFD700)
+                        2 -> Color(0xFFC0C0C0)
+                        3 -> Color(0xFFCD7F32)
+                        else -> SquadTextSecondary
+                    }
+                    Text("${index + 1}", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = rankColor, modifier = Modifier.width(26.dp))
+                    Box(
+                        modifier = Modifier.size(34.dp).background(sportColor.copy(alpha = 0.1f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            scorer.name.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""),
+                            fontSize = 10.sp, fontWeight = FontWeight.Bold, color = sportColor
+                        )
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(scorer.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                        if (scorer.teamName.isNotBlank())
+                            Text(scorer.teamName, fontSize = 11.sp, color = SquadTextSecondary)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("${scorer.score}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = sportColor)
+                        Text(stringResource(sportType.scoreLabelRes()), fontSize = 9.sp, color = SquadTextSecondary)
+                    }
                 }
+                if (index < scorers.take(10).lastIndex)
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 14.dp), color = SquadGrayLight)
             }
         }
     }
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 @Composable
-private fun TopScorerRow(rank: Int, scorer: ScorerItem, sportType: SportType) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val rankColor = when (rank) {
-            1    -> Color(0xFFFFD700)
-            2    -> Color(0xFFC0C0C0)
-            3    -> Color(0xFFCD7F32)
-            else -> SquadTextSecondary
-        }
-        Text(
-            text = "$rank",
-            fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = rankColor,
-            modifier = Modifier.width(28.dp)
-        )
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .background(SquadOrangeLight, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = scorer.name.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""),
-                fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadOrange
-            )
-        }
-        Spacer(modifier = Modifier.width(10.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(scorer.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
-            Text(scorer.teamName, fontSize = 12.sp, color = SquadTextSecondary)
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("${scorer.score}", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = SquadOrange)
-            Text(stringResource(sportType.scoreLabelRes()), fontSize = 9.sp, color = SquadTextSecondary)
-        }
-    }
+private fun SectionLabel(label: String) {
+    Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.6.sp)
+}
+
+private fun SportType.accentColor(): Color = when (this) {
+    SportType.SOCCER     -> Color(0xFF2F9D73)
+    SportType.FUTSAL     -> Color(0xFF1A6B3C)
+    SportType.BASKETBALL -> Color(0xFFD4611A)
+    SportType.VOLLEYBALL -> Color(0xFF9B27AF)
+    SportType.PADDLE     -> Color(0xFF1A7BD4)
+}
+
+private fun SportType.topScorersSectionLabel(): Int = when (this) {
+    SportType.SOCCER, SportType.FUTSAL -> R.string.manageEvent_top_scorers
+    SportType.BASKETBALL               -> R.string.manageEvent_top_scorers
+    SportType.VOLLEYBALL               -> R.string.stats_section_top_performers
+    SportType.PADDLE                   -> R.string.stats_section_top_performers
 }
