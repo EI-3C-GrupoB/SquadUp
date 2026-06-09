@@ -129,6 +129,7 @@ fun CreateEventScreen(
 
     // Step 1
     onEventNameChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
     onNotificationsClick: () -> Unit,
     onPrivacyChange: (Boolean) -> Unit,
     onSportSelect: (SportType) -> Unit,
@@ -226,6 +227,7 @@ fun CreateEventScreen(
                     CreateEventStep.BASIC_INFO -> BasicInfoStep(
                         uiState = uiState,
                         onEventNameChange = onEventNameChange,
+                        onDescriptionChange = onDescriptionChange,
                         onPrivacyChange = onPrivacyChange,
                         onSportSelect = onSportSelect,
                         onNextStep = onNextStep
@@ -347,6 +349,7 @@ private fun StepProgressBar(
 private fun BasicInfoStep(
     uiState: CreateEventUiState,
     onEventNameChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
     onPrivacyChange: (Boolean) -> Unit,
     onSportSelect: (SportType) -> Unit,
     onNextStep: () -> Unit
@@ -387,6 +390,35 @@ private fun BasicInfoStep(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = SquadOrange,
+                unfocusedBorderColor = SquadGrayLight,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            )
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        SectionLabel("Descrição (opcional)")
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        OutlinedTextField(
+            value = uiState.description,
+            onValueChange = onDescriptionChange,
+            placeholder = {
+                Text(
+                    text = "Descreve o evento, o que vai acontecer, quem pode participar...",
+                    color = SquadTextSecondary,
+                    fontSize = 14.sp
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 90.dp),
+            shape = RoundedCornerShape(10.dp),
+            maxLines = 6,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = SquadOrange,
                 unfocusedBorderColor = SquadGrayLight,

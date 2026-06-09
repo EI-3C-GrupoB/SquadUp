@@ -160,7 +160,19 @@ fun MyEventsScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // Event list
-            if (uiState.filteredEvents.isEmpty()) {
+            if (uiState.isLoading) {
+                Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = SquadOrange)
+                }
+            } else if (uiState.errorMessage != null) {
+                EmptyStateCard(
+                    title = "Erro",
+                    message = uiState.errorMessage,
+                    icon = Icons.Default.CalendarMonth,
+                    actionText = "Tentar novamente",
+                    onActionClick = {}
+                )
+            } else if (uiState.filteredEvents.isEmpty()) {
                 EmptyStateCard(
                     title = "Sem eventos",
                     message = "Ainda não tens eventos nesta categoria. Cria um evento para começar!",

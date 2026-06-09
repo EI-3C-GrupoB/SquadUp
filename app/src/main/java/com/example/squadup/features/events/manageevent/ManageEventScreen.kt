@@ -4,9 +4,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,6 +46,13 @@ fun ManageEventScreen(
     onDeleteTeamClick: (String) -> Unit,
     onEditGameClick: (String) -> Unit,
     onCreateGameClick: () -> Unit,
+    onDismissCreateGameDialog: () -> Unit,
+    onCreateGameHomeTeamChange: (String) -> Unit,
+    onCreateGameAwayTeamChange: (String) -> Unit,
+    onCreateGameDateChange: (String) -> Unit,
+    onCreateGameTimeChange: (String) -> Unit,
+    onCreateGameVenueChange: (String) -> Unit,
+    onConfirmCreateGame: () -> Unit,
     onFormTeamsClick: () -> Unit,
     onEditEventClick: () -> Unit,
     onStatusActionClick: () -> Unit,
@@ -62,6 +71,20 @@ fun ManageEventScreen(
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit,
 ) {
+    // Create Game Dialog
+    if (uiState.showCreateGameDialog) {
+        CreateGameDialog(
+            uiState = uiState,
+            onDismiss = onDismissCreateGameDialog,
+            onHomeTeamChange = onCreateGameHomeTeamChange,
+            onAwayTeamChange = onCreateGameAwayTeamChange,
+            onDateChange = onCreateGameDateChange,
+            onTimeChange = onCreateGameTimeChange,
+            onVenueChange = onCreateGameVenueChange,
+            onConfirm = onConfirmCreateGame
+        )
+    }
+
     // Tabs adaptativas conforme o formato do evento
     val tabs = if (uiState.isSingleMatch) {
         listOf(ManageEventTab.OVERVIEW, ManageEventTab.MATCH, ManageEventTab.STATS)
@@ -102,6 +125,19 @@ fun ManageEventScreen(
             }
         }
     ) { innerPadding ->
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SquadBackground)
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = SquadOrange)
+            }
+            return@Scaffold
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -181,6 +217,7 @@ fun ManageEventScreen(
                     onManageLiveClick = onManageLiveClick,
                     onEditMatchClick = { onEditGameClick(uiState.scheduledGames.firstOrNull()?.id ?: "") },
                     onTeamExpand = onTeamExpand,
+                    onCreateGameClick = onCreateGameClick,
                 )
                 ManageEventTab.STATS -> StatsTabContent(uiState = uiState)
             }
@@ -246,6 +283,190 @@ private fun ManageEventTabRow(
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) Color.White else SquadTextSecondary
                     )
+                }
+            }
+        }
+    }
+}
+
+// ─── Create Game Dialog ───────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CreateGameDialog(
+    uiState: ManageEventUiState,
+    onDismiss: () -> Unit,
+    onHomeTeamChange: (String) -> Unit,
+    onAwayTeamChange: (String) -> Unit,
+    onDateChange: (String) -> Unit,
+    onTimeChange: (String) -> Unit,
+    onVenueChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+) {
+    val sportLabel = when (uiState.sportType) {
+        com.example.squadup.core.enums.SportType.SOCCER -> "Futebol"
+        com.example.squadup.core.enums.SportType.FUTSAL -> "Futsal"
+        com.example.squadup.core.enums.SportType.BASKETBALL -> "Basquetebol"
+        com.example.squadup.core.enums.SportType.VOLLEYBALL -> "Voleibol"
+        com.example.squadup.core.enums.SportType.PADDLE -> "Padel"
+    }
+
+    var homeExpanded by remember { mutableStateOf(false) }
+    var awayExpanded by remember { mutableStateOf(false) }
+
+    val homeTeamName = uiState.teams.firstOrNull { it.id == uiState.createGameHomeTeamId }?.name ?: "Selecionar equipa"
+    val awayTeamName = uiState.teams.firstOrNull { it.id == uiState.createGameAwayTeamId }?.name ?: "Selecionar equipa"
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = SquadBackground,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("Criar Jogo", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                    Text(sportLabel, fontSize = 13.sp, color = SquadOrange, fontWeight = FontWeight.SemiBold)
+                }
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Outlined.Close, null, tint = SquadTextSecondary)
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            // Home team
+            Text("Equipa Casa", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Spacer(Modifier.height(6.dp))
+            ExposedDropdownMenuBox(expanded = homeExpanded, onExpandedChange = { homeExpanded = it }) {
+                OutlinedTextField(
+                    value = homeTeamName,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = homeExpanded) },
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                )
+                ExposedDropdownMenu(expanded = homeExpanded, onDismissRequest = { homeExpanded = false }) {
+                    uiState.teams.forEach { team ->
+                        DropdownMenuItem(
+                            text = { Text(team.name) },
+                            onClick = { onHomeTeamChange(team.id); homeExpanded = false }
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            // Away team
+            Text("Equipa Visitante", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Spacer(Modifier.height(6.dp))
+            ExposedDropdownMenuBox(expanded = awayExpanded, onExpandedChange = { awayExpanded = it }) {
+                OutlinedTextField(
+                    value = awayTeamName,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = awayExpanded) },
+                    modifier = Modifier.fillMaxWidth().menuAnchor(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                )
+                ExposedDropdownMenu(expanded = awayExpanded, onDismissRequest = { awayExpanded = false }) {
+                    uiState.teams.forEach { team ->
+                        DropdownMenuItem(
+                            text = { Text(team.name) },
+                            onClick = { onAwayTeamChange(team.id); awayExpanded = false }
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            // Date + Time row
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text("Data", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                    Spacer(Modifier.height(6.dp))
+                    OutlinedTextField(
+                        value = uiState.createGameDate,
+                        onValueChange = onDateChange,
+                        placeholder = { Text("AAAA-MM-DD", fontSize = 13.sp, color = SquadGray) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    )
+                }
+                Column(Modifier.weight(1f)) {
+                    Text("Hora", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                    Spacer(Modifier.height(6.dp))
+                    OutlinedTextField(
+                        value = uiState.createGameTime,
+                        onValueChange = onCreateGameTimeChange@{ v ->
+                            // auto-insert colon: "1430" → "14:30"
+                            val digits = v.filter { it.isDigit() }.take(4)
+                            val formatted = if (digits.length >= 3) "${digits.take(2)}:${digits.drop(2)}" else digits
+                            onTimeChange(formatted)
+                        },
+                        placeholder = { Text("HH:MM", fontSize = 13.sp, color = SquadGray) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            // Venue
+            Text("Local (opcional)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Spacer(Modifier.height(6.dp))
+            OutlinedTextField(
+                value = uiState.createGameVenue,
+                onValueChange = onVenueChange,
+                placeholder = { Text("Local do jogo", fontSize = 13.sp, color = SquadGray) },
+                singleLine = true,
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = { Icon(Icons.Outlined.LocationOn, null, tint = SquadGray, modifier = Modifier.size(18.dp)) },
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+            )
+
+            // Error
+            uiState.createGameError?.let { err ->
+                Spacer(Modifier.height(10.dp))
+                Text(err, fontSize = 13.sp, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Button(
+                onClick = onConfirm,
+                enabled = !uiState.isCreatingGame,
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White)
+            ) {
+                if (uiState.isCreatingGame) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = Color.White)
+                } else {
+                    Icon(Icons.Outlined.Add, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Criar Jogo", fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

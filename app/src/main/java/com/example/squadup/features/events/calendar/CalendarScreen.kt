@@ -135,7 +135,7 @@ fun CalendarScreen(
                     )
 
                     Text(
-                        text = "${uiState.matchesScheduled} Matches Scheduled",
+                        text = "${uiState.matchesScheduled} jogos agendados",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = SquadTextSecondary
@@ -159,7 +159,7 @@ fun CalendarScreen(
                         )
 
                         Text(
-                            text = "Today",
+                            text = "Hoje",
                             color = SquadTextPrimary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -187,6 +187,7 @@ fun CalendarScreen(
             MonthCalendarCard(
                 selectedDay = uiState.selectedDay,
                 eventDays = uiState.eventDays,
+                calendarCells = uiState.calendarCells,
                 onDayClick = onDayClick
             )
 
@@ -219,17 +220,20 @@ fun CalendarScreen(
 private fun MonthCalendarCard(
     selectedDay: Int,
     eventDays: Set<Int>,
+    calendarCells: List<Int?>,
     onDayClick: (Int) -> Unit
 ) {
-    val weekDays = listOf("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT")
+    val weekDays = listOf("DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB")
 
-    val cells = listOf<Int?>(
-        null, null, null, 1, 2, 3, 4,
-        5, 6, 7, 8, 9, 10, 11,
-        12, 13, 14, 15, 16, 17, 18,
-        19, 20, 21, 22, 23, 24, 25,
-        26, 27, 28, 29, 30, null, null
-    )
+    val cells = calendarCells.ifEmpty {
+        listOf<Int?>(
+            null, null, null, 1, 2, 3, 4,
+            5, 6, 7, 8, 9, 10, 11,
+            12, 13, 14, 15, 16, 17, 18,
+            19, 20, 21, 22, 23, 24, 25,
+            26, 27, 28, 29, 30, null, null
+        )
+    }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -315,7 +319,7 @@ private fun CalendarDayCell(
 
                 if (selected) {
                     Text(
-                        text = "TODAY",
+                        text = "HOJE",
                         fontSize = 7.sp,
                         fontWeight = FontWeight.Bold,
                         color = SquadOrange
@@ -409,7 +413,7 @@ private fun MatchHighlightCard(
                     )
                 ) {
                     Text(
-                        text = "Match Details",
+                        text = "Detalhes do Jogo",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -484,7 +488,7 @@ private fun DailyScheduleCard(
             modifier = Modifier.padding(22.dp)
         ) {
             Text(
-                text = "DAILY SCHEDULE",
+                text = "AGENDA DO DIA",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.8.sp,
@@ -597,7 +601,7 @@ private fun AwayGameCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "View Travel Info",
+                        text = "Ver informações de viagem",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White

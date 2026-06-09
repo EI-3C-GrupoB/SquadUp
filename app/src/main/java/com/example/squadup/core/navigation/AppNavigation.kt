@@ -38,6 +38,8 @@ import com.example.squadup.features.profile.tickets.MyTicketsRoute
 import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
 import com.example.squadup.features.auth.login.LoginRoute
 import com.example.squadup.features.auth.register.RegisterRoute
+import com.example.squadup.features.events.editevent.EditEventRoute
+import com.example.squadup.features.events.formteams.FormTeamsRoute
 import com.example.squadup.features.teams.TeamsRoute
 import com.example.squadup.features.teams.createteam.CreateTeamRoute
 import com.example.squadup.features.teams.invite.InviteTeamRoute
@@ -476,12 +478,16 @@ fun AppNavigation() {
                     }
                 },
                 onBackClick = { navController.popBackStack() },
-                onFormTeamsClick = {},
-                onEditEventClick = {},
+                onFormTeamsClick = {
+                    navController.navigate(AppRoutes.FormTeams.createRoute(eventId))
+                },
+                onEditEventClick = {
+                    navController.navigate(AppRoutes.EditEvent.createRoute(eventId))
+                },
                 onManageLiveClick = { gameId ->
                     navController.navigate(AppRoutes.LiveMatch.createRoute(gameId))
                 },
-                onCreateGameClick = {},
+                onCreateGameClick = { /* handled by ManageEventRoute → ViewModel */ },
                 onEditGameClick = {},
                 appViewModel = appViewModel
             )
@@ -533,6 +539,34 @@ fun AppNavigation() {
                 onTravelInfoClick = {
                     // TODO: navegar para informação de viagem
                 },
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(
+            route = AppRoutes.EditEvent.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            EditEventRoute(
+                eventId = eventId,
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = navigateWithBottomBar,
+                onBackClick = { navController.popBackStack() },
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(
+            route = AppRoutes.FormTeams.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            FormTeamsRoute(
+                eventId = eventId,
+                selectedRoute = AppRoutes.Profile.route,
+                onNavItemClick = navigateWithBottomBar,
+                onBackClick = { navController.popBackStack() },
                 appViewModel = appViewModel
             )
         }

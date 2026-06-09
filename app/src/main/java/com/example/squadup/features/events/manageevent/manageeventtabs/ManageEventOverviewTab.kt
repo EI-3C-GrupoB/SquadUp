@@ -197,7 +197,6 @@ internal fun OverviewTabContent(
 
         // Form Teams — só se há agentes livres e evento não terminado/cancelado
         if (uiState.allowFreeAgents &&
-            uiState.freeAgentsCount > 0 &&
             uiState.status != EventStatus.FINISHED &&
             uiState.status != EventStatus.CANCELLED
         ) {

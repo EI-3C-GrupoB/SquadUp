@@ -278,6 +278,41 @@ class ManageEventRepository(
     }
 
 
+    suspend fun createGame(
+        eventId: String,
+        homeTeamId: String,
+        awayTeamId: String,
+        date: String,
+        time: String,
+        venue: String
+    ): Result<Unit> {
+        return try {
+            val id = eventId.toIntOrNull() ?: throw Exception("Evento inválido.")
+            val homeId = homeTeamId.toIntOrNull() ?: throw Exception("Equipa casa inválida.")
+            val awayId = awayTeamId.toIntOrNull() ?: throw Exception("Equipa visitante inválida.")
+            if (homeId == awayId) throw Exception("As equipas têm de ser diferentes.")
+
+            val scheduledAt = "${date}T${time}:00"
+
+            val insertResult = supabaseClient.from("jogo")
+                .insert(ManageEventGameInsertRow(
+                    eventId = id,
+                    scheduledAt = scheduledAt,
+                    venue = venue.takeIf { it.isNotBlank() }
+                )) { select() }
+            val newGame = insertResult.decodeSingle<ManageEventGameCreatedRow>()
+
+            supabaseClient.from("jogo_equipa")
+                .insert(ManageEventGameTeamInsertRow(gameId = newGame.id, teamId = homeId))
+            supabaseClient.from("jogo_equipa")
+                .insert(ManageEventGameTeamInsertRow(gameId = newGame.id, teamId = awayId))
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private suspend fun checkIndividualCapacity(eventId: Int) {
         val event = supabaseClient
             .from("evento")
@@ -579,13 +614,15 @@ class ManageEventRepository(
             sportType = sportType,
             status = status.toEventStatus(),
             isPublic = isPrivate != true,
-            allowTeams = maxTeams != null,
-            allowFreeAgents = participationType == "individual" ||
-                    participationType == "individual_e_equipa" ||
-                    acceptedIndividualRegistrations.isNotEmpty() ||
-                    pendingIndividualRegistrations.isNotEmpty(),
+            allowTeams = participationType == "equipa" || participationType == "individual_e_equipa",
+            allowFreeAgents = participationType == "individual" || participationType == "individual_e_equipa",
             registeredTeams = confirmedTeamIds.size,
-            maxTeams = maxTeams ?: participationLimit ?: 0,
+            maxTeams = when (participationType) {
+                "equipa" -> maxTeams ?: 0
+                "individual" -> participationLimit ?: 0
+                "individual_e_equipa" -> (maxTeams ?: 0).takeIf { it > 0 } ?: (participationLimit ?: 0)
+                else -> maxTeams ?: participationLimit ?: 0
+            },
             activePlayers = acceptedIndividualRegistrations.size + confirmedTeamRegistrations.size,
             freeAgentsCount = acceptedIndividualRegistrations.size,
             entryFee = priceLabel(price ?: entryFee),

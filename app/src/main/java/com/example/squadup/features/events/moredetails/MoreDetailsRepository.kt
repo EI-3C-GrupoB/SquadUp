@@ -259,14 +259,32 @@ class MoreDetailsRepository(
         val registrationStart = registrationStartDate.toLocalDateTimeOrNull()
         val registrationEnd = registrationEndDate.toLocalDateTimeOrNull()
 
-        val maxSlots = maxTeams ?: participationLimit ?: 0
-        val spotsLeft = if (maxSlots > 0) {
-            (maxSlots - acceptedRegistrations).coerceAtLeast(0)
-        } else {
-            0
+        val pt = participationType ?: "individual"
+        val hasTeamParticipation = pt == "equipa" || pt == "individual_e_equipa"
+        val hasIndividualParticipation = pt == "individual" || pt == "individual_e_equipa"
+
+        // Slots por tipo de participação
+        val maxSlots = when (pt) {
+            "equipa" -> maxTeams ?: 0
+            "individual" -> participationLimit ?: 0
+            "individual_e_equipa" -> (maxTeams ?: 0).takeIf { it > 0 } ?: (participationLimit ?: 0)
+            else -> maxTeams ?: participationLimit ?: 0
         }
 
-        val hasTeamRequirement = (maxTeams ?: 0) > 0
+        val spotsLeft = if (maxSlots > 0) (maxSlots - acceptedRegistrations).coerceAtLeast(0) else 0
+
+        // Format fallback: se não há nome no DB, derivar de tipo_evento
+        val resolvedFormatName = formatName.ifBlank { eventType.toEntryTypeLabel().ifBlank { "Não definido" } }
+
+        // Registration status label
+        val now = LocalDateTime.now()
+        val isFull = maxSlots > 0 && spotsLeft == 0
+        val registrationStatusLabel = when {
+            isFull -> "Cheio"
+            registrationStart != null && now.isBefore(registrationStart) -> "Inscrições não abertas"
+            registrationEnd != null && now.isAfter(registrationEnd) -> "Inscrições encerradas"
+            else -> ""
+        }
 
         return MoreDetailsUiState(
             isLoading = false,
@@ -284,17 +302,17 @@ class MoreDetailsRepository(
             entryType = eventType.toEntryType(),
             eventStatus = eventStatus.toEventStatusLabel(),
             modalityName = modalityName.ifBlank { "Modalidade não definida" },
-            formatName = formatName.ifBlank { "Formato não definido" },
+            formatName = resolvedFormatName,
 
-            teamRequirementTitle = if (hasTeamRequirement) {
-                "Equipa necessária"
-            } else {
-                "Inscrição individual"
+            teamRequirementTitle = when (pt) {
+                "equipa" -> "Por equipas"
+                "individual_e_equipa" -> "Individual e equipas"
+                else -> "Inscrição individual"
             },
-            teamRequirementDescription = if (hasTeamRequirement) {
-                "Este evento aceita inscrições por equipa."
-            } else {
-                "Este evento aceita inscrições individuais."
+            teamRequirementDescription = when (pt) {
+                "equipa" -> "Este evento aceita inscrições por equipa."
+                "individual_e_equipa" -> "Este evento aceita inscrições individuais e por equipa."
+                else -> "Este evento aceita inscrições individuais."
             },
 
             priceLabel = price.toMoneyLabel(currency),
@@ -315,11 +333,23 @@ class MoreDetailsRepository(
             longitude = longitude,
 
             creatorId = creatorId,
-            participationType = participationType ?: "individual",
+            participationType = pt,
+            isPrivate = isPrivate == true,
+            registrationStatusLabel = registrationStatusLabel,
 
             userEventRegistrationStatus = currentUserRegistration?.registrationStatus,
             userEventRegistrationType = currentUserRegistration?.registrationType
         )
+    }
+
+    private fun String?.toEntryTypeLabel(): String {
+        return when (this?.lowercase()) {
+            "liga" -> "Liga"
+            "torneio" -> "Torneio"
+            "jogo_amigavel" -> "Jogo Único"
+            "outro" -> "Livre"
+            else -> ""
+        }
     }
 
     private fun String?.toEntryType(): String {

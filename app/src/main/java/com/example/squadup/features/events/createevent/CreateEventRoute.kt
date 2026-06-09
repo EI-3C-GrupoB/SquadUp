@@ -27,6 +27,7 @@ fun CreateEventRoute(
         onPreviousStep = viewModel::onPreviousStep,
         onGoToStep = viewModel::onGoToStep,
         onEventNameChange = viewModel::onEventNameChange,
+        onDescriptionChange = viewModel::onDescriptionChange,
         onPrivacyChange = viewModel::onPrivacyChange,
         onSportSelect = viewModel::onSportSelect,
         onCoverImageSelected = viewModel::onCoverImageSelected,

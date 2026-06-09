@@ -146,8 +146,19 @@ class CreateEventRepository(
                 }?.id
             } ?: throw Exception("Modalidade não encontrada na base de dados.")
 
+            val tipoEvento = state.eventFormat.toDatabaseType()
             val formatId = formats.firstOrNull { format ->
                 format.name.equals(state.format, ignoreCase = true)
+            }?.id ?: formats.firstOrNull { format ->
+                // Fallback: match by likely Portuguese format name patterns
+                val n = format.name.lowercase()
+                when (tipoEvento) {
+                    "jogo_amigavel" -> "único" in n || "amigável" in n || "single" in n
+                    "liga" -> "liga" in n && "eliminat" !in n
+                    "torneio" -> "eliminat" in n || "torneio" in n
+                    "outro" -> "livre" in n || "free" in n
+                    else -> false
+                }
             }?.id
 
             val coverImageUrl = state.coverImageUri?.let { uri ->
@@ -159,7 +170,6 @@ class CreateEventRepository(
             }
 
             val participationType = resolveParticipationType(state)
-            val tipoEvento = state.eventFormat.toDatabaseType()
 
             val maxTeamsValue = when (participationType) {
                 EventParticipationType.TEAM,
@@ -180,9 +190,7 @@ class CreateEventRepository(
                 .insert(
                     CreateEventInsertRow(
                         title = state.eventName.trim(),
-                        description = state.generalRules
-                            .takeIf { it.isNotBlank() }
-                            ?.take(500),
+                        description = state.description.takeIf { it.isNotBlank() },
                         imageUrl = coverImageUrl,
                         address = state.venue.trim(),
                         latitude = state.latitude,

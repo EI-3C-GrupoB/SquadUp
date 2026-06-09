@@ -211,6 +211,25 @@ data class ManageEventTeamRegistrationRow(
 )
 
 @Serializable
+data class ManageEventGameInsertRow(
+    @SerialName("evento_id") val eventId: Int,
+    @SerialName("data_hora_prevista") val scheduledAt: String,
+    @SerialName("estado_jogo") val status: String = "agendado",
+    @SerialName("morada") val venue: String? = null
+)
+
+@Serializable
+data class ManageEventGameCreatedRow(
+    val id: Int
+)
+
+@Serializable
+data class ManageEventGameTeamInsertRow(
+    @SerialName("jogo_id") val gameId: Int,
+    @SerialName("equipa_id") val teamId: Int
+)
+
+@Serializable
 data class ManageEventNotificationInsertRow(
     @SerialName("user_id")
     val userId: Int,

@@ -71,7 +71,10 @@ data class MoreDetailsEventRow(
     val modalityId: Int? = null,
 
     @SerialName("formato_id")
-    val formatId: Int? = null
+    val formatId: Int? = null,
+
+    @SerialName("is_private")
+    val isPrivate: Boolean? = false
 )
 
 @Serializable

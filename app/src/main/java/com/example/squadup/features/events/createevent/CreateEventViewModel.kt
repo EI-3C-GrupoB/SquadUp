@@ -32,11 +32,15 @@ class CreateEventViewModel : ViewModel() {
         viewModelScope.launch {
             repository.getUserContext()
                 .onSuccess { context ->
+                    val currentFormat = _uiState.value.eventFormat
+                    val matchingName = context.formatOptions.firstOrNull { currentFormat.matchesFormatName(it) }
+                        ?: context.formatOptions.firstOrNull()
+                        ?: currentFormat.toDefaultFormatName()
                     _uiState.value = _uiState.value.copy(
                         userRole = context.userRole,
                         userTeams = context.userTeams,
                         formatOptions = context.formatOptions,
-                        format = context.formatOptions.firstOrNull() ?: _uiState.value.format
+                        format = matchingName
                     )
                 }
         }
@@ -122,6 +126,12 @@ class CreateEventViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(eventName = value)
     }
 
+    fun onDescriptionChange(value: String) {
+        if (value.length <= 1000) {
+            _uiState.value = _uiState.value.copy(description = value)
+        }
+    }
+
     fun onPrivacyChange(isPublic: Boolean) {
         _uiState.value = _uiState.value.copy(
             isPublic = isPublic,
@@ -132,10 +142,14 @@ class CreateEventViewModel : ViewModel() {
     fun onSportSelect(sport: SportType) {
         val currentSport = _uiState.value.selectedSport
         val newSport = if (currentSport == sport) null else sport
-
+        val currentFormat = _uiState.value.eventFormat
+        val options = _uiState.value.formatOptions
+        val matchingName = options.firstOrNull { currentFormat.matchesFormatName(it) }
+            ?: options.firstOrNull()
+            ?: currentFormat.toDefaultFormatName()
         _uiState.value = _uiState.value.copy(
             selectedSport = newSport,
-            format = formatsFor(newSport).firstOrNull().orEmpty()
+            format = matchingName
         )
     }
 
@@ -146,11 +160,33 @@ class CreateEventViewModel : ViewModel() {
     }
 
     fun onEventFormatChange(eventFormat: EventFormat) {
-        _uiState.value = _uiState.value.copy(eventFormat = eventFormat)
+        val matchingName = _uiState.value.formatOptions
+            .firstOrNull { eventFormat.matchesFormatName(it) }
+            ?: eventFormat.toDefaultFormatName()
+        _uiState.value = _uiState.value.copy(eventFormat = eventFormat, format = matchingName)
     }
 
     fun onFormatChange(format: String) {
         _uiState.value = _uiState.value.copy(format = format)
+    }
+
+    private fun EventFormat.matchesFormatName(name: String): Boolean {
+        val n = name.lowercase()
+        return when (this) {
+            EventFormat.SINGLE_MATCH -> "único" in n || "amigável" in n || "single" in n || ("jogo" in n && "liga" !in n)
+            EventFormat.LEAGUE -> "liga" in n && "eliminat" !in n
+            EventFormat.KNOCKOUT -> "eliminat" in n && "grupo" !in n
+            EventFormat.GROUP_KNOCKOUT -> "grupo" in n
+            EventFormat.FREE -> "livre" in n || "free" in n
+        }
+    }
+
+    private fun EventFormat.toDefaultFormatName(): String = when (this) {
+        EventFormat.SINGLE_MATCH -> "Jogo Único"
+        EventFormat.LEAGUE -> "Liga"
+        EventFormat.KNOCKOUT -> "Eliminatórias"
+        EventFormat.GROUP_KNOCKOUT -> "Grupos + Eliminatórias"
+        EventFormat.FREE -> "Livre"
     }
 
     fun onMaxTeamsChange(delta: Int) {

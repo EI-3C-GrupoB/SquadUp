@@ -8,7 +8,9 @@ enum class MyEventsFilter { All, Active, Completed }
 data class MyEventsUiState(
     val searchQuery: String = "",
     val selectedFilter: MyEventsFilter = MyEventsFilter.All,
-    val events: List<MyEventItem> = emptyList()
+    val events: List<MyEventItem> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 ) {
     val filteredEvents: List<MyEventItem>
         get() = events
@@ -35,5 +37,6 @@ data class MyEventItem(
     val status: EventStatus,
     val sportType: SportType,
     val registeredCount: Int = 0,
-    val matchesInProgress: Int = 0
+    val matchesInProgress: Int = 0,
+    val isCreator: Boolean = false
 )

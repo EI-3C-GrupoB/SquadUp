@@ -31,6 +31,7 @@ internal fun MatchTabContent(
     onManageLiveClick: (String) -> Unit,
     onEditMatchClick: () -> Unit,
     onTeamExpand: (String) -> Unit,
+    onCreateGameClick: () -> Unit = {},
 ) {
     val game = uiState.scheduledGames.firstOrNull()
     val homeTeam = uiState.teams.getOrNull(0)
@@ -54,7 +55,7 @@ internal fun MatchTabContent(
                 onEdit = onEditMatchClick
             )
         } else {
-            MatchEmptyState()
+            MatchEmptyState(onCreateGameClick = onCreateGameClick)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -328,7 +329,7 @@ private fun MatchTeamCard(team: ManageTeamItem, modifier: Modifier = Modifier) {
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
 @Composable
-private fun MatchEmptyState() {
+private fun MatchEmptyState(onCreateGameClick: () -> Unit = {}) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -337,5 +338,15 @@ private fun MatchEmptyState() {
         Spacer(modifier = Modifier.height(12.dp))
         Text(stringResource(R.string.manageEvent_match_no_game), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = SquadTextSecondary)
         Text(stringResource(R.string.manageEvent_match_no_game_sub), fontSize = 13.sp, color = SquadGray, textAlign = TextAlign.Center)
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onCreateGameClick,
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White)
+        ) {
+            Icon(Icons.Outlined.Add, null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Agendar Jogo", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }

@@ -180,6 +180,50 @@ fun MoreDetailsScreen(
                     ) {
                         Spacer(modifier = Modifier.height(18.dp))
 
+                        // Privacy + registration status badges
+                        val statusBadges = buildList {
+                            if (uiState.isPrivate) add("Privado" to Color(0xFF6B7280))
+                            if (uiState.registrationStatusLabel.isNotBlank()) {
+                                val c = when (uiState.registrationStatusLabel) {
+                                    "Cheio" -> Color(0xFFDC2626)
+                                    "Inscrições encerradas" -> Color(0xFF6B7280)
+                                    else -> Color(0xFF2563EB)
+                                }
+                                add(uiState.registrationStatusLabel to c)
+                            }
+                            if (uiState.eventStatus.isNotBlank() && uiState.eventStatus != "Estado não definido") {
+                                val c = when (uiState.eventStatus) {
+                                    "Em curso", "Activo" -> Color(0xFF059669)
+                                    "Terminado" -> Color(0xFF6B7280)
+                                    "Cancelado" -> Color(0xFFDC2626)
+                                    else -> SquadOrange
+                                }
+                                add(uiState.eventStatus to c)
+                            }
+                        }
+                        if (statusBadges.isNotEmpty()) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                statusBadges.forEach { (label, color) ->
+                                    Surface(
+                                        color = color.copy(alpha = 0.12f),
+                                        shape = RoundedCornerShape(6.dp)
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = color,
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(14.dp))
+                        }
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)

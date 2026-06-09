@@ -23,6 +23,7 @@ data class CreateEventUiState(
 
     // Step 1 — Basic Info
     val eventName: String = "",
+    val description: String = "",
     val isPublic: Boolean = true,
     val selectedSport: SportType? = null,
 

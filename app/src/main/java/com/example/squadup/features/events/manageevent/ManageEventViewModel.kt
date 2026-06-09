@@ -31,6 +31,7 @@ class ManageEventViewModel : ViewModel() {
                 }
                 .collect { event ->
                     _uiState.value = event.copy(
+                        isLoading = false,
                         selectedTab = _uiState.value.selectedTab,
                         teamSearchQuery = _uiState.value.teamSearchQuery,
                         freeAgentSearchQuery = _uiState.value.freeAgentSearchQuery,
@@ -102,6 +103,72 @@ class ManageEventViewModel : ViewModel() {
             registrationId = registrationId,
             update = repository::rejectTeamRegistration
         )
+    }
+
+    // ── Create Game Dialog ────────────────────────────────────────────────────
+
+    fun onShowCreateGameDialog() {
+        _uiState.update { it.copy(
+            showCreateGameDialog = true,
+            createGameHomeTeamId = it.teams.firstOrNull()?.id ?: "",
+            createGameAwayTeamId = it.teams.getOrNull(1)?.id ?: "",
+            createGameDate = "",
+            createGameTime = "",
+            createGameVenue = it.venue,
+            createGameError = null
+        ) }
+    }
+
+    fun onDismissCreateGameDialog() {
+        _uiState.update { it.copy(showCreateGameDialog = false, createGameError = null) }
+    }
+
+    fun onCreateGameHomeTeamChange(id: String) {
+        _uiState.update { it.copy(createGameHomeTeamId = id) }
+    }
+
+    fun onCreateGameAwayTeamChange(id: String) {
+        _uiState.update { it.copy(createGameAwayTeamId = id) }
+    }
+
+    fun onCreateGameDateChange(date: String) {
+        _uiState.update { it.copy(createGameDate = date) }
+    }
+
+    fun onCreateGameTimeChange(time: String) {
+        _uiState.update { it.copy(createGameTime = time) }
+    }
+
+    fun onCreateGameVenueChange(venue: String) {
+        _uiState.update { it.copy(createGameVenue = venue) }
+    }
+
+    fun onConfirmCreateGame() {
+        val state = _uiState.value
+        if (state.createGameDate.isBlank() || state.createGameTime.isBlank()) {
+            _uiState.update { it.copy(createGameError = "Preenche a data e hora do jogo.") }
+            return
+        }
+        if (state.createGameHomeTeamId.isBlank() || state.createGameAwayTeamId.isBlank()) {
+            _uiState.update { it.copy(createGameError = "Seleciona ambas as equipas.") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isCreatingGame = true, createGameError = null) }
+            repository.createGame(
+                eventId = state.eventId,
+                homeTeamId = state.createGameHomeTeamId,
+                awayTeamId = state.createGameAwayTeamId,
+                date = state.createGameDate,
+                time = state.createGameTime,
+                venue = state.createGameVenue
+            ).onSuccess {
+                _uiState.update { it.copy(isCreatingGame = false, showCreateGameDialog = false) }
+            }.onFailure { e ->
+                _uiState.update { it.copy(isCreatingGame = false, createGameError = e.message ?: "Erro ao criar jogo.") }
+            }
+        }
     }
 
     fun onStatusAction() {

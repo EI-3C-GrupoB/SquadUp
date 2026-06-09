@@ -9,6 +9,7 @@ import com.example.squadup.core.enums.TeamEventStatus
 enum class ManageEventTab { OVERVIEW, TEAMS, GAMES, STATS, MATCH }
 
 data class ManageEventUiState(
+    val isLoading: Boolean = true,
     val eventId: String = "",
     val eventName: String = "",
     val venue: String = "",
@@ -51,6 +52,16 @@ data class ManageEventUiState(
     // Games
     val gameSearchQuery: String = "",
     val scheduledGames: List<ScheduledGameItem> = emptyList(),
+
+    // Create Game Dialog
+    val showCreateGameDialog: Boolean = false,
+    val createGameHomeTeamId: String = "",
+    val createGameAwayTeamId: String = "",
+    val createGameDate: String = "",
+    val createGameTime: String = "",
+    val createGameVenue: String = "",
+    val isCreatingGame: Boolean = false,
+    val createGameError: String? = null,
 
     // Stats
     val bestScorer: ScorerItem? = null,
