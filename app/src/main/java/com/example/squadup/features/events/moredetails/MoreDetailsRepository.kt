@@ -1,5 +1,6 @@
 package com.example.squadup.features.events.moredetails
 
+import android.util.Log
 import com.example.squadup.core.SupabaseClientProvider
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -443,6 +444,12 @@ class MoreDetailsRepository(
                         role = "membro"
                     )
                 )
+
+            notifyEventCreatorAboutIndividualRequest(
+                eventId = eventId,
+                currentUserId = currentUserId
+            )
+
             Result.success(Unit)
         } catch (exception: Exception) {
             Result.failure(exception)
@@ -602,13 +609,27 @@ class MoreDetailsRepository(
                     )
             } catch (exception: Exception) {
                 if (exception.isDuplicateTeamUserRegistration()) {
+                    notifyEventCreatorAboutTeamRequest(
+                        eventId = eventId,
+                        currentUserId = currentUserId,
+                        teamId = teamId
+                    )
+
                     return Result.success(Unit)
                 }
+
                 if (existingEventTeam == null) {
                     deleteEventTeamRegistration(createdEventTeam.id)
                 }
+
                 throw exception
             }
+
+            notifyEventCreatorAboutTeamRequest(
+                eventId = eventId,
+                currentUserId = currentUserId,
+                teamId = teamId
+            )
 
             Result.success(Unit)
         } catch (exception: Exception) {
@@ -616,6 +637,110 @@ class MoreDetailsRepository(
         }
     }
 
+    private suspend fun notifyEventCreatorAboutIndividualRequest(
+        eventId: Int,
+        currentUserId: Int
+    ) {
+        runCatching {
+            val event = supabaseClient
+                .from("evento")
+                .select {
+                    filter {
+                        eq("id", eventId)
+                    }
+                }
+                .decodeSingle<MoreDetailsEventRow>()
+
+            val creatorId = event.creatorId ?: return
+
+            if (creatorId == currentUserId) {
+                return
+            }
+
+            val user = getUserForNotification(currentUserId)
+
+            supabaseClient
+                .from("notificacao")
+                .insert(
+                    MoreDetailsEventNotificationInsertRow(
+                        userId = creatorId,
+                        title = "Novo pedido de participação",
+                        description = "${user.name} pediu para participar no evento ${event.title}.",
+                        type = "evento",
+                        referenceId = event.id,
+                        referenceType = "evento"
+                    )
+                )
+        }.onFailure { exception ->
+            Log.e(
+                "MoreDetailsRepository",
+                "Erro ao criar notificação de pedido individual: ${exception.message}",
+                exception
+            )
+        }
+    }
+
+    private suspend fun notifyEventCreatorAboutTeamRequest(
+        eventId: Int,
+        currentUserId: Int,
+        teamId: Int
+    ) {
+        runCatching {
+            val event = supabaseClient
+                .from("evento")
+                .select {
+                    filter {
+                        eq("id", eventId)
+                    }
+                }
+                .decodeSingle<MoreDetailsEventRow>()
+
+            val creatorId = event.creatorId ?: return
+
+            if (creatorId == currentUserId) {
+                return
+            }
+
+            val team = supabaseClient
+                .from("equipa")
+                .select {
+                    filter {
+                        eq("id", teamId)
+                    }
+                }
+                .decodeSingle<MoreDetailsTeamRow>()
+
+            supabaseClient
+                .from("notificacao")
+                .insert(
+                    MoreDetailsEventNotificationInsertRow(
+                        userId = creatorId,
+                        title = "Novo pedido de equipa",
+                        description = "A equipa ${team.name} pediu para participar no evento ${event.title}.",
+                        type = "evento",
+                        referenceId = event.id,
+                        referenceType = "evento"
+                    )
+                )
+        }.onFailure { exception ->
+            Log.e(
+                "MoreDetailsRepository",
+                "Erro ao criar notificação de pedido com equipa: ${exception.message}",
+                exception
+            )
+        }
+    }
+
+    private suspend fun getUserForNotification(userId: Int): MoreDetailsUserRow {
+        return supabaseClient
+            .from("utilizador")
+            .select {
+                filter {
+                    eq("id", userId)
+                }
+            }
+            .decodeSingle<MoreDetailsUserRow>()
+    }
     private fun MoreDetailsRegistrationRow.isActiveEventParticipation(): Boolean {
         return registrationStatus.isActiveRegistrationStatus() &&
                 registrationType in setOf(

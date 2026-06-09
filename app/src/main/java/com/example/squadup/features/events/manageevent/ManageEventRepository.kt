@@ -1,5 +1,6 @@
 package com.example.squadup.features.events.manageevent
 
+import android.util.Log
 import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.core.enums.EventStatus
 import com.example.squadup.core.enums.GameStatus
@@ -173,6 +174,16 @@ class ManageEventRepository(
         status: String
     ): Result<Unit> {
         return try {
+            val registration = supabaseClient
+                .from("inscricao")
+                .select {
+                    filter {
+                        eq("id", registrationId)
+                        eq("tipo_inscricao", "evento_individual")
+                    }
+                }
+                .decodeSingle<ManageEventRegistrationRow>()
+
             supabaseClient
                 .from("inscricao")
                 .update(ManageEventRegistrationStatusUpdateRow(status)) {
@@ -181,6 +192,18 @@ class ManageEventRepository(
                         eq("tipo_inscricao", "evento_individual")
                     }
                 }
+
+            val eventId = registration.eventId
+            val userId = registration.userId
+
+            if (eventId != null && userId != null) {
+                notifyUserAboutIndividualDecision(
+                    eventId = eventId,
+                    userId = userId,
+                    accepted = status == "aceite"
+                )
+            }
+
             Result.success(Unit)
         } catch (exception: Exception) {
             Result.failure(exception)
@@ -227,10 +250,117 @@ class ManageEventRepository(
                     }
                 }
 
+            val captainUserId = eventTeamRegistration.captainUserId
+
+            if (captainUserId != null) {
+                notifyUserAboutTeamDecision(
+                    eventId = eventTeamRegistration.eventId,
+                    teamId = eventTeamRegistration.teamId,
+                    userId = captainUserId,
+                    accepted = registrationStatus == "aceite"
+                )
+            }
+
             Result.success(Unit)
         } catch (exception: Exception) {
             Result.failure(exception)
         }
+    }
+
+
+    private suspend fun notifyUserAboutIndividualDecision(
+        eventId: Int,
+        userId: Int,
+        accepted: Boolean
+    ) {
+        runCatching {
+            val event = getEventRowForNotification(eventId)
+
+            supabaseClient
+                .from("notificacao")
+                .insert(
+                    ManageEventNotificationInsertRow(
+                        userId = userId,
+                        title = if (accepted) {
+                            "Pedido aceite"
+                        } else {
+                            "Pedido recusado"
+                        },
+                        description = if (accepted) {
+                            "O teu pedido para participar no evento ${event.title} foi aceite."
+                        } else {
+                            "O teu pedido para participar no evento ${event.title} foi recusado."
+                        },
+                        type = "evento",
+                        referenceId = event.id,
+                        referenceType = "evento"
+                    )
+                )
+        }.onFailure { exception ->
+            Log.e(
+                "ManageEventRepository",
+                "Erro ao criar notificação de decisão individual: ${exception.message}",
+                exception
+            )
+        }
+    }
+
+    private suspend fun notifyUserAboutTeamDecision(
+        eventId: Int,
+        teamId: Int,
+        userId: Int,
+        accepted: Boolean
+    ) {
+        runCatching {
+            val event = getEventRowForNotification(eventId)
+
+            val team = supabaseClient
+                .from("equipa")
+                .select {
+                    filter {
+                        eq("id", teamId)
+                    }
+                }
+                .decodeSingle<ManageEventTeamRow>()
+
+            supabaseClient
+                .from("notificacao")
+                .insert(
+                    ManageEventNotificationInsertRow(
+                        userId = userId,
+                        title = if (accepted) {
+                            "Equipa aceite"
+                        } else {
+                            "Equipa recusada"
+                        },
+                        description = if (accepted) {
+                            "A equipa ${team.name} foi aceite no evento ${event.title}."
+                        } else {
+                            "A equipa ${team.name} foi recusada no evento ${event.title}."
+                        },
+                        type = "evento",
+                        referenceId = event.id,
+                        referenceType = "evento"
+                    )
+                )
+        }.onFailure { exception ->
+            Log.e(
+                "ManageEventRepository",
+                "Erro ao criar notificação de decisão de equipa: ${exception.message}",
+                exception
+            )
+        }
+    }
+
+    private suspend fun getEventRowForNotification(eventId: Int): ManageEventRow {
+        return supabaseClient
+            .from("evento")
+            .select {
+                filter {
+                    eq("id", eventId)
+                }
+            }
+            .decodeSingle<ManageEventRow>()
     }
 
     private fun observeEventTables(eventId: Int): Flow<Unit> = flow {

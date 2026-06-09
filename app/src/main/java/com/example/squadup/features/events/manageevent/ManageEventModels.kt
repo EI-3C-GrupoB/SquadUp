@@ -209,3 +209,24 @@ data class ManageEventTeamRegistrationRow(
     @SerialName("data_inscricao")
     val createdAt: String? = null
 )
+
+@Serializable
+data class ManageEventNotificationInsertRow(
+    @SerialName("user_id")
+    val userId: Int,
+
+    @SerialName("titulo")
+    val title: String,
+
+    @SerialName("descricao")
+    val description: String,
+
+    @SerialName("tipo")
+    val type: String,
+
+    @SerialName("referencia_id")
+    val referenceId: Int? = null,
+
+    @SerialName("referencia_tipo")
+    val referenceType: String? = null
+)

@@ -189,3 +189,33 @@ data class MoreDetailsIndividualRegistrationInsertRow(
     @SerialName("role")
     val role: String
 )
+
+
+@Serializable
+data class MoreDetailsEventNotificationInsertRow(
+    @SerialName("user_id")
+    val userId: Int,
+
+    @SerialName("titulo")
+    val title: String,
+
+    @SerialName("descricao")
+    val description: String,
+
+    @SerialName("tipo")
+    val type: String,
+
+    @SerialName("referencia_id")
+    val referenceId: Int? = null,
+
+    @SerialName("referencia_tipo")
+    val referenceType: String? = null
+)
+
+@Serializable
+data class MoreDetailsUserRow(
+    val id: Int,
+
+    @SerialName("nome")
+    val name: String
+)
