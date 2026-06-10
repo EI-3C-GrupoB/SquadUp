@@ -48,7 +48,8 @@ fun SettingsDialog(
     onDismiss: () -> Unit,
     isAdmin: Boolean = false,
     isAdminView: Boolean = false,
-    onAdminViewChange: (Boolean) -> Unit = {}
+    onAdminViewChange: (Boolean) -> Unit = {},
+    onAdminPageClick: () -> Unit = {}
 ) {
     var showContent by rememberSaveable { mutableStateOf(false) }
 
@@ -153,15 +154,14 @@ fun SettingsDialog(
                             Spacer(modifier = Modifier.height(20.dp))
                             SettingsRow(
                                 icon = Icons.Outlined.AdminPanelSettings,
-                                label = stringResource(R.string.settings_view_mode)
+                                label = "Admin page"
                             ) {
-                                SettingsToggle(
-                                    options = listOf(
-                                        stringResource(R.string.settings_view_normal),
-                                        stringResource(R.string.settings_view_admin)
-                                    ),
-                                    selectedIndex = if (isAdminView) 1 else 0,
-                                    onOptionSelected = { index -> onAdminViewChange(index == 1) }
+                                AdminPageButton(
+                                    onClick = {
+                                        onAdminViewChange(true)
+                                        onAdminPageClick()
+                                        onDismiss()
+                                    }
                                 )
                             }
                         }
@@ -257,6 +257,38 @@ private fun SettingsToggle(
                     )
                 }
             }
+        }
+    }
+}
+@Composable
+private fun AdminPageButton(
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        color = SquadOrange,
+        shape = RoundedCornerShape(999.dp),
+        shadowElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Admin page",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = SquadWhite
+            )
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                contentDescription = null,
+                tint = SquadWhite,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }

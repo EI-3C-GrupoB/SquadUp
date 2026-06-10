@@ -1,6 +1,8 @@
 package com.example.squadup.core.navigation
 
 sealed class AppRoutes(val route: String) {
+
+    data object AdminHome : AppRoutes("admin_home")
     data object Onboarding : AppRoutes("onboarding")
     data object Login      : AppRoutes("login")
     data object Register   : AppRoutes("register")
