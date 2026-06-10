@@ -42,16 +42,17 @@ class MyTicketsRepository(
             tickets.forEach { ticket ->
                 val event = events[ticket.eventId] ?: return@forEach
                 val sportType = sportTypeFrom(event.modalityId?.let { modalities[it]?.name })
-                val eventDate = event.startDate.toLocalDateTimeOrNull()
-                val ticketStatus = ticket.status.toTicketStatus(eventDate)
+                val startDate = event.startDate.toLocalDateTimeOrNull()
+                val endDate = event.endDate.toLocalDateTimeOrNull()
+                val cutoffDate = endDate ?: startDate
+                val ticketStatus = ticket.status.toTicketStatus(cutoffDate)
 
-                if (eventDate == null || eventDate.isAfter(now)) {
+                if (cutoffDate == null || cutoffDate.isAfter(now)) {
                     upcoming += MyTicketItem(
                         id = ticket.id.toString(),
                         title = event.title,
-                        dateTime = eventDate.toTicketDateTime(),
+                        dateTime = startDate.toTicketDateTime(),
                         location = event.address.orEmpty(),
-                        seatInfo = "Ticket #${ticket.id}",
                         sportType = sportType,
                         status = ticketStatus
                     )
@@ -60,7 +61,7 @@ class MyTicketsRepository(
                         id = ticket.id.toString(),
                         title = event.title,
                         status = ticketStatus,
-                        date = eventDate.toTicketDate(),
+                        date = (cutoffDate).toTicketDate(),
                         location = event.address.orEmpty(),
                         sportType = sportType
                     )
@@ -105,11 +106,11 @@ class MyTicketsRepository(
     }
 
     private fun LocalDateTime?.toTicketDateTime(): String {
-        return this?.format(DateTimeFormatter.ofPattern("MMM dd • HH:mm", Locale.US)).orEmpty()
+        return this?.format(DateTimeFormatter.ofPattern("dd MMM • HH:mm", Locale("pt", "PT"))).orEmpty()
     }
 
     private fun LocalDateTime.toTicketDate(): String {
-        return format(DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.US))
+        return format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale("pt", "PT")))
     }
 
     private fun String?.toLocalDateTimeOrNull(): LocalDateTime? {

@@ -12,6 +12,7 @@ fun NotificationsRoute(
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
+    onEventNotificationClick: (String) -> Unit = {},
     appViewModel: AppViewModel,
     viewModel: NotificationsViewModel = viewModel()
 ) {
@@ -26,6 +27,7 @@ fun NotificationsRoute(
         onRespondToJoinRequest = viewModel::respondToJoinRequest,
         onDeleteNotification = viewModel::deleteNotification,
         onBackClick = onBackClick,
+        onEventNotificationClick = onEventNotificationClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         selectedLanguage = appUiState.selectedLanguage,

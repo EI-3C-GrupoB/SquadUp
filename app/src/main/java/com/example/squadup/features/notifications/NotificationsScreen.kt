@@ -72,6 +72,7 @@ fun NotificationsScreen(
     onRespondToJoinRequest: (NotificationItem, Boolean) -> Unit,
     onDeleteNotification: (String) -> Unit,
     onBackClick: () -> Unit,
+    onEventNotificationClick: (String) -> Unit = {},
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -190,8 +191,11 @@ fun NotificationsScreen(
                                     onRespond = onRespondToJoinRequest,
                                     onDelete = { onDeleteNotification(notification.id) },
                                     onClick = {
-                                        if (notification.type == NotificationType.TEAM && notification.referenceType == "convite") {
-                                            selectedNotificationForDialog = notification
+                                        when {
+                                            notification.type == NotificationType.TEAM && notification.referenceType == "convite" ->
+                                                selectedNotificationForDialog = notification
+                                            notification.referenceType == "evento" && notification.referenceId != null ->
+                                                onEventNotificationClick(notification.referenceId.toString())
                                         }
                                     }
                                 )

@@ -15,7 +15,6 @@ data class MyTicketItem(
     val title: String,
     val dateTime: String,
     val location: String,
-    val seatInfo: String,
     val sportType: SportType,
     val status: TicketStatus = TicketStatus.CONFIRMED
 )

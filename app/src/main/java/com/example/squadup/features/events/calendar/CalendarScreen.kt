@@ -10,22 +10,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ConfirmationNumber
-import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,12 +37,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
@@ -56,7 +52,6 @@ import com.example.squadup.core.ui.theme.SquadOrangeLight
 import com.example.squadup.core.ui.theme.SquadSurface
 import com.example.squadup.core.ui.theme.SquadTextPrimary
 import com.example.squadup.core.ui.theme.SquadTextSecondary
-import com.example.squadup.core.ui.theme.SquadUpTheme
 import com.example.squadup.core.utils.AppLanguage
 
 @Composable
@@ -70,8 +65,7 @@ fun CalendarScreen(
     onNextMonthClick: () -> Unit,
     onTodayClick: () -> Unit,
     onDayClick: (Int) -> Unit,
-    onMatchDetailsClick: () -> Unit,
-    onTravelInfoClick: () -> Unit,
+    onGameDetailsClick: (String) -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -191,25 +185,59 @@ fun CalendarScreen(
                 onDayClick = onDayClick
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            // Featured game card for selected day (or next upcoming)
+            if (uiState.highlightedMatch != null) {
+                Spacer(modifier = Modifier.height(20.dp))
+                MatchHighlightCard(
+                    item = uiState.highlightedMatch,
+                    onGameDetailsClick = onGameDetailsClick
+                )
+            }
 
-            MatchHighlightCard(
-                item = uiState.highlightedMatch,
-                onMatchDetailsClick = onMatchDetailsClick
-            )
+            // Additional games on the selected day
+            if (uiState.dailySchedule.size > 1) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "OUTROS JOGOS HOJE",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.6.sp,
+                    color = Color(0xFFA5B0C4)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                uiState.dailySchedule.drop(1).forEach { game ->
+                    GameCompactCard(
+                        item = game,
+                        onDetailsClick = { onGameDetailsClick(game.gameId.toString()) }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+            }
 
-            Spacer(modifier = Modifier.height(22.dp))
-
-            DailyScheduleCard(
-                items = uiState.dailySchedule
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            AwayGameCard(
-                item = uiState.nextAwayGame,
-                onTravelInfoClick = onTravelInfoClick
-            )
+            // Empty state for selected day
+            if (uiState.dailySchedule.isEmpty() && uiState.matchesScheduled > 0) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Outlined.SportsSoccer,
+                            contentDescription = null,
+                            tint = SquadGrayLight,
+                            modifier = Modifier.size(36.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Sem jogos neste dia",
+                            fontSize = 13.sp,
+                            color = SquadTextSecondary,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(28.dp))
         }
@@ -342,7 +370,7 @@ private fun CalendarDayCell(
 @Composable
 private fun MatchHighlightCard(
     item: CalendarMatchItem,
-    onMatchDetailsClick: () -> Unit
+    onGameDetailsClick: (String) -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -364,16 +392,6 @@ private fun MatchHighlightCard(
             )
 
             Spacer(modifier = Modifier.height(18.dp))
-
-            Text(
-                text = item.title,
-                fontSize = 24.sp,
-                lineHeight = 29.sp,
-                fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -400,11 +418,55 @@ private fun MatchHighlightCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(22.dp))
+            if (item.time.isNotBlank() || item.location.isNotBlank()) {
+                Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider(color = Color(0xFFEEEEEE))
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            if (item.time.isNotBlank()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.Schedule,
+                        contentDescription = null,
+                        tint = SquadTextSecondary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = item.time,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = SquadTextPrimary
+                    )
+                }
+            }
+
+            if (item.location.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = null,
+                        tint = SquadTextSecondary,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = item.location,
+                        fontSize = 13.sp,
+                        color = SquadTextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
-                    onClick = onMatchDetailsClick,
+                    onClick = { onGameDetailsClick(item.gameId.toString()) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -475,8 +537,9 @@ private fun TeamSide(
 }
 
 @Composable
-private fun DailyScheduleCard(
-    items: List<DailyScheduleItem>
+private fun GameCompactCard(
+    item: DailyScheduleItem,
+    onDetailsClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -484,140 +547,73 @@ private fun DailyScheduleCard(
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier.padding(22.dp)
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "AGENDA DO DIA",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.8.sp,
-                color = Color(0xFFA5B0C4)
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            items.forEachIndexed { index, item ->
-                DailyScheduleRow(item = item)
-
-                if (index < items.lastIndex) {
-                    Spacer(modifier = Modifier.height(14.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DailyScheduleRow(
-    item: DailyScheduleItem
-) {
-    Row(verticalAlignment = Alignment.Top) {
-        Text(
-            text = item.time,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            color = SquadOrange,
-            modifier = Modifier.width(70.dp)
-        )
-
-        Column {
-            Text(
-                text = item.title,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
-            )
-
-            Text(
-                text = item.location,
-                fontSize = 12.sp,
-                color = SquadTextSecondary
-            )
-        }
-    }
-}
-
-@Composable
-private fun AwayGameCard(
-    item: AwayGameItem,
-    onTravelInfoClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = SquadOrange,
-        shape = RoundedCornerShape(14.dp),
-        shadowElevation = 3.dp
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        listOf(
-                            SquadOrange,
-                            Color(0xFFFF6500),
-                            Color(0xFFFF7A1A)
-                        )
-                    )
-                )
-                .padding(22.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.SportsSoccer,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.12f),
+            Box(
                 modifier = Modifier
-                    .size(96.dp)
-                    .align(Alignment.BottomEnd)
-            )
-
-            Column {
+                    .background(SquadOrangeLight, RoundedCornerShape(8.dp))
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = item.label,
-                    fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.85f)
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = item.city,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-
-                Text(
-                    text = item.date,
+                    text = item.time,
                     fontSize = 14.sp,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold,
+                    color = SquadOrange
                 )
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
-                Row(
-                    modifier = Modifier.clickable(onClick = onTravelInfoClick),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Column(modifier = Modifier.weight(1f)) {
+                if (item.eventName.isNotBlank()) {
                     Text(
-                        text = "Ver informações de viagem",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
+                        text = item.eventName,
+                        fontSize = 11.sp,
+                        color = SquadTextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
+                Text(
+                    text = "${item.homeTeam} vs ${item.awayTeam}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SquadTextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (item.location.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Outlined.LocationOn,
+                            contentDescription = null,
+                            tint = SquadTextSecondary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = item.location,
+                            fontSize = 11.sp,
+                            color = SquadTextSecondary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            OutlinedButton(
+                onClick = onDetailsClick,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(text = "Ver", color = SquadOrange, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
 }
-

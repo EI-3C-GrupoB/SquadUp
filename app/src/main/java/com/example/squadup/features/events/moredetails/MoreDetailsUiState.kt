@@ -50,7 +50,12 @@ data class MoreDetailsUiState(
     val canManageEvent: Boolean = false,
     val canParticipate: Boolean = false,
     val canParticipateIndividually: Boolean = false,
-    val canParticipateWithTeam: Boolean = false
+    val canParticipateWithTeam: Boolean = false,
+
+    val eventPrice: Double? = null,
+    val userInscricaoId: Int? = null,
+    val paymentStatus: String? = null,
+    val userTicketId: Int? = null
 ) {
     val hasImage: Boolean
         get() = !imageUrl.isNullOrBlank()

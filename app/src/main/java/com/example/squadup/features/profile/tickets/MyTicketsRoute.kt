@@ -13,7 +13,6 @@ fun MyTicketsRoute(
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onViewDetailsClick: (String) -> Unit,
-    onReferClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: MyTicketsViewModel = viewModel()
 ) {
@@ -28,7 +27,6 @@ fun MyTicketsRoute(
         onBackClick = onBackClick,
         onNotificationsClick = onNotificationsClick,
         onViewDetailsClick = onViewDetailsClick,
-        onReferClick = onReferClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,
         onAdminViewChange = appViewModel::onAdminViewChange,

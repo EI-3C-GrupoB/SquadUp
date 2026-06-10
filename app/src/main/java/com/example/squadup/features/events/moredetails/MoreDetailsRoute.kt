@@ -16,6 +16,8 @@ fun MoreDetailsRoute(
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onManageEventClick: (Int) -> Unit,
+    onPaymentClick: (inscricaoId: String, eventId: String) -> Unit = { _, _ -> },
+    onViewTicketClick: (ticketId: String) -> Unit = {},
     appViewModel: AppViewModel,
     viewModel: MoreDetailsViewModel = viewModel()
 ) {
@@ -53,6 +55,19 @@ fun MoreDetailsRoute(
                 teamId = teamId,
                 currentUserId = appUiState.userId
             )
+        },
+        onPaymentClick = {
+            val inscricaoId = uiState.userInscricaoId
+            val evId = uiState.eventId
+            if (inscricaoId != null && evId != null) {
+                onPaymentClick(inscricaoId.toString(), evId.toString())
+            }
+        },
+        onViewTicketClick = {
+            val ticketId = uiState.userTicketId
+            if (ticketId != null) {
+                onViewTicketClick(ticketId.toString())
+            }
         },
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,

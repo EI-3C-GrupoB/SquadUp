@@ -14,8 +14,6 @@ fun TicketDetailsRoute(
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onAddToCalendarClick: () -> Unit,
-    onShareTicketClick: () -> Unit,
     onSupportClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: TicketDetailsViewModel = viewModel()
@@ -33,8 +31,6 @@ fun TicketDetailsRoute(
         onNavItemClick = onNavItemClick,
         onBackClick = onBackClick,
         onNotificationsClick = onNotificationsClick,
-        onAddToCalendarClick = onAddToCalendarClick,
-        onShareTicketClick = onShareTicketClick,
         onSupportClick = onSupportClick,
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,

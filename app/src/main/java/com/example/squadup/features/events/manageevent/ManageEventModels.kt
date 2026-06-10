@@ -266,3 +266,33 @@ data class ManageEventNotificationInsertRow(
     @SerialName("referencia_tipo")
     val referenceType: String? = null
 )
+
+@Serializable
+data class ManageEventPaymentInsertRow(
+    @SerialName("evento_id")
+    val eventId: Int,
+
+    @SerialName("user_id")
+    val userId: Int,
+
+    @SerialName("valor")
+    val amount: Double,
+
+    @SerialName("estado_pagamento")
+    val status: String = "pendente"
+)
+
+@Serializable
+data class ManageEventTicketInsertRow(
+    @SerialName("user_id")
+    val userId: Int,
+
+    @SerialName("evento_id")
+    val eventId: Int,
+
+    @SerialName("codigo_qr")
+    val codigoQr: String,
+
+    @SerialName("estado")
+    val status: String = "ativo"
+)

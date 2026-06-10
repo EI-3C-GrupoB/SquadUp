@@ -19,6 +19,7 @@ fun ManageEventRoute(
     onManageLiveClick: (String) -> Unit = {},
     onCreateGameClick: () -> Unit,
     onEditGameClick: (String) -> Unit,
+    onScanTicketsClick: (String) -> Unit = {},
     appViewModel: AppViewModel,
     viewModel: ManageEventViewModel = viewModel()
 ) {
@@ -70,6 +71,7 @@ fun ManageEventRoute(
         onAcceptTeamRegistration = viewModel::acceptTeamRegistration,
         onRejectTeamRegistration = viewModel::rejectTeamRegistration,
         onManageLiveClick = onManageLiveClick,
+        onScanTicketsClick = { onScanTicketsClick(eventId) },
         onViewAllRegistrationsClick = {},
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,

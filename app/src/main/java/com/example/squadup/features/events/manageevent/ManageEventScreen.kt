@@ -69,6 +69,7 @@ fun ManageEventScreen(
     onAcceptTeamRegistration: (Int) -> Unit,
     onRejectTeamRegistration: (Int) -> Unit,
     onViewAllRegistrationsClick: () -> Unit,
+    onScanTicketsClick: () -> Unit = {},
     onManageLiveClick: (String) -> Unit = {},
     isAdmin: Boolean,
     isAdminView: Boolean,
@@ -137,14 +138,22 @@ fun ManageEventScreen(
             AppNavBar(selectedRoute = selectedRoute, onItemClick = onNavItemClick)
         },
         floatingActionButton = {
-            if (uiState.selectedTab == ManageEventTab.GAMES) {
-                FloatingActionButton(
+            when (uiState.selectedTab) {
+                ManageEventTab.GAMES -> FloatingActionButton(
                     onClick = onCreateGameClick,
                     containerColor = SquadOrange,
                     contentColor = Color.White
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = null)
                 }
+                ManageEventTab.TEAMS -> FloatingActionButton(
+                    onClick = onScanTicketsClick,
+                    containerColor = SquadOrange,
+                    contentColor = Color.White
+                ) {
+                    Icon(Icons.Outlined.QrCodeScanner, contentDescription = "Scan bilhete")
+                }
+                else -> {}
             }
         }
     ) { innerPadding ->

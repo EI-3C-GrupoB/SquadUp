@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.onStart
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.UUID
 
 class ManageEventRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
@@ -220,11 +221,21 @@ class ManageEventRepository(
             val eventId = registration.eventId
             val userId = registration.userId
 
+            var isPaidEvent = false
+            if (status == "aceite" && eventId != null && userId != null) {
+                isPaidEvent = createPaymentOrTicketForIndividual(
+                    inscricaoId = registration.id,
+                    eventId = eventId,
+                    userId = userId
+                )
+            }
+
             if (eventId != null && userId != null) {
                 notifyUserAboutIndividualDecision(
                     eventId = eventId,
                     userId = userId,
-                    accepted = status == "aceite"
+                    accepted = status == "aceite",
+                    isPaidEvent = isPaidEvent
                 )
             }
 
@@ -280,12 +291,37 @@ class ManageEventRepository(
 
             val captainUserId = eventTeamRegistration.captainUserId
 
+            var isPaidEvent = false
+            if (registrationStatus == "aceite" && captainUserId != null) {
+                val captainInscricao = supabaseClient
+                    .from("inscricao")
+                    .select {
+                        filter {
+                            eq("evento_id", eventTeamRegistration.eventId)
+                            eq("equipa_id", eventTeamRegistration.teamId)
+                            eq("user_id", captainUserId)
+                            eq("tipo_inscricao", "evento_equipa")
+                        }
+                    }
+                    .decodeList<ManageEventRegistrationRow>()
+                    .firstOrNull()
+
+                if (captainInscricao != null) {
+                    isPaidEvent = createPaymentOrTicketForIndividual(
+                        inscricaoId = captainInscricao.id,
+                        eventId = eventTeamRegistration.eventId,
+                        userId = captainUserId
+                    )
+                }
+            }
+
             if (captainUserId != null) {
                 notifyUserAboutTeamDecision(
                     eventId = eventTeamRegistration.eventId,
                     teamId = eventTeamRegistration.teamId,
                     userId = captainUserId,
-                    accepted = registrationStatus == "aceite"
+                    accepted = registrationStatus == "aceite",
+                    isPaidEvent = isPaidEvent
                 )
             }
 
@@ -426,29 +462,59 @@ class ManageEventRepository(
         }
     }
 
+    private suspend fun createPaymentOrTicketForIndividual(
+        inscricaoId: Int,
+        eventId: Int,
+        userId: Int
+    ): Boolean {
+        return runCatching {
+            val event = getEventRowForNotification(eventId)
+            val total = event.price ?: 0.0
+
+            if (total > 0.0) {
+                supabaseClient.from("pagamento").insert(
+                    ManageEventPaymentInsertRow(
+                        eventId = eventId,
+                        userId = userId,
+                        amount = total
+                    )
+                )
+                true
+            } else {
+                supabaseClient.from("bilhete").insert(
+                    ManageEventTicketInsertRow(
+                        userId = userId,
+                        eventId = eventId,
+                        codigoQr = UUID.randomUUID().toString()
+                    )
+                )
+                false
+            }
+        }.getOrDefault(false)
+    }
+
     private suspend fun notifyUserAboutIndividualDecision(
         eventId: Int,
         userId: Int,
-        accepted: Boolean
+        accepted: Boolean,
+        isPaidEvent: Boolean = false
     ) {
         runCatching {
             val event = getEventRowForNotification(eventId)
+
+            val description = when {
+                !accepted -> "O teu pedido para participar no evento ${event.title} foi recusado."
+                isPaidEvent -> "O teu pedido para participar no evento ${event.title} foi aceite. Conclui o pagamento para confirmar a inscrição."
+                else -> "O teu pedido para participar no evento ${event.title} foi aceite. O teu bilhete foi emitido."
+            }
 
             supabaseClient
                 .from("notificacao")
                 .insert(
                     ManageEventNotificationInsertRow(
                         userId = userId,
-                        title = if (accepted) {
-                            "Pedido aceite"
-                        } else {
-                            "Pedido recusado"
-                        },
-                        description = if (accepted) {
-                            "O teu pedido para participar no evento ${event.title} foi aceite."
-                        } else {
-                            "O teu pedido para participar no evento ${event.title} foi recusado."
-                        },
+                        title = if (accepted) "Pedido aceite" else "Pedido recusado",
+                        description = description,
                         type = "evento",
                         referenceId = event.id,
                         referenceType = "evento"
@@ -467,7 +533,8 @@ class ManageEventRepository(
         eventId: Int,
         teamId: Int,
         userId: Int,
-        accepted: Boolean
+        accepted: Boolean,
+        isPaidEvent: Boolean = false
     ) {
         runCatching {
             val event = getEventRowForNotification(eventId)
@@ -481,21 +548,19 @@ class ManageEventRepository(
                 }
                 .decodeSingle<ManageEventTeamRow>()
 
+            val description = when {
+                !accepted -> "A equipa ${team.name} foi recusada no evento ${event.title}."
+                isPaidEvent -> "A equipa ${team.name} foi aceite no evento ${event.title}. Conclui o pagamento para confirmar a inscrição."
+                else -> "A equipa ${team.name} foi aceite no evento ${event.title}. O bilhete foi emitido."
+            }
+
             supabaseClient
                 .from("notificacao")
                 .insert(
                     ManageEventNotificationInsertRow(
                         userId = userId,
-                        title = if (accepted) {
-                            "Equipa aceite"
-                        } else {
-                            "Equipa recusada"
-                        },
-                        description = if (accepted) {
-                            "A equipa ${team.name} foi aceite no evento ${event.title}."
-                        } else {
-                            "A equipa ${team.name} foi recusada no evento ${event.title}."
-                        },
+                        title = if (accepted) "Equipa aceite" else "Equipa recusada",
+                        description = description,
                         type = "evento",
                         referenceId = event.id,
                         referenceType = "evento"

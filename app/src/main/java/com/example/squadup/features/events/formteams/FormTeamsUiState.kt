@@ -10,6 +10,7 @@ data class FormTeamsUiState(
     val sportType: SportType = SportType.SOCCER,
     val maxTeams: Int = 2,
     val unassignedPlayers: List<FormTeamPlayer> = emptyList(),
+    val awaitingPaymentPlayers: List<FormTeamPlayer> = emptyList(),
     val teams: List<FormTeam> = emptyList(),
     val selectedPlayerForAssign: FormTeamPlayer? = null,
     val isSaving: Boolean = false,

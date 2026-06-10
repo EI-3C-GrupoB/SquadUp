@@ -26,6 +26,8 @@ import com.example.squadup.features.events.map.EventsMapRoute
 import com.example.squadup.features.events.moredetails.MoreDetailsRoute
 import com.example.squadup.features.home.HomeRoute
 import com.example.squadup.features.notifications.NotificationsRoute
+import com.example.squadup.features.payment.PaymentRoute
+import com.example.squadup.features.payment.RegistrationSuccessScreen
 import com.example.squadup.features.onboarding.OnboardingPreferences
 import com.example.squadup.features.onboarding.OnboardingRoute
 import com.example.squadup.features.onboarding.OnboardingViewModel
@@ -43,6 +45,7 @@ import com.example.squadup.features.events.formteams.FormTeamsRoute
 import com.example.squadup.features.teams.TeamsRoute
 import com.example.squadup.features.teams.createteam.CreateTeamRoute
 import com.example.squadup.features.teams.invite.InviteTeamRoute
+import com.example.squadup.features.events.manageevent.qrscanner.QrScannerRoute
 
 @Composable
 fun AppNavigation() {
@@ -158,6 +161,9 @@ fun AppNavigation() {
                 onNavItemClick = navigateWithBottomBar,
                 onBackClick = { navController.popBackStack() },
                 onNotificationsClick = openNotifications,
+                onEventNotificationClick = { eventId ->
+                    navController.navigate(AppRoutes.MoreDetails.createRoute(eventId))
+                },
                 appViewModel = appViewModel
             )
         }
@@ -333,7 +339,6 @@ fun AppNavigation() {
                 onViewDetailsClick = { ticketId ->
                     navController.navigate(AppRoutes.TicketDetails.createRoute(ticketId))
                 },
-                onReferClick = {},
                 appViewModel = appViewModel
             )
         }
@@ -351,8 +356,6 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onNotificationsClick = openNotifications,
-                onAddToCalendarClick = {},
-                onShareTicketClick = {},
                 onSupportClick = {},
                 appViewModel = appViewModel
             )
@@ -487,6 +490,9 @@ fun AppNavigation() {
                 onManageLiveClick = { gameId ->
                     navController.navigate(AppRoutes.LiveMatch.createRoute(gameId))
                 },
+                onScanTicketsClick = { eid ->
+                    navController.navigate(AppRoutes.QrScanner.createRoute(eid))
+                },
                 onCreateGameClick = { /* handled by ManageEventRoute → ViewModel */ },
                 onEditGameClick = {},
                 appViewModel = appViewModel
@@ -533,12 +539,7 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onNotificationsClick = openNotifications,
-                onMatchDetailsClick = {
-                    // TODO: navegar para detalhes do jogo
-                },
-                onTravelInfoClick = {
-                    // TODO: navegar para informação de viagem
-                },
+                onGameDetailsClick = { _ -> },
                 appViewModel = appViewModel
             )
         }
@@ -558,6 +559,43 @@ fun AppNavigation() {
         }
 
         composable(
+            route = AppRoutes.Payment.route,
+            arguments = listOf(
+                navArgument("inscricaoId") { type = NavType.StringType },
+                navArgument("eventId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val inscricaoId = backStackEntry.arguments?.getString("inscricaoId") ?: ""
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            PaymentRoute(
+                inscricaoId = inscricaoId,
+                eventId = eventId,
+                onBackClick = { navController.popBackStack() },
+                onPaymentSuccess = { ticketId ->
+                    navController.navigate(AppRoutes.RegistrationSuccess.createRoute(ticketId)) {
+                        popUpTo(AppRoutes.Payment.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = AppRoutes.RegistrationSuccess.route,
+            arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
+            RegistrationSuccessScreen(
+                ticketId = ticketId,
+                onViewTicketClick = {
+                    navController.navigate(AppRoutes.TicketDetails.createRoute(ticketId)) {
+                        popUpTo(AppRoutes.RegistrationSuccess.route) { inclusive = true }
+                    }
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(
             route = AppRoutes.FormTeams.route,
             arguments = listOf(navArgument("eventId") { type = NavType.StringType })
         ) { backStackEntry ->
@@ -568,6 +606,17 @@ fun AppNavigation() {
                 onNavItemClick = navigateWithBottomBar,
                 onBackClick = { navController.popBackStack() },
                 appViewModel = appViewModel
+            )
+        }
+
+        composable(
+            route = AppRoutes.QrScanner.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            QrScannerRoute(
+                eventId = eventId,
+                onBackClick = { navController.popBackStack() }
             )
         }
 
@@ -590,8 +639,13 @@ fun AppNavigation() {
                     )
                 },
                 onNotificationsClick = openNotifications,
+                onPaymentClick = { inscricaoId, evId ->
+                    navController.navigate(AppRoutes.Payment.createRoute(inscricaoId, evId))
+                },
+                onViewTicketClick = { ticketId ->
+                    navController.navigate(AppRoutes.TicketDetails.createRoute(ticketId))
+                },
                 appViewModel = appViewModel
-
             )
         }
     }

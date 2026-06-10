@@ -32,7 +32,6 @@ fun MyTicketsScreen(
     onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
     onViewDetailsClick: (String) -> Unit,
-    onReferClick: () -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
     selectedLanguage: AppLanguage,
@@ -95,16 +94,12 @@ fun MyTicketsScreen(
                                 title = ticket.title,
                                 dateTime = ticket.dateTime,
                                 location = ticket.location,
-                                seatInfo = ticket.seatInfo,
                                 sportType = ticket.sportType,
                                 onViewDetailsClick = { onViewDetailsClick(ticket.id) }
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-                    ReferralBanner(onReferClick = onReferClick)
                 }
 
                 TicketTab.History -> {

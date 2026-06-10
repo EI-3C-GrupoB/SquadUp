@@ -62,6 +62,21 @@ class FormTeamsRepository(
             val sportType = sportTypeFromModality(modality)
             val capacity = sportCapacity(sportType)
 
+            val isPaidEvent = ((event.price ?: 0.0) + (event.entryFee ?: 0.0)) > 0.0
+
+            val paidUserIds: Set<Int> = if (isPaidEvent) {
+                runCatching {
+                    supabaseClient.from("pagamento")
+                        .select { filter { eq("evento_id", id) } }
+                        .decodeList<FormPaymentRow>()
+                        .filter { it.status == "pago" }
+                        .map { it.userId }
+                        .toSet()
+                }.getOrDefault(emptySet())
+            } else {
+                userIds
+            }
+
             // Build player map
             fun FormRegistrationRow.toPlayer(): FormTeamPlayer? {
                 val uid = userId ?: return null
@@ -75,6 +90,10 @@ class FormTeamsRepository(
                 )
             }
 
+            val confirmedRegistrations = registrations.filter { it.userId in paidUserIds }
+            val awaitingRegistrations = registrations.filter { it.userId !in paidUserIds }
+            val awaitingPlayers = awaitingRegistrations.mapNotNull { it.toPlayer() }
+
             val teams: List<FormTeam>
             val unassigned: List<FormTeamPlayer>
 
@@ -85,7 +104,7 @@ class FormTeamsRepository(
 
                 val teamsList = deduplicatedEventTeams.mapIndexed { i, et ->
                     val teamName = existingTeams[et.teamId] ?: "Equipa ${('A' + i)}"
-                    val assigned = registrations
+                    val assigned = confirmedRegistrations
                         .filter { it.teamId == et.teamId }
                         .mapNotNull { it.toPlayer() }
                     FormTeam(
@@ -97,20 +116,18 @@ class FormTeamsRepository(
                     )
                 }
 
-                // A player is only "assigned" if their equipa_id points to an ACTIVE event team.
-                // If equipa_id points to a stale/removed team they return to unassigned.
                 val activeTeamIds = deduplicatedEventTeams.map { it.teamId }.toSet()
-                val assignedRegIds = registrations
+                val assignedRegIds = confirmedRegistrations
                     .filter { it.teamId != null && it.teamId in activeTeamIds }
                     .map { it.id }.toSet()
-                unassigned = registrations
+                unassigned = confirmedRegistrations
                     .filter { it.id !in assignedRegIds }
                     .mapNotNull { it.toPlayer() }
                 teams = teamsList
             } else {
-                // Fresh — no teams yet, all players unassigned
+                // Fresh — no teams yet, all confirmed players unassigned
                 val numTeams = (event.maxTeams ?: 2).coerceAtLeast(2)
-                unassigned = registrations.mapNotNull { it.toPlayer() }
+                unassigned = confirmedRegistrations.mapNotNull { it.toPlayer() }
                 teams = (0 until numTeams).map { i ->
                     FormTeam(index = i, name = "Equipa ${('A' + i)}", capacity = capacity)
                 }
@@ -124,6 +141,7 @@ class FormTeamsRepository(
                     sportType = sportType,
                     maxTeams = teams.size,
                     unassignedPlayers = unassigned,
+                    awaitingPaymentPlayers = awaitingPlayers,
                     teams = teams
                 )
             )
@@ -259,7 +277,15 @@ private data class FormEventRow(
     val id: Int,
     @SerialName("titulo") val title: String,
     @SerialName("max_equipas") val maxTeams: Int? = null,
-    @SerialName("modalidade_id") val modalityId: Int? = null
+    @SerialName("modalidade_id") val modalityId: Int? = null,
+    @SerialName("preco") val price: Double? = null,
+    @SerialName("taxa_inscricao") val entryFee: Double? = null
+)
+
+@Serializable
+private data class FormPaymentRow(
+    @SerialName("user_id") val userId: Int,
+    @SerialName("estado_pagamento") val status: String? = null
 )
 
 @Serializable

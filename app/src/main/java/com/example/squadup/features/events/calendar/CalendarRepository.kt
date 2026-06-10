@@ -52,7 +52,9 @@ class CalendarRepository(
 
             val safeDay = selectedDay.coerceIn(1, yearMonth.lengthOfMonth())
 
-            val highlighted = gamesThisMonth.firstOrNull()
+            val gamesOnSelectedDay = gamesThisMonth.filter { it.second.dayOfMonth == safeDay }
+
+            val highlighted = gamesOnSelectedDay.firstOrNull()
                 ?: datedGames.firstOrNull { it.second.isAfter(LocalDateTime.now()) }
                 ?: datedGames.firstOrNull()
 
@@ -68,24 +70,20 @@ class CalendarRepository(
                     calendarCells = calendarCells,
                     highlightedMatch = highlighted?.let { (game, dateTime) ->
                         game.toCalendarMatch(dateTime, gameTeams, teams)
-                    } ?: CalendarMatchItem(),
-                    dailySchedule = gamesThisMonth
-                        .filter { it.second.dayOfMonth == safeDay }
-                        .map { (game, dateTime) ->
-                            DailyScheduleItem(
-                                time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
-                                title = game.eventId?.let { events[it]?.title }.orEmpty(),
-                                location = game.address.orEmpty()
-                            )
-                        },
-                    nextAwayGame = datedGames
-                        .firstOrNull { it.second.isAfter(LocalDateTime.now()) }
-                        ?.let { (game, dateTime) ->
-                            AwayGameItem(
-                                city = game.address.orEmpty(),
-                                date = dateTime.format(DateTimeFormatter.ofPattern("dd MMM • HH:mm", Locale("pt", "PT")))
-                            )
-                        } ?: AwayGameItem(city = "", date = "")
+                    },
+                    dailySchedule = gamesOnSelectedDay.map { (game, dateTime) ->
+                        val linkedTeams = gameTeams.filter { it.gameId == game.id }
+                        val home = linkedTeams.getOrNull(0)?.teamId?.let { teams[it]?.name }.orEmpty()
+                        val away = linkedTeams.getOrNull(1)?.teamId?.let { teams[it]?.name }.orEmpty()
+                        DailyScheduleItem(
+                            gameId = game.id,
+                            time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            homeTeam = home,
+                            awayTeam = away,
+                            eventName = game.eventId?.let { events[it]?.title }.orEmpty(),
+                            location = game.address.orEmpty()
+                        )
+                    }
                 )
             )
         } catch (exception: Exception) {
@@ -94,7 +92,6 @@ class CalendarRepository(
     }
 
     private fun buildCalendarCells(yearMonth: YearMonth): List<Int?> {
-        // dayOfWeek: Monday=1 ... Sunday=7; we want Sunday=0 offset
         val firstDow = yearMonth.atDay(1).dayOfWeek.value % 7
         val daysInMonth = yearMonth.lengthOfMonth()
         return buildList {
@@ -115,9 +112,11 @@ class CalendarRepository(
         val dateLabel = dateTime.format(DateTimeFormatter.ofPattern("dd MMM", Locale("pt", "PT"))).uppercase()
         return CalendarMatchItem(
             label = "PRÓXIMO: $dateLabel",
-            title = listOf(homeTeam, awayTeam).filter { it.isNotBlank() }.joinToString(" vs.\n"),
             homeTeam = homeTeam,
-            awayTeam = awayTeam
+            awayTeam = awayTeam,
+            time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+            location = address.orEmpty(),
+            gameId = id
         )
     }
 

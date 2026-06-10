@@ -279,6 +279,83 @@ fun FormTeamsScreen(
 
                 Spacer(Modifier.height(24.dp))
 
+                if (uiState.awaitingPaymentPlayers.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                "Aguarda Pagamento",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = SquadTextPrimary
+                            )
+                            Text(
+                                "${uiState.awaitingPaymentPlayers.size} jogadores",
+                                fontSize = 12.sp,
+                                color = SquadTextSecondary,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color(0xFFF5F5F5),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            uiState.awaitingPaymentPlayers.forEachIndexed { index, player ->
+                                if (index > 0) Spacer(Modifier.height(6.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.size(32.dp),
+                                        shape = CircleShape,
+                                        color = Color(0xFFBDBDBD)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = player.initials,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+                                    Spacer(Modifier.width(10.dp))
+                                    Text(
+                                        text = player.name,
+                                        fontSize = 13.sp,
+                                        color = SquadTextSecondary,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Spacer(Modifier.weight(1f))
+                                    Surface(
+                                        color = Color(0xFFFFF8E1),
+                                        shape = RoundedCornerShape(6.dp)
+                                    ) {
+                                        Text(
+                                            "Pendente",
+                                            fontSize = 11.sp,
+                                            color = Color(0xFFF57F17),
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+                }
+
                 // Teams section
                 Row(
                     modifier = Modifier.fillMaxWidth(),

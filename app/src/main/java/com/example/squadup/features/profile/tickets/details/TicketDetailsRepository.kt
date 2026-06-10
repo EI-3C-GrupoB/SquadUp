@@ -4,6 +4,7 @@ import com.example.squadup.core.SupabaseClientProvider
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -31,13 +32,20 @@ class TicketDetailsRepository(
             val modality = event.modalityId?.let { getModality(it) }
             val eventDate = event.startDate.toLocalDateTimeOrNull()
 
+            val endDate = event.endDate.toLocalDateTimeOrNull()
+
             Result.success(
                 TicketDetailsUiState(
                     title = event.title,
                     ticketType = "${ticket.status.toTicketType()} • ${modality?.name.orEmpty()}",
-                    dateTime = eventDate?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy • HH:mm", Locale.US)).orEmpty(),
+                    dateTime = eventDate?.format(DateTimeFormatter.ofPattern("dd MMM yyyy • HH:mm", Locale("pt", "PT"))).orEmpty(),
+                    ticketNumber = "Bilhete #${ticket.id}",
                     locationName = event.address.orEmpty(),
-                    locationDetail = "Ticket #${ticket.id}"
+                    latitude = event.latitude,
+                    longitude = event.longitude,
+                    codigoQr = ticket.codigoQr.orEmpty(),
+                    startTimeMillis = eventDate?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli(),
+                    endTimeMillis = endDate?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
                 )
             )
         } catch (exception: Exception) {

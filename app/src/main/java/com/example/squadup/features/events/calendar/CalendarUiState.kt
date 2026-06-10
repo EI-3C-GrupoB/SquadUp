@@ -10,26 +10,24 @@ data class CalendarUiState(
     val currentMonth: Int = LocalDate.now().monthValue,
     val eventDays: Set<Int> = emptySet(),
     val calendarCells: List<Int?> = emptyList(),
-    val highlightedMatch: CalendarMatchItem = CalendarMatchItem(),
-    val dailySchedule: List<DailyScheduleItem> = emptyList(),
-    val nextAwayGame: AwayGameItem = AwayGameItem()
+    val highlightedMatch: CalendarMatchItem? = null,
+    val dailySchedule: List<DailyScheduleItem> = emptyList()
 )
 
 data class CalendarMatchItem(
     val label: String = "",
-    val title: String = "",
     val homeTeam: String = "",
-    val awayTeam: String = ""
+    val awayTeam: String = "",
+    val time: String = "",
+    val location: String = "",
+    val gameId: Int = 0
 )
 
 data class DailyScheduleItem(
-    val time: String,
-    val title: String,
-    val location: String
-)
-
-data class AwayGameItem(
-    val label: String = "Próximo jogo fora",
-    val city: String = "",
-    val date: String = ""
+    val gameId: Int = 0,
+    val time: String = "",
+    val homeTeam: String = "",
+    val awayTeam: String = "",
+    val eventName: String = "",
+    val location: String = ""
 )

@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
@@ -30,7 +31,6 @@ fun TicketCard(
     title: String,
     dateTime: String,
     location: String,
-    seatInfo: String,
     sportType: SportType,
     onViewDetailsClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -46,7 +46,7 @@ fun TicketCard(
             Box(
                 modifier = Modifier
                     .width(6.dp)
-                    .height(168.dp)
+                    .fillMaxHeight()
                     .background(sportType.color)
             )
 
@@ -74,7 +74,7 @@ fun TicketCard(
 
                         TicketInfoRow(Icons.Outlined.CalendarMonth, dateTime)
                         Spacer(modifier = Modifier.height(6.dp))
-                        TicketInfoRow(Icons.Outlined.LocationOn, location)
+                        TicketInfoRow(Icons.Outlined.LocationOn, location, maxLines = 1)
                     }
 
                     Spacer(modifier = Modifier.width(14.dp))
@@ -112,14 +112,8 @@ fun TicketCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 18.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text(
-                        text = seatInfo,
-                        fontSize = 14.sp,
-                        color = SquadTextPrimary,
-                        modifier = Modifier.weight(1f)
-                    )
                     Button(
                         onClick = onViewDetailsClick,
                         shape = RoundedCornerShape(8.dp),
@@ -165,8 +159,8 @@ private fun TicketStatusBadge() {
 }
 
 @Composable
-private fun TicketInfoRow(icon: ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+private fun TicketInfoRow(icon: ImageVector, text: String, maxLines: Int = Int.MAX_VALUE) {
+    Row(verticalAlignment = Alignment.Top) {
         Icon(
             imageVector = icon,
             contentDescription = null,
@@ -174,6 +168,12 @@ private fun TicketInfoRow(icon: ImageVector, text: String) {
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.width(6.dp))
-        Text(text = text, fontSize = 15.sp, color = SquadTextPrimary)
+        Text(
+            text = text,
+            fontSize = 15.sp,
+            color = SquadTextPrimary,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }

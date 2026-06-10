@@ -47,4 +47,13 @@ sealed class AppRoutes(val route: String) {
     data object TicketDetails    : AppRoutes("ticket_details/{ticketId}") {
         fun createRoute(ticketId: String) = "ticket_details/$ticketId"
     }
+    data object Payment : AppRoutes("payment/{inscricaoId}/{eventId}") {
+        fun createRoute(inscricaoId: String, eventId: String) = "payment/$inscricaoId/$eventId"
+    }
+    data object RegistrationSuccess : AppRoutes("registration_success/{ticketId}") {
+        fun createRoute(ticketId: String) = "registration_success/$ticketId"
+    }
+    data object QrScanner : AppRoutes("qr_scanner/{eventId}") {
+        fun createRoute(eventId: String) = "qr_scanner/$eventId"
+    }
 }

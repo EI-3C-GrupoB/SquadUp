@@ -222,3 +222,22 @@ data class MoreDetailsUserRow(
     @SerialName("nome")
     val name: String
 )
+
+@Serializable
+data class MoreDetailsPaymentRow(
+    val id: Int,
+
+    @SerialName("estado_pagamento")
+    val status: String? = null,
+
+    @SerialName("valor")
+    val amount: Double? = null
+)
+
+@Serializable
+data class MoreDetailsTicketRow(
+    val id: Int,
+
+    @SerialName("estado")
+    val status: String? = null
+)

@@ -93,6 +93,8 @@ fun MoreDetailsScreen(
     onJoinWithTeamClick: () -> Unit,
     onDismissTeamPicker: () -> Unit,
     onTeamSelected: (Int) -> Unit,
+    onPaymentClick: () -> Unit = {},
+    onViewTicketClick: () -> Unit = {},
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -335,7 +337,9 @@ fun MoreDetailsScreen(
                                 uiState.eventId?.let(onManageEventClick)
                             },
                             onJoinIndividuallyClick = onJoinIndividuallyClick,
-                            onJoinWithTeamClick = onJoinWithTeamClick
+                            onJoinWithTeamClick = onJoinWithTeamClick,
+                            onPaymentClick = onPaymentClick,
+                            onViewTicketClick = onViewTicketClick
                         )
 
                         Spacer(modifier = Modifier.height(28.dp))
@@ -520,39 +524,25 @@ private fun EventActionButtons(
     uiState: MoreDetailsUiState,
     onManageEventClick: () -> Unit,
     onJoinIndividuallyClick: () -> Unit,
-    onJoinWithTeamClick: () -> Unit
+    onJoinWithTeamClick: () -> Unit,
+    onPaymentClick: () -> Unit = {},
+    onViewTicketClick: () -> Unit = {}
 ) {
-    val hasUserEventRegistration =
-        !uiState.userEventRegistrationStatus.isNullOrBlank()
+    val regStatus = uiState.userEventRegistrationStatus
+    val hasUserEventRegistration = !regStatus.isNullOrBlank()
 
-    val registrationButtonText = when {
-        uiState.userEventRegistrationStatus == "pendente" &&
-                uiState.userEventRegistrationType == "evento_individual" -> {
-            "Inscrição individual pendente"
-        }
+    val isPaidEvent = (uiState.eventPrice ?: 0.0) > 0.0
+    val paymentDone = uiState.paymentStatus == "pago"
 
-        uiState.userEventRegistrationStatus == "pendente" &&
-                uiState.userEventRegistrationType == "pedido_evento_equipa" -> {
+    val pendingButtonText = when {
+        regStatus == "pendente" && uiState.userEventRegistrationType == "pedido_evento_equipa" ->
             "Pedido de equipa pendente"
-        }
-
-        uiState.userEventRegistrationStatus == "aceite" &&
-                uiState.userEventRegistrationType == "evento_individual" -> {
-            "Já estás inscrito individualmente"
-        }
-
-        uiState.userEventRegistrationStatus == "aceite" &&
-                uiState.userEventRegistrationType == "evento_equipa" -> {
-            "Já estás inscrito com equipa"
-        }
-
-        uiState.userEventRegistrationStatus == "recusada" -> {
+        regStatus == "pendente" ->
+            "Inscrição individual pendente"
+        regStatus == "recusada" ->
             "Inscrição recusada"
-        }
-
-        else -> {
+        else ->
             "Inscrição registada"
-        }
     }
 
     when {
@@ -568,6 +558,42 @@ private fun EventActionButtons(
             ) {
                 Text(
                     text = "Gerir evento",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        regStatus == "aceite" && isPaidEvent && !paymentDone -> {
+            Button(
+                onClick = onPaymentClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = SquadOrange,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Concluir Pagamento",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        regStatus == "aceite" -> {
+            Button(
+                onClick = onViewTicketClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2E7D32),
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Ver Bilhete",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -590,7 +616,7 @@ private fun EventActionButtons(
                 )
             ) {
                 Text(
-                    text = registrationButtonText,
+                    text = pendingButtonText,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )

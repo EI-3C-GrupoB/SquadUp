@@ -81,12 +81,29 @@ class MoreDetailsRepository(
                 currentUserId = currentUserId
             )
 
+            val paymentStatus = if (
+                currentUserRegistration?.registrationStatus == "aceite" &&
+                currentUserId != null
+            ) {
+                getUserPaymentStatus(eventId = eventId, userId = currentUserId)
+            } else null
+
+            val userTicketId = if (
+                currentUserRegistration?.registrationStatus == "aceite" &&
+                currentUserId != null &&
+                (paymentStatus == "pago" || (event.price ?: 0.0) == 0.0)
+            ) {
+                getUserTicketId(eventId = eventId, userId = currentUserId)
+            } else null
+
             Result.success(
                 event.toUiState(
                     modalityName = modality,
                     formatName = format,
                     acceptedRegistrations = acceptedRegistrations,
-                    currentUserRegistration = currentUserRegistration
+                    currentUserRegistration = currentUserRegistration,
+                    paymentStatus = paymentStatus,
+                    userTicketId = userTicketId
                 )
             )
         } catch (exception: Exception) {
@@ -164,40 +181,73 @@ class MoreDetailsRepository(
             isCaptain = true
         )
     }
+    private suspend fun getUserPaymentStatus(eventId: Int, userId: Int): String? {
+        return runCatching {
+            supabaseClient
+                .from("pagamento")
+                .select {
+                    filter {
+                        eq("evento_id", eventId)
+                        eq("user_id", userId)
+                    }
+                }
+                .decodeList<MoreDetailsPaymentRow>()
+                .firstOrNull()
+                ?.status
+        }.getOrNull()
+    }
+
+    private suspend fun getUserTicketId(eventId: Int, userId: Int): Int? {
+        return runCatching {
+            supabaseClient
+                .from("bilhete")
+                .select {
+                    filter {
+                        eq("evento_id", eventId)
+                        eq("user_id", userId)
+                    }
+                }
+                .decodeList<MoreDetailsTicketRow>()
+                .firstOrNull { it.status != "cancelado" }
+                ?.id
+        }.getOrNull()
+    }
+
     private fun observeEventTables(eventId: Int): Flow<Unit> = flow {
         val channelSuffix = "${eventId}_${System.currentTimeMillis()}"
 
         val eventChannel = supabaseClient.channel("more_details_evento_$channelSuffix")
         val registrationsChannel = supabaseClient.channel("more_details_inscricao_$channelSuffix")
         val eventTeamsChannel = supabaseClient.channel("more_details_evento_equipa_$channelSuffix")
+        val paymentChannel = supabaseClient.channel("more_details_pagamento_$channelSuffix")
 
         val eventChanges = eventChannel
-            .postgresChangeFlow<PostgresAction>(schema = "public") {
-                table = "evento"
-            }
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "evento" }
             .map { Unit }
 
         val registrationChanges = registrationsChannel
-            .postgresChangeFlow<PostgresAction>(schema = "public") {
-                table = "inscricao"
-            }
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "inscricao" }
             .map { Unit }
 
         val eventTeamChanges = eventTeamsChannel
-            .postgresChangeFlow<PostgresAction>(schema = "public") {
-                table = "evento_equipa"
-            }
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "evento_equipa" }
+            .map { Unit }
+
+        val paymentChanges = paymentChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "pagamento" }
             .map { Unit }
 
         eventChannel.subscribe()
         registrationsChannel.subscribe()
         eventTeamsChannel.subscribe()
+        paymentChannel.subscribe()
 
         emitAll(
             merge(
                 eventChanges,
                 registrationChanges,
-                eventTeamChanges
+                eventTeamChanges,
+                paymentChanges
             ).onStart {
                 emit(Unit)
             }
@@ -251,7 +301,9 @@ class MoreDetailsRepository(
         modalityName: String,
         formatName: String,
         acceptedRegistrations: Int,
-        currentUserRegistration: MoreDetailsRegistrationRow?
+        currentUserRegistration: MoreDetailsRegistrationRow?,
+        paymentStatus: String? = null,
+        userTicketId: Int? = null
     ): MoreDetailsUiState {
         val start = startDate.toLocalDateTimeOrNull()
         val end = endDate.toLocalDateTimeOrNull()
@@ -338,7 +390,12 @@ class MoreDetailsRepository(
             registrationStatusLabel = registrationStatusLabel,
 
             userEventRegistrationStatus = currentUserRegistration?.registrationStatus,
-            userEventRegistrationType = currentUserRegistration?.registrationType
+            userEventRegistrationType = currentUserRegistration?.registrationType,
+
+            eventPrice = price,
+            userInscricaoId = currentUserRegistration?.id,
+            paymentStatus = paymentStatus,
+            userTicketId = userTicketId
         )
     }
 
