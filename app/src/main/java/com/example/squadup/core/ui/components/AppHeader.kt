@@ -67,6 +67,7 @@ fun AppHeader(
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
+    onAdminPageClick: () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     var showSettingsDialog by rememberSaveable { mutableStateOf(false) }
@@ -80,7 +81,8 @@ fun AppHeader(
             onDismiss = { showSettingsDialog = false },
             isAdmin = isAdmin,
             isAdminView = isAdminView,
-            onAdminViewChange = onAdminViewChange
+            onAdminViewChange = onAdminViewChange,
+            onAdminPageClick = onAdminPageClick
         )
     }
 

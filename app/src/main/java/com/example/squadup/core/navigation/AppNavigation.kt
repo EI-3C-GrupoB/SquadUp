@@ -17,14 +17,19 @@ import com.example.squadup.core.ui.components.LoadingScreen
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.createuser.CreateUserRoute
 import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
+import com.example.squadup.features.auth.login.LoginRoute
+import com.example.squadup.features.auth.register.RegisterRoute
 import com.example.squadup.features.events.EventsRoute
 import com.example.squadup.features.events.calendar.CalendarRoute
 import com.example.squadup.features.events.createevent.CreateEventRoute
+import com.example.squadup.features.events.editevent.EditEventRoute
+import com.example.squadup.features.events.formteams.FormTeamsRoute
 import com.example.squadup.features.events.livematch.LiveMatchRoute
 import com.example.squadup.features.events.manageevent.ManageEventRoute
 import com.example.squadup.features.events.map.EventsMapRoute
 import com.example.squadup.features.events.moredetails.MoreDetailsRoute
 import com.example.squadup.features.home.HomeRoute
+import com.example.squadup.features.admin.home.AdminHomeRoute
 import com.example.squadup.features.notifications.NotificationsRoute
 import com.example.squadup.features.payment.PaymentRoute
 import com.example.squadup.features.payment.RegistrationSuccessScreen
@@ -38,10 +43,6 @@ import com.example.squadup.features.profile.edit.EditProfileRoute
 import com.example.squadup.features.profile.myevents.MyEventsRoute
 import com.example.squadup.features.profile.tickets.MyTicketsRoute
 import com.example.squadup.features.profile.tickets.details.TicketDetailsRoute
-import com.example.squadup.features.auth.login.LoginRoute
-import com.example.squadup.features.auth.register.RegisterRoute
-import com.example.squadup.features.events.editevent.EditEventRoute
-import com.example.squadup.features.events.formteams.FormTeamsRoute
 import com.example.squadup.features.teams.TeamsRoute
 import com.example.squadup.features.teams.createteam.CreateTeamRoute
 import com.example.squadup.features.teams.invite.InviteTeamRoute
@@ -81,19 +82,24 @@ fun AppNavigation() {
         }
     }
 
-    val navigateWithBottomBar: (String) -> Unit = { route ->
-        navController.navigate(route) {
-            // Pop up to the start destination of the graph to
-            // avoid building up a large stack of destinations
-            // on the back stack as users select items
+    val openAdminHome: () -> Unit = {
+        appViewModel.onAdminViewChange(true)
+
+        navController.navigate(AppRoutes.AdminHome.route) {
             popUpTo(AppRoutes.Home.route) {
                 saveState = true
             }
-            // Avoid multiple copies of the same destination when
-            // reselecting the same item
             launchSingleTop = true
-            // Restore state when reselecting a previously selected item
-            // We set this to false to ensure we always go to the main page of the tab
+            restoreState = false
+        }
+    }
+
+    val navigateWithBottomBar: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo(AppRoutes.Home.route) {
+                saveState = true
+            }
+            launchSingleTop = true
             restoreState = false
         }
     }
@@ -173,6 +179,7 @@ fun AppNavigation() {
                 selectedRoute = AppRoutes.Home.route,
                 onNavItemClick = navigateWithBottomBar,
                 onNotificationsClick = openNotifications,
+                onAdminPageClick = openAdminHome,
                 onViewMatchDetailsClick = { gameId ->
                     navController.navigate(AppRoutes.LiveMatch.createRoute(gameId))
                 },
@@ -191,6 +198,16 @@ fun AppNavigation() {
                 onRegisterClick = {
                     navController.navigate(AppRoutes.Register.route)
                 },
+                appViewModel = appViewModel
+            )
+        }
+
+        composable(AppRoutes.AdminHome.route) {
+            AdminHomeRoute(
+                selectedRoute = AppRoutes.Home.route,
+                onNavItemClick = navigateWithBottomBar,
+                onNotificationsClick = openNotifications,
+                onAdminPageClick = openAdminHome,
                 appViewModel = appViewModel
             )
         }
@@ -348,6 +365,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
         ) { backStackEntry ->
             val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
+
             TicketDetailsRoute(
                 ticketId = ticketId,
                 selectedRoute = AppRoutes.Profile.route,
@@ -470,6 +488,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("eventId") { type = NavType.StringType })
         ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+
             ManageEventRoute(
                 eventId = eventId,
                 selectedRoute = AppRoutes.Profile.route,
@@ -504,6 +523,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("gameId") { type = NavType.StringType })
         ) { backStackEntry ->
             val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
+
             LiveMatchRoute(
                 gameId = gameId,
                 selectedRoute = AppRoutes.Events.route,
@@ -558,6 +578,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("eventId") { type = NavType.StringType })
         ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+
             EditEventRoute(
                 eventId = eventId,
                 selectedRoute = AppRoutes.Profile.route,
@@ -609,6 +630,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("eventId") { type = NavType.StringType })
         ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+
             FormTeamsRoute(
                 eventId = eventId,
                 selectedRoute = AppRoutes.Profile.route,
