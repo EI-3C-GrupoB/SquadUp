@@ -1,36 +1,52 @@
 package com.example.squadup.features.admin.manageaccounts
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class ManageAccountsViewModel : ViewModel() {
+class ManageAccountsViewModel(
+    private val repository: ManageAccountsRepository = ManageAccountsRepository()
+) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ManageAccountsUiState())
+    private val _uiState = MutableStateFlow(ManageAccountsUiState(isLoading = true))
     val uiState: StateFlow<ManageAccountsUiState> = _uiState.asStateFlow()
 
     init {
-        loadStaticData()
+        loadUsers()
     }
 
-    private fun loadStaticData() {
-        _uiState.update { 
-            it.copy(
-                totalUsers = 24512,
-                users = listOf(
-                    ManageAccountItem("1", "JD", "James D.", "james@squadup.com", AccountRole.Player),
-                    ManageAccountItem("2", "SK", "Sarah K.", "sarah.k@club.org", AccountRole.Organizer),
-                    ManageAccountItem("3", "ML", "Marcus L.", "ml@proleague.com", AccountRole.Player),
-                    ManageAccountItem("4", "AR", "Ana R.", "ana.r@admin.com", AccountRole.Admin),
-                    ManageAccountItem("5", "TC", "Tom C.", "tom.c@club.org", AccountRole.Organizer),
-                    ManageAccountItem("6", "BW", "Ben W.", "ben.w@league.com", AccountRole.Player),
-                    ManageAccountItem("7", "LM", "Lisa M.", "lisa.m@squad.com", AccountRole.Player),
-                    ManageAccountItem("8", "PF", "Pedro F.", "pedro.f@admin.com", AccountRole.Admin),
-                    ManageAccountItem("9", "KJ", "Kim J.", "kim.j@teams.com", AccountRole.Player)
+    fun loadUsers() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = null
                 )
-            )
+            }
+
+            repository.loadUsers()
+                .onSuccess { users ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            users = users,
+                            totalUsers = users.size,
+                            errorMessage = null
+                        )
+                    }
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = exception.message ?: "Erro ao carregar utilizadores"
+                        )
+                    }
+                }
         }
     }
 
@@ -39,21 +55,29 @@ class ManageAccountsViewModel : ViewModel() {
     }
 
     fun onSortByName() {
-        _uiState.update { 
-            val newSort = if (it.currentSortOrder == SortOrder.NameAZ) SortOrder.NameZA else SortOrder.NameAZ
+        _uiState.update {
+            val newSort = if (it.currentSortOrder == SortOrder.NameAZ) {
+                SortOrder.NameZA
+            } else {
+                SortOrder.NameAZ
+            }
             it.copy(currentSortOrder = newSort)
         }
     }
 
     fun onSortByRole() {
-        _uiState.update { 
-            val newSort = if (it.currentSortOrder == SortOrder.RoleAZ) SortOrder.RoleZA else SortOrder.RoleAZ
+        _uiState.update {
+            val newSort = if (it.currentSortOrder == SortOrder.RoleAZ) {
+                SortOrder.RoleZA
+            } else {
+                SortOrder.RoleAZ
+            }
             it.copy(currentSortOrder = newSort)
         }
     }
 
     fun onFilterDialogOpen() {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 pendingRoleFilters = it.selectedRoleFilters,
                 showFilterDialog = true
@@ -74,7 +98,7 @@ class ManageAccountsViewModel : ViewModel() {
     }
 
     fun onApplyFilter() {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 selectedRoleFilters = it.pendingRoleFilters,
                 showFilterDialog = false

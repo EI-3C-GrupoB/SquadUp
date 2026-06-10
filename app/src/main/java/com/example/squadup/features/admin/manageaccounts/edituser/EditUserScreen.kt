@@ -82,6 +82,15 @@ fun EditUserScreen(
         ) {
             Spacer(modifier = Modifier.height(28.dp))
 
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    color = SquadOrange,
+                    modifier = Modifier.padding(top = 36.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                return@Column
+            }
+
             // Avatar
             Box(
                 modifier = Modifier
@@ -116,6 +125,15 @@ fun EditUserScreen(
                 color = SquadTextSecondary
             )
 
+            if (uiState.userEmail.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = uiState.userEmail,
+                    fontSize = 13.sp,
+                    color = SquadTextSecondary
+                )
+            }
+
             Spacer(modifier = Modifier.height(28.dp))
 
             // Role Section
@@ -143,6 +161,7 @@ fun EditUserScreen(
                         title = stringResource(R.string.manageAccounts_role_admin),
                         description = stringResource(R.string.editUser_role_admin_desc),
                         selected = uiState.selectedRole == AccountRole.Admin,
+                        enabled = !uiState.isSaving && !uiState.isDeleting,
                         onClick = { onRoleChange(AccountRole.Admin) }
                     )
 
@@ -155,6 +174,7 @@ fun EditUserScreen(
                         title = stringResource(R.string.manageAccounts_role_organizer),
                         description = stringResource(R.string.editUser_role_organizer_desc),
                         selected = uiState.selectedRole == AccountRole.Organizer,
+                        enabled = !uiState.isSaving && !uiState.isDeleting,
                         onClick = { onRoleChange(AccountRole.Organizer) }
                     )
 
@@ -167,6 +187,7 @@ fun EditUserScreen(
                         title = stringResource(R.string.manageAccounts_role_player),
                         description = stringResource(R.string.editUser_role_player_desc),
                         selected = uiState.selectedRole == AccountRole.Player,
+                        enabled = !uiState.isSaving && !uiState.isDeleting,
                         onClick = { onRoleChange(AccountRole.Player) }
                     )
                 }
@@ -176,8 +197,9 @@ fun EditUserScreen(
 
             // Save button
             PrimaryButton(
-                text = stringResource(R.string.editUser_save),
-                onClick = onSaveClick
+                text = if (uiState.isSaving) "A guardar..." else stringResource(R.string.editUser_save),
+                onClick = onSaveClick,
+                enabled = !uiState.isSaving && !uiState.isDeleting
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -185,6 +207,7 @@ fun EditUserScreen(
             // Send Message
             OutlinedButton(
                 onClick = onSendMessageClick,
+                enabled = !uiState.isSaving && !uiState.isDeleting,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(1.5.dp, SquadOrange),
@@ -202,6 +225,7 @@ fun EditUserScreen(
             // Suspend / Reactivate
             OutlinedButton(
                 onClick = onToggleSuspend,
+                enabled = !uiState.isSaving && !uiState.isDeleting,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(
@@ -227,6 +251,7 @@ fun EditUserScreen(
             // Delete
             OutlinedButton(
                 onClick = onDeleteClick,
+                enabled = !uiState.isSaving && !uiState.isDeleting,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(1.5.dp, SquadError),
@@ -236,6 +261,18 @@ fun EditUserScreen(
                     text = stringResource(R.string.editUser_delete),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            if (uiState.errorMessage != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = uiState.errorMessage,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = SquadError
                 )
             }
 
@@ -266,12 +303,13 @@ private fun RoleCard(
     title: String,
     description: String,
     selected: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick),
         shape = RoundedCornerShape(10.dp),
         color = if (selected) SquadOrangeLight else Color.White,
         border = BorderStroke(
@@ -315,7 +353,8 @@ private fun RoleCard(
 
             RadioButton(
                 selected = selected,
-                onClick = onClick,
+                onClick = if (enabled) onClick else null,
+                enabled = enabled,
                 colors = RadioButtonDefaults.colors(
                     selectedColor = SquadOrange,
                     unselectedColor = Color(0xFFBDBDBD)
