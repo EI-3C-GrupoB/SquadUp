@@ -158,16 +158,44 @@ fun LiveMatchPreMatch(
 
                 Spacer(Modifier.height(28.dp))
 
-                Button(
-                    onClick = onStartMatch,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
-                ) {
-                    Icon(Icons.Outlined.PlayArrow, null, modifier = Modifier.size(22.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.liveMatch_start_match), fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+                if (uiState.isOrganizer) {
+                    Button(
+                        onClick = onStartMatch,
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                    ) {
+                        Icon(Icons.Outlined.PlayArrow, null, modifier = Modifier.size(22.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.liveMatch_start_match), fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+                    }
+                } else {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = SquadOrangeLight,
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Schedule,
+                                contentDescription = null,
+                                tint = SquadOrange,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                text = "A aguardar o início do jogo...",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = SquadOrange
+                            )
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(88.dp))

@@ -28,6 +28,7 @@ fun CurrentMatchCard(
     location: String,
     sportType: SportType,
     onViewDetailsClick: () -> Unit,
+    isOrganizer: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -102,7 +103,7 @@ fun CurrentMatchCard(
                     )
                 ) {
                     Text(
-                        text = "GERIR JOGO",
+                        text = if (isOrganizer) "GERIR JOGO" else "VER JOGO",
                         fontWeight = FontWeight.Bold
                     )
                 }

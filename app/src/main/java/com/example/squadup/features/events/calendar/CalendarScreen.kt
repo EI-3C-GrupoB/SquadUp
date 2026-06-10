@@ -20,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ConfirmationNumber
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Schedule
@@ -29,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -66,6 +64,7 @@ fun CalendarScreen(
     onTodayClick: () -> Unit,
     onDayClick: (Int) -> Unit,
     onGameDetailsClick: (String) -> Unit,
+    onTicketClick: (ticketId: String, eventId: String) -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -74,8 +73,10 @@ fun CalendarScreen(
     Scaffold(
         topBar = {
             AppHeader(
-                showLogo = true,
-                showBackButton = false,
+                showLogo = false,
+                showBackButton = true,
+                onBackClick = onBackClick,
+                title = "Calendário",
                 showNotificationsButton = true,
                 showSettingsButton = true,
                 onNotificationsClick = onNotificationsClick,
@@ -102,78 +103,60 @@ fun CalendarScreen(
         ) {
             Spacer(modifier = Modifier.height(18.dp))
 
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier.size(36.dp)
+                Text(
+                    text = uiState.monthTitle,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SquadTextPrimary
+                )
+
+                Text(
+                    text = "${uiState.matchesScheduled} jogos agendados",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = SquadTextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier
+                        .background(SquadOrangeLight, RoundedCornerShape(999.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
                         contentDescription = null,
-                        tint = SquadTextPrimary
-                    )
-                }
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = uiState.monthTitle,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary
+                        tint = SquadOrange,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clickable(onClick = onPreviousMonthClick)
                     )
 
                     Text(
-                        text = "${uiState.matchesScheduled} jogos agendados",
+                        text = "Hoje",
+                        color = SquadTextPrimary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = SquadTextSecondary
+                        modifier = Modifier
+                            .padding(horizontal = 14.dp)
+                            .clickable(onClick = onTodayClick)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = SquadOrange,
                         modifier = Modifier
-                            .background(SquadOrangeLight, RoundedCornerShape(999.dp))
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                            contentDescription = null,
-                            tint = SquadOrange,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .clickable(onClick = onPreviousMonthClick)
-                        )
-
-                        Text(
-                            text = "Hoje",
-                            color = SquadTextPrimary,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier
-                                .padding(horizontal = 14.dp)
-                                .clickable(onClick = onTodayClick)
-                        )
-
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = SquadOrange,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .clickable(onClick = onNextMonthClick)
-                        )
-                    }
+                            .size(22.dp)
+                            .clickable(onClick = onNextMonthClick)
+                    )
                 }
-
-                Spacer(modifier = Modifier.width(36.dp))
             }
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -190,7 +173,8 @@ fun CalendarScreen(
                 Spacer(modifier = Modifier.height(20.dp))
                 MatchHighlightCard(
                     item = uiState.highlightedMatch,
-                    onGameDetailsClick = onGameDetailsClick
+                    onGameDetailsClick = onGameDetailsClick,
+                    onTicketClick = onTicketClick
                 )
             }
 
@@ -370,7 +354,8 @@ private fun CalendarDayCell(
 @Composable
 private fun MatchHighlightCard(
     item: CalendarMatchItem,
-    onGameDetailsClick: (String) -> Unit
+    onGameDetailsClick: (String) -> Unit,
+    onTicketClick: (ticketId: String, eventId: String) -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -482,7 +467,7 @@ private fun MatchHighlightCard(
                 }
 
                 Button(
-                    onClick = {},
+                    onClick = { onTicketClick(item.ticketId.toString(), item.eventId.toString()) },
                     modifier = Modifier.width(76.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(

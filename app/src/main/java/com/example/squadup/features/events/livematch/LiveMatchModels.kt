@@ -22,7 +22,16 @@ data class LiveMatchEventRow(
     @SerialName("modalidade_id")
     val modalityId: Int? = null,
     @SerialName("formato_id")
-    val formatoId: Int? = null
+    val formatoId: Int? = null,
+    @SerialName("criador_id")
+    val creatorId: Int? = null
+)
+
+@Serializable
+data class LiveMatchCurrentUserRow(
+    val id: Int,
+    @SerialName("auth_user_id")
+    val authUserId: String? = null
 )
 
 @Serializable

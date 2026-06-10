@@ -539,7 +539,16 @@ fun AppNavigation() {
                     navController.popBackStack()
                 },
                 onNotificationsClick = openNotifications,
-                onGameDetailsClick = { _ -> },
+                onGameDetailsClick = { gameId ->
+                    navController.navigate(AppRoutes.LiveMatch.createRoute(gameId))
+                },
+                onTicketClick = { ticketId, eventId ->
+                    if (ticketId != "0") {
+                        navController.navigate(AppRoutes.TicketDetails.createRoute(ticketId))
+                    } else {
+                        navController.navigate(AppRoutes.MoreDetails.createRoute(eventId))
+                    }
+                },
                 appViewModel = appViewModel
             )
         }

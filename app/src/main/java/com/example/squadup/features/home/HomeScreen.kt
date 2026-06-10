@@ -144,6 +144,7 @@ fun HomeScreen(
                     date = uiState.currentMatch.date,
                     location = uiState.currentMatch.location,
                     sportType = uiState.currentMatch.sportType,
+                    isOrganizer = uiState.currentMatch.isOwnedByCurrentUser,
                     onViewDetailsClick = { onViewMatchDetailsClick(uiState.currentMatch.id) }
                 )
             } else {

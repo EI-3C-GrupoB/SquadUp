@@ -35,3 +35,19 @@ data class CalendarTeamRow(
     @SerialName("nome")
     val name: String
 )
+
+@Serializable
+data class CalendarUserRow(
+    val id: Int,
+    @SerialName("auth_user_id")
+    val authUserId: String? = null
+)
+
+@Serializable
+data class CalendarBilheteRow(
+    val id: Int,
+    @SerialName("user_id")
+    val userId: Int,
+    @SerialName("evento_id")
+    val eventId: Int
+)

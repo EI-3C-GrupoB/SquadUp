@@ -13,6 +13,7 @@ fun CalendarRoute(
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onGameDetailsClick: (String) -> Unit,
+    onTicketClick: (ticketId: String, eventId: String) -> Unit,
     appViewModel: AppViewModel,
     viewModel: CalendarViewModel = viewModel()
 ) {
@@ -30,6 +31,7 @@ fun CalendarRoute(
         onTodayClick = viewModel::onTodayClick,
         onDayClick = viewModel::onDayClick,
         onGameDetailsClick = onGameDetailsClick,
+        onTicketClick = onTicketClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         onLanguageChange = appViewModel::onLanguageChange,

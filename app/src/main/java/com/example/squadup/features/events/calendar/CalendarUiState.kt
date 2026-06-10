@@ -20,11 +20,15 @@ data class CalendarMatchItem(
     val awayTeam: String = "",
     val time: String = "",
     val location: String = "",
-    val gameId: Int = 0
+    val gameId: Int = 0,
+    val eventId: Int = 0,
+    val ticketId: Int = 0
 )
 
 data class DailyScheduleItem(
     val gameId: Int = 0,
+    val eventId: Int = 0,
+    val ticketId: Int = 0,
     val time: String = "",
     val homeTeam: String = "",
     val awayTeam: String = "",

@@ -2,6 +2,7 @@ package com.example.squadup.features.events.calendar
 
 import com.example.squadup.core.SupabaseClientProvider
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -38,6 +39,18 @@ class CalendarRepository(
                 .decodeList<CalendarTeamRow>()
                 .associateBy { it.id }
 
+            // Map eventId → ticketId for the current logged-in user
+            val userTicketsByEvent: Map<Int, Int> = runCatching {
+                val authId = supabaseClient.auth.currentUserOrNull()?.id ?: return@runCatching emptyMap()
+                val currentUser = supabaseClient.from("utilizador")
+                    .select { filter { eq("auth_user_id", authId) } }
+                    .decodeSingle<CalendarUserRow>()
+                supabaseClient.from("bilhete")
+                    .select { filter { eq("user_id", currentUser.id) } }
+                    .decodeList<CalendarBilheteRow>()
+                    .associate { it.eventId to it.id }
+            }.getOrDefault(emptyMap())
+
             val yearMonth = YearMonth.of(year, month)
             val calendarCells = buildCalendarCells(yearMonth)
 
@@ -69,7 +82,7 @@ class CalendarRepository(
                     eventDays = gamesThisMonth.map { it.second.dayOfMonth }.toSet(),
                     calendarCells = calendarCells,
                     highlightedMatch = highlighted?.let { (game, dateTime) ->
-                        game.toCalendarMatch(dateTime, gameTeams, teams)
+                        game.toCalendarMatch(dateTime, gameTeams, teams, userTicketsByEvent)
                     },
                     dailySchedule = gamesOnSelectedDay.map { (game, dateTime) ->
                         val linkedTeams = gameTeams.filter { it.gameId == game.id }
@@ -77,6 +90,8 @@ class CalendarRepository(
                         val away = linkedTeams.getOrNull(1)?.teamId?.let { teams[it]?.name }.orEmpty()
                         DailyScheduleItem(
                             gameId = game.id,
+                            eventId = game.eventId ?: 0,
+                            ticketId = game.eventId?.let { userTicketsByEvent[it] } ?: 0,
                             time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                             homeTeam = home,
                             awayTeam = away,
@@ -104,7 +119,8 @@ class CalendarRepository(
     private fun CalendarGameRow.toCalendarMatch(
         dateTime: LocalDateTime,
         gameTeams: List<CalendarGameTeamRow>,
-        teams: Map<Int, CalendarTeamRow>
+        teams: Map<Int, CalendarTeamRow>,
+        ticketsByEvent: Map<Int, Int> = emptyMap()
     ): CalendarMatchItem {
         val linkedTeams = gameTeams.filter { it.gameId == id }
         val homeTeam = linkedTeams.getOrNull(0)?.teamId?.let { teams[it]?.name }.orEmpty()
@@ -116,7 +132,9 @@ class CalendarRepository(
             awayTeam = awayTeam,
             time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
             location = address.orEmpty(),
-            gameId = id
+            gameId = id,
+            eventId = eventId ?: 0,
+            ticketId = eventId?.let { ticketsByEvent[it] } ?: 0
         )
     }
 

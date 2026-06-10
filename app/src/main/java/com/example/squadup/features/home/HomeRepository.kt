@@ -82,7 +82,7 @@ class HomeRepository(
                     isLoggedIn = isLoggedIn,
                     displayName = displayName,
                     role = role,
-                    currentMatch = buildCurrentMatch(games, events, ownedTeams, gameTeams, modalities),
+                    currentMatch = buildCurrentMatch(games, events, ownedTeams, gameTeams, modalities, userId),
                     nearbyEvents = events
                         .filter { it.status != "cancelado" }
                         .sortedBy { it.startDate.orEmpty() }
@@ -139,7 +139,8 @@ class HomeRepository(
         events: List<HomeEventRow>,
         teams: List<HomeTeamRow>,
         gameTeams: List<HomeGameTeamRow>,
-        modalities: Map<Int, HomeModalityRow>
+        modalities: Map<Int, HomeModalityRow>,
+        userId: Int? = null
     ): HomeMatch? {
         val game = games
             .sortedBy { it.scheduledAt.orEmpty() }
@@ -158,7 +159,8 @@ class HomeRepository(
             title = title,
             date = game.scheduledAt.toShortDateTime(),
             location = game.address.orEmpty(),
-            sportType = sportTypeFrom(event?.modalityId?.let { modalities[it]?.name })
+            sportType = sportTypeFrom(event?.modalityId?.let { modalities[it]?.name }),
+            isOwnedByCurrentUser = userId != null && event?.creatorId == userId
         )
     }
 

@@ -4,6 +4,7 @@ import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.SportType
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -69,7 +70,15 @@ class LiveMatchRepository(
                 }
                 .decodeList<LiveMatchTimelineRow>()
 
-            Result.success(game.toUiState(event, modality, formato, gameTeams, teams, lineups, users, stats, actions, timeline))
+            val isOrganizer = runCatching {
+                val authId = supabaseClient.auth.currentUserOrNull()?.id ?: return@runCatching false
+                val currentUser = supabaseClient.from("utilizador")
+                    .select { filter { eq("auth_user_id", authId) } }
+                    .decodeSingle<LiveMatchCurrentUserRow>()
+                event?.creatorId != null && currentUser.id == event.creatorId
+            }.getOrDefault(false)
+
+            Result.success(game.toUiState(event, modality, formato, gameTeams, teams, lineups, users, stats, actions, timeline, isOrganizer))
         } catch (exception: Exception) {
             Result.failure(exception)
         }
@@ -235,7 +244,8 @@ class LiveMatchRepository(
         users: Map<Int, LiveMatchUserRow>,
         stats: Map<Int, LiveMatchStatsRow>,
         actions: Map<Int, LiveMatchActionTypeRow>,
-        timeline: List<LiveMatchTimelineRow>
+        timeline: List<LiveMatchTimelineRow>,
+        isOrganizer: Boolean = false
     ): LiveMatchUiState {
         val homeTeamId = gameTeams.getOrNull(0)?.teamId
         val awayTeamId = gameTeams.getOrNull(1)?.teamId
@@ -254,6 +264,7 @@ class LiveMatchRepository(
         return LiveMatchUiState(
             gameId = id.toString(),
             eventId = event?.id?.toString().orEmpty(),
+            isOrganizer = isOrganizer,
             phase = status.toPhase(),
             sportType = sportTypeFrom(modality?.name),
             eventFormat = eventFormatFrom(formato?.name),

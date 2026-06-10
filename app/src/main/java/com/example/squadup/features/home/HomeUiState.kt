@@ -32,7 +32,8 @@ data class HomeMatch(
     val title: String,
     val date: String,
     val location: String,
-    val sportType: SportType
+    val sportType: SportType,
+    val isOwnedByCurrentUser: Boolean = false
 )
 
 data class HomeEvent(
