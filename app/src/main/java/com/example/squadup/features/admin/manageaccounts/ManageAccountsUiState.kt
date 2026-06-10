@@ -6,7 +6,6 @@ enum class SortOrder { NameAZ, NameZA, RoleAZ, RoleZA }
 
 data class ManageAccountsUiState(
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
     val searchQuery: String = "",
     val users: List<ManageAccountItem> = emptyList(),
     val selectedRoleFilters: Set<AccountRole> = emptySet(),
@@ -39,6 +38,5 @@ data class ManageAccountItem(
     val initials: String,
     val name: String,
     val email: String,
-    val role: AccountRole,
-    val isSuspended: Boolean = false
+    val role: AccountRole
 )

@@ -2,52 +2,43 @@ package com.example.squadup.features.admin.manageaccounts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ManageAccountsViewModel(
-    private val repository: ManageAccountsRepository = ManageAccountsRepository()
-) : ViewModel() {
+class ManageAccountsViewModel : ViewModel() {
+    private val repository = ManageAccountsRepository()
 
-    private val _uiState = MutableStateFlow(ManageAccountsUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(ManageAccountsUiState())
     val uiState: StateFlow<ManageAccountsUiState> = _uiState.asStateFlow()
 
+    private var usersJob: Job? = null
+
     init {
-        loadUsers()
+        startObservingUsers()
+    }
+
+    private fun startObservingUsers() {
+        usersJob?.cancel()
+        usersJob = viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            repository.getUsersRealtime().collect { users ->
+                _uiState.update { 
+                    it.copy(
+                        users = users, 
+                        totalUsers = users.size,
+                        isLoading = false 
+                    ) 
+                }
+            }
+        }
     }
 
     fun loadUsers() {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isLoading = true,
-                    errorMessage = null
-                )
-            }
-
-            repository.loadUsers()
-                .onSuccess { users ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            users = users,
-                            totalUsers = users.size,
-                            errorMessage = null
-                        )
-                    }
-                }
-                .onFailure { exception ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = exception.message ?: "Erro ao carregar utilizadores"
-                        )
-                    }
-                }
-        }
+        startObservingUsers()
     }
 
     fun onSearchQueryChange(query: String) {
@@ -56,22 +47,14 @@ class ManageAccountsViewModel(
 
     fun onSortByName() {
         _uiState.update {
-            val newSort = if (it.currentSortOrder == SortOrder.NameAZ) {
-                SortOrder.NameZA
-            } else {
-                SortOrder.NameAZ
-            }
+            val newSort = if (it.currentSortOrder == SortOrder.NameAZ) SortOrder.NameZA else SortOrder.NameAZ
             it.copy(currentSortOrder = newSort)
         }
     }
 
     fun onSortByRole() {
         _uiState.update {
-            val newSort = if (it.currentSortOrder == SortOrder.RoleAZ) {
-                SortOrder.RoleZA
-            } else {
-                SortOrder.RoleAZ
-            }
+            val newSort = if (it.currentSortOrder == SortOrder.RoleAZ) SortOrder.RoleZA else SortOrder.RoleAZ
             it.copy(currentSortOrder = newSort)
         }
     }
