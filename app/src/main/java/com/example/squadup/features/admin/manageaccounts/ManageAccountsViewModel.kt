@@ -1,37 +1,44 @@
 package com.example.squadup.features.admin.manageaccounts
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class ManageAccountsViewModel : ViewModel() {
+    private val repository = ManageAccountsRepository()
 
     private val _uiState = MutableStateFlow(ManageAccountsUiState())
     val uiState: StateFlow<ManageAccountsUiState> = _uiState.asStateFlow()
 
+    private var usersJob: Job? = null
+
     init {
-        loadStaticData()
+        startObservingUsers()
     }
 
-    private fun loadStaticData() {
-        _uiState.update { 
-            it.copy(
-                totalUsers = 24512,
-                users = listOf(
-                    ManageAccountItem("1", "JD", "James D.", "james@squadup.com", AccountRole.Player),
-                    ManageAccountItem("2", "SK", "Sarah K.", "sarah.k@club.org", AccountRole.Organizer),
-                    ManageAccountItem("3", "ML", "Marcus L.", "ml@proleague.com", AccountRole.Player),
-                    ManageAccountItem("4", "AR", "Ana R.", "ana.r@admin.com", AccountRole.Admin),
-                    ManageAccountItem("5", "TC", "Tom C.", "tom.c@club.org", AccountRole.Organizer),
-                    ManageAccountItem("6", "BW", "Ben W.", "ben.w@league.com", AccountRole.Player),
-                    ManageAccountItem("7", "LM", "Lisa M.", "lisa.m@squad.com", AccountRole.Player),
-                    ManageAccountItem("8", "PF", "Pedro F.", "pedro.f@admin.com", AccountRole.Admin),
-                    ManageAccountItem("9", "KJ", "Kim J.", "kim.j@teams.com", AccountRole.Player)
-                )
-            )
+    private fun startObservingUsers() {
+        usersJob?.cancel()
+        usersJob = viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            repository.getUsersRealtime().collect { users ->
+                _uiState.update { 
+                    it.copy(
+                        users = users, 
+                        totalUsers = users.size,
+                        isLoading = false 
+                    ) 
+                }
+            }
         }
+    }
+
+    fun loadUsers() {
+        startObservingUsers()
     }
 
     fun onSearchQueryChange(query: String) {
@@ -39,21 +46,21 @@ class ManageAccountsViewModel : ViewModel() {
     }
 
     fun onSortByName() {
-        _uiState.update { 
+        _uiState.update {
             val newSort = if (it.currentSortOrder == SortOrder.NameAZ) SortOrder.NameZA else SortOrder.NameAZ
             it.copy(currentSortOrder = newSort)
         }
     }
 
     fun onSortByRole() {
-        _uiState.update { 
+        _uiState.update {
             val newSort = if (it.currentSortOrder == SortOrder.RoleAZ) SortOrder.RoleZA else SortOrder.RoleAZ
             it.copy(currentSortOrder = newSort)
         }
     }
 
     fun onFilterDialogOpen() {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 pendingRoleFilters = it.selectedRoleFilters,
                 showFilterDialog = true
@@ -74,7 +81,7 @@ class ManageAccountsViewModel : ViewModel() {
     }
 
     fun onApplyFilter() {
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 selectedRoleFilters = it.pendingRoleFilters,
                 showFilterDialog = false

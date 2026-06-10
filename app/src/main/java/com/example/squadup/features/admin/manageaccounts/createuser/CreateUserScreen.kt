@@ -25,6 +25,7 @@ fun CreateUserScreen(
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
+    onNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -40,7 +41,8 @@ fun CreateUserScreen(
 ) {
     val roleOptions = listOf(
         AccountRole.Admin to stringResource(R.string.manageAccounts_role_admin),
-        AccountRole.Organizer to stringResource(R.string.manageAccounts_role_organizer)
+        AccountRole.Organizer to stringResource(R.string.manageAccounts_role_organizer),
+        AccountRole.Player to stringResource(R.string.manageAccounts_role_player)
     )
 
     Scaffold(
@@ -97,10 +99,21 @@ fun CreateUserScreen(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 AuthTextField(
+                    value = uiState.name,
+                    onValueChange = onNameChange,
+                    label = "Nome",
+                    placeholder = "Nome do utilizador",
+                    enabled = !uiState.isLoading
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                AuthTextField(
                     value = uiState.email,
                     onValueChange = onEmailChange,
                     label = stringResource(R.string.createUser_email_label),
-                    placeholder = "email@gmail.com"
+                    placeholder = "email@gmail.com",
+                    enabled = !uiState.isLoading
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -109,7 +122,8 @@ fun CreateUserScreen(
                     value = uiState.username,
                     onValueChange = onUsernameChange,
                     label = stringResource(R.string.createUser_username_label),
-                    placeholder = "username"
+                    placeholder = "username",
+                    enabled = !uiState.isLoading
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -119,7 +133,8 @@ fun CreateUserScreen(
                     onValueChange = onPasswordChange,
                     label = stringResource(R.string.createUser_password_label),
                     placeholder = "••••••••••••••••",
-                    isPassword = true
+                    isPassword = true,
+                    enabled = !uiState.isLoading
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -134,11 +149,24 @@ fun CreateUserScreen(
                     }
                 )
 
+                if (uiState.errorMessage != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = uiState.errorMessage,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = SquadError,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 PrimaryButton(
-                    text = stringResource(R.string.createUser_button),
-                    onClick = onCreateClick
+                    text = if (uiState.isLoading) "A criar..." else stringResource(R.string.createUser_button),
+                    onClick = onCreateClick,
+                    enabled = !uiState.isLoading
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

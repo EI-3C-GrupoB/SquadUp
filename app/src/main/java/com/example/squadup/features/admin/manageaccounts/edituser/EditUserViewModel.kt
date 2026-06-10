@@ -2,41 +2,171 @@ package com.example.squadup.features.admin.manageaccounts.edituser
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.squadup.features.admin.manageaccounts.AccountRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class EditUserViewModel(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val repository: EditUserRepository = EditUserRepository()
 ) : ViewModel() {
 
-    private val userId: String = savedStateHandle.get<String>("userId") ?: ""
+    private val userId: Int? = savedStateHandle
+        .get<String>("userId")
+        ?.toIntOrNull()
 
-    private val _uiState = MutableStateFlow(EditUserUiState())
+    private val _uiState = MutableStateFlow(EditUserUiState(isLoading = true))
     val uiState: StateFlow<EditUserUiState> = _uiState.asStateFlow()
 
-    private val staticUsers = mapOf(
-        "1" to EditUserUiState("1", "James D.", "james@squadup.com", "JD", AccountRole.Player),
-        "2" to EditUserUiState("2", "Sarah K.", "sarah.k@club.org", "SK", AccountRole.Organizer),
-        "3" to EditUserUiState("3", "Marcus L.", "ml@proleague.com", "ML", AccountRole.Player),
-        "4" to EditUserUiState("4", "Ana R.", "ana.r@admin.com", "AR", AccountRole.Admin),
-        "5" to EditUserUiState("5", "Tom C.", "tom.c@club.org", "TC", AccountRole.Organizer),
-        "6" to EditUserUiState("6", "Ben W.", "ben.w@league.com", "BW", AccountRole.Player),
-        "7" to EditUserUiState("7", "Lisa M.", "lisa.m@squad.com", "LM", AccountRole.Player),
-        "8" to EditUserUiState("8", "Pedro F.", "pedro.f@admin.com", "PF", AccountRole.Admin),
-        "9" to EditUserUiState("9", "Kim J.", "kim.j@teams.com", "KJ", AccountRole.Player)
-    )
-
     init {
-        _uiState.value = staticUsers[userId] ?: EditUserUiState(userId = userId)
+        loadUser()
+    }
+
+    fun loadUser() {
+        val id = userId
+        if (id == null) {
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = "Utilizador inválido"
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = null
+                )
+            }
+
+            repository.loadUser(id)
+                .onSuccess { loadedState ->
+                    _uiState.value = loadedState
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = exception.message ?: "Erro ao carregar utilizador"
+                        )
+                    }
+                }
+        }
     }
 
     fun onRoleChange(role: AccountRole) {
-        _uiState.value = _uiState.value.copy(selectedRole = role)
+        _uiState.update {
+            it.copy(
+                selectedRole = role,
+                errorMessage = null,
+                isSaveSuccessful = false
+            )
+        }
+    }
+
+    fun saveUser(onSuccess: () -> Unit) {
+        val id = userId ?: return
+        val role = _uiState.value.selectedRole
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isSaving = true,
+                    errorMessage = null,
+                    isSaveSuccessful = false
+                )
+            }
+
+            repository.updateUserRole(id, role)
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isSaving = false,
+                            isSaveSuccessful = true
+                        )
+                    }
+                    onSuccess()
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isSaving = false,
+                            errorMessage = exception.message ?: "Erro ao guardar utilizador"
+                        )
+                    }
+                }
+        }
     }
 
     fun onToggleSuspend() {
-        _uiState.value = _uiState.value.copy(isSuspended = !_uiState.value.isSuspended)
+        val id = userId ?: return
+        val nextSuspendedValue = !_uiState.value.isSuspended
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isSaving = true,
+                    errorMessage = null
+                )
+            }
+
+            repository.updateSuspension(id, nextSuspendedValue)
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isSaving = false,
+                            isSuspended = nextSuspendedValue
+                        )
+                    }
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isSaving = false,
+                            errorMessage = exception.message ?: "Erro ao actualizar estado da conta"
+                        )
+                    }
+                }
+        }
+    }
+
+    fun deleteUser(onSuccess: () -> Unit) {
+        val id = userId ?: return
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isDeleting = true,
+                    errorMessage = null,
+                    isDeleteSuccessful = false
+                )
+            }
+
+            repository.deleteUserProfile(id)
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isDeleting = false,
+                            isDeleteSuccessful = true
+                        )
+                    }
+                    onSuccess()
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isDeleting = false,
+                            errorMessage = exception.message ?: "Erro ao apagar utilizador"
+                        )
+                    }
+                }
+        }
     }
 }

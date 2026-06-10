@@ -287,14 +287,37 @@ fun ManageAccountsScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    if (uiState.filteredUsers.isEmpty()) {
-                        EmptyStateCard(
-                            title = "Nenhum utilizador",
-                            message = "Não foram encontrados utilizadores para a pesquisa selecionada.",
-                            icon = Icons.Outlined.Groups,
-                            modifier = Modifier.weight(1f)
-                        )
-                    } else {
+                    when {
+                        uiState.isLoading -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = SquadOrange)
+                            }
+                        }
+
+                        uiState.errorMessage != null -> {
+                            EmptyStateCard(
+                                title = "Erro ao carregar utilizadores",
+                                message = uiState.errorMessage,
+                                icon = Icons.Outlined.Groups,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        uiState.filteredUsers.isEmpty() -> {
+                            EmptyStateCard(
+                                title = "Nenhum utilizador",
+                                message = "Não foram encontrados utilizadores para a pesquisa selecionada.",
+                                icon = Icons.Outlined.Groups,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        else -> {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -312,6 +335,7 @@ fun ManageAccountsScreen(
                                 )
                             }
                         }
+                    }
                     }
                 }
             }
