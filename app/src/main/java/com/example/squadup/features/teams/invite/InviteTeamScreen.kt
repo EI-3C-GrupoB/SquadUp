@@ -1,5 +1,7 @@
 package com.example.squadup.features.teams.invite
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,13 +47,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import android.content.ActivityNotFoundException
@@ -101,17 +100,17 @@ fun InviteTeamScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp)
+                .padding(horizontal = responsiveHorizontalPadding(18.dp))
                 .padding(top = 18.dp, bottom = 28.dp)
         ) {
             Text(
                 text = "Invite Your Squad",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -121,7 +120,7 @@ fun InviteTeamScreen(
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
                 fontWeight = FontWeight.Medium,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -176,7 +175,7 @@ private fun InviteCodeCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -268,7 +267,7 @@ private fun InviteSectionHeader(
             text = title,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
@@ -369,7 +368,7 @@ private fun ShareOption(
             text = label,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -381,7 +380,7 @@ private fun SuggestedContactsCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -429,7 +428,7 @@ private fun SuggestedContactRow(
                 text = contact.name,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -438,7 +437,7 @@ private fun SuggestedContactRow(
                 text = "${contact.username} • ${contact.subtitle}",
                 fontSize = 11.sp,
                 lineHeight = 15.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -482,7 +481,7 @@ private fun InviteStatusButton(
     }
 
     val backgroundColor = when (status) {
-        InviteStatus.INVITE -> SquadSurface
+        InviteStatus.INVITE -> MaterialTheme.colorScheme.surface
         InviteStatus.SENT -> Color(0xFF26323F)
         InviteStatus.MEMBER -> Color(0xFFE0E0E0)
     }
@@ -490,7 +489,7 @@ private fun InviteStatusButton(
     val textColor = when (status) {
         InviteStatus.INVITE -> SquadOrange
         InviteStatus.SENT -> SquadWhite
-        InviteStatus.MEMBER -> SquadTextSecondary
+        InviteStatus.MEMBER -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     Surface(
@@ -506,7 +505,7 @@ private fun InviteStatusButton(
         }
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -537,7 +536,7 @@ private fun InviteByUsernameCard(
                 text = "Invite via Username or Email",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -552,14 +551,14 @@ private fun InviteByUsernameCard(
                     singleLine = true,
                     textStyle = TextStyle(
                         fontSize = 13.sp,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium
                     ),
                     modifier = Modifier
                         .weight(1f)
                         .height(42.dp)
-                        .background(SquadSurface, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp),
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                        .padding(horizontal = responsiveHorizontalPadding(12.dp)),
                     decorationBox = { innerTextField ->
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -569,7 +568,7 @@ private fun InviteByUsernameCard(
                                 Text(
                                     text = "Enter username or email",
                                     fontSize = 12.sp,
-                                    color = SquadTextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
 

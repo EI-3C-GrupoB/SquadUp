@@ -1,5 +1,7 @@
 package com.example.squadup.features.home
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -29,7 +31,6 @@ fun HomeScreen(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
-    onAdminPageClick: () -> Unit,
     onViewMatchDetailsClick: (gameId: String) -> Unit,
     onSeeAllEventsClick: () -> Unit,
     onJoinEventClick: (String) -> Unit,
@@ -45,6 +46,10 @@ fun HomeScreen(
     onAdminViewChange: (Boolean) -> Unit,
     notificationsCount: Int = 0
 ) {
+    val horizontalPadding = responsiveHorizontalPadding(26.dp)
+    val topSpacing = responsiveVerticalSpacing(24.dp)
+    val sectionSpacing = responsiveVerticalSpacing(28.dp)
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -53,7 +58,6 @@ fun HomeScreen(
                 showNotificationsButton = uiState.isLoggedIn,
                 notificationsCount = notificationsCount,
                 onNotificationsClick = onNotificationsClick,
-                onAdminPageClick = onAdminPageClick,
                 showSettingsButton = true,
                 showLoginButton = !uiState.isLoggedIn,
                 isAdmin = isAdmin,
@@ -79,12 +83,12 @@ fun HomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 26.dp)
+                    .padding(horizontal = horizontalPadding)
             ) {
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(topSpacing))
 
             Text(
                 text = if (uiState.isLoggedIn) {
@@ -94,7 +98,7 @@ fun HomeScreen(
                 },
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
@@ -105,10 +109,10 @@ fun HomeScreen(
                     else -> stringResource(R.string.home_subtitle_guest)
                 },
                 fontSize = 14.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(sectionSpacing))
 
             if (uiState.isOrganizer) {
                 Row(
@@ -165,7 +169,7 @@ fun HomeScreen(
                         text = stringResource(R.string.home_my_events),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
 
@@ -214,7 +218,7 @@ fun HomeScreen(
                     text = stringResource(R.string.home_nearby_events),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -262,7 +266,7 @@ fun HomeScreen(
                     text = stringResource(R.string.home_my_teams),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))

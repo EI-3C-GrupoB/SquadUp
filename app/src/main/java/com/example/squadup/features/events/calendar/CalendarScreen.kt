@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.calendar
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,13 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 
 @Composable
@@ -96,10 +95,10 @@ fun CalendarScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = responsiveHorizontalPadding(20.dp))
         ) {
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -111,14 +110,14 @@ fun CalendarScreen(
                     text = uiState.monthTitle,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                     text = "${uiState.matchesScheduled} jogos agendados",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -140,11 +139,11 @@ fun CalendarScreen(
 
                     Text(
                         text = "Hoje",
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier
-                            .padding(horizontal = 14.dp)
+                            .padding(horizontal = responsiveHorizontalPadding(14.dp))
                             .clickable(onClick = onTodayClick)
                     )
 
@@ -216,7 +215,7 @@ fun CalendarScreen(
                         Text(
                             text = "Sem jogos neste dia",
                             fontSize = 13.sp,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -249,7 +248,7 @@ private fun MonthCalendarCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -262,7 +261,7 @@ private fun MonthCalendarCard(
                         text = day,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.weight(1f)
                     )
@@ -325,7 +324,7 @@ private fun CalendarDayCell(
                         text = day.toString(),
                         fontSize = 12.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                        color = if (selected) SquadOrange else SquadTextPrimary
+                        color = if (selected) SquadOrange else MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -393,7 +392,7 @@ private fun MatchHighlightCard(
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFE1E7F1),
-                    modifier = Modifier.padding(horizontal = 14.dp)
+                    modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(14.dp))
                 )
 
                 TeamSide(
@@ -414,7 +413,7 @@ private fun MatchHighlightCard(
                     Icon(
                         imageVector = Icons.Outlined.Schedule,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(15.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -422,7 +421,7 @@ private fun MatchHighlightCard(
                         text = item.time,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -433,14 +432,14 @@ private fun MatchHighlightCard(
                     Icon(
                         imageVector = Icons.Outlined.LocationOn,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(15.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = item.location,
                         fontSize = 13.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -472,7 +471,7 @@ private fun MatchHighlightCard(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFFC928),
-                        contentColor = SquadTextPrimary
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     )
                 ) {
                     Icon(
@@ -515,7 +514,7 @@ private fun TeamSide(
             text = label,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
     }
@@ -528,7 +527,7 @@ private fun GameCompactCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -557,7 +556,7 @@ private fun GameCompactCard(
                     Text(
                         text = item.eventName,
                         fontSize = 11.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -566,7 +565,7 @@ private fun GameCompactCard(
                     text = "${item.homeTeam} vs ${item.awayTeam}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -576,14 +575,14 @@ private fun GameCompactCard(
                         Icon(
                             imageVector = Icons.Outlined.LocationOn,
                             contentDescription = null,
-                            tint = SquadTextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = item.location,
                             fontSize = 11.sp,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

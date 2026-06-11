@@ -2,6 +2,7 @@ package com.example.squadup.core.ui.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -54,22 +55,67 @@ private val SquadLightColorScheme = lightColorScheme(
     scrim = SquadTextPrimary.copy(alpha = 0.35f)
 )
 
+private val SquadDarkColorScheme = darkColorScheme(
+    primary = SquadOrange,
+    onPrimary = SquadWhite,
+
+    primaryContainer = SquadOrangeDark,
+    onPrimaryContainer = SquadWhite,
+
+    secondary = SquadOrange,
+    onSecondary = SquadWhite,
+
+    secondaryContainer = SquadOrangeDark,
+    onSecondaryContainer = SquadWhite,
+
+    tertiary = SquadOrange,
+    onTertiary = SquadWhite,
+
+    tertiaryContainer = SquadOrangeDark,
+    onTertiaryContainer = SquadWhite,
+
+    background = SquadDarkBackground,
+    onBackground = SquadDarkTextPrimary,
+
+    surface = SquadDarkSurface,
+    onSurface = SquadDarkTextPrimary,
+
+    surfaceVariant = SquadDarkSurfaceVariant,
+    onSurfaceVariant = SquadDarkTextSecondary,
+
+    surfaceTint = SquadOrange,
+
+    inverseSurface = SquadWhite,
+    inverseOnSurface = SquadDarkBackground,
+    inversePrimary = SquadOrangeDark,
+
+    error = SquadErrorLight,
+    onError = SquadWhite,
+
+    errorContainer = SquadDarkErrorContainer,
+    onErrorContainer = SquadErrorLight,
+
+    outline = SquadDarkOutline,
+    outlineVariant = SquadDarkSurfaceVariant,
+
+    scrim = SquadWhite.copy(alpha = 0.35f)
+)
+
 @Composable
 fun SquadUpTheme(
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Tornamos os ícones da barra de status escuros (pretos) 
-            // já que a nossa AppHeader é clara (SquadSurface/Branca)
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
     MaterialTheme(
-        colorScheme = SquadLightColorScheme,
+        colorScheme = if (darkTheme) SquadDarkColorScheme else SquadLightColorScheme,
         typography = SquadTypography,
         content = content
     )

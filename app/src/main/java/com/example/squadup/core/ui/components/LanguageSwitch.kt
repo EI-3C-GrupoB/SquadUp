@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,11 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.example.squadup.core.ui.theme.SquadGray
-import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 
 @Composable
@@ -83,12 +80,12 @@ fun LanguageSwitch(
             .height(switchHeight)
             .clip(outerShape)
             .background(
-                color = SquadGrayLight,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = outerShape
             )
             .border(
                 width = 0.5.dp,
-                color = SquadGray,
+                color = MaterialTheme.colorScheme.outline,
                 shape = outerShape
             )
             .padding(innerPadding)
@@ -111,7 +108,7 @@ fun LanguageSwitch(
                 )
                 .clip(selectedShape)
                 .background(
-                    color = SquadSurface,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = selectedShape
                 )
         )
@@ -182,7 +179,7 @@ private fun LanguageTextButton(
             color = if (selected) {
                 SquadOrange
             } else {
-                SquadTextSecondary
+                MaterialTheme.colorScheme.onSurfaceVariant
             },
             fontSize = 14.sp,
             fontWeight = if (selected) {

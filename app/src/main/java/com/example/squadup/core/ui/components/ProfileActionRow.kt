@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,8 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 @Composable
 fun ProfileActionRow(
@@ -22,13 +22,13 @@ fun ProfileActionRow(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    textColor: Color = SquadTextPrimary
+    textColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -41,7 +41,7 @@ fun ProfileActionRow(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (textColor == SquadTextPrimary) SquadTextSecondary else textColor
+                tint = if (textColor == MaterialTheme.colorScheme.onSurface) MaterialTheme.colorScheme.onSurfaceVariant else textColor
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -57,7 +57,7 @@ fun ProfileActionRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                 contentDescription = null,
-                tint = if (textColor == SquadTextPrimary) SquadTextSecondary else textColor
+                tint = if (textColor == MaterialTheme.colorScheme.onSurface) MaterialTheme.colorScheme.onSurfaceVariant else textColor
             )
         }
     }

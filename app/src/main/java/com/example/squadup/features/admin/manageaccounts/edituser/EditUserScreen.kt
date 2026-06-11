@@ -1,5 +1,7 @@
 package com.example.squadup.features.admin.manageaccounts.edituser
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -74,10 +76,10 @@ fun EditUserScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = responsiveHorizontalPadding(24.dp)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(28.dp))
@@ -112,7 +114,7 @@ fun EditUserScreen(
                 text = uiState.userName,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -122,7 +124,7 @@ fun EditUserScreen(
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 1.2.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             if (uiState.userEmail.isNotBlank()) {
@@ -130,7 +132,7 @@ fun EditUserScreen(
                 Text(
                     text = uiState.userEmail,
                     fontSize = 13.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -139,7 +141,7 @@ fun EditUserScreen(
             // Role Section
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(12.dp),
                 shadowElevation = 2.dp
             ) {
@@ -149,7 +151,7 @@ fun EditUserScreen(
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.2.sp,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -282,7 +284,7 @@ fun EditUserScreen(
                 text = stringResource(R.string.editUser_cancel),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -311,7 +313,7 @@ private fun RoleCard(
             .fillMaxWidth()
             .clickable(enabled = enabled, onClick = onClick),
         shape = RoundedCornerShape(10.dp),
-        color = if (selected) SquadOrangeLight else Color.White,
+        color = if (selected) SquadOrangeLight else MaterialTheme.colorScheme.surface,
         border = BorderStroke(
             width = if (selected) 1.5.dp else 1.dp,
             color = if (selected) SquadOrange else Color(0xFFE0E0E0)
@@ -342,12 +344,12 @@ private fun RoleCard(
                     text = title,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (selected) SquadOrangeDark else SquadTextPrimary
+                    color = if (selected) SquadOrangeDark else MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = description,
                     fontSize = 12.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 

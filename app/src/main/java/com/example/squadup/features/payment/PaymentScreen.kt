@@ -1,5 +1,7 @@
 package com.example.squadup.features.payment
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,12 +44,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 @Composable
 fun PaymentScreen(
@@ -67,7 +66,7 @@ fun PaymentScreen(
                 showSettingsButton = false
             )
         },
-        containerColor = SquadBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         if (uiState.isLoading) {
             Box(
@@ -86,7 +85,7 @@ fun PaymentScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp)
+                .padding(horizontal = responsiveHorizontalPadding(18.dp))
                 .padding(top = 18.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -102,7 +101,7 @@ fun PaymentScreen(
                     text = uiState.errorMessage,
                     color = Color(0xFFE53935),
                     fontSize = 13.sp,
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(4.dp))
                 )
             }
 
@@ -114,8 +113,8 @@ fun PaymentScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SquadOrange,
                     contentColor = Color.White,
-                    disabledContainerColor = SquadSurface,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 if (uiState.isConfirming) {
@@ -146,7 +145,7 @@ fun PaymentScreen(
 private fun EventSummaryCard(uiState: PaymentUiState) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, SquadGrayLight)
     ) {
@@ -155,14 +154,14 @@ private fun EventSummaryCard(uiState: PaymentUiState) {
                 text = "Resumo do evento",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = uiState.eventTitle,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
             if (uiState.eventDate.isNotBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
@@ -182,14 +181,14 @@ private fun SummaryRow(icon: ImageVector, text: String, maxLines: Int = Int.MAX_
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = SquadTextSecondary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(15.dp)
         )
         Spacer(modifier = Modifier.size(6.dp))
         Text(
             text = text,
             fontSize = 13.sp,
-            color = SquadTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis
         )
@@ -203,7 +202,7 @@ private fun FeeBreakdownCard(uiState: PaymentUiState) {
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, SquadGrayLight)
     ) {
@@ -212,7 +211,7 @@ private fun FeeBreakdownCard(uiState: PaymentUiState) {
                 text = "Valores",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(10.dp))
             FeeRow(label = "Total", value = uiState.total.fmt(), bold = true)
@@ -230,13 +229,13 @@ private fun FeeRow(label: String, value: String, bold: Boolean = false) {
             text = label,
             fontSize = 14.sp,
             fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = value,
             fontSize = 14.sp,
             fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
-            color = if (bold) SquadOrange else SquadTextPrimary
+            color = if (bold) SquadOrange else MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -248,7 +247,7 @@ private fun PaymentMethodCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, SquadGrayLight)
     ) {
@@ -257,7 +256,7 @@ private fun PaymentMethodCard(
                 text = "Método de pagamento",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -318,7 +317,7 @@ private fun PaymentMethodOption(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (selected) SquadOrange else SquadTextSecondary,
+            tint = if (selected) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.size(8.dp))
@@ -326,7 +325,7 @@ private fun PaymentMethodOption(
             text = label,
             fontSize = 14.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (selected) SquadTextPrimary else SquadTextSecondary
+            color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

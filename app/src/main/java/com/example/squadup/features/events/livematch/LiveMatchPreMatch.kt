@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.livematch
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.*
 
 @Composable
@@ -43,7 +46,7 @@ fun LiveMatchPreMatch(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -81,7 +84,7 @@ fun LiveMatchPreMatch(
                         HeroTeamBadge(uiState.homeTeamAbbr, uiState.homeTeamName, Modifier.weight(1f))
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(horizontal = 12.dp)
+                            modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(12.dp))
                         ) {
                             Text("VS", fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                             Text("0  –  0", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.5f))
@@ -111,7 +114,7 @@ fun LiveMatchPreMatch(
             }
 
             // ── Players section ───────────────────────────────────────────────
-            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+            Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))) {
                 Spacer(Modifier.height(24.dp))
 
                 Row(
@@ -121,7 +124,7 @@ fun LiveMatchPreMatch(
                     Text(
                         stringResource(R.string.liveMatch_players_title),
                         fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                        color = SquadTextSecondary, letterSpacing = 0.6.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.6.sp,
                         modifier = Modifier.weight(1f)
                     )
                     val totalPlayers = uiState.homePlayers.size + uiState.awayPlayers.size
@@ -210,7 +213,7 @@ private fun HeroTeamBadge(abbr: String, name: String, modifier: Modifier = Modif
         Box(
             modifier = Modifier
                 .size(64.dp)
-                .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp)),
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
             Text(abbr, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
@@ -254,7 +257,7 @@ private fun PlayerListCard(
 ) {
     Surface(
         modifier = modifier,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp),
         shadowElevation = 2.dp
     ) {
@@ -268,8 +271,8 @@ private fun PlayerListCard(
                 }
                 Spacer(Modifier.width(8.dp))
                 Column {
-                    Text(teamName, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("${players.size} jogadores", fontSize = 10.sp, color = SquadTextSecondary)
+                    Text(teamName, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text("${players.size} jogadores", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -290,12 +293,12 @@ private fun PlayerListCard(
                             Text(player.initials, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
                         }
                         Spacer(Modifier.width(7.dp))
-                        Text(player.name, fontSize = 12.sp, color = SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(player.name, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
                 if (players.size > 6) {
                     Spacer(Modifier.height(4.dp))
-                    Text("+ ${players.size - 6} mais", fontSize = 10.sp, color = SquadTextSecondary)
+                    Text("+ ${players.size - 6} mais", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 Spacer(Modifier.height(12.dp))

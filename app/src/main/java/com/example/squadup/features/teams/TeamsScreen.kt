@@ -1,5 +1,7 @@
 package com.example.squadup.features.teams
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -63,13 +65,11 @@ import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.EmptyStateCard
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+import com.example.squadup.core.ui.components.responsiveVerticalSpacing
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
@@ -111,6 +111,9 @@ fun TeamsScreen(
     onDarkModeChange: (Boolean) -> Unit,
     notificationsCount: Int = 0
 ) {
+    val horizontalPadding = responsiveHorizontalPadding(22.dp)
+    val topSpacing = responsiveVerticalSpacing(20.dp)
+
     if (uiState.showJoinByCodeDialog) {
         JoinByCodeDialog(
             code = uiState.joinByCodeValue,
@@ -153,12 +156,12 @@ fun TeamsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 22.dp)
+                .padding(horizontal = horizontalPadding)
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(topSpacing))
 
             TeamsActionSelector(
                 selectedTab = uiState.selectedTab,
@@ -261,7 +264,7 @@ private fun TeamsActionSelector(
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp),
-                color = Color(0xFFE7E7E7),
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(15.dp),
                 shadowElevation = 1.dp
             ) {
@@ -327,7 +330,7 @@ private fun TeamsSliderTab(
             text = text,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = if (selected) SquadWhite else SquadTextPrimary,
+            color = if (selected) SquadWhite else MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             maxLines = 1
         )
@@ -350,7 +353,7 @@ private fun CreateTeamButton(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = responsiveHorizontalPadding(12.dp)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -388,16 +391,16 @@ private fun TeamsSearchField(
         textStyle = TextStyle(
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         ),
         modifier = modifier
             .fillMaxWidth()
             .height(38.dp)
             .background(
-                color = SquadWhite,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(10.dp)
             )
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = responsiveHorizontalPadding(14.dp)),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier.fillMaxSize(),
@@ -406,7 +409,7 @@ private fun TeamsSearchField(
                 Icon(
                     imageVector = Icons.Outlined.Search,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
 
@@ -421,7 +424,7 @@ private fun TeamsSearchField(
                             text = "Search sports, teams, or venues...",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1
                         )
                     }
@@ -487,17 +490,17 @@ private fun TeamSummaryCard(
             .fillMaxWidth()
             .height(70.dp)
             .clickable(onClick = onToggle),
-        color = Color(0xFFF4F5F7),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(
             width = if (expanded) 2.dp else 1.dp,
-            color = if (expanded) SquadOrange else SquadTextSecondary.copy(alpha = 0.55f)
+            color = if (expanded) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = responsiveHorizontalPadding(12.dp)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TeamSportIcon(
@@ -515,7 +518,7 @@ private fun TeamSummaryCard(
                     text = team.name,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -526,7 +529,7 @@ private fun TeamSummaryCard(
                     Icon(
                         imageVector = Icons.Outlined.Groups,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(13.dp)
                     )
 
@@ -536,7 +539,7 @@ private fun TeamSummaryCard(
                         text = "${team.membersCount} members",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -548,7 +551,7 @@ private fun TeamSummaryCard(
                     Icons.Default.KeyboardArrowDown
                 },
                 contentDescription = null,
-                tint = SquadTextSecondary,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -580,13 +583,13 @@ private fun TeamExpandedContent(
                 Text(
                     text = "Promover jogador?",
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
                 Text(
                     text = "Tens a certeza que queres promover ${promotionTarget.name} a capitão? O capitão actual deixará de ser capitão e passará a membro.",
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 )
@@ -617,12 +620,12 @@ private fun TeamExpandedContent(
                 ) {
                     Text(
                         text = "Cancelar",
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
             },
-            containerColor = SquadSurface
+            containerColor = MaterialTheme.colorScheme.surface
         )
     }
 
@@ -636,13 +639,13 @@ private fun TeamExpandedContent(
                 Text(
                     text = "Remover jogador?",
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
                 Text(
                     text = "Tens a certeza que queres remover ${removalTarget.name} da equipa ${team.name}? Este jogador receberá uma notificação.",
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 )
@@ -673,12 +676,12 @@ private fun TeamExpandedContent(
                 ) {
                     Text(
                         text = "Cancelar",
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
             },
-            containerColor = SquadSurface
+            containerColor = MaterialTheme.colorScheme.surface
         )
     }
 
@@ -686,9 +689,9 @@ private fun TeamExpandedContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, SquadTextSecondary.copy(alpha = 0.45f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f))
     ) {
         Column {
             TeamExpandedHero(
@@ -813,19 +816,19 @@ private fun TeamExpandedHero(
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = SquadSurface
+            color = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = responsiveHorizontalPadding(20.dp))
                     .padding(top = 18.dp, bottom = 22.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
                         .size(82.dp)
-                        .background(SquadWhite, RoundedCornerShape(22.dp))
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(22.dp))
                         .padding(7.dp)
                         .background(SquadOrange, RoundedCornerShape(16.dp)),
                     contentAlignment = Alignment.Center
@@ -853,7 +856,7 @@ private fun TeamExpandedHero(
                     text = team.name,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
 
@@ -953,7 +956,7 @@ private fun TeamSimpleActionButton(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 10.dp),
+                .padding(horizontal = responsiveHorizontalPadding(10.dp)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -990,7 +993,7 @@ private fun RosterHeader(
             text = "Roster Management",
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
@@ -998,7 +1001,7 @@ private fun RosterHeader(
             text = "$playersCount Players Active",
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = SquadTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -1015,9 +1018,9 @@ private fun RosterMemberCard(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 50.dp),
-        color = Color(0xFFF4F5F7),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(6.dp),
-        border = BorderStroke(1.dp, SquadTextSecondary.copy(alpha = 0.55f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f))
     ) {
         Row(
             modifier = Modifier
@@ -1046,7 +1049,7 @@ private fun RosterMemberCard(
                 fontSize = 13.sp,
                 lineHeight = 17.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
 
@@ -1082,7 +1085,7 @@ private fun RosterMemberCard(
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
                             contentDescription = null,
-                            tint = SquadTextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -1109,7 +1112,7 @@ private fun RosterMemberCard(
                             Icon(
                                 imageVector = Icons.Outlined.PersonRemove,
                                 contentDescription = "Remove",
-                                tint = SquadTextSecondary,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .size(20.dp)
                                     .clickable(onClick = onRemoveClick)
@@ -1156,7 +1159,7 @@ private fun TeamSportIcon(
     Box(
         modifier = Modifier
             .size(44.dp)
-            .background(SquadWhite, RoundedCornerShape(8.dp)),
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
     ) {
         if (logoUrl != null) {
@@ -1214,13 +1217,13 @@ private fun JoinByCodeDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = SquadSurface,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(
                 text = "Join by invite code",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         text = {
@@ -1229,7 +1232,7 @@ private fun JoinByCodeDialog(
                     text = "Enter the team invite code to request access.",
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -1242,14 +1245,14 @@ private fun JoinByCodeDialog(
                     placeholder = {
                         Text(
                             text = "TEA-3502",
-                            color = SquadTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
@@ -1291,7 +1294,7 @@ private fun JoinByCodeDialog(
             ) {
                 Text(
                     text = "Cancel",
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.SemiBold
                 )
             }

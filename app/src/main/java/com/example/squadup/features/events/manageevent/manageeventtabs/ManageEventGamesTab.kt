@@ -1,5 +1,9 @@
 package com.example.squadup.features.events.manageevent.manageeventtabs
 
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+
+import androidx.compose.material3.MaterialTheme
+
 import com.example.squadup.features.events.manageevent.*
 import com.example.squadup.core.enums.GameStatus
 
@@ -86,11 +90,11 @@ internal fun GamesTabContent(
             if (heroGame != null) {
                 GameHeroCard(
                     game = heroGame,
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp)),
                     onManageLive = { onManageLiveClick(heroGame.id) }
                 )
             } else {
-                GamesEmptyHeroCard(modifier = Modifier.padding(horizontal = 20.dp))
+                GamesEmptyHeroCard(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp)))
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -100,16 +104,16 @@ internal fun GamesTabContent(
             OutlinedTextField(
                 value = uiState.gameSearchQuery,
                 onValueChange = onSearchQueryChange,
-                placeholder = { Text(stringResource(R.string.manageEvent_search_game), color = SquadTextSecondary, fontSize = 14.sp) },
-                leadingIcon = { Icon(Icons.Outlined.Search, null, tint = SquadTextSecondary) },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                placeholder = { Text(stringResource(R.string.manageEvent_search_game), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) },
+                leadingIcon = { Icon(Icons.Outlined.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = responsiveHorizontalPadding(20.dp)),
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = SquadOrange,
                     unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 )
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -212,7 +216,7 @@ private fun GameHeroCard(
                 when {
                     isLive -> {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Box(modifier = Modifier.size(8.dp).background(Color.White, CircleShape))
+                            Box(modifier = Modifier.size(8.dp).background(MaterialTheme.colorScheme.surface, CircleShape))
                             Text("LIVE MATCH", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                         }
                         Spacer(modifier = Modifier.weight(1f))
@@ -220,14 +224,14 @@ private fun GameHeroCard(
                     }
                     isWarmUp -> {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Box(modifier = Modifier.size(8.dp).background(Color.White, CircleShape))
+                            Box(modifier = Modifier.size(8.dp).background(MaterialTheme.colorScheme.surface, CircleShape))
                             Text(stringResource(R.string.manageEvent_games_warmup), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         Text(game.time, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.9f))
                     }
                     else -> {
-                        Text(stringResource(R.string.manageEvent_next_game_label), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp)
+                        Text(stringResource(R.string.manageEvent_next_game_label), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.5.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         Text("${game.month} ${game.day}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = SquadOrange)
                     }
@@ -251,13 +255,13 @@ private fun GameHeroCard(
                         Text(game.homeTeamAbbr.ifBlank { game.homeTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = if (isColored) Color.White else SquadOrange)
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(game.homeTeam, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextPrimary, textAlign = TextAlign.Center)
+                    Text(game.homeTeam, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isColored) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
                 }
 
                 if (isLive && game.homeScore != null && game.awayScore != null) {
-                    Text("${game.homeScore}  —  ${game.awayScore}", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, modifier = Modifier.padding(horizontal = 8.dp))
+                    Text("${game.homeScore}  —  ${game.awayScore}", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(8.dp)))
                 } else {
-                    Text("VS", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = if (isColored) Color.White else SquadTextSecondary, modifier = Modifier.padding(horizontal = 16.dp))
+                    Text("VS", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = if (isColored) Color.White else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)))
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
@@ -269,7 +273,7 @@ private fun GameHeroCard(
                         Text(game.awayTeamAbbr.ifBlank { game.awayTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = if (isColored) Color.White else SquadOrange)
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(game.awayTeam, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextPrimary, textAlign = TextAlign.Center)
+                    Text(game.awayTeam, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isColored) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center)
                 }
             }
 
@@ -281,12 +285,12 @@ private fun GameHeroCard(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val venueColor = if (isColored) Color.White.copy(alpha = 0.8f) else SquadTextSecondary
+                val venueColor = if (isColored) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
                 Icon(Icons.Outlined.LocationOn, null, tint = venueColor, modifier = Modifier.size(13.dp))
                 Spacer(modifier = Modifier.width(3.dp))
                 Text(game.venue, fontSize = 12.sp, color = venueColor)
                 if (!isColored) {
-                    Text(" · ${game.time}", fontSize = 12.sp, color = SquadTextSecondary)
+                    Text(" · ${game.time}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -297,7 +301,7 @@ private fun GameHeroCard(
                     onClick = onManageLive,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = if (isLive) SquadOrange else Color(0xFFFFA000))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = if (isLive) SquadOrange else Color(0xFFFFA000))
                 ) {
                     Icon(Icons.Outlined.PlayArrow, null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
@@ -315,7 +319,7 @@ private fun GameHeroCard(
 private fun GamesEmptyHeroCard(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp),
         shadowElevation = 2.dp
     ) {
@@ -325,7 +329,7 @@ private fun GamesEmptyHeroCard(modifier: Modifier = Modifier) {
         ) {
             Icon(Icons.Outlined.CalendarMonth, null, tint = SquadGray, modifier = Modifier.size(40.dp))
             Spacer(modifier = Modifier.height(8.dp))
-            Text(stringResource(R.string.manageEvent_no_games_hero), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = SquadTextSecondary, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.manageEvent_no_games_hero), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             Text(stringResource(R.string.manageEvent_no_games_hero_sub), fontSize = 12.sp, color = SquadGray, textAlign = TextAlign.Center)
         }
     }
@@ -346,7 +350,7 @@ private fun GamesEmptyState(isSearch: Boolean, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = if (isSearch) stringResource(R.string.manageEvent_no_games_search) else stringResource(R.string.manageEvent_no_games_empty),
-            fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = SquadTextSecondary, textAlign = TextAlign.Center
+            fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center
         )
         Text(
             text = if (isSearch) stringResource(R.string.manageEvent_no_games_search_sub) else stringResource(R.string.manageEvent_no_games_empty_sub),
@@ -360,7 +364,7 @@ private fun GameGroupHeader(label: String, count: Int, color: Color) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(SquadBackground)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 20.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -404,7 +408,7 @@ private fun GameRow(
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = responsiveHorizontalPadding(20.dp)),
         color = if (isCancelled) Color(0xFFF5F5F5) else Color.White,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = if (isCancelled) 0.dp else 2.dp
@@ -430,19 +434,19 @@ private fun GameRow(
                 // Teams + result (if finished/live)
                 if ((isFinished || isLive) && game.homeScore != null && game.awayScore != null) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(game.homeTeamAbbr.ifBlank { game.homeTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isCancelled) SquadGray else SquadTextPrimary)
-                        Text("${game.homeScore} – ${game.awayScore}", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = if (isLive) Color(0xFFD32F2F) else SquadTextPrimary)
-                        Text(game.awayTeamAbbr.ifBlank { game.awayTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isCancelled) SquadGray else SquadTextPrimary)
+                        Text(game.homeTeamAbbr.ifBlank { game.homeTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isCancelled) SquadGray else MaterialTheme.colorScheme.onSurface)
+                        Text("${game.homeScore} – ${game.awayScore}", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = if (isLive) Color(0xFFD32F2F) else MaterialTheme.colorScheme.onSurface)
+                        Text(game.awayTeamAbbr.ifBlank { game.awayTeam.take(3) }, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isCancelled) SquadGray else MaterialTheme.colorScheme.onSurface)
                     }
                 } else {
-                    Text("${game.homeTeam} vs ${game.awayTeam}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = if (isCancelled) SquadGray else SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text("${game.homeTeam} vs ${game.awayTeam}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = if (isCancelled) SquadGray else MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("${game.sport} · ${game.time}", fontSize = 11.sp, color = SquadTextSecondary)
+                    Text("${game.sport} · ${game.time}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (game.venue.isNotBlank()) {
                         Text("·", fontSize = 11.sp, color = SquadGray)
                         Icon(Icons.Outlined.LocationOn, null, tint = SquadGray, modifier = Modifier.size(11.dp))
-                        Text(game.venue, fontSize = 11.sp, color = SquadTextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(game.venue, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
@@ -457,7 +461,7 @@ private fun GameRow(
                 }
                 isCancelled -> {}
                 else -> IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Outlined.Edit, null, tint = SquadTextSecondary, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Outlined.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
             }
         }

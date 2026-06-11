@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
-import com.example.squadup.core.ui.theme.SquadTextPrimary
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
@@ -26,6 +27,11 @@ fun TicketQrCard(
     codigoQr: String = "",
     modifier: Modifier = Modifier
 ) {
+    val isLandscape = rememberIsLandscape()
+    val cardSize = if (isLandscape) 160.dp else 200.dp
+    val qrSize = if (isLandscape) 140.dp else 175.dp
+    val placeholderSize = if (isLandscape) 136.dp else 170.dp
+
     val bitmap = remember(codigoQr) {
         if (codigoQr.isBlank()) return@remember null
         runCatching {
@@ -48,22 +54,22 @@ fun TicketQrCard(
     ) {
         Box(
             modifier = Modifier
-                .size(200.dp)
-                .background(Color.White),
+                .size(cardSize)
+                .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center
         ) {
             if (bitmap != null) {
                 Image(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = "QR Code",
-                    modifier = Modifier.size(175.dp)
+                    modifier = Modifier.size(qrSize)
                 )
             } else {
                 Icon(
                     imageVector = Icons.Outlined.QrCode2,
                     contentDescription = "QR Code",
-                    tint = SquadTextPrimary,
-                    modifier = Modifier.size(170.dp)
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(placeholderSize)
                 )
             }
         }

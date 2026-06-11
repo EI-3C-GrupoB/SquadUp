@@ -1,6 +1,8 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 package com.example.squadup.features.events.livematch
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -28,6 +30,7 @@ import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.utils.scoreLabelRes
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.*
 
 @Composable
@@ -113,7 +116,7 @@ fun LiveMatchContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
         ) {
             // ── Score Header ──────────────────────────────────────────────────
@@ -198,7 +201,7 @@ private fun ScoreHeader(uiState: LiveMatchUiState) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (isLive) {
-                        Box(modifier = Modifier.size(8.dp).background(Color.White, CircleShape))
+                        Box(modifier = Modifier.size(8.dp).background(MaterialTheme.colorScheme.surface, CircleShape))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text("LIVE", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                     } else {
@@ -220,7 +223,7 @@ private fun ScoreHeader(uiState: LiveMatchUiState) {
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
                         Box(
-                            modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(10.dp)),
+                            modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(uiState.homeTeamAbbr, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
@@ -233,11 +236,11 @@ private fun ScoreHeader(uiState: LiveMatchUiState) {
                         fontSize = 32.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(8.dp))
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
                         Box(
-                            modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(10.dp)),
+                            modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(uiState.awayTeamAbbr, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
@@ -298,7 +301,7 @@ private fun LiveMatchTabRow(
                         stringResource(labelRes),
                         fontSize = 13.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) Color.White else SquadTextSecondary
+                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -341,7 +344,7 @@ private fun MatchEventsTab(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Outlined.SportsSoccer, null, tint = SquadGray, modifier = Modifier.size(48.dp))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(stringResource(R.string.liveMatch_no_events), fontSize = 14.sp, color = SquadTextSecondary)
+                    Text(stringResource(R.string.liveMatch_no_events), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else {
@@ -385,7 +388,7 @@ private fun ActionButtonsRow(
     val showTimeout = sportType == SportType.SOCCER || sportType == SportType.FUTSAL || sportType == SportType.BASKETBALL
     val showAdvancedStats = sportType != SportType.SOCCER && sportType != SportType.FUTSAL
 
-    Surface(shadowElevation = 2.dp, color = Color.White) {
+    Surface(shadowElevation = 2.dp, color = MaterialTheme.colorScheme.surface) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -439,7 +442,7 @@ private fun MatchEventRow(event: MatchEventItem) {
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp
     ) {
@@ -461,9 +464,9 @@ private fun MatchEventRow(event: MatchEventItem) {
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 if (event.playerName.isNotBlank()) {
-                    Text(event.playerName, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                    Text(event.playerName, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                 }
-                Text(event.description, fontSize = 12.sp, color = SquadTextSecondary)
+                Text(event.description, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             // Team badge
             Box(
@@ -471,7 +474,7 @@ private fun MatchEventRow(event: MatchEventItem) {
                     .background(if (event.isHome) SquadOrangeLight else SquadGrayLight, RoundedCornerShape(4.dp))
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
-                Text(event.teamAbbr, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (event.isHome) SquadOrange else SquadTextSecondary)
+                Text(event.teamAbbr, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (event.isHome) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -522,22 +525,27 @@ private fun MatchStatsTab(uiState: LiveMatchUiState) {
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)) {
-        Surface(modifier = Modifier.fillMaxWidth(), color = Color.White, shape = RoundedCornerShape(12.dp), shadowElevation = 2.dp) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(12.dp),
+            shadowElevation = 2.dp
+        ) {
             Column {
                 Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(32.dp).background(SquadOrange, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
                         Text(uiState.homeTeamAbbr, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                     }
-                    Text(uiState.homeTeamName, fontSize = 11.sp, color = SquadTextSecondary, modifier = Modifier.padding(start = 6.dp).weight(1f))
-                    Text(uiState.awayTeamName, fontSize = 11.sp, color = SquadTextSecondary, modifier = Modifier.padding(end = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
+                    Text(uiState.homeTeamName, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 6.dp).weight(1f))
+                    Text(uiState.awayTeamName, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End)
                     Box(modifier = Modifier.size(32.dp).background(SquadGrayLight, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
-                        Text(uiState.awayTeamAbbr, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextSecondary)
+                        Text(uiState.awayTeamAbbr, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 HorizontalDivider(color = SquadGrayLight)
                 rows.forEachIndexed { index, (label, homeVal, awayVal) ->
                     StatCompareRow(label, homeVal, awayVal)
-                    if (index < rows.lastIndex) HorizontalDivider(modifier = Modifier.padding(horizontal = 12.dp), color = SquadGrayLight)
+                    if (index < rows.lastIndex) HorizontalDivider(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(12.dp)), color = SquadGrayLight)
                 }
             }
         }
@@ -573,7 +581,7 @@ private fun StatCompareRow(label: String, homeVal: Int, awayVal: Int) {
     ) {
         Text("$homeVal", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = SquadOrange, modifier = Modifier.width(28.dp))
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label, fontSize = 11.sp, color = SquadTextSecondary)
+            Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(4.dp))
             // Bar
             Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(SquadGrayLight, RoundedCornerShape(999.dp))) {

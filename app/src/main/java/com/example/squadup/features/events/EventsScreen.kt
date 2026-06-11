@@ -1,5 +1,7 @@
 package com.example.squadup.features.events
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +33,9 @@ import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.EmptyStateCard
 import com.example.squadup.core.ui.components.SquadFab
+import com.example.squadup.core.ui.components.rememberIsLandscape
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+import com.example.squadup.core.ui.components.responsiveVerticalSpacing
 import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
@@ -63,6 +68,8 @@ fun EventsScreen(
     notificationsCount: Int = 0
 ) {
     val context = LocalContext.current
+    val horizontalPadding = responsiveHorizontalPadding(20.dp)
+    val topSpacing = responsiveVerticalSpacing(20.dp)
     var selectedEvent by remember { mutableStateOf<BrowseEventItem?>(null) }
 
     selectedEvent?.let { event ->
@@ -106,23 +113,23 @@ fun EventsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(topSpacing))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = horizontalPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.events_title),
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -131,7 +138,7 @@ fun EventsScreen(
                 Icon(
                     imageVector = Icons.Outlined.Map,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .size(26.dp)
                         .clickable(onClick = onMapClick)
@@ -146,7 +153,7 @@ fun EventsScreen(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.events_search_placeholder),
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -156,19 +163,19 @@ fun EventsScreen(
                     Icon(
                         imageVector = Icons.Outlined.Search,
                         contentDescription = null,
-                        tint = SquadTextSecondary
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = responsiveHorizontalPadding(20.dp)),
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = SquadOrange,
                     unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 )
             )
 
@@ -177,7 +184,7 @@ fun EventsScreen(
             Row(
                 modifier = Modifier
                     .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = responsiveHorizontalPadding(20.dp)),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SportFilterChip(
@@ -201,7 +208,7 @@ fun EventsScreen(
                 locationSource = uiState.locationSource,
                 isLoading = uiState.isLoading,
                 onRefreshClick = onRefreshLocationClick,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -210,7 +217,7 @@ fun EventsScreen(
                 FeaturedEventCard(
                     event = featured,
                     onClick = { onEventClick(featured.id) },
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -220,14 +227,14 @@ fun EventsScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
+                        .padding(horizontal = responsiveHorizontalPadding(20.dp)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = stringResource(R.string.events_upcoming),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
@@ -248,8 +255,8 @@ fun EventsScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
-                    color = Color.White,
+                        .padding(horizontal = responsiveHorizontalPadding(20.dp)),
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(12.dp),
                     shadowElevation = 2.dp
                 ) {
@@ -262,7 +269,7 @@ fun EventsScreen(
 
                             if (index < uiState.filteredUpcomingEvents.lastIndex) {
                                 HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
                                     color = SquadGrayLight
                                 )
                             }
@@ -274,11 +281,11 @@ fun EventsScreen(
                             onClick = onFilterByMyTeamsClick,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
+                                .padding(horizontal = responsiveHorizontalPadding(16.dp)),
                             shape = RoundedCornerShape(8.dp),
                             border = androidx.compose.foundation.BorderStroke(1.dp, SquadGray),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = SquadTextPrimary
+                                contentColor = MaterialTheme.colorScheme.onSurface
                             )
                         ) {
                             Text(
@@ -306,7 +313,7 @@ fun EventsScreen(
                         EventsLocationSource.UNKNOWN -> "Não existem eventos disponíveis para os filtros seleccionados."
                     },
                     icon = Icons.Outlined.CalendarMonth,
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
                 )
             } else {
                 uiState.filteredBrowseEvents.forEach { event ->
@@ -314,7 +321,7 @@ fun EventsScreen(
                         event = event,
                         onClick = { selectedEvent = event },
                         onDetailsClick = { onEventClick(event.id) },
-                        modifier = Modifier.padding(horizontal = 20.dp)
+                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -347,7 +354,7 @@ private fun LocationSourceCard(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -369,7 +376,7 @@ private fun LocationSourceCard(
                     text = message,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -379,7 +386,7 @@ private fun LocationSourceCard(
                 Text(
                     text = subMessage,
                     fontSize = 11.sp,
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -424,8 +431,8 @@ private fun SportFilterChip(
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = SquadOrange,
             selectedLabelColor = Color.White,
-            containerColor = Color.White,
-            labelColor = SquadTextSecondary
+            containerColor = MaterialTheme.colorScheme.surface,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
         border = FilterChipDefaults.filterChipBorder(
             enabled = true,
@@ -442,6 +449,8 @@ private fun FeaturedEventCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isLandscape = rememberIsLandscape()
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -452,7 +461,7 @@ private fun FeaturedEventCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(if (isLandscape) 160.dp else 200.dp)
                 .clip(RoundedCornerShape(14.dp))
         ) {
             if (!event.imageUrl.isNullOrBlank()) {
@@ -647,7 +656,7 @@ private fun UpcomingEventRow(
                 text = item.title,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -664,7 +673,7 @@ private fun UpcomingEventRow(
                     }
                 },
                 fontSize = 12.sp,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -673,7 +682,7 @@ private fun UpcomingEventRow(
         Icon(
             imageVector = Icons.Outlined.KeyboardArrowRight,
             contentDescription = null,
-            tint = SquadTextSecondary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
     }
@@ -692,7 +701,7 @@ private fun BrowseEventCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -770,7 +779,7 @@ private fun BrowseEventCard(
                         text = event.title,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
@@ -805,7 +814,7 @@ private fun BrowseEventCard(
                 Text(
                     text = metaLine,
                     fontSize = 12.sp,
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -827,7 +836,7 @@ private fun BrowseEventCard(
                             "A decorrer" -> Color(0xFF059669)
                             "Terminado" -> Color(0xFF6B7280)
                             "Cancelado" -> Color(0xFFDC2626)
-                            else -> SquadTextSecondary
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
                         }
                         add(event.eventStatusLabel to color)
                     }
@@ -861,7 +870,7 @@ private fun BrowseEventCard(
                     Icon(
                         imageVector = Icons.Outlined.AccessTime,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(14.dp)
                     )
 
@@ -877,7 +886,7 @@ private fun BrowseEventCard(
                             }
                         },
                         fontSize = 13.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -889,7 +898,7 @@ private fun BrowseEventCard(
                     Icon(
                         imageVector = Icons.Outlined.LocationOn,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .size(14.dp)
                             .padding(top = 2.dp)
@@ -901,7 +910,7 @@ private fun BrowseEventCard(
                         text = event.venue,
                         fontSize = 13.sp,
                         lineHeight = 16.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
@@ -944,7 +953,7 @@ private fun EventSummaryBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -1016,7 +1025,7 @@ private fun EventSummaryBottomSheet(
                 }
             }
 
-            Column(modifier = Modifier.padding(horizontal = 18.dp)) {
+            Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(18.dp))) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
@@ -1048,7 +1057,7 @@ private fun EventSummaryBottomSheet(
                                     text = "DATE",
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = SquadTextPrimary,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -1060,7 +1069,7 @@ private fun EventSummaryBottomSheet(
                                 text = event.dateTime.substringBefore(" •").ifBlank { event.dateTime },
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = SquadTextPrimary,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -1092,7 +1101,7 @@ private fun EventSummaryBottomSheet(
                                     text = "VENUE",
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = SquadTextPrimary,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -1104,7 +1113,7 @@ private fun EventSummaryBottomSheet(
                                 text = event.venue,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = SquadTextPrimary,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -1158,7 +1167,7 @@ private fun EventSummaryBottomSheet(
                                     stringResource(R.string.events_sheet_no_team_sub)
                                 },
                                 fontSize = 11.sp,
-                                color = SquadTextSecondary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -1175,7 +1184,7 @@ private fun EventSummaryBottomSheet(
                     Icon(
                         imageVector = Icons.Outlined.Groups,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
 
@@ -1188,7 +1197,7 @@ private fun EventSummaryBottomSheet(
                             event.totalSpots
                         ),
                         fontSize = 13.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

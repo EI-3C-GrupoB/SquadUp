@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
 import com.example.squadup.core.ui.theme.SquadWhite
 
 @Composable
@@ -34,10 +35,12 @@ fun OnboardingImageCard(
     primaryBadgeText: String = "LOCAL",
     secondaryBadgeText: String = "LIVE NOW"
 ) {
+    val isLandscape = rememberIsLandscape()
+
     Box(
         modifier = modifier
-            .fillMaxWidth(0.90f)
-            .height(330.dp)
+            .fillMaxWidth(if (isLandscape) 0.62f else 0.90f)
+            .height(if (isLandscape) 190.dp else 330.dp)
             .clip(RoundedCornerShape(24.dp))
     ) {
         Image(
@@ -62,7 +65,7 @@ fun OnboardingImageCard(
 
             OnboardingImageBadge(
                 text = secondaryBadgeText,
-                backgroundColor = SquadTextPrimary.copy(alpha = 0.65f),
+                backgroundColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
                 textColor = SquadWhite
             )
         }

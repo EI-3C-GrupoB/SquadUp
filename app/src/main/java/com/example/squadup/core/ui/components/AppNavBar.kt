@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,11 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
-import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 data class AppNavBarItem(
     val route: String,
@@ -91,9 +88,12 @@ fun AppNavBar(
     selectedRoute: String,
     onItemClick: (String) -> Unit
 ) {
+    val isLandscape = rememberIsLandscape()
+    val barHeight = if (isLandscape) 56.dp else 72.dp
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 8.dp
     ) {
         Column(
@@ -103,13 +103,13 @@ fun AppNavBar(
         ) {
             HorizontalDivider(
                 thickness = 1.dp,
-                color = SquadGrayLight
+                color = MaterialTheme.colorScheme.outlineVariant
             )
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
+                    .height(barHeight)
                     .selectableGroup(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -137,6 +137,7 @@ private fun AppNavBarButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isLandscape = rememberIsLandscape()
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
@@ -144,8 +145,8 @@ private fun AppNavBarButton(
     val animationDuration = 160
 
     val backgroundColor = when {
-        selected -> SquadOrangeLight
-        pressed -> SquadOrangeLight.copy(alpha = 0.45f)
+        selected -> MaterialTheme.colorScheme.primaryContainer
+        pressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
         else -> Color.Transparent
     }
 
@@ -156,13 +157,21 @@ private fun AppNavBarButton(
     )
 
     val itemWidth by animateDpAsState(
-        targetValue = if (selected || pressed) 76.dp else 64.dp,
+        targetValue = if (isLandscape) {
+            if (selected || pressed) 66.dp else 58.dp
+        } else {
+            if (selected || pressed) 76.dp else 64.dp
+        },
         animationSpec = tween(durationMillis = animationDuration),
         label = "NavItemWidth"
     )
 
     val itemHeight by animateDpAsState(
-        targetValue = if (selected || pressed) 56.dp else 50.dp,
+        targetValue = if (isLandscape) {
+            if (selected || pressed) 46.dp else 42.dp
+        } else {
+            if (selected || pressed) 56.dp else 50.dp
+        },
         animationSpec = tween(durationMillis = animationDuration),
         label = "NavItemHeight"
     )
@@ -194,16 +203,16 @@ private fun AppNavBarButton(
             Icon(
                 imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
                 contentDescription = label,
-                modifier = Modifier.size(24.dp),
-                tint = if (selected) SquadOrange else SquadTextSecondary
+                modifier = Modifier.size(if (isLandscape) 21.dp else 24.dp),
+                tint = if (selected) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(if (isLandscape) 2.dp else 4.dp))
 
             Text(
                 text = label.uppercase(),
-                color = if (selected) SquadOrange else SquadTextSecondary,
-                fontSize = 10.sp,
+                color = if (selected) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = if (isLandscape) 9.sp else 10.sp,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                 maxLines = 1
             )

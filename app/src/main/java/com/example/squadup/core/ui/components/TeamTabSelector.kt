@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
 
 enum class TeamDetailsTab { Members, Matches }
 
@@ -62,7 +63,7 @@ private fun TeamTabItem(
         textAlign = TextAlign.Center,
         fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
-        color = if (selected) Color.White else SquadTextPrimary,
+        color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface,
         modifier = modifier
             .background(
                 color = if (selected) SquadOrange else SquadGrayLight,

@@ -1,5 +1,7 @@
 package com.example.squadup.features.profile
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,6 +57,10 @@ fun ProfileScreen(
     onDarkModeChange: (Boolean) -> Unit,
     notificationsCount: Int = 0
 ) {
+    val horizontalPadding = responsiveHorizontalPadding(24.dp)
+    val guestSpacing = responsiveVerticalSpacing(40.dp)
+    val contentTopSpacing = responsiveVerticalSpacing(22.dp)
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -86,14 +92,14 @@ fun ProfileScreen(
         Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = horizontalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (!uiState.isLoggedIn) {
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(guestSpacing))
 
                 EmptyStateCard(
                     title = "Perfil de Convidado",
@@ -103,9 +109,9 @@ fun ProfileScreen(
                     onActionClick = onLoginClick
                 )
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(guestSpacing))
             } else {
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(contentTopSpacing))
 
             uiState.errorMessage?.let { errorMessage ->
                 Text(
@@ -130,7 +136,7 @@ fun ProfileScreen(
                 text = uiState.displayName,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -157,7 +163,7 @@ fun ProfileScreen(
             Button(
                 onClick = onLogoutClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = SquadError
                 ),
                 shape = RoundedCornerShape(12.dp),
@@ -296,7 +302,7 @@ private fun ProfileAvatar(
                     modifier = Modifier
                         .size(86.dp)
                         .clip(CircleShape)
-                        .background(Color.White),
+                        .background(MaterialTheme.colorScheme.surface),
                     contentScale = ContentScale.Crop
                 )
             } else {
@@ -306,7 +312,7 @@ private fun ProfileAvatar(
                     modifier = Modifier
                         .size(86.dp)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(4.dp)
                 )
             }

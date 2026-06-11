@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -82,7 +84,7 @@ fun OrganizerEventCard(
                         text = title,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
                     Text(
@@ -98,7 +100,7 @@ fun OrganizerEventCard(
                 Text(
                     text = "$nTeams ${stringResource(R.string.organizerEventCard_teams)} • $dateLeft",
                     fontSize = 13.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -121,7 +123,7 @@ fun OrganizerEventCard(
                     Text(
                         text = "+$registeredCount ${stringResource(R.string.organizerEventCard_registered)}",
                         fontSize = 12.sp,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

@@ -1,5 +1,9 @@
 package com.example.squadup.features.events.manageevent.manageeventtabs
 
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+
+import androidx.compose.material3.MaterialTheme
+
 import com.example.squadup.features.events.manageevent.*
 import com.example.squadup.core.enums.GameStatus
 import com.example.squadup.core.enums.TeamEventStatus
@@ -41,7 +45,7 @@ internal fun MatchTabContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = responsiveHorizontalPadding(20.dp))
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -52,7 +56,7 @@ internal fun MatchTabContent(
         ) {
             Text(
                 "JOGOS (${games.size})",
-                fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.6.sp,
+                fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.6.sp,
                 modifier = Modifier.weight(1f)
             )
             OutlinedButton(
@@ -122,26 +126,26 @@ private fun SingleMatchHeroCard(
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 when {
                     isLive -> {
-                        Box(modifier = Modifier.size(8.dp).background(Color.White, CircleShape))
+                        Box(modifier = Modifier.size(8.dp).background(MaterialTheme.colorScheme.surface, CircleShape))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text("LIVE", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, modifier = Modifier.weight(1f))
                         Text(game.liveTimer ?: "", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                     isWarmUp -> {
-                        Box(modifier = Modifier.size(8.dp).background(Color.White, CircleShape))
+                        Box(modifier = Modifier.size(8.dp).background(MaterialTheme.colorScheme.surface, CircleShape))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(stringResource(R.string.manageEvent_games_warmup), fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, modifier = Modifier.weight(1f))
                     }
                     isFinished -> {
-                        Text(stringResource(R.string.manageEvent_match_final_result), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.manageEvent_match_final_result), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                         IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Outlined.Edit, null, tint = SquadTextSecondary, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Outlined.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                         }
                     }
                     else -> {
-                        Text(stringResource(R.string.manageEvent_tab_match).uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.manageEvent_tab_match).uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                         IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Outlined.Edit, null, tint = SquadTextSecondary, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Outlined.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                         }
                     }
                 }
@@ -175,7 +179,7 @@ private fun SingleMatchHeroCard(
                     Text(
                         homeTeam?.name ?: game.homeTeam,
                         fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-                        color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextPrimary,
+                        color = if (isColored) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -185,15 +189,15 @@ private fun SingleMatchHeroCard(
                     Text(
                         "${game.homeScore}  –  ${game.awayScore}",
                         fontSize = 32.sp, fontWeight = FontWeight.ExtraBold,
-                        color = if (isColored) Color.White else SquadTextPrimary,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        color = if (isColored) Color.White else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(8.dp))
                     )
                 } else {
                     Text(
                         "VS",
                         fontSize = 22.sp, fontWeight = FontWeight.ExtraBold,
                         color = if (isColored) Color.White else SquadGray,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp))
                     )
                 }
 
@@ -217,7 +221,7 @@ private fun SingleMatchHeroCard(
                     Text(
                         awayTeam?.name ?: game.awayTeam,
                         fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-                        color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextPrimary,
+                        color = if (isColored) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -239,7 +243,7 @@ private fun SingleMatchHeroCard(
                     Text(
                         "${game.month} ${game.day}  ${game.time}",
                         fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
-                        color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextSecondary
+                        color = if (isColored) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 if (game.venue.isNotBlank()) {
@@ -254,7 +258,7 @@ private fun SingleMatchHeroCard(
                         Text(
                             game.venue,
                             fontSize = 11.sp,
-                            color = if (isColored) Color.White.copy(alpha = 0.9f) else SquadTextSecondary,
+                            color = if (isColored) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
@@ -270,7 +274,7 @@ private fun SingleMatchHeroCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = if (isLive) SquadOrange else Color(0xFFFFA000)
                     )
                 ) {
@@ -293,7 +297,7 @@ private fun SingleMatchHeroCard(
 private fun MatchTeamCard(team: ManageTeamItem, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -308,8 +312,8 @@ private fun MatchTeamCard(team: ManageTeamItem, modifier: Modifier = Modifier) {
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
-                    Text(team.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, maxLines = 1)
-                    Text("${team.playerCount} players", fontSize = 11.sp, color = SquadTextSecondary)
+                    Text(team.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                    Text("${team.playerCount} players", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -330,14 +334,14 @@ private fun MatchTeamCard(team: ManageTeamItem, modifier: Modifier = Modifier) {
                             Text(player.initials, fontSize = 8.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
                         }
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(player.name, fontSize = 11.sp, color = SquadTextPrimary, maxLines = 1)
+                        Text(player.name, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
                     }
                 }
 
                 if (team.players.size > 5) {
                     Text(
                         "+ ${team.players.size - 5} more",
-                        fontSize = 10.sp, color = SquadTextSecondary,
+                        fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
@@ -356,7 +360,7 @@ private fun MatchEmptyState(onCreateGameClick: () -> Unit = {}) {
     ) {
         Icon(Icons.Outlined.SportsScore, null, tint = SquadGray, modifier = Modifier.size(52.dp))
         Spacer(modifier = Modifier.height(12.dp))
-        Text(stringResource(R.string.manageEvent_match_no_game), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = SquadTextSecondary)
+        Text(stringResource(R.string.manageEvent_match_no_game), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(stringResource(R.string.manageEvent_match_no_game_sub), fontSize = 13.sp, color = SquadGray, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(24.dp))
         Button(

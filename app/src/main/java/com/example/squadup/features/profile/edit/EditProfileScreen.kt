@@ -1,5 +1,7 @@
 package com.example.squadup.features.profile.edit
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -49,15 +51,12 @@ import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.AuthTextField
 import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadError
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeDark
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
@@ -114,16 +113,16 @@ fun EditProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = responsiveHorizontalPadding(24.dp))
         ) {
             Spacer(modifier = Modifier.height(28.dp))
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = SquadSurface,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(12.dp),
                 shadowElevation = 2.dp
             ) {
@@ -137,7 +136,7 @@ fun EditProfileScreen(
                         onValueChange = onNameChange,
                         label = stringResource(R.string.editProfile_name_label),
                         placeholder = stringResource(R.string.editProfile_name_placeholder),
-                        labelColor = SquadTextPrimary
+                        labelColor = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -147,7 +146,7 @@ fun EditProfileScreen(
                         onValueChange = onUsernameChange,
                         label = stringResource(R.string.editProfile_username_label),
                         placeholder = stringResource(R.string.editProfile_username_placeholder),
-                        labelColor = SquadTextPrimary
+                        labelColor = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -167,7 +166,7 @@ fun EditProfileScreen(
                             val playStyle = playStyleOptions.first { it.second == selected }.first
                             onPlayStyleChange(playStyle)
                         },
-                        labelColor = SquadTextPrimary
+                        labelColor = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -232,7 +231,7 @@ private fun LocationSelectorField(
             text = stringResource(R.string.editProfile_location_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 4.dp)
         )
 
@@ -243,7 +242,7 @@ private fun LocationSelectorField(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .border(1.dp, SquadGrayLight, RoundedCornerShape(12.dp))
-                .background(SquadWhite)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable(onClick = onClick)
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
@@ -251,13 +250,13 @@ private fun LocationSelectorField(
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = address ?: stringResource(R.string.editProfile_location_placeholder),
-                    color = if (address != null) SquadTextPrimary else SquadTextSecondary,
+                    color = if (address != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.weight(1f),
@@ -266,7 +265,7 @@ private fun LocationSelectorField(
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -285,7 +284,7 @@ private fun PreferredSportsSection(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -299,7 +298,7 @@ private fun PreferredSportsSection(
                 text = stringResource(R.string.editProfile_sport_label),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -316,7 +315,7 @@ private fun PreferredSportsSection(
                         text = sport.toDisplayName(context),
                         selected = sport in selectedSports,
                         onClick = { onSportToggle(sport) },
-                        modifier = Modifier.padding(horizontal = 6.dp)
+                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(6.dp))
                     )
                 }
             }
@@ -334,7 +333,7 @@ private fun PreferredSportChip(
     Surface(
         onClick = onClick,
         modifier = modifier.height(46.dp),
-        color = if (selected) SquadOrangeLight else SquadSurface,
+        color = if (selected) SquadOrangeLight else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(
             width = 1.2.dp,
@@ -342,14 +341,14 @@ private fun PreferredSportChip(
         )
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 18.dp),
+            modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(18.dp)),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = text,
                 fontSize = 15.sp,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                color = if (selected) SquadOrangeDark else SquadTextSecondary,
+                color = if (selected) SquadOrangeDark else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }

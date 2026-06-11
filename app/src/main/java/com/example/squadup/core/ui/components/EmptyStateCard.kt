@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,12 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 @Composable
 fun EmptyStateCard(
@@ -43,9 +39,9 @@ fun EmptyStateCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, SquadGrayLight),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         shadowElevation = 2.dp
     ) {
         Column(
@@ -56,7 +52,7 @@ fun EmptyStateCard(
             verticalArrangement = Arrangement.Center
         ) {
             Surface(
-                color = SquadOrangeLight,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(999.dp)
             ) {
                 Icon(
@@ -75,7 +71,7 @@ fun EmptyStateCard(
                 text = title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
 
@@ -85,7 +81,7 @@ fun EmptyStateCard(
                 text = message,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
@@ -97,7 +93,7 @@ fun EmptyStateCard(
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.5.dp, SquadOrange),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = SquadOrange
                     )
                 ) {

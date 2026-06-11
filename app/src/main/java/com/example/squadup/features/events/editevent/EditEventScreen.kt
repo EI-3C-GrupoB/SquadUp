@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.editevent
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -61,14 +63,14 @@ fun EditEventScreen(
     ) { innerPadding ->
         when {
             uiState.isLoading -> Box(
-                Modifier.fillMaxSize().background(SquadBackground).padding(innerPadding),
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) { CircularProgressIndicator(color = SquadOrange) }
 
             else -> Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp, vertical = 16.dp)
@@ -201,7 +203,7 @@ fun EditEventScreen(
                 // Public / Private toggle
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(10.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
                 ) {
@@ -215,10 +217,10 @@ fun EditEventScreen(
                         )
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text("Evento Público", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                            Text("Evento Público", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                             Text(
                                 if (uiState.isPublic) "Visível para todos" else "Apenas por convite",
-                                fontSize = 12.sp, color = SquadTextSecondary
+                                fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Switch(
@@ -259,7 +261,7 @@ fun EditEventScreen(
 
 @Composable
 private fun FieldLabel(text: String) {
-    Text(text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+    Text(text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
     Spacer(Modifier.height(6.dp))
 }
 
@@ -267,6 +269,6 @@ private fun FieldLabel(text: String) {
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = SquadOrange,
     unfocusedBorderColor = Color(0xFFE0E0E0),
-    focusedContainerColor = Color.White,
-    unfocusedContainerColor = Color.White
+    focusedContainerColor = MaterialTheme.colorScheme.surface,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface
 )

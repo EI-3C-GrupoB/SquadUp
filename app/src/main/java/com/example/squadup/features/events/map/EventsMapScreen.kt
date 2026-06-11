@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.map
 
+import androidx.compose.material3.MaterialTheme
+
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color as AndroidColor
@@ -56,11 +58,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
 import org.maplibre.android.MapLibre
@@ -165,7 +165,7 @@ fun EventsMapScreen(
             if (uiState.isLoading) {
                 Surface(
                     modifier = Modifier.align(Alignment.Center),
-                    color = SquadSurface,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(16.dp),
                     shadowElevation = 8.dp
                 ) {
@@ -181,7 +181,7 @@ fun EventsMapScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "A carregar eventos...",
-                            color = SquadTextPrimary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -450,7 +450,7 @@ private fun SportFilterRow(
         modifier = modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = responsiveHorizontalPadding(14.dp)),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SportFilterChip(
@@ -480,12 +480,12 @@ private fun SportFilterChip(
         modifier = Modifier
             .height(38.dp)
             .clickable(onClick = onClick),
-        color = if (selected) SquadOrange else SquadSurface,
+        color = if (selected) SquadOrange else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(999.dp),
         shadowElevation = 4.dp
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp),
+            modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(14.dp)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
@@ -499,7 +499,7 @@ private fun SportFilterChip(
             }
             Text(
                 text = text,
-                color = if (selected) Color.White else SquadTextPrimary,
+                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -529,7 +529,7 @@ private fun FloatingMapButton(
 ) {
     Surface(
         modifier = Modifier.size(46.dp),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = CircleShape,
         shadowElevation = 6.dp,
         onClick = onClick
@@ -555,7 +555,7 @@ private fun MapStatsCard(
 ) {
     Surface(
         modifier = modifier,
-        color = SquadSurface.copy(alpha = 0.95f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
         shape = RoundedCornerShape(14.dp),
         shadowElevation = 6.dp
     ) {
@@ -579,7 +579,7 @@ private fun MapStatRow(label: String, value: Int, color: Color) {
         Text(
             text = "$value $label",
             fontSize = 11.sp,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -594,7 +594,7 @@ private fun RadiusSliderCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface.copy(alpha = 0.96f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
         shape = RoundedCornerShape(18.dp),
         shadowElevation = 8.dp
     ) {
@@ -616,7 +616,7 @@ private fun RadiusSliderCard(
                     text = "Raio de pesquisa",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
@@ -651,7 +651,7 @@ private fun SelectedEventCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(18.dp),
         shadowElevation = 10.dp
     ) {
@@ -675,19 +675,19 @@ private fun SelectedEventCard(
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Text(text = pin.title, color = SquadTextPrimary, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(text = pin.title, color = MaterialTheme.colorScheme.onSurface, fontSize = 17.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = pin.venue.ifBlank { "Localização não disponível" },
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp
                 )
             }
@@ -697,13 +697,13 @@ private fun SelectedEventCard(
                     Icon(
                         imageVector = Icons.Outlined.People,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "${pin.registeredCount}/${pin.totalSpots} inscritos",
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )

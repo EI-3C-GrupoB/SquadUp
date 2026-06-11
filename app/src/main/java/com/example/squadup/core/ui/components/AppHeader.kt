@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,10 +43,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
+
+val LocalAdminPageClick = staticCompositionLocalOf<() -> Unit> { {} }
 
 @Composable
 fun AppHeader(
@@ -67,10 +69,15 @@ fun AppHeader(
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
-    onAdminPageClick: () -> Unit = {},
+    onAdminPageClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     var showSettingsDialog by rememberSaveable { mutableStateOf(false) }
+    val effectiveAdminPageClick = onAdminPageClick ?: LocalAdminPageClick.current
+    val isLandscape = rememberIsLandscape()
+    val headerHeight = if (isLandscape) 48.dp else 56.dp
+    val logoHeight = if (isLandscape) 28.dp else 32.dp
+    val titleSize = if (isLandscape) 18.sp else 20.sp
 
     if (showSettingsDialog) {
         SettingsDialog(
@@ -82,13 +89,13 @@ fun AppHeader(
             isAdmin = isAdmin,
             isAdminView = isAdminView,
             onAdminViewChange = onAdminViewChange,
-            onAdminPageClick = onAdminPageClick
+            onAdminPageClick = effectiveAdminPageClick
         )
     }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp
     ) {
         Column {
@@ -101,7 +108,7 @@ fun AppHeader(
             androidx.compose.foundation.layout.Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(headerHeight)
                     .padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -121,7 +128,7 @@ fun AppHeader(
                     Image(
                         painter = painterResource(id = R.drawable.logo_squadup),
                         contentDescription = "SquadUp logo",
-                        modifier = Modifier.height(32.dp)
+                        modifier = Modifier.height(logoHeight)
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -130,7 +137,7 @@ fun AppHeader(
                 Text(
                     text = title ?: "SquadUp",
                     color = SquadOrange,
-                    fontSize = 20.sp,
+                    fontSize = titleSize,
                     fontWeight = if (showLogo) FontWeight.ExtraBold else FontWeight.Bold
                 )
 
@@ -168,10 +175,10 @@ fun AppHeader(
                     IconButton(onClick = onNotificationsClick) {
                         Box {
                             Icon(
-                                imageVector = Icons.Outlined.Notifications,
-                                contentDescription = "Notificações",
-                                tint = SquadTextSecondary
-                            )
+                            imageVector = Icons.Outlined.Notifications,
+                            contentDescription = "Notificações",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                             
                             if (notificationsCount > 0) {
                                 Box(
@@ -200,7 +207,7 @@ fun AppHeader(
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = "Definições",
-                            tint = if (showSettingsDialog) SquadOrange else SquadTextSecondary
+                            tint = if (showSettingsDialog) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

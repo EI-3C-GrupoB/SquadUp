@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,8 +21,6 @@ import com.example.squadup.R
 import com.example.squadup.core.enums.EventStatus
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.toCardColor
 import com.example.squadup.core.utils.toIcon
 
@@ -37,7 +37,7 @@ fun NearbyEventCard(
 ) {
     Surface(
         modifier = modifier.width(245.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -67,7 +67,7 @@ fun NearbyEventCard(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
-                            .background(Color.White, RoundedCornerShape(6.dp))
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(6.dp))
                             .padding(horizontal = 7.dp, vertical = 3.dp)
                     )
                 }
@@ -77,7 +77,7 @@ fun NearbyEventCard(
 
             Text(
                 text = title,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -88,12 +88,12 @@ fun NearbyEventCard(
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.height(16.dp)
                 )
                 Text(
                     text = "$location • $distance",
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp
                 )
             }
@@ -104,7 +104,7 @@ fun NearbyEventCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.nearbyEventCard_label_intensity),
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 10.sp
                     )
 
@@ -127,7 +127,7 @@ fun NearbyEventCard(
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .clip(RoundedCornerShape(999.dp))
-                                    .background(if (index < activeSegments) SquadOrange else Color(0xFFE5E7EB))
+                                    .background(if (index < activeSegments) SquadOrange else MaterialTheme.colorScheme.surfaceVariant)
                             )
                         }
                     }

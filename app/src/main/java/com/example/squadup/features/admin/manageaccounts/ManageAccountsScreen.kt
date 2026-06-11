@@ -1,5 +1,7 @@
 package com.example.squadup.features.admin.manageaccounts
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,13 +58,10 @@ import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.EmptyStateCard
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeDark
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 
 @Composable
@@ -120,14 +119,14 @@ fun ManageAccountsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .alpha(if (uiState.showFilterDialog) 0.45f else 1f)
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = responsiveHorizontalPadding(24.dp))
                     .padding(top = 24.dp, bottom = 24.dp)
             ) {
                 AdminAccountCard(
@@ -137,7 +136,7 @@ fun ManageAccountsScreen(
                         text = stringResource(R.string.manageAccounts_title),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -146,7 +145,7 @@ fun ManageAccountsScreen(
                         text = stringResource(R.string.manageAccounts_subtitle),
                         fontSize = 14.sp,
                         lineHeight = 20.sp,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(28.dp))
@@ -155,7 +154,7 @@ fun ManageAccountsScreen(
                         text = stringResource(R.string.manageAccounts_directory),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -176,7 +175,7 @@ fun ManageAccountsScreen(
                             Icon(
                                 imageVector = Icons.Outlined.FilterList,
                                 contentDescription = null,
-                                tint = SquadTextPrimary,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -225,7 +224,7 @@ fun ManageAccountsScreen(
                                 ) {
                                     SquadOrange
                                 } else {
-                                    SquadTextPrimary
+                                    MaterialTheme.colorScheme.onSurface
                                 }
                             )
 
@@ -264,7 +263,7 @@ fun ManageAccountsScreen(
                                 ) {
                                     SquadOrange
                                 } else {
-                                    SquadTextPrimary
+                                    MaterialTheme.colorScheme.onSurface
                                 }
                             )
 
@@ -367,7 +366,7 @@ private fun AdminAccountCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, Color(0xFFD4D8E4)),
         shadowElevation = 4.dp
@@ -391,12 +390,12 @@ private fun AccountsSearchField(
         singleLine = true,
         textStyle = TextStyle(
             fontSize = 14.sp,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         ),
         modifier = modifier
             .height(44.dp)
-            .background(Color(0xFFF3F3F3), RoundedCornerShape(8.dp))
-            .padding(horizontal = 12.dp),
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+            .padding(horizontal = responsiveHorizontalPadding(12.dp)),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier.fillMaxSize(),
@@ -405,7 +404,7 @@ private fun AccountsSearchField(
                 Icon(
                     imageVector = Icons.Outlined.Search,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
 
@@ -419,7 +418,7 @@ private fun AccountsSearchField(
                         Text(
                             text = stringResource(R.string.manageAccounts_search_placeholder),
                             fontSize = 14.sp,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -465,7 +464,7 @@ private fun AccountUserRow(
                 text = user.name,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -473,7 +472,7 @@ private fun AccountUserRow(
             Text(
                 text = user.email,
                 fontSize = 14.sp,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -527,8 +526,8 @@ private fun AccountsFilterDialog(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 28.dp),
-        color = SquadSurface,
+            .padding(horizontal = responsiveHorizontalPadding(28.dp)),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(18.dp),
         shadowElevation = 10.dp
     ) {
@@ -539,7 +538,7 @@ private fun AccountsFilterDialog(
                 text = stringResource(R.string.manageAccounts_filter_by),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -548,7 +547,7 @@ private fun AccountsFilterDialog(
                 text = stringResource(R.string.manageAccounts_filter_role),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -576,8 +575,8 @@ private fun AccountsFilterDialog(
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.5.dp, Color(0xFFBDBDBD)),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.White,
-                        contentColor = SquadTextSecondary
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 ) {
                     Text(
@@ -651,7 +650,7 @@ private fun FilterSegment(
     Surface(
         onClick = onClick,
         modifier = modifier.height(42.dp),
-        color = if (selected) SquadOrange else Color.White,
+        color = if (selected) SquadOrange else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(
             width = 1.2.dp,
@@ -663,11 +662,11 @@ private fun FilterSegment(
                 text = text,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (selected) Color.White else SquadTextSecondary,
+                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(6.dp))
             )
         }
     }

@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,8 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 
 enum class StatsCardStyle {
@@ -32,12 +32,12 @@ fun StatsCard(
     }
 
     val valueColor = when (style) {
-        StatsCardStyle.DEFAULT -> SquadTextPrimary
+        StatsCardStyle.DEFAULT -> MaterialTheme.colorScheme.onSurface
         StatsCardStyle.HIGHLIGHT -> SquadWhite
     }
 
     val labelColor = when (style) {
-        StatsCardStyle.DEFAULT -> SquadTextSecondary
+        StatsCardStyle.DEFAULT -> MaterialTheme.colorScheme.onSurfaceVariant
         StatsCardStyle.HIGHLIGHT -> SquadWhite.copy(alpha = 0.85f)
     }
 

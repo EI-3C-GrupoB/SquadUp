@@ -1,5 +1,9 @@
 package com.example.squadup.features.events.manageevent.manageeventtabs
 
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+
+import androidx.compose.material3.MaterialTheme
+
 import com.example.squadup.features.events.manageevent.*
 import com.example.squadup.core.enums.GameStatus
 
@@ -37,7 +41,7 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
     val context = LocalContext.current
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp),
         shadowElevation = 2.dp
     ) {
@@ -51,7 +55,7 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
                     text = uiState.eventName,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -148,15 +152,15 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
             Spacer(modifier = Modifier.height(14.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.LocationOn, null, tint = SquadTextSecondary, modifier = Modifier.size(13.dp))
+                Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = uiState.venue, fontSize = 12.sp, color = SquadTextSecondary)
+                Text(text = uiState.venue, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(modifier = Modifier.height(3.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.CalendarMonth, null, tint = SquadTextSecondary, modifier = Modifier.size(13.dp))
+                Icon(Icons.Outlined.CalendarMonth, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = uiState.dateRange, fontSize = 12.sp, color = SquadTextSecondary)
+                Text(text = uiState.dateRange, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -179,7 +183,7 @@ internal fun OverviewTabContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = responsiveHorizontalPadding(20.dp))
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -207,7 +211,7 @@ internal fun OverviewTabContent(
                 text = "MANAGEMENT TOOLS",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.5.sp
             )
 
@@ -277,14 +281,14 @@ internal fun OverviewTabContent(
                 text = "Pedidos de participação",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(12.dp),
                 shadowElevation = 2.dp
             ) {
@@ -300,7 +304,7 @@ internal fun OverviewTabContent(
                         )
                         if (index < uiState.individualRegistrationRequests.lastIndex) {
                             HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
                                 color = SquadGrayLight
                             )
                         }
@@ -317,14 +321,14 @@ internal fun OverviewTabContent(
                 text = "Pedidos de equipa",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(12.dp),
                 shadowElevation = 2.dp
             ) {
@@ -340,7 +344,7 @@ internal fun OverviewTabContent(
                         )
                         if (index < uiState.teamRegistrationRequests.lastIndex) {
                             HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
+                                modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
                                 color = SquadGrayLight
                             )
                         }
@@ -359,7 +363,7 @@ internal fun OverviewTabContent(
                 text = stringResource(R.string.manageEvent_recent_registrations),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
             Text(
@@ -374,7 +378,7 @@ internal fun OverviewTabContent(
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(12.dp),
             shadowElevation = 2.dp
         ) {
@@ -383,7 +387,7 @@ internal fun OverviewTabContent(
                     RecentRegistrationRow(item)
                     if (index < uiState.recentRegistrations.lastIndex) {
                         HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
+                            modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
                             color = SquadGrayLight
                         )
                     }
@@ -542,7 +546,7 @@ private fun StatusActionCard(
                 Text(
                     text = config.message,
                     fontSize = 13.sp,
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -574,7 +578,7 @@ private fun ManagementToolCard(
     onClick: () -> Unit,
     isDestructive: Boolean = false
 ) {
-    val contentColor = if (isDestructive) SquadError else SquadTextPrimary
+    val contentColor = if (isDestructive) SquadError else MaterialTheme.colorScheme.onSurface
     val bgColor = if (isDestructive) Color(0xFFFFF5F5) else Color.White
     Surface(
         modifier = modifier.clickable(onClick = onClick),
@@ -620,9 +624,9 @@ private fun RecentRegistrationRow(item: RecentRegistrationItem) {
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = item.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
-            Text(text = item.position, fontSize = 12.sp, color = SquadTextSecondary)
+            Text(text = item.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(text = item.position, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Text(text = item.timeAgo, fontSize = 11.sp, color = SquadTextSecondary)
+        Text(text = item.timeAgo, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

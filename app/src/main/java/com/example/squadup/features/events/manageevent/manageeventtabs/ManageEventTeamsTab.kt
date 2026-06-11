@@ -1,5 +1,9 @@
 package com.example.squadup.features.events.manageevent.manageeventtabs
 
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+
+import androidx.compose.material3.MaterialTheme
+
 import com.example.squadup.features.events.manageevent.*
 import com.example.squadup.core.enums.GameStatus
 import com.example.squadup.core.enums.TeamEventStatus
@@ -94,7 +98,7 @@ internal fun TeamsTabContent(
                     Spacer(modifier = Modifier.height(8.dp))
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(12.dp),
                         shadowElevation = 2.dp
                     ) {
@@ -110,7 +114,7 @@ internal fun TeamsTabContent(
                                 )
                                 if (index < uiState.individualRegistrationRequests.lastIndex) {
                                     HorizontalDivider(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
                                         color = SquadGrayLight
                                     )
                                 }
@@ -132,7 +136,7 @@ internal fun TeamsTabContent(
                     Spacer(modifier = Modifier.height(8.dp))
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(12.dp),
                         shadowElevation = 2.dp
                     ) {
@@ -148,7 +152,7 @@ internal fun TeamsTabContent(
                                 )
                                 if (index < uiState.teamRegistrationRequests.lastIndex) {
                                     HorizontalDivider(
-                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
                                         color = SquadGrayLight
                                     )
                                 }
@@ -163,7 +167,7 @@ internal fun TeamsTabContent(
             stickyHeader {
                 Column(modifier = Modifier
                     .fillMaxWidth()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 20.dp, vertical = 8.dp)
                 ) {
                     TabSectionHeader(
@@ -174,16 +178,16 @@ internal fun TeamsTabContent(
                     OutlinedTextField(
                         value = uiState.teamSearchQuery,
                         onValueChange = onSearchQueryChange,
-                        placeholder = { Text(stringResource(R.string.manageEvent_search_team), color = SquadTextSecondary, fontSize = 14.sp) },
-                        leadingIcon = { Icon(Icons.Outlined.Search, null, tint = SquadTextSecondary) },
+                        placeholder = { Text(stringResource(R.string.manageEvent_search_team), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) },
+                        leadingIcon = { Icon(Icons.Outlined.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = SquadOrange,
                             unfocusedBorderColor = Color.Transparent,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
                         )
                     )
                 }
@@ -198,7 +202,7 @@ internal fun TeamsTabContent(
                     onEditTeam = { onEditTeamClick(team.id) },
                     onDeleteTeam = { onDeleteTeamClick(team.id) },
                     onRemovePlayer = { playerId -> onPlayerRemove(team.id, playerId) },
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -213,7 +217,7 @@ internal fun TeamsTabContent(
             stickyHeader {
                 Column(modifier = Modifier
                     .fillMaxWidth()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 20.dp, vertical = 8.dp)
                 ) {
                     TabSectionHeader(
@@ -236,16 +240,16 @@ internal fun TeamsTabContent(
                     OutlinedTextField(
                         value = uiState.freeAgentSearchQuery,
                         onValueChange = onFreeAgentSearchQueryChange,
-                        placeholder = { Text(stringResource(R.string.manageEvent_search_free_agent), color = SquadTextSecondary, fontSize = 14.sp) },
-                        leadingIcon = { Icon(Icons.Outlined.Search, null, tint = SquadTextSecondary) },
+                        placeholder = { Text(stringResource(R.string.manageEvent_search_free_agent), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) },
+                        leadingIcon = { Icon(Icons.Outlined.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = SquadOrange,
                             unfocusedBorderColor = Color.Transparent,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
                         )
                     )
                 }
@@ -253,8 +257,8 @@ internal fun TeamsTabContent(
 
             item {
                 Surface(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                    color = Color.White,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = responsiveHorizontalPadding(20.dp)),
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(12.dp),
                     shadowElevation = 2.dp
                 ) {
@@ -262,7 +266,7 @@ internal fun TeamsTabContent(
                         visibleFreeAgents.forEachIndexed { index, agent ->
                             FreeAgentRow(agent)
                             if (index < visibleFreeAgents.lastIndex) {
-                                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = SquadGrayLight)
+                                HorizontalDivider(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)), color = SquadGrayLight)
                             }
                         }
                     }
@@ -280,7 +284,7 @@ internal fun TeamsTabContent(
             stickyHeader {
                 Box(modifier = Modifier
                     .fillMaxWidth()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 20.dp, vertical = 8.dp)
                 ) {
                     TabSectionHeader(
@@ -293,8 +297,8 @@ internal fun TeamsTabContent(
 
             item {
                 Surface(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                    color = Color.White,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = responsiveHorizontalPadding(20.dp)),
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(12.dp),
                     shadowElevation = 2.dp
                 ) {
@@ -302,7 +306,7 @@ internal fun TeamsTabContent(
                         uiState.waitlistItems.forEachIndexed { index, item ->
                             WaitlistRow(item)
                             if (index < uiState.waitlistItems.lastIndex) {
-                                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = SquadGrayLight)
+                                HorizontalDivider(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)), color = SquadGrayLight)
                             }
                         }
                     }
@@ -341,7 +345,7 @@ internal fun TabSectionHeader(
     modifier: Modifier = Modifier,
     isWarning: Boolean = false
 ) {
-    val color = if (isWarning) Color(0xFFFFA000) else SquadTextSecondary
+    val color = if (isWarning) Color(0xFFFFA000) else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -392,7 +396,7 @@ private fun TeamAccordionCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -416,15 +420,15 @@ private fun TeamAccordionCard(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(team.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                        Text(team.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                         TeamEventStatusBadge(team.eventStatus)
                     }
-                    Text("${team.playerCount} Players • ${team.badge}", fontSize = 12.sp, color = SquadTextSecondary)
+                    Text("${team.playerCount} Players • ${team.badge}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Icon(
                     imageVector = if (isExpanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -435,7 +439,7 @@ private fun TeamAccordionCard(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column(modifier = Modifier.padding(horizontal = 14.dp)) {
+                Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(14.dp))) {
                     HorizontalDivider(color = SquadGrayLight)
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -444,11 +448,11 @@ private fun TeamAccordionCard(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Outlined.LocationOn, null, tint = SquadTextSecondary, modifier = Modifier.size(13.dp))
+                        Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(team.location, fontSize = 13.sp, color = SquadTextSecondary, modifier = Modifier.weight(1f))
+                        Text(team.location, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                         IconButton(onClick = onEditTeam, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Outlined.Edit, null, tint = SquadTextSecondary, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Outlined.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                         }
                         IconButton(onClick = onDeleteTeam, modifier = Modifier.size(32.dp)) {
                             Icon(Icons.Outlined.Delete, null, tint = SquadError, modifier = Modifier.size(16.dp))
@@ -461,7 +465,7 @@ private fun TeamAccordionCard(
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Players",
-                            fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary,
+                            fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.weight(1f)
                         )
                         Text(
@@ -474,8 +478,8 @@ private fun TeamAccordionCard(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Row(modifier = Modifier.fillMaxWidth()) {
-                        Text("Name", fontSize = 10.sp, color = SquadTextSecondary, modifier = Modifier.weight(1f))
-                        Text("State", fontSize = 10.sp, color = SquadTextSecondary, modifier = Modifier.width(90.dp))
+                        Text("Name", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                        Text("State", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(90.dp))
                     }
 
                     HorizontalDivider(color = SquadGrayLight, modifier = Modifier.padding(vertical = 6.dp))
@@ -508,7 +512,7 @@ private fun PlayerRow(player: ManagePlayerItem, onRemove: () -> Unit) {
             Text(player.initials, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Text(player.name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = SquadTextPrimary, modifier = Modifier.weight(1f))
+        Text(player.name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         IconButton(onClick = onRemove, modifier = Modifier.size(28.dp)) {
             Icon(Icons.Outlined.Close, null, tint = Color(0xFFD32F2F), modifier = Modifier.size(16.dp))
         }
@@ -539,8 +543,8 @@ private fun FreeAgentRow(agent: FreeAgentItem) {
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(agent.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
-            Text(agent.position, fontSize = 12.sp, color = SquadTextSecondary)
+            Text(agent.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(agent.position, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Surface(color = expColor.copy(alpha = 0.1f), shape = RoundedCornerShape(6.dp)) {
             Text(
@@ -572,14 +576,14 @@ private fun WaitlistRow(item: WaitlistItem) {
             modifier = Modifier.size(36.dp).background(SquadGrayLight, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(item.initials, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary)
+            Text(item.initials, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(item.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text(item.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Text(
                 text = if (item.isTeam) stringResource(R.string.manageEvent_waitlist_team) else stringResource(R.string.manageEvent_waitlist_player),
-                fontSize = 12.sp, color = SquadTextSecondary
+                fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         // Promote
@@ -629,7 +633,7 @@ private fun CurrentGameBannerCard(game: CurrentGameBanner, modifier: Modifier = 
                         Box(
                             modifier = Modifier
                                 .size(52.dp)
-                                .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(game.homeTeamAbbr, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
@@ -637,13 +641,13 @@ private fun CurrentGameBannerCard(game: CurrentGameBanner, modifier: Modifier = 
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(game.homeTeamName, fontSize = 9.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.9f), textAlign = TextAlign.Center)
                     }
-                    Text("VS", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, modifier = Modifier.padding(horizontal = 16.dp))
+                    Text("VS", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)))
                     // Away team
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
                         Box(
                             modifier = Modifier
                                 .size(52.dp)
-                                .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(game.awayTeamAbbr, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
@@ -658,7 +662,7 @@ private fun CurrentGameBannerCard(game: CurrentGameBanner, modifier: Modifier = 
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .background(Color.White, CircleShape)
+                    .background(MaterialTheme.colorScheme.surface, CircleShape)
                     .align(Alignment.BottomEnd)
                     .clickable { },
                 contentAlignment = Alignment.Center

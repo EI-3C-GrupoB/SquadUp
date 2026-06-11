@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,7 +58,7 @@ fun CurrentMatchCard(
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .background(Color.White, RoundedCornerShape(999.dp))
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(999.dp))
                         .padding(horizontal = 12.dp, vertical = 5.dp)
                 )
 
@@ -98,7 +100,7 @@ fun CurrentMatchCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = SquadOrange
                     )
                 ) {

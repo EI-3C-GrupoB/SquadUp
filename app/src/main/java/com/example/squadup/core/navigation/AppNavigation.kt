@@ -2,6 +2,7 @@ package com.example.squadup.core.navigation
 
 import android.app.Application
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.squadup.core.app.AppViewModel
+import com.example.squadup.core.ui.components.LocalAdminPageClick
 import com.example.squadup.core.ui.components.LoadingScreen
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.createuser.CreateUserRoute
@@ -49,11 +51,13 @@ import com.example.squadup.features.teams.invite.InviteTeamRoute
 import com.example.squadup.features.events.manageevent.qrscanner.QrScannerRoute
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    providedAppViewModel: AppViewModel? = null
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    val appViewModel: AppViewModel = viewModel(
+    val appViewModel: AppViewModel = providedAppViewModel ?: viewModel(
         factory = ViewModelProvider.AndroidViewModelFactory.getInstance(
             context.applicationContext as Application
         )
@@ -104,10 +108,11 @@ fun AppNavigation() {
         }
     }
 
-    NavHost(
-        navController = navController,
-        startDestination = AppRoutes.Onboarding.route
-    ) {
+    CompositionLocalProvider(LocalAdminPageClick provides openAdminHome) {
+        NavHost(
+            navController = navController,
+            startDestination = AppRoutes.Onboarding.route
+        ) {
         composable(AppRoutes.Onboarding.route) {
             OnboardingRoute(
                 viewModel = onboardingViewModel,
@@ -179,7 +184,6 @@ fun AppNavigation() {
                 selectedRoute = AppRoutes.Home.route,
                 onNavItemClick = navigateWithBottomBar,
                 onNotificationsClick = openNotifications,
-                onAdminPageClick = openAdminHome,
                 onViewMatchDetailsClick = { gameId ->
                     navController.navigate(AppRoutes.LiveMatch.createRoute(gameId))
                 },
@@ -207,7 +211,6 @@ fun AppNavigation() {
                 selectedRoute = AppRoutes.Home.route,
                 onNavItemClick = navigateWithBottomBar,
                 onNotificationsClick = openNotifications,
-                onAdminPageClick = openAdminHome,
                 appViewModel = appViewModel
             )
         }
@@ -678,6 +681,7 @@ fun AppNavigation() {
                 },
                 appViewModel = appViewModel
             )
+        }
         }
     }
 }

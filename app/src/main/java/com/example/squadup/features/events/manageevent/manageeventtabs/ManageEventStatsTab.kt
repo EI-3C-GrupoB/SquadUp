@@ -1,5 +1,9 @@
 package com.example.squadup.features.events.manageevent.manageeventtabs
 
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+
+import androidx.compose.material3.MaterialTheme
+
 import com.example.squadup.features.events.manageevent.*
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.GameStatus
@@ -41,7 +45,7 @@ internal fun StatsTabContent(uiState: ManageEventUiState) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = responsiveHorizontalPadding(20.dp))
     ) {
         Spacer(Modifier.height(16.dp))
 
@@ -270,7 +274,7 @@ private fun DisciplineSection(uiState: ManageEventUiState) {
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -323,7 +327,7 @@ private fun DisciplineSection(uiState: ManageEventUiState) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = SquadGrayLight)
                 Text(
                     stringResource(R.string.stats_top_infractors),
-                    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp
+                    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.5.sp
                 )
                 Spacer(Modifier.height(4.dp))
                 s.topInfractors.take(3).forEachIndexed { i, player ->
@@ -331,8 +335,8 @@ private fun DisciplineSection(uiState: ManageEventUiState) {
                         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("${i + 1}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(20.dp))
-                        Text(player.name, fontSize = 13.sp, color = SquadTextPrimary, modifier = Modifier.weight(1f))
+                        Text("${i + 1}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(20.dp))
+                        Text(player.name, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
                         Text("${player.score}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
                     }
                 }
@@ -350,7 +354,7 @@ private fun DisciplineRow(icon: ImageVector, iconColor: Color, label: String, va
     ) {
         Icon(icon, null, tint = iconColor, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(10.dp))
-        Text(label, fontSize = 13.sp, color = SquadTextPrimary, modifier = Modifier.weight(1f))
+        Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         Text(value, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = iconColor)
     }
 }
@@ -364,7 +368,7 @@ private fun SingleMatchResultCard(game: ScheduledGameItem) {
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp),
         shadowElevation = 3.dp
     ) {
@@ -384,10 +388,10 @@ private fun SingleMatchResultCard(game: ScheduledGameItem) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(game.homeTeamAbbr.ifBlank { game.homeTeam.take(2) }, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,
-                            color = if (homeWon) Color.White else SquadTextSecondary)
+                            color = if (homeWon) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Spacer(Modifier.height(6.dp))
-                    Text(game.homeTeam, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, textAlign = TextAlign.Center, maxLines = 2)
+                    Text(game.homeTeam, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center, maxLines = 2)
                     if (homeWon) {
                         Spacer(Modifier.height(4.dp))
                         Surface(color = SquadOrange, shape = RoundedCornerShape(4.dp)) {
@@ -397,9 +401,9 @@ private fun SingleMatchResultCard(game: ScheduledGameItem) {
                     }
                 }
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 12.dp)) {
-                    Text("${game.homeScore}  —  ${game.awayScore}", fontSize = 32.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextPrimary)
-                    Text("FINAL", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 1.sp)
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(12.dp))) {
+                    Text("${game.homeScore}  —  ${game.awayScore}", fontSize = 32.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+                    Text("FINAL", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.sp)
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
@@ -409,10 +413,10 @@ private fun SingleMatchResultCard(game: ScheduledGameItem) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(game.awayTeamAbbr.ifBlank { game.awayTeam.take(2) }, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold,
-                            color = if (awayWon) Color.White else SquadTextSecondary)
+                            color = if (awayWon) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Spacer(Modifier.height(6.dp))
-                    Text(game.awayTeam, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary, textAlign = TextAlign.Center, maxLines = 2)
+                    Text(game.awayTeam, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, textAlign = TextAlign.Center, maxLines = 2)
                     if (awayWon) {
                         Spacer(Modifier.height(4.dp))
                         Surface(color = SquadOrange, shape = RoundedCornerShape(4.dp)) {
@@ -426,7 +430,7 @@ private fun SingleMatchResultCard(game: ScheduledGameItem) {
             if (!homeWon && !awayWon) {
                 Spacer(Modifier.height(8.dp))
                 Surface(color = SquadGrayLight, shape = RoundedCornerShape(6.dp)) {
-                    Text("EMPATE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary,
+                    Text("EMPATE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
                 }
             }
@@ -445,35 +449,35 @@ private fun StandingsTable(uiState: ManageEventUiState) {
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
             // Header
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)) {
-                Text("#",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp))
-                Text("EQUIPA", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.weight(1f))
-                Text("J",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
-                Text("V",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+                Text("#",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp))
+                Text("EQUIPA", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                Text("J",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+                Text("V",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
                 if (hasDraws)
-                    Text("E", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
-                Text("D",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+                    Text("E", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+                Text("D",  fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
                 if (showGoals) {
-                    Text(stringResource(R.string.stats_goals_for),    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
-                    Text(stringResource(R.string.stats_goals_against), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
-                    Text(stringResource(R.string.stats_goal_diff),     fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.stats_goals_for),    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.stats_goals_against), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.stats_goal_diff),     fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
                 }
                 if (showSets) {
-                    Text(stringResource(R.string.stats_sets_won), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.stats_sets_won), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
                 }
-                Text(ptsLabel, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
+                Text(ptsLabel, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
             }
             HorizontalDivider(color = SquadGrayLight)
             uiState.standings.forEachIndexed { index, item ->
                 StandingRow(item, isFirst = index == 0, hasDraws = hasDraws, showGoals = showGoals, showSets = showSets, ptsLabel = ptsLabel)
                 if (index < uiState.standings.lastIndex)
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 10.dp), color = SquadGrayLight)
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(10.dp)), color = SquadGrayLight)
             }
         }
     }
@@ -488,7 +492,7 @@ private fun StandingRow(
     showSets: Boolean,
     ptsLabel: String
 ) {
-    val accent = if (isFirst) SquadOrange else SquadTextSecondary
+    val accent = if (isFirst) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -502,22 +506,22 @@ private fun StandingRow(
                 modifier = Modifier.size(22.dp).background(if (isFirst) SquadOrange else SquadGrayLight, RoundedCornerShape(4.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(item.teamAbbr.take(3), fontSize = 6.sp, fontWeight = FontWeight.ExtraBold, color = if (isFirst) Color.White else SquadTextSecondary)
+                Text(item.teamAbbr.take(3), fontSize = 6.sp, fontWeight = FontWeight.ExtraBold, color = if (isFirst) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text(item.teamName, fontSize = 12.sp, color = SquadTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(item.teamName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        Text("${item.played}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
-        Text("${item.wins}",   fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+        Text("${item.played}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+        Text("${item.wins}",   fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
         if (hasDraws)
-            Text("${item.draws}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
-        Text("${item.losses}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+            Text("${item.draws}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
+        Text("${item.losses}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(22.dp), textAlign = TextAlign.Center)
         if (showGoals) {
-            Text("${item.goalsFor}",  fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
-            Text("${item.goalsAgainst}", fontSize = 12.sp, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+            Text("${item.goalsFor}",  fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+            Text("${item.goalsAgainst}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
             val diffColor = when {
                 item.goalDiff > 0  -> Color(0xFF2E7D32)
                 item.goalDiff < 0  -> Color(0xFFD32F2F)
-                else               -> SquadTextSecondary
+                else               -> MaterialTheme.colorScheme.onSurfaceVariant
             }
             Text(
                 if (item.goalDiff > 0) "+${item.goalDiff}" else "${item.goalDiff}",
@@ -526,10 +530,10 @@ private fun StandingRow(
             )
         }
         if (showSets) {
-            Text("${item.setsWon}-${item.setsLost}", fontSize = 11.sp, color = SquadTextSecondary, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
+            Text("${item.setsWon}-${item.setsLost}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(24.dp), textAlign = TextAlign.Center)
         }
         Text("${item.points}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold,
-            color = if (isFirst) SquadOrange else SquadTextPrimary,
+            color = if (isFirst) SquadOrange else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
     }
 }
@@ -540,7 +544,7 @@ private fun StandingRow(
 private fun RecentResultsSection(games: List<ScheduledGameItem>) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -563,16 +567,16 @@ private fun RecentResultsSection(games: List<ScheduledGameItem>) {
                     Text(
                         game.homeTeamAbbr.ifBlank { game.homeTeam.take(3) },
                         fontSize = 13.sp, fontWeight = if (homeWon) FontWeight.ExtraBold else FontWeight.Normal,
-                        color = if (homeWon) SquadTextPrimary else SquadTextSecondary,
+                        color = if (homeWon) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.width(36.dp), textAlign = TextAlign.End
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("${game.homeScore}  –  ${game.awayScore}", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextPrimary)
+                    Text("${game.homeScore}  –  ${game.awayScore}", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         game.awayTeamAbbr.ifBlank { game.awayTeam.take(3) },
                         fontSize = 13.sp, fontWeight = if (awayWon) FontWeight.ExtraBold else FontWeight.Normal,
-                        color = if (awayWon) SquadTextPrimary else SquadTextSecondary,
+                        color = if (awayWon) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.width(36.dp)
                     )
                     Spacer(Modifier.weight(1f))
@@ -581,7 +585,7 @@ private fun RecentResultsSection(games: List<ScheduledGameItem>) {
                         Text(game.venue, fontSize = 10.sp, color = SquadGray, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 80.dp))
                     }
                 }
-                if (index < games.lastIndex) HorizontalDivider(modifier = Modifier.padding(horizontal = 14.dp), color = SquadGrayLight)
+                if (index < games.lastIndex) HorizontalDivider(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(14.dp)), color = SquadGrayLight)
             }
         }
     }
@@ -594,7 +598,7 @@ private fun BestPerformerCard(scorer: ScorerItem, sportType: SportType) {
     val sportColor = sportType.accentColor()
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -609,16 +613,16 @@ private fun BestPerformerCard(scorer: ScorerItem, sportType: SportType) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     stringResource(sportType.topPerformerLabelRes()),
-                    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp
+                    fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.5.sp
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(scorer.name, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                Text(scorer.name, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 if (scorer.teamName.isNotBlank())
-                    Text(scorer.teamName, fontSize = 12.sp, color = SquadTextSecondary)
+                    Text(scorer.teamName, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("${scorer.score}", fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, color = sportColor)
-                Text(stringResource(sportType.scoreLabelRes()), fontSize = 10.sp, color = SquadTextSecondary)
+                Text(stringResource(sportType.scoreLabelRes()), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
@@ -631,7 +635,7 @@ private fun TopPerformersList(scorers: List<ScorerItem>, sportType: SportType) {
     val sportColor = sportType.accentColor()
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -645,7 +649,7 @@ private fun TopPerformersList(scorers: List<ScorerItem>, sportType: SportType) {
                         1 -> Color(0xFFFFD700)
                         2 -> Color(0xFFC0C0C0)
                         3 -> Color(0xFFCD7F32)
-                        else -> SquadTextSecondary
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
                     }
                     Text("${index + 1}", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = rankColor, modifier = Modifier.width(26.dp))
                     Box(
@@ -659,17 +663,17 @@ private fun TopPerformersList(scorers: List<ScorerItem>, sportType: SportType) {
                     }
                     Spacer(Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(scorer.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                        Text(scorer.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                         if (scorer.teamName.isNotBlank())
-                            Text(scorer.teamName, fontSize = 11.sp, color = SquadTextSecondary)
+                            Text(scorer.teamName, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("${scorer.score}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = sportColor)
-                        Text(stringResource(sportType.scoreLabelRes()), fontSize = 9.sp, color = SquadTextSecondary)
+                        Text(stringResource(sportType.scoreLabelRes()), fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 if (index < scorers.take(10).lastIndex)
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 14.dp), color = SquadGrayLight)
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(14.dp)), color = SquadGrayLight)
             }
         }
     }
@@ -679,7 +683,7 @@ private fun TopPerformersList(scorers: List<ScorerItem>, sportType: SportType) {
 
 @Composable
 private fun SectionLabel(label: String) {
-    Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.6.sp)
+    Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.6.sp)
 }
 
 private fun SportType.accentColor(): Color = when (this) {

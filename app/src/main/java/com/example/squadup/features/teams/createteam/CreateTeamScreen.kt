@@ -1,5 +1,7 @@
 package com.example.squadup.features.teams.createteam
 
+import androidx.compose.material3.MaterialTheme
+
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
@@ -59,13 +61,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.components.AppHeader
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.rememberIsLandscape
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
@@ -127,7 +127,7 @@ fun CreateTeamScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -147,7 +147,7 @@ fun CreateTeamScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = responsiveHorizontalPadding(20.dp))
                     .padding(top = 22.dp, bottom = 24.dp)
             ) {
                 CreateTeamLabel(
@@ -259,11 +259,13 @@ private fun CreateTeamHero(
     logoUri: Uri?,
     onUploadClick: () -> Unit
 ) {
+    val isLandscape = rememberIsLandscape()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
-            .padding(horizontal = 26.dp),
+            .height(if (isLandscape) 170.dp else 250.dp)
+            .padding(horizontal = responsiveHorizontalPadding(26.dp)),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -296,7 +298,7 @@ private fun CreateTeamHero(
                             Icon(
                                 imageVector = Icons.Outlined.CameraAlt,
                                 contentDescription = null,
-                                tint = SquadTextPrimary.copy(alpha = 0.75f),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
                                 modifier = Modifier.size(28.dp)
                             )
 
@@ -306,7 +308,7 @@ private fun CreateTeamHero(
                                 text = "Upload Logo",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = SquadTextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -334,7 +336,7 @@ private fun CreateTeamHero(
                 text = "Create your squad identity",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
 
@@ -345,7 +347,7 @@ private fun CreateTeamHero(
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 fontWeight = FontWeight.Medium,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }
@@ -374,7 +376,7 @@ private fun CreateTeamLabel(
                 text = "Required",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -395,13 +397,13 @@ private fun CreateTeamTextField(
         textStyle = TextStyle(
             fontSize = 14.sp,
             lineHeight = 20.sp,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Medium
         ),
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = minHeight)
-            .background(SquadWhite, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp),
         decorationBox = { innerTextField ->
             Box(
@@ -441,7 +443,7 @@ private fun SportTypeChip(
         modifier = Modifier
             .height(42.dp)
             .clickable(onClick = onClick),
-        color = if (selected) SquadOrange else SquadSurface,
+        color = if (selected) SquadOrange else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(9.dp),
         border = BorderStroke(
             width = 1.dp,
@@ -450,7 +452,7 @@ private fun SportTypeChip(
         shadowElevation = if (selected) 4.dp else 0.dp
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -467,7 +469,7 @@ private fun SportTypeChip(
                 text = label,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (selected) SquadWhite else SquadTextPrimary
+                color = if (selected) SquadWhite else MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -482,7 +484,7 @@ private fun PrivateTeamCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!checked) },
-        color = Color(0xFFFFF7F3),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, SquadOrange.copy(alpha = 0.28f))
     ) {
@@ -513,7 +515,7 @@ private fun PrivateTeamCard(
                     text = "Private Team",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -521,7 +523,7 @@ private fun PrivateTeamCard(
                 Text(
                     text = "Membership by invite only",
                     fontSize = 12.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -531,8 +533,8 @@ private fun PrivateTeamCard(
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = SquadWhite,
                     checkedTrackColor = SquadOrange,
-                    uncheckedThumbColor = SquadWhite,
-                    uncheckedTrackColor = Color(0xFFD8D8D8)
+                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         }

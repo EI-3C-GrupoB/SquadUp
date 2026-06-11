@@ -1,5 +1,7 @@
 package com.example.squadup.features.profile.tickets.details
 
+import androidx.compose.material3.MaterialTheme
+
 import android.content.Intent
 import android.provider.CalendarContract
 import android.widget.Toast
@@ -87,16 +89,16 @@ fun TicketDetailsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = responsiveHorizontalPadding(16.dp))
         ) {
             Spacer(modifier = Modifier.height(14.dp))
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(10.dp),
                 shadowElevation = 6.dp
             ) {
@@ -115,7 +117,7 @@ fun TicketDetailsScreen(
                         Text(
                             text = uiState.ticketNumber,
                             fontSize = 12.sp,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -126,14 +128,14 @@ fun TicketDetailsScreen(
                         text = uiState.title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = uiState.ticketType,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
 
@@ -182,7 +184,7 @@ fun TicketDetailsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontSize = 12.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -208,7 +210,7 @@ private fun TicketLocationCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp,
         border = BorderStroke(1.dp, Color(0xFFF0E1DC))
@@ -289,7 +291,7 @@ private fun TicketLocationCard(
                         text = "Localização do evento",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -297,7 +299,7 @@ private fun TicketLocationCard(
                     Text(
                         text = address,
                         fontSize = 12.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         lineHeight = 15.sp
@@ -398,7 +400,7 @@ private fun TicketConfirmedBadge() {
                 tint = Color(0xFF00897B),
                 modifier = Modifier.height(14.dp)
             )
-            Spacer(modifier = Modifier.padding(horizontal = 3.dp))
+            Spacer(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(3.dp)))
             Text(
                 text = stringResource(R.string.tickets_confirmed),
                 fontSize = 11.sp,

@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.manageevent
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.clickableNoRipple
@@ -161,7 +164,7 @@ fun ManageEventScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
@@ -173,14 +176,14 @@ fun ManageEventScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
             EventHeroCard(
                 uiState = uiState,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
             )
 
             ManageEventTabRow(
@@ -313,7 +316,7 @@ private fun ManageEventTabRow(
                         text = stringResource(tabLabelRes[tab] ?: R.string.manageEvent_tab_overview),
                         fontSize = 13.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) Color.White else SquadTextSecondary
+                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -351,13 +354,13 @@ private fun EditGameDialog(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = SquadBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = responsiveHorizontalPadding(20.dp))
                 .padding(bottom = 32.dp)
         ) {
             Row(
@@ -366,17 +369,17 @@ private fun EditGameDialog(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Editar Jogo", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                    Text("Editar Jogo", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     Text(sportLabel, fontSize = 13.sp, color = SquadOrange, fontWeight = FontWeight.SemiBold)
                 }
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Outlined.Close, null, tint = SquadTextSecondary)
+                    Icon(Icons.Outlined.Close, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
             Spacer(Modifier.height(20.dp))
 
-            Text("Equipa Casa", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text("Equipa Casa", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(6.dp))
             ExposedDropdownMenuBox(expanded = homeExpanded, onExpandedChange = { homeExpanded = it }) {
                 OutlinedTextField(
@@ -400,7 +403,7 @@ private fun EditGameDialog(
 
             Spacer(Modifier.height(14.dp))
 
-            Text("Equipa Visitante", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text("Equipa Visitante", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(6.dp))
             ExposedDropdownMenuBox(expanded = awayExpanded, onExpandedChange = { awayExpanded = it }) {
                 OutlinedTextField(
@@ -426,7 +429,7 @@ private fun EditGameDialog(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(Modifier.weight(1f)) {
-                    Text("Data", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                    Text("Data", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.height(6.dp))
                     OutlinedTextField(
                         value = uiState.editGameDate,
@@ -439,7 +442,7 @@ private fun EditGameDialog(
                     )
                 }
                 Column(Modifier.weight(1f)) {
-                    Text("Hora", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                    Text("Hora", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.height(6.dp))
                     OutlinedTextField(
                         value = uiState.editGameTime,
@@ -459,7 +462,7 @@ private fun EditGameDialog(
 
             Spacer(Modifier.height(14.dp))
 
-            Text("Local (opcional)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text("Local (opcional)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(6.dp))
             OutlinedTextField(
                 value = uiState.editGameVenue,
@@ -528,13 +531,13 @@ private fun CreateGameDialog(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = SquadBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = responsiveHorizontalPadding(20.dp))
                 .padding(bottom = 32.dp)
         ) {
             // Header
@@ -544,18 +547,18 @@ private fun CreateGameDialog(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Criar Jogo", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                    Text("Criar Jogo", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     Text(sportLabel, fontSize = 13.sp, color = SquadOrange, fontWeight = FontWeight.SemiBold)
                 }
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Outlined.Close, null, tint = SquadTextSecondary)
+                    Icon(Icons.Outlined.Close, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
             Spacer(Modifier.height(20.dp))
 
             // Home team
-            Text("Equipa Casa", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text("Equipa Casa", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(6.dp))
             ExposedDropdownMenuBox(expanded = homeExpanded, onExpandedChange = { homeExpanded = it }) {
                 OutlinedTextField(
@@ -580,7 +583,7 @@ private fun CreateGameDialog(
             Spacer(Modifier.height(14.dp))
 
             // Away team
-            Text("Equipa Visitante", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text("Equipa Visitante", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(6.dp))
             ExposedDropdownMenuBox(expanded = awayExpanded, onExpandedChange = { awayExpanded = it }) {
                 OutlinedTextField(
@@ -607,7 +610,7 @@ private fun CreateGameDialog(
             // Date + Time row
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(Modifier.weight(1f)) {
-                    Text("Data", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                    Text("Data", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.height(6.dp))
                     OutlinedTextField(
                         value = uiState.createGameDate,
@@ -620,7 +623,7 @@ private fun CreateGameDialog(
                     )
                 }
                 Column(Modifier.weight(1f)) {
-                    Text("Hora", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                    Text("Hora", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.height(6.dp))
                     OutlinedTextField(
                         value = uiState.createGameTime,
@@ -642,7 +645,7 @@ private fun CreateGameDialog(
             Spacer(Modifier.height(14.dp))
 
             // Venue
-            Text("Local (opcional)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+            Text("Local (opcional)", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(6.dp))
             OutlinedTextField(
                 value = uiState.createGameVenue,

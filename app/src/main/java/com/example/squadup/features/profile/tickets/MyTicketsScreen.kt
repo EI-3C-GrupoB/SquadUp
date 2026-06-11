@@ -1,5 +1,7 @@
 package com.example.squadup.features.profile.tickets
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -66,10 +68,10 @@ fun MyTicketsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = responsiveHorizontalPadding(24.dp))
         ) {
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -114,7 +116,7 @@ fun MyTicketsScreen(
                             text = stringResource(R.string.tickets_past_events),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SquadTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -122,7 +124,7 @@ fun MyTicketsScreen(
                         Text(
                             text = stringResource(R.string.tickets_past_events_subtitle),
                             fontSize = 15.sp,
-                            color = SquadTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(modifier = Modifier.height(18.dp))
@@ -144,10 +146,10 @@ fun MyTicketsScreen(
                             onClick = {},
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                             shape = RoundedCornerShape(999.dp),
-                            border = BorderStroke(1.dp, SquadTextSecondary),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 containerColor = Color.Transparent,
-                                contentColor = SquadTextPrimary
+                                contentColor = MaterialTheme.colorScheme.onSurface
                             )
                         ) {
                             Text(

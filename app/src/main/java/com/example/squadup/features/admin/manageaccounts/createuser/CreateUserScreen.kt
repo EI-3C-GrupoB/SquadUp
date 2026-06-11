@@ -1,5 +1,7 @@
 package com.example.squadup.features.admin.manageaccounts.createuser
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -70,10 +72,10 @@ fun CreateUserScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp)
+                .padding(horizontal = responsiveHorizontalPadding(28.dp))
         ) {
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -84,7 +86,7 @@ fun CreateUserScreen(
                     textAlign = TextAlign.Center,
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -93,7 +95,7 @@ fun CreateUserScreen(
                     text = stringResource(R.string.createUser_subtitle),
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))

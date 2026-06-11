@@ -1,5 +1,7 @@
 package com.example.squadup.features.admin.home
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,13 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
-import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import java.text.NumberFormat
@@ -54,7 +52,6 @@ fun AdminHomeScreen(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
-    onAdminPageClick: () -> Unit,
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     isAdmin: Boolean,
@@ -72,7 +69,6 @@ fun AdminHomeScreen(
                 showNotificationsButton = true,
                 notificationsCount = notificationsCount,
                 onNotificationsClick = onNotificationsClick,
-                onAdminPageClick = onAdminPageClick,
                 showSettingsButton = true,
                 isAdmin = isAdmin,
                 isAdminView = isAdminView,
@@ -94,7 +90,7 @@ fun AdminHomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
@@ -104,7 +100,7 @@ fun AdminHomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp, vertical = 20.dp)
@@ -113,7 +109,7 @@ fun AdminHomeScreen(
                     text = "Global Admin Dashboard",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -122,7 +118,7 @@ fun AdminHomeScreen(
                     text = "Real-time overview of the SquadUp ecosystem",
                     fontSize = 13.sp,
                     lineHeight = 18.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
@@ -172,11 +168,11 @@ private fun AdminMetricCard(
     subtitle: String,
     icon: ImageVector,
     modifier: Modifier = Modifier,
-    subtitleColor: Color = SquadTextSecondary
+    subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
         shadowElevation = 2.dp
     ) {
@@ -192,7 +188,7 @@ private fun AdminMetricCard(
                     text = title,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -240,7 +236,7 @@ private fun SportPopularityCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
         shadowElevation = 2.dp
     ) {
@@ -251,7 +247,7 @@ private fun SportPopularityCard(
                 text = "Sport Popularity",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -260,7 +256,7 @@ private fun SportPopularityCard(
                 Text(
                     text = "Sem dados de popularidade.",
                     fontSize = 13.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
                 items.forEachIndexed { index, item ->
@@ -287,7 +283,7 @@ private fun SportPopularityRow(
                 text = item.sportName,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.align(Alignment.CenterStart)
             )
 

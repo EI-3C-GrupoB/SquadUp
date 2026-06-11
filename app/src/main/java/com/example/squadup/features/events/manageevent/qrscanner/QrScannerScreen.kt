@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.manageevent.qrscanner
 
+import androidx.compose.material3.MaterialTheme
+
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -35,10 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
@@ -158,7 +157,7 @@ fun QrScannerScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground),
+                    .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -176,14 +175,14 @@ fun QrScannerScreen(
                         text = "Permissão de câmara necessária",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = "Para ler QR codes é necessário acesso à câmara.",
                         fontSize = 14.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(24.dp))
@@ -318,7 +317,7 @@ private fun ResultSheet(result: QrVerificationResult, onReset: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White.copy(alpha = 0.2f),
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f),
                     contentColor = Color.White
                 )
             ) {

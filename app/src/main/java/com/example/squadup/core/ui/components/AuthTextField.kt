@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,11 +34,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
-import com.example.squadup.core.ui.theme.SquadWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +51,7 @@ fun AuthTextField(
     isPassword: Boolean = false,
     singleLine: Boolean = true,
     enabled: Boolean = true,
-    labelColor: Color = SquadTextPrimary
+    labelColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -98,7 +95,7 @@ fun AuthTextField(
             enabled = enabled,
             textStyle = androidx.compose.ui.text.TextStyle(
                 fontSize = 15.sp,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium
             ),
             visualTransformation = if (isPassword && !passwordVisible) {
@@ -116,10 +113,20 @@ fun AuthTextField(
                     },
                     innerTextField = innerTextField,
                     placeholder = {
-                        Text(text = placeholder, color = SquadTextSecondary, fontSize = 15.sp)
+                        Text(
+                            text = placeholder,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 15.sp
+                        )
                     },
                     leadingIcon = leadingIcon?.let {
-                        { Icon(imageVector = it, contentDescription = null, tint = SquadTextSecondary) }
+                        {
+                            Icon(
+                                imageVector = it,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     },
                     trailingIcon = when {
                         isPassword -> {
@@ -128,13 +135,19 @@ fun AuthTextField(
                                     Icon(
                                         imageVector = if (passwordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
                                         contentDescription = null,
-                                        tint = SquadTextSecondary
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
                         }
                         trailingIcon != null -> {
-                            { Icon(imageVector = trailingIcon, contentDescription = null, tint = SquadTextSecondary) }
+                            {
+                                Icon(
+                                    imageVector = trailingIcon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                         else -> null
                     },
@@ -149,16 +162,16 @@ fun AuthTextField(
                             interactionSource = interactionSource,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = SquadOrange,
-                                unfocusedBorderColor = SquadGrayLight,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                                 cursorColor = SquadOrange,
-                                focusedTextColor = SquadTextPrimary,
-                                unfocusedTextColor = SquadTextPrimary,
-                                focusedContainerColor = SquadWhite,
-                                unfocusedContainerColor = SquadWhite,
-                                disabledBorderColor = SquadGrayLight,
-                                disabledTextColor = SquadTextPrimary,
-                                disabledContainerColor = SquadWhite,
-                                disabledPlaceholderColor = SquadTextSecondary
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                disabledContainerColor = MaterialTheme.colorScheme.surface,
+                                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                             shape = RoundedCornerShape(12.dp)
                         )

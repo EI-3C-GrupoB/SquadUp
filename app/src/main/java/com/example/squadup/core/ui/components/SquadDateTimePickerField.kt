@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,8 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import java.time.Instant
 import java.time.LocalDate
@@ -64,7 +64,7 @@ fun SquadDateTimePickerField(
     placeholder: String,
     mode: DateTimePickerMode,
     modifier: Modifier = Modifier,
-    labelColor: Color = SquadTextPrimary,
+    labelColor: Color = MaterialTheme.colorScheme.onSurface,
     leadingIcon: ImageVector = when (mode) {
         DateTimePickerMode.DATE -> Icons.Outlined.CalendarMonth
         DateTimePickerMode.TIME -> Icons.Outlined.AccessTime
@@ -107,7 +107,7 @@ fun SquadDateTimePickerField(
                 Icon(
                     imageVector = leadingIcon,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
 
@@ -116,7 +116,7 @@ fun SquadDateTimePickerField(
                 Text(
                     text = value.ifBlank { placeholder },
                     fontSize = 14.sp,
-                    color = if (value.isBlank()) SquadTextSecondary else SquadTextPrimary,
+                    color = if (value.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
             }

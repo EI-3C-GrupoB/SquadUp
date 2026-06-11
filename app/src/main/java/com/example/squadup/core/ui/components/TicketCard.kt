@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,8 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.enums.SportType
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.toIcon
 
 @Composable
@@ -67,7 +67,7 @@ fun TicketCard(
                             fontSize = 23.sp,
                             lineHeight = 27.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SquadTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -164,14 +164,14 @@ private fun TicketInfoRow(icon: ImageVector, text: String, maxLines: Int = Int.M
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = SquadTextSecondary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = text,
             fontSize = 15.sp,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis
         )

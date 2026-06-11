@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,8 +20,6 @@ import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.toDisplayName
 
 @Composable
@@ -47,7 +47,7 @@ fun TeamListItem(
                 tint = SquadOrange,
                 modifier = Modifier
                     .size(42.dp)
-                    .background(Color.White, RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                     .padding(8.dp)
             )
 
@@ -58,12 +58,12 @@ fun TeamListItem(
                     text = name,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "$nMembers ${stringResource(R.string.team_members)} • ${sportType.toDisplayName(context)}",
                     fontSize = 14.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 

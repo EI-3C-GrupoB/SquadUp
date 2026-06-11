@@ -1,5 +1,7 @@
 package com.example.squadup.features.auth.login
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,11 +31,11 @@ import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AuthCard
 import com.example.squadup.core.ui.components.AuthTextField
 import com.example.squadup.core.ui.components.PrimaryButton
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveContentWidth
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+import com.example.squadup.core.ui.components.responsiveVerticalSpacing
 import com.example.squadup.core.ui.theme.SquadError
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 @Composable
 fun LoginScreen(
@@ -44,11 +46,15 @@ fun LoginScreen(
     onCreateAccountClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val topSpacing = responsiveVerticalSpacing(58.dp)
+    val sectionSpacing = responsiveVerticalSpacing(30.dp)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SquadBackground)
-            .verticalScroll(rememberScrollState())
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppHeader(
             showLogo = true,
@@ -56,7 +62,7 @@ fun LoginScreen(
             onBackClick = onBackClick
         )
 
-        Spacer(modifier = Modifier.height(58.dp))
+        Spacer(modifier = Modifier.height(topSpacing))
 
         Text(
             text = stringResource(R.string.login_title),
@@ -64,7 +70,7 @@ fun LoginScreen(
             textAlign = TextAlign.Center,
             fontSize = 34.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -74,12 +80,16 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             fontSize = 17.sp,
-            color = SquadTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(58.dp))
+        Spacer(modifier = Modifier.height(topSpacing))
 
-        AuthCard(modifier = Modifier.padding(horizontal = 20.dp)) {
+        AuthCard(
+            modifier = Modifier
+                .padding(horizontal = responsiveHorizontalPadding(20.dp))
+                .responsiveContentWidth(560.dp)
+        ) {
             AuthTextField(
                 value = uiState.email,
                 onValueChange = onEmailChange,
@@ -125,7 +135,7 @@ fun LoginScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(sectionSpacing))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -134,7 +144,7 @@ fun LoginScreen(
             Text(
                 text = stringResource(R.string.login_createMgs1),
                 fontSize = 14.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Text(

@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,8 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +43,7 @@ fun ProfileDropdownField(
     options: List<String>,
     onValueSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    labelColor: Color = SquadTextPrimary
+    labelColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var expanded by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
@@ -72,7 +72,7 @@ fun ProfileDropdownField(
                     .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                 textStyle = TextStyle(
                     fontSize = 15.sp,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Medium
                 ),
                 interactionSource = interactionSource,
@@ -88,7 +88,7 @@ fun ProfileDropdownField(
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
                                 contentDescription = null,
-                                tint = SquadTextPrimary
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
@@ -100,8 +100,8 @@ fun ProfileDropdownField(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = SquadOrange,
                                     unfocusedBorderColor = SquadGrayLight,
-                                    focusedContainerColor = SquadWhite,
-                                    unfocusedContainerColor = SquadWhite,
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
@@ -113,11 +113,11 @@ fun ProfileDropdownField(
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                containerColor = SquadWhite
+                containerColor = MaterialTheme.colorScheme.surface
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(text = option, color = SquadTextPrimary) },
+                        text = { Text(text = option, color = MaterialTheme.colorScheme.onSurface) },
                         onClick = {
                             onValueSelected(option)
                             expanded = false

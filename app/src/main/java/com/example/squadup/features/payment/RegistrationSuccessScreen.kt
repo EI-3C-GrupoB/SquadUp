@@ -1,5 +1,7 @@
 package com.example.squadup.features.payment
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ConfirmationNumber
@@ -29,10 +33,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveContentWidth
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+import com.example.squadup.core.ui.components.responsiveVerticalSpacing
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 @Composable
 fun RegistrationSuccessScreen(
@@ -40,6 +44,10 @@ fun RegistrationSuccessScreen(
     onViewTicketClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val iconSize = responsiveVerticalSpacing(96.dp)
+    val largeSpacing = responsiveVerticalSpacing(40.dp)
+    val mediumSpacing = responsiveVerticalSpacing(24.dp)
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -50,19 +58,20 @@ fun RegistrationSuccessScreen(
                 showSettingsButton = false
             )
         },
-        containerColor = SquadBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = responsiveHorizontalPadding(24.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Box(
                 modifier = Modifier
-                    .size(96.dp)
+                    .size(iconSize)
                     .background(Color(0xFF2E7D32).copy(alpha = 0.12f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
@@ -74,13 +83,13 @@ fun RegistrationSuccessScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(mediumSpacing))
 
             Text(
                 text = "Inscrição confirmada!",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center
             )
 
@@ -89,16 +98,16 @@ fun RegistrationSuccessScreen(
             Text(
                 text = "O teu pagamento foi processado e a tua inscrição está confirmada. Podes ver o teu bilhete a qualquer momento.",
                 fontSize = 14.sp,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 lineHeight = 20.sp
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(largeSpacing))
 
             Button(
                 onClick = onViewTicketClick,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.responsiveContentWidth(520.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SquadOrange,

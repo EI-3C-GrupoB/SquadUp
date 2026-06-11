@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,8 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.squadup.R
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
@@ -57,6 +57,7 @@ fun LocationPickerDialog(
     onLocationSelected: (SelectedLocation) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val isLandscape = rememberIsLandscape()
     var selectedLat by remember { mutableStateOf<Double?>(null) }
     var selectedLng by remember { mutableStateOf<Double?>(null) }
     var pickedAddress by remember { mutableStateOf("") }
@@ -92,8 +93,8 @@ fun LocationPickerDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(560.dp),
-            color = Color.White,
+                .height(if (isLandscape) 420.dp else 560.dp),
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(18.dp),
             shadowElevation = 10.dp
         ) {
@@ -109,7 +110,7 @@ fun LocationPickerDialog(
                         text = stringResource(R.string.register_location_pick_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
                     Text(
@@ -150,7 +151,7 @@ fun LocationPickerDialog(
                             text = stringResource(R.string.register_location_tap_hint),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = SquadTextPrimary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                         )
                     }
@@ -180,7 +181,7 @@ fun LocationPickerDialog(
                                     pickedAddress.isNotBlank() -> pickedAddress
                                     else -> ""
                                 },
-                                color = if (!isGeocoding) SquadTextPrimary else SquadTextSecondary,
+                                color = if (!isGeocoding) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 13.sp,
                                 lineHeight = 18.sp,
                                 modifier = Modifier.weight(1f)

@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.moredetails
 
+import androidx.compose.material3.MaterialTheme
+
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -69,11 +71,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.rememberAsyncImagePainter
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.rememberIsLandscape
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 import org.maplibre.android.MapLibre
 import org.maplibre.android.annotations.MarkerOptions
@@ -135,7 +135,7 @@ fun MoreDetailsScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(SquadBackground)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {
@@ -147,14 +147,14 @@ fun MoreDetailsScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(SquadBackground)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(innerPadding)
                         .padding(20.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = uiState.errorMessage,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp,
                         lineHeight = 20.sp
                     )
@@ -165,7 +165,7 @@ fun MoreDetailsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(SquadBackground)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(innerPadding)
                         .verticalScroll(rememberScrollState())
                 ) {
@@ -178,7 +178,7 @@ fun MoreDetailsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 18.dp)
+                            .padding(horizontal = responsiveHorizontalPadding(18.dp))
                     ) {
                         Spacer(modifier = Modifier.height(18.dp))
 
@@ -363,19 +363,19 @@ private fun TeamPickerBottomSheet(
                 onDismiss()
             }
         },
-        containerColor = SquadBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = responsiveHorizontalPadding(20.dp))
                 .padding(bottom = 28.dp)
         ) {
             Text(
                 text = "Escolhe a equipa",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -384,7 +384,7 @@ private fun TeamPickerBottomSheet(
                 text = "Só aparecem equipas onde podes pedir participação e que ainda não estão inscritas neste evento.",
                 fontSize = 13.sp,
                 lineHeight = 18.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             if (!uiState.errorMessage.isNullOrBlank()) {
@@ -423,7 +423,7 @@ private fun TeamPickerBottomSheet(
                 uiState.availableTeams.isEmpty() -> {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = SquadSurface,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, Color(0xFFF0E1DC))
                     ) {
@@ -431,17 +431,19 @@ private fun TeamPickerBottomSheet(
                             text = "Não tens equipas disponíveis para este evento.",
                             fontSize = 14.sp,
                             lineHeight = 20.sp,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(16.dp)
                         )
                     }
                 }
 
                 else -> {
+                    val isLandscape = rememberIsLandscape()
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(260.dp),
+                            .height(if (isLandscape) 200.dp else 260.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(
@@ -454,10 +456,10 @@ private fun TeamPickerBottomSheet(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = SquadSurface,
-                                    contentColor = SquadTextPrimary,
-                                    disabledContainerColor = SquadSurface,
-                                    disabledContentColor = SquadTextSecondary
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    contentColor = MaterialTheme.colorScheme.onSurface,
+                                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),
                                 border = BorderStroke(1.dp, Color(0xFFF0E1DC))
                             ) {
@@ -512,7 +514,7 @@ private fun TeamPickerBottomSheet(
                     text = "Cancelar",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -607,12 +609,12 @@ private fun EventActionButtons(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    disabledContainerColor = SquadSurface,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 border = BorderStroke(
                     width = 1.dp,
-                    color = SquadTextSecondary.copy(alpha = 0.35f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
                 )
             ) {
                 Text(
@@ -636,8 +638,8 @@ private fun EventActionButtons(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SquadOrange,
                         contentColor = Color.White,
-                        disabledContainerColor = SquadSurface,
-                        disabledContentColor = SquadTextSecondary
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 ) {
                     Text(
@@ -665,15 +667,15 @@ private fun EventActionButtons(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = SquadSurface,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = SquadOrange,
-                        disabledContainerColor = SquadSurface,
-                        disabledContentColor = SquadTextSecondary
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     border = BorderStroke(
                         width = 1.dp,
                         color = if (uiState.isJoining) {
-                            SquadTextSecondary.copy(alpha = 0.35f)
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
                         } else {
                             SquadOrange
                         }
@@ -709,8 +711,8 @@ private fun EventActionButtons(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SquadOrange,
                     contentColor = Color.White,
-                    disabledContainerColor = SquadSurface,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Text(
@@ -732,15 +734,15 @@ private fun EventActionButtons(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = SquadSurface,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = SquadOrange,
-                    disabledContainerColor = SquadSurface,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 border = BorderStroke(
                     width = 1.dp,
                     color = if (uiState.isJoining) {
-                        SquadTextSecondary.copy(alpha = 0.35f)
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
                     } else {
                         SquadOrange
                     }
@@ -861,7 +863,7 @@ private fun InfoCard(
 ) {
     Surface(
         modifier = modifier.height(84.dp),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp,
         border = BorderStroke(1.dp, Color(0xFFF0E1DC))
@@ -884,7 +886,7 @@ private fun InfoCard(
                     text = label,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -896,7 +898,7 @@ private fun InfoCard(
                 text = value,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 16.sp
@@ -921,7 +923,7 @@ private fun StatusAndPriceCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp,
         border = BorderStroke(1.dp, Color(0xFFF0E1DC))
@@ -970,7 +972,7 @@ private fun DetailRow(
         Text(
             text = label,
             fontSize = 13.sp,
-            color = SquadTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
 
@@ -978,7 +980,7 @@ private fun DetailRow(
             text = value.ifBlank { "-" },
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1.2f)
@@ -1029,7 +1031,7 @@ private fun TeamRequirementCard(
                 text = description,
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -1068,7 +1070,7 @@ private fun MiniStatCard(
 ) {
     Surface(
         modifier = modifier.height(58.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp)
     ) {
         Column(
@@ -1088,7 +1090,7 @@ private fun MiniStatCard(
             Text(
                 text = label,
                 fontSize = 10.sp,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -1115,7 +1117,7 @@ private fun SectionTitle(
             text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -1128,7 +1130,7 @@ private fun TextCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp
     ) {
@@ -1136,7 +1138,7 @@ private fun TextCard(
             text = text,
             fontSize = 13.sp,
             lineHeight = 19.sp,
-            color = SquadTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(14.dp)
         )
     }
@@ -1148,7 +1150,7 @@ private fun RuleCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp
     ) {
@@ -1169,7 +1171,7 @@ private fun RuleCard(
                 text = text,
                 fontSize = 13.sp,
                 lineHeight = 18.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -1198,7 +1200,7 @@ private fun LocationPreviewCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp,
         border = BorderStroke(1.dp, Color(0xFFF0E1DC))
@@ -1289,7 +1291,7 @@ private fun LocationPreviewCard(
                         text = "Localização do evento",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1299,7 +1301,7 @@ private fun LocationPreviewCard(
                     Text(
                         text = venueName,
                         fontSize = 12.sp,
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         lineHeight = 15.sp

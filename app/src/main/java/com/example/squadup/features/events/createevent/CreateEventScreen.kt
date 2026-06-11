@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.createevent
 
+import androidx.compose.material3.MaterialTheme
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -104,12 +106,11 @@ import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
 import com.example.squadup.core.ui.components.SelectedLocation
 import com.example.squadup.core.ui.components.SquadDateTimePickerField
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGray
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toDisplayName
 import com.example.squadup.core.utils.toIcon
@@ -207,7 +208,7 @@ fun CreateEventScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(innerPadding)
         ) {
             Column(
@@ -293,14 +294,14 @@ fun CreateEventScreen(
                             text = "Atenção",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            color = SquadTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     text = {
                         Text(
                             text = uiState.errorMessage,
                             fontSize = 14.sp,
-                            color = SquadTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     confirmButton = {
@@ -312,7 +313,7 @@ fun CreateEventScreen(
                             )
                         }
                     },
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(16.dp)
                 )
             }
@@ -356,7 +357,7 @@ private fun BasicInfoStep(
 ) {
     val context = LocalContext.current
 
-    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+    Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))) {
         StepHeaderImage(
             heading = stringResource(R.string.createEvent_step1_heading),
             subtitle = stringResource(R.string.createEvent_step1_subtitle),
@@ -375,7 +376,7 @@ private fun BasicInfoStep(
             placeholder = {
                 Text(
                     text = stringResource(R.string.createEvent_event_name_placeholder),
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp
                 )
             },
@@ -383,7 +384,7 @@ private fun BasicInfoStep(
                 Icon(
                     imageVector = Icons.Outlined.Edit,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
             },
@@ -393,8 +394,8 @@ private fun BasicInfoStep(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = SquadOrange,
                 unfocusedBorderColor = SquadGrayLight,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
         )
 
@@ -410,7 +411,7 @@ private fun BasicInfoStep(
             placeholder = {
                 Text(
                     text = "Descreve o evento, o que vai acontecer, quem pode participar...",
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp
                 )
             },
@@ -422,8 +423,8 @@ private fun BasicInfoStep(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = SquadOrange,
                 unfocusedBorderColor = SquadGrayLight,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
         )
 
@@ -497,7 +498,7 @@ private fun FormatPlayersStep(
     onAllowFreeAgentsToggle: (Boolean) -> Unit,
     onNextStep: () -> Unit
 ) {
-    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+    Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))) {
         StepHeaderImage(
             heading = stringResource(R.string.createEvent_step2_heading),
             imageRes = R.drawable.basketball_court,
@@ -549,7 +550,7 @@ private fun FormatPlayersStep(
                     Icon(
                         imageVector = Icons.Default.Remove,
                         contentDescription = null,
-                        tint = SquadTextPrimary,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -560,7 +561,7 @@ private fun FormatPlayersStep(
                     valueRange = 2f..64f,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = responsiveHorizontalPadding(8.dp)),
                     colors = SliderDefaults.colors(
                         thumbColor = SquadOrange,
                         activeTrackColor = SquadOrange,
@@ -590,7 +591,7 @@ private fun FormatPlayersStep(
                     uiState.maxTeams * 5
                 ),
                 fontSize = 12.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -598,7 +599,7 @@ private fun FormatPlayersStep(
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(1.dp, SquadGrayLight)
         ) {
@@ -607,7 +608,7 @@ private fun FormatPlayersStep(
                     text = stringResource(R.string.createEvent_rules_label),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -620,7 +621,7 @@ private fun FormatPlayersStep(
                         .heightIn(min = 100.dp),
                     textStyle = TextStyle(
                         fontSize = 14.sp,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     decorationBox = { innerTextField ->
                         Box {
@@ -628,7 +629,7 @@ private fun FormatPlayersStep(
                                 Text(
                                     text = stringResource(R.string.createEvent_rules_placeholder),
                                     fontSize = 14.sp,
-                                    color = SquadTextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
 
@@ -645,7 +646,7 @@ private fun FormatPlayersStep(
                         uiState.generalRules.length
                     ),
                     fontSize = 11.sp,
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End
                 )
@@ -698,7 +699,7 @@ private fun FormatPlayersStep(
             Text(
                 text = stringResource(R.string.createEvent_public_event),
                 fontSize = 14.sp,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
 
@@ -724,13 +725,13 @@ private fun FormatPlayersStep(
             placeholder = {
                 Text(
                     text = "0.00",
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
             prefix = {
                 Text(
                     text = "€ ",
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
             },
@@ -772,7 +773,7 @@ private fun LocationTimeStep(
 ) {
     var showMapDialog by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+    Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))) {
         LocationPreviewCard(
             latitude = uiState.latitude,
             longitude = uiState.longitude,
@@ -787,7 +788,7 @@ private fun LocationTimeStep(
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(1.dp, SquadGray),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = SquadTextPrimary
+                contentColor = MaterialTheme.colorScheme.onSurface
             )
         ) {
             Icon(
@@ -833,7 +834,7 @@ private fun LocationTimeStep(
                                 uiState.longitude
                             )
                         },
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -847,7 +848,7 @@ private fun LocationTimeStep(
             text = stringResource(R.string.createEvent_schedule_label),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -891,7 +892,7 @@ private fun LocationTimeStep(
             text = "Período de inscrições",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -900,7 +901,7 @@ private fun LocationTimeStep(
             text = "Opcional. Se deixares vazio, as inscrições ficam abertas até ao início do evento.",
             fontSize = 12.sp,
             lineHeight = 17.sp,
-            color = SquadTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -974,13 +975,13 @@ private fun LocationTimeStep(
                     text = stringResource(R.string.createEvent_recurring_label),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                     text = stringResource(R.string.createEvent_recurring_subtitle),
                     fontSize = 12.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -1026,14 +1027,14 @@ private fun ReviewStep(
 ) {
     val context = LocalContext.current
 
-    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+    Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = stringResource(R.string.createEvent_review_cover_label),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -1124,7 +1125,7 @@ private fun ReviewStep(
                 text = stringResource(R.string.createEvent_review_summary_label),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
 
@@ -1143,7 +1144,7 @@ private fun ReviewStep(
                 text = stringResource(R.string.createEvent_review_branding_label),
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.8.sp
             )
 
@@ -1153,7 +1154,7 @@ private fun ReviewStep(
                 text = uiState.eventName.ifBlank { "—" },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -1191,7 +1192,7 @@ private fun ReviewStep(
                     text = stringResource(R.string.createEvent_review_date_label),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -1200,14 +1201,14 @@ private fun ReviewStep(
                     text = uiState.eventDate.ifBlank { "—" },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 if (uiState.startTime.isNotBlank()) {
                     Text(
                         text = uiState.startTime,
                         fontSize = 12.sp,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -1226,7 +1227,7 @@ private fun ReviewStep(
                     text = stringResource(R.string.createEvent_review_venue_label),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -1235,7 +1236,7 @@ private fun ReviewStep(
                     text = uiState.venue.ifBlank { "—" },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -1253,7 +1254,7 @@ private fun ReviewStep(
                     text = "PERÍODO DE INSCRIÇÕES",
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 0.8.sp
                 )
 
@@ -1281,7 +1282,7 @@ private fun ReviewStep(
                     },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     lineHeight = 20.sp
                 )
             }
@@ -1294,7 +1295,7 @@ private fun ReviewStep(
                 text = stringResource(R.string.createEvent_review_format_label),
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.8.sp
             )
 
@@ -1311,7 +1312,7 @@ private fun ReviewStep(
                 text = details,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -1322,7 +1323,7 @@ private fun ReviewStep(
                 text = stringResource(R.string.createEvent_review_participation_label),
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.8.sp
             )
 
@@ -1353,7 +1354,7 @@ private fun ReviewStep(
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFFF8F8F8),
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(1.dp, SquadGrayLight)
             ) {
@@ -1362,13 +1363,13 @@ private fun ReviewStep(
                         text = stringResource(R.string.createEvent_notify_teams_label),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
                         text = stringResource(R.string.createEvent_notify_teams_subtitle),
                         fontSize = 12.sp,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -1398,13 +1399,13 @@ private fun ReviewStep(
                                     text = team.name,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = SquadTextPrimary
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
 
                                 Text(
                                     text = "${team.nMembers} members",
                                     fontSize = 12.sp,
-                                    color = SquadTextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
 
@@ -1448,7 +1449,7 @@ private fun RecurrenceDialog(
 
     Dialog(onDismissRequest = onCancel) {
         Surface(
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(16.dp),
             shadowElevation = 8.dp
         ) {
@@ -1457,7 +1458,7 @@ private fun RecurrenceDialog(
                     text = stringResource(R.string.createEvent_recurrence_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -1485,7 +1486,7 @@ private fun RecurrenceDialog(
                             color = if (uiState.recurrenceType == type) {
                                 SquadOrange
                             } else {
-                                SquadTextPrimary
+                                MaterialTheme.colorScheme.onSurface
                             },
                             modifier = Modifier.weight(1f)
                         )
@@ -1523,7 +1524,7 @@ private fun RecurrenceDialog(
                                         text = label,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = if (selected) Color.White else SquadTextSecondary
+                                        color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -1545,7 +1546,7 @@ private fun RecurrenceDialog(
                 Text(
                     text = stringResource(R.string.createEvent_recurrence_cancel),
                     fontSize = 14.sp,
-                    color = SquadTextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1575,7 +1576,7 @@ private fun EventFormatCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        color = if (selected) SquadOrangeLight else Color.White,
+        color = if (selected) SquadOrangeLight else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             width = if (selected) 1.5.dp else 1.dp,
@@ -1598,7 +1599,7 @@ private fun EventFormatCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (selected) Color.White else SquadTextSecondary,
+                    tint = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -1610,13 +1611,13 @@ private fun EventFormatCard(
                     text = stringResource(format.labelRes),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (selected) SquadOrange else SquadTextPrimary
+                    color = if (selected) SquadOrange else MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                     text = stringResource(format.descRes),
                     fontSize = 12.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -1656,7 +1657,7 @@ private fun ParticipationToggleRow(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (checked) SquadOrange else SquadTextSecondary,
+                tint = if (checked) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -1668,13 +1669,13 @@ private fun ParticipationToggleRow(
                 text = label,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
                 text = subtitle,
                 fontSize = 12.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -1799,7 +1800,7 @@ private fun SectionLabel(
         text = text,
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
-        color = SquadTextSecondary,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         letterSpacing = 0.6.sp,
         modifier = modifier
     )
@@ -1815,7 +1816,7 @@ private fun PrivacyButton(
 ) {
     Surface(
         modifier = modifier.clickable(onClick = onClick),
-        color = if (selected) SquadOrangeLight else Color.White,
+        color = if (selected) SquadOrangeLight else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             width = if (selected) 1.5.dp else 1.dp,
@@ -1830,7 +1831,7 @@ private fun PrivacyButton(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (selected) SquadOrange else SquadTextSecondary,
+                tint = if (selected) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp)
             )
 
@@ -1840,7 +1841,7 @@ private fun PrivacyButton(
                 text = label,
                 fontSize = 14.sp,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (selected) SquadOrange else SquadTextPrimary
+                color = if (selected) SquadOrange else MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -1855,7 +1856,7 @@ private fun SportChip(
 ) {
     Surface(
         onClick = onClick,
-        color = if (selected) SquadOrange else Color.White,
+        color = if (selected) SquadOrange else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(999.dp),
         border = BorderStroke(
             width = 1.dp,
@@ -1870,7 +1871,7 @@ private fun SportChip(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (selected) Color.White else SquadTextSecondary,
+                tint = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(14.dp)
             )
 
@@ -1878,7 +1879,7 @@ private fun SportChip(
                 text = label,
                 fontSize = 13.sp,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (selected) Color.White else SquadTextPrimary
+                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -1891,7 +1892,7 @@ private fun ReviewCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color(0xFFF8F8F8),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(1.dp, SquadGrayLight)
     ) {
@@ -2052,4 +2053,3 @@ private fun MapLibreLocationPreview(
         factory = { mapView }
     )
 }
-

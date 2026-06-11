@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.manageevent
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -44,8 +46,8 @@ internal fun MetricCard(
             Icon(icon, null, tint = accentColor, modifier = Modifier.size(18.dp))
             Column {
                 Text(value, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
-                    color = if (isWarning) accentColor else SquadTextPrimary)
-                Text(label, fontSize = 10.sp, color = SquadTextSecondary, fontWeight = FontWeight.Medium)
+                    color = if (isWarning) accentColor else MaterialTheme.colorScheme.onSurface)
+                Text(label, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -83,15 +85,15 @@ internal fun StatCard(
 ) {
     Surface(
         modifier = modifier,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Icon(icon, null, tint = SquadOrange, modifier = Modifier.size(22.dp))
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextPrimary)
-            Text(text = label, fontSize = 11.sp, color = SquadTextSecondary, fontWeight = FontWeight.Medium)
+            Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(text = label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -152,19 +154,19 @@ internal fun IndividualRegistrationRequestRow(
                     text = request.name,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = expLabel,
                     fontSize = 12.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (request.requestedAt.isNotBlank()) {
                 Text(
                     text = request.requestedAt,
                     fontSize = 11.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -182,7 +184,7 @@ internal fun IndividualRegistrationRequestRow(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = SquadError,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Icon(Icons.Outlined.Close, null, modifier = Modifier.size(15.dp))
@@ -199,7 +201,7 @@ internal fun IndividualRegistrationRequestRow(
                     containerColor = SquadOrange,
                     contentColor = Color.White,
                     disabledContainerColor = SquadGray,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 if (isLoading) {
@@ -251,19 +253,19 @@ internal fun TeamRegistrationRequestRow(
                     text = request.teamName,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = request.captainName.ifBlank { "Capitão não definido" },
                     fontSize = 12.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (request.requestedAt.isNotBlank()) {
                 Text(
                     text = request.requestedAt,
                     fontSize = 11.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -281,7 +283,7 @@ internal fun TeamRegistrationRequestRow(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = SquadError,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Icon(Icons.Outlined.Close, null, modifier = Modifier.size(15.dp))
@@ -298,7 +300,7 @@ internal fun TeamRegistrationRequestRow(
                     containerColor = SquadOrange,
                     contentColor = Color.White,
                     disabledContainerColor = SquadGray,
-                    disabledContentColor = SquadTextSecondary
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 if (isLoading) {

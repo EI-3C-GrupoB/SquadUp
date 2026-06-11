@@ -1,5 +1,7 @@
 package com.example.squadup.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,8 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 @Composable
 fun PlayStyleIntensityCard(
@@ -27,7 +27,7 @@ fun PlayStyleIntensityCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -43,7 +43,7 @@ fun PlayStyleIntensityCard(
                     text = stringResource(R.string.playStyle_title),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = intensityLabel,
@@ -68,7 +68,7 @@ fun PlayStyleIntensityCard(
                             .weight(1f)
                             .height(10.dp)
                             .clip(RoundedCornerShape(999.dp))
-                            .background(if (isFilled) SquadOrange else Color(0xFFFFD8C2))
+                            .background(if (isFilled) SquadOrange else MaterialTheme.colorScheme.surfaceVariant)
                     )
                 }
             }
@@ -79,7 +79,7 @@ fun PlayStyleIntensityCard(
                 text = description,
                 fontSize = 13.sp,
                 lineHeight = 18.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

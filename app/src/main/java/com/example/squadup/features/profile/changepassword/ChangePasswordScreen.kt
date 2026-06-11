@@ -1,5 +1,7 @@
 package com.example.squadup.features.profile.changepassword
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -61,10 +63,10 @@ fun ChangePasswordScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp)
+                .padding(horizontal = responsiveHorizontalPadding(28.dp))
         ) {
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -75,7 +77,7 @@ fun ChangePasswordScreen(
                     textAlign = TextAlign.Center,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(22.dp))
@@ -84,7 +86,7 @@ fun ChangePasswordScreen(
                     text = stringResource(R.string.changePassword_subtitle),
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))

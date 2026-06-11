@@ -1,5 +1,7 @@
 package com.example.squadup.features.profile.myevents
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,6 +29,7 @@ import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.EmptyStateCard
 import com.example.squadup.core.ui.components.SquadFab
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
@@ -83,10 +86,10 @@ fun MyEventsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = responsiveHorizontalPadding(20.dp))
                 .padding(bottom = 80.dp) // espaço para o FAB
         ) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -98,7 +101,7 @@ fun MyEventsScreen(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.myEvents_search_placeholder),
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp
                     )
                 },
@@ -106,7 +109,7 @@ fun MyEventsScreen(
                     Icon(
                         imageVector = Icons.Outlined.Search,
                         contentDescription = null,
-                        tint = SquadTextSecondary
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -115,8 +118,8 @@ fun MyEventsScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = SquadOrange,
                     unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 )
             )
 
@@ -144,8 +147,8 @@ fun MyEventsScreen(
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = SquadOrange,
                             selectedLabelColor = Color.White,
-                            containerColor = Color.White,
-                            labelColor = SquadTextSecondary
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
@@ -212,7 +215,7 @@ private fun MyEventActiveCard(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -261,7 +264,7 @@ private fun MyEventActiveCard(
                     text = event.title,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -305,7 +308,7 @@ private fun MyEventActiveCard(
                             Text(
                                 text = stringResource(R.string.myEvents_matches_in_progress, event.matchesInProgress),
                                 fontSize = 13.sp,
-                                color = SquadTextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         
@@ -336,7 +339,7 @@ private fun MyEventActiveCard(
                             Icon(
                                 imageVector = Icons.Default.Groups,
                                 contentDescription = null,
-                                tint = SquadTextSecondary,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -344,7 +347,7 @@ private fun MyEventActiveCard(
                                 text = "+${event.registeredCount}",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = SquadTextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         
@@ -380,7 +383,7 @@ private fun MyEventCompletedCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -394,12 +397,12 @@ private fun MyEventCompletedCard(
                     text = event.title,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
                 
                 Surface(
-                    color = Color(0xFFE8EDF2),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
@@ -419,7 +422,7 @@ private fun MyEventCompletedCard(
                     Icon(
                         imageVector = Icons.Default.Groups,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -427,14 +430,14 @@ private fun MyEventCompletedCard(
                         text = stringResource(R.string.myEvents_players, event.playersCount),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
                         contentDescription = null,
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -442,7 +445,7 @@ private fun MyEventCompletedCard(
                         text = event.date,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -454,8 +457,8 @@ private fun MyEventCompletedCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE8EDF2),
-                    contentColor = Color(0xFF1F1F1F)
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 contentPadding = PaddingValues(vertical = 12.dp)
             ) {
@@ -484,7 +487,7 @@ private fun InfoColumn(label: String, value: String) {
             text = value,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

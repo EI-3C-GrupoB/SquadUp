@@ -11,7 +11,6 @@ fun AdminHomeRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
-    onAdminPageClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: AdminHomeViewModel = viewModel()
 ) {
@@ -23,7 +22,6 @@ fun AdminHomeRoute(
         selectedRoute = selectedRoute,
         onNavItemClick = onNavItemClick,
         onNotificationsClick = onNotificationsClick,
-        onAdminPageClick = onAdminPageClick,
         selectedLanguage = appUiState.selectedLanguage,
         isDarkMode = appUiState.isDarkMode,
         isAdmin = appUiState.isAdmin,

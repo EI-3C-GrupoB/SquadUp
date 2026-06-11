@@ -3,6 +3,7 @@ package com.example.squadup.core.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,10 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
 
 @Composable
 fun LoadingScreen(
@@ -23,13 +21,13 @@ fun LoadingScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SquadBackground)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter),
-            color = SquadSurface,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 1.dp
         ) {
             AppHeader(
@@ -50,7 +48,7 @@ fun LoadingScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = message,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )

@@ -1,6 +1,10 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 package com.example.squadup.features.events.livematch
 
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -45,7 +49,7 @@ private fun TeamSelector(
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Box(modifier = Modifier.padding(10.dp), contentAlignment = Alignment.Center) {
-                    Text(abbr, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = if (selected) Color.White else SquadTextSecondary)
+                    Text(abbr, fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -61,14 +65,14 @@ private fun FormPlayerDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Column {
-        Text(label, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp)
+        Text(label, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.5.sp)
         Spacer(modifier = Modifier.height(4.dp))
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(
                 value = selected?.name ?: "",
                 onValueChange = {},
                 readOnly = true,
-                placeholder = { Text(stringResource(R.string.liveMatch_form_optional), color = SquadTextSecondary, fontSize = 13.sp) },
+                placeholder = { Text(stringResource(R.string.liveMatch_form_optional), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp) },
                 trailingIcon = { Icon(Icons.Outlined.KeyboardArrowDown, null) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(),
                 shape = RoundedCornerShape(8.dp),
@@ -88,7 +92,7 @@ private fun FormPlayerDropdown(
 
 @Composable
 private fun FormSection(label: String, content: @Composable () -> Unit) {
-    Text(label, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadTextSecondary, letterSpacing = 0.5.sp)
+    Text(label, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 0.5.sp)
     Spacer(modifier = Modifier.height(6.dp))
     content()
 }
@@ -105,10 +109,10 @@ private fun FormBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+        Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))) {
+            Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(20.dp))
             content()
             Spacer(modifier = Modifier.height(16.dp))
@@ -224,9 +228,9 @@ private fun BasketballScoreFormSheet(
                     ) {
                         Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("+$delta", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold,
-                                color = if (selected) Color.White else SquadTextPrimary)
+                                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface)
                             Text(label.substringBefore(" ("), fontSize = 9.sp,
-                                color = if (selected) Color.White.copy(alpha = 0.85f) else SquadTextSecondary,
+                                color = if (selected) Color.White.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         }
                     }
@@ -455,10 +459,10 @@ fun AdvancedStatsFormSheet(
                     modifier = Modifier.size(44.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Outlined.Remove, null, tint = SquadTextPrimary, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Outlined.Remove, null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
                     }
                 }
-                Text("$statValue", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = SquadTextPrimary, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Text("$statValue", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 Surface(
                     onClick = { statValue++ },
                     color = SquadOrange,

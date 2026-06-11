@@ -1,5 +1,7 @@
 package com.example.squadup.features.onboarding
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -40,11 +42,11 @@ import androidx.compose.ui.unit.sp
 import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.OnboardingImageCard
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveContentWidth
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+import com.example.squadup.core.ui.components.responsiveVerticalSpacing
 import com.example.squadup.core.ui.theme.SquadGray
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
@@ -65,6 +67,9 @@ fun OnboardingScreen(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val topSpacing = responsiveVerticalSpacing(32.dp)
+    val contentSpacing = responsiveVerticalSpacing(24.dp)
+
     val pages = remember {
         listOf(
             OnboardingPage(
@@ -95,7 +100,7 @@ fun OnboardingScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(SquadBackground),
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppHeader(
@@ -110,8 +115,9 @@ fun OnboardingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .responsiveContentWidth(760.dp)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = responsiveHorizontalPadding(24.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -126,7 +132,7 @@ fun OnboardingScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(topSpacing))
 
                     OnboardingImageCard(
                         image = item.image,
@@ -135,11 +141,11 @@ fun OnboardingScreen(
                         secondaryBadgeText = stringResource(id = R.string.Onboarding_badgeLiveNow)
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(contentSpacing))
 
                     Text(
                         text = stringResource(id = item.title),
-                        color = SquadTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp
                     )
@@ -148,15 +154,15 @@ fun OnboardingScreen(
 
                     Text(
                         text = stringResource(id = item.description),
-                        color = SquadTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
                         fontSize = 15.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(contentSpacing))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -168,7 +174,7 @@ fun OnboardingScreen(
 
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 4.dp)
+                            .padding(horizontal = responsiveHorizontalPadding(4.dp))
                             .width(if (selected) 26.dp else 8.dp)
                             .height(8.dp)
                             .clip(CircleShape)
@@ -179,7 +185,7 @@ fun OnboardingScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(responsiveVerticalSpacing(28.dp)))
 
             Button(
                 onClick = {
@@ -214,7 +220,7 @@ fun OnboardingScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(contentSpacing))
 
             Row(
                 modifier = Modifier.padding(bottom = 28.dp),
@@ -223,7 +229,7 @@ fun OnboardingScreen(
             ) {
                 Text(
                     text = stringResource(id = R.string.Onboarding_loginMgs),
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.width(4.dp))

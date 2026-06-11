@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -52,6 +54,9 @@ fun SettingsDialog(
     onAdminPageClick: () -> Unit = {}
 ) {
     var showContent by rememberSaveable { mutableStateOf(false) }
+    val isLandscape = rememberIsLandscape()
+    val headerHeight = if (isLandscape) 48.dp else 56.dp
+    val dialogTopPadding = if (isLandscape) 8.dp else 16.dp
 
     LaunchedEffect(Unit) {
         showContent = true
@@ -75,7 +80,7 @@ fun SettingsDialog(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    .padding(top = 56.dp)
+                    .padding(top = headerHeight)
                     .background(Color.Black.copy(alpha = 0.45f))
                     .clickableNoRipple(onClick = onDismiss)
             )
@@ -95,21 +100,26 @@ fun SettingsDialog(
                 Surface(
                     modifier = Modifier
                         .statusBarsPadding()
-                        .padding(top = 56.dp + 16.dp)
+                        .padding(top = headerHeight + dialogTopPadding)
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
+                        .then(if (isLandscape) Modifier.widthIn(max = 560.dp) else Modifier)
                         .clickableNoRipple { },
                     shape = RoundedCornerShape(24.dp),
-                    color = SquadSurface,
+                    color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 12.dp,
-                    border = BorderStroke(1.dp, SquadGrayLight.copy(alpha = 0.4f))
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                 ) {
-                    Column(modifier = Modifier.padding(24.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .padding(if (isLandscape) 18.dp else 24.dp)
+                    ) {
                         Text(
                             text = stringResource(R.string.settings_title),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             letterSpacing = 1.5.sp
                         )
 
@@ -150,7 +160,7 @@ fun SettingsDialog(
 
                         if (isAdmin) {
                             Spacer(modifier = Modifier.height(20.dp))
-                            HorizontalDivider(color = SquadGrayLight)
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Spacer(modifier = Modifier.height(20.dp))
                             SettingsRow(
                                 icon = Icons.Outlined.AdminPanelSettings,
@@ -185,14 +195,14 @@ private fun SettingsRow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = SquadTextSecondary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(22.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = label,
             fontSize = 16.sp,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         content()
@@ -219,7 +229,7 @@ private fun SettingsToggle(
             .width(110.dp)
             .height(36.dp)
             .clip(RoundedCornerShape(999.dp))
-            .background(SquadGrayLight)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp)
     ) {
         Box(
@@ -228,7 +238,7 @@ private fun SettingsToggle(
                 .fillMaxHeight()
                 .align(BiasAlignment(horizontalBias, 0f))
                 .shadow(2.dp, RoundedCornerShape(999.dp))
-                .background(SquadSurface, RoundedCornerShape(999.dp))
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(999.dp))
         )
 
         Row(modifier = Modifier.fillMaxSize()) {
@@ -253,7 +263,7 @@ private fun SettingsToggle(
                         text = option,
                         fontSize = 13.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) SquadOrange else SquadTextSecondary
+                        color = if (isSelected) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

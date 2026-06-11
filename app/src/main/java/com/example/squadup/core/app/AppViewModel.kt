@@ -1,6 +1,7 @@
 package com.example.squadup.core.app
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.squadup.core.utils.AppLanguage
@@ -25,7 +26,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private var notificationsRealtimeJob: Job? = null
     private var notificationsRealtimeUserId: Int? = null
     private val _uiState = MutableStateFlow(
-        AppUiState(selectedLanguage = getCurrentLanguage(application))
+        AppUiState(
+            selectedLanguage = getCurrentLanguage(application),
+            isDarkMode = loadDarkModePreference(application)
+        )
     )
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
@@ -164,6 +168,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onDarkModeChange(isDarkMode: Boolean) {
         _uiState.value = _uiState.value.copy(isDarkMode = isDarkMode)
+        saveDarkModePreference(isDarkMode)
     }
 
     fun onAdminViewChange(isAdminView: Boolean) {
@@ -172,5 +177,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onPhotoUrlChange(url: String) {
         _uiState.value = _uiState.value.copy(photoUrl = url)
+    }
+
+    private fun loadDarkModePreference(context: Context): Boolean {
+        return context
+            .getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_DARK_MODE, false)
+    }
+
+    private fun saveDarkModePreference(isDarkMode: Boolean) {
+        getApplication<Application>()
+            .getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_DARK_MODE, isDarkMode)
+            .apply()
+    }
+
+    private companion object {
+        const val APP_PREFS_NAME = "app_preferences"
+        const val KEY_DARK_MODE = "dark_mode"
     }
 }

@@ -1,5 +1,7 @@
 package com.example.squadup.features.notifications
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,12 +56,9 @@ import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.EmptyStateCard
-import com.example.squadup.core.ui.theme.SquadBackground
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadSurface
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 
@@ -107,7 +106,7 @@ fun NotificationsScreen(
                         selectedNotificationForDialog = null
                     }
                 ) {
-                    Text("Recusar", color = SquadTextSecondary)
+                    Text("Recusar", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         )
@@ -143,17 +142,17 @@ fun NotificationsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SquadBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 18.dp)
+                .padding(horizontal = responsiveHorizontalPadding(18.dp))
                 .padding(top = 18.dp, bottom = 28.dp)
         ) {
             Text(
                 text = "Notifications",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -162,7 +161,7 @@ fun NotificationsScreen(
                 text = "Stay updated on your squad activities",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -215,7 +214,7 @@ fun NotificationsScreen(
 
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = SquadSurface,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, SquadGrayLight)
                     ) {
@@ -228,7 +227,7 @@ fun NotificationsScreen(
 
                                 if (index < uiState.earlierNotifications.lastIndex) {
                                     HorizontalDivider(
-                                        modifier = Modifier.padding(horizontal = 12.dp),
+                                        modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(12.dp)),
                                         color = SquadGrayLight
                                     )
                                 }
@@ -253,7 +252,7 @@ private fun NotificationSectionHeader(
             text = title,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         if (badgeText != null) {
@@ -283,7 +282,7 @@ private fun NotificationCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        color = SquadSurface,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, SquadOrange.copy(alpha = 0.35f)),
         shadowElevation = 1.dp
@@ -308,14 +307,14 @@ private fun NotificationCard(
                             text = notification.title,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SquadTextPrimary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
 
                         Text(
                             text = notification.timeLabel,
                             fontSize = 10.sp,
-                            color = SquadTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         
                         Spacer(modifier = Modifier.width(8.dp))
@@ -327,7 +326,7 @@ private fun NotificationCard(
                             Icon(
                                 imageVector = Icons.Outlined.Delete,
                                 contentDescription = "Eliminar",
-                                tint = SquadTextSecondary,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -339,7 +338,7 @@ private fun NotificationCard(
                         text = notification.description,
                         fontSize = 12.sp,
                         lineHeight = 17.sp,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -382,9 +381,9 @@ private fun NotificationCard(
                             onClick = { onRespond(notification, false) },
                             modifier = Modifier.height(38.dp),
                             shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(1.dp, SquadTextSecondary.copy(alpha = 0.45f)),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = SquadTextPrimary
+                                contentColor = MaterialTheme.colorScheme.onSurface
                             )
                         ) {
                             Text(
@@ -481,14 +480,14 @@ private fun CompactNotificationRow(
                     text = notification.title,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
 
                 Text(
                     text = notification.timeLabel,
                     fontSize = 9.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -500,7 +499,7 @@ private fun CompactNotificationRow(
                     Icon(
                         imageVector = Icons.Outlined.Delete,
                         contentDescription = "Eliminar",
-                        tint = SquadTextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(14.dp)
                     )
                 }
@@ -512,7 +511,7 @@ private fun CompactNotificationRow(
                 text = notification.description,
                 fontSize = 11.sp,
                 lineHeight = 16.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -542,7 +541,7 @@ private fun NotificationIcon(
         NotificationType.UPDATE -> {
             icon = Icons.Outlined.Update
             backgroundColor = Color(0xFFECECEC)
-            iconColor = SquadTextSecondary
+            iconColor = MaterialTheme.colorScheme.onSurfaceVariant
         }
 
         NotificationType.TEAM -> {

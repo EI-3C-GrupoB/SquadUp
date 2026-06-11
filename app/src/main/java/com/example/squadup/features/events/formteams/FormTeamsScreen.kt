@@ -1,5 +1,7 @@
 package com.example.squadup.features.events.formteams
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.*
 import com.example.squadup.core.utils.AppLanguage
 
@@ -46,24 +49,24 @@ fun FormTeamsScreen(
     if (playerToAssign != null) {
         ModalBottomSheet(
             onDismissRequest = { onSelectPlayerForAssign(null) },
-            containerColor = SquadBackground
+            containerColor = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = responsiveHorizontalPadding(20.dp))
                     .padding(bottom = 28.dp)
             ) {
                 Text(
                     "Atribuir a equipa",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     playerToAssign.name,
                     fontSize = 14.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(16.dp))
                 uiState.teams.forEachIndexed { index, team ->
@@ -72,7 +75,7 @@ fun FormTeamsScreen(
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                             .clickable { onAssignPlayerToTeam(index) },
-                        color = SquadSurface,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(12.dp),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0E1DC))
                     ) {
@@ -95,8 +98,8 @@ fun FormTeamsScreen(
                             }
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(team.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
-                                Text("${team.players.size}/${team.capacity} jogadores", fontSize = 12.sp, color = SquadTextSecondary)
+                                Text(team.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                                Text("${team.players.size}/${team.capacity} jogadores", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Icon(Icons.Outlined.ChevronRight, null, tint = SquadOrange, modifier = Modifier.size(20.dp))
                         }
@@ -104,7 +107,7 @@ fun FormTeamsScreen(
                 }
                 Spacer(Modifier.height(8.dp))
                 TextButton(onClick = { onSelectPlayerForAssign(null) }, modifier = Modifier.fillMaxWidth()) {
-                    Text("Cancelar", color = SquadTextSecondary, fontWeight = FontWeight.SemiBold)
+                    Text("Cancelar", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -128,21 +131,21 @@ fun FormTeamsScreen(
     ) { innerPadding ->
         when {
             uiState.isLoading -> Box(
-                Modifier.fillMaxSize().background(SquadBackground).padding(innerPadding),
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) { CircularProgressIndicator(color = SquadOrange) }
 
             uiState.errorMessage != null -> Box(
-                Modifier.fillMaxSize().background(SquadBackground).padding(innerPadding).padding(20.dp),
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(innerPadding).padding(20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(uiState.errorMessage, color = SquadTextSecondary, fontSize = 14.sp)
+                Text(uiState.errorMessage, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
             }
 
             else -> Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SquadBackground)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 20.dp, vertical = 16.dp)
@@ -156,8 +159,8 @@ fun FormTeamsScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SquadOrange,
                         contentColor = Color.White,
-                        disabledContainerColor = SquadSurface,
-                        disabledContentColor = SquadTextSecondary
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 ) {
                     if (uiState.isSaving) {
@@ -176,7 +179,7 @@ fun FormTeamsScreen(
                 // Registration overview card
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = SquadSurface,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(12.dp),
                     shadowElevation = 1.dp,
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0E1DC))
@@ -186,7 +189,7 @@ fun FormTeamsScreen(
                             "VISÃO GERAL",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             letterSpacing = 0.8.sp
                         )
                         Spacer(Modifier.height(8.dp))
@@ -199,9 +202,9 @@ fun FormTeamsScreen(
                                     uiState.totalAthletes.toString(),
                                     fontSize = 32.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = SquadTextPrimary
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
-                                Text("Atletas totais", fontSize = 13.sp, color = SquadTextSecondary)
+                                Text("Atletas totais", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Surface(
                                 color = Color(0xFFFFF3E0),
@@ -228,7 +231,7 @@ fun FormTeamsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("Jogadores não atribuídos", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                        Text("Jogadores não atribuídos", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         if (uiState.unassignedPlayers.isNotEmpty()) {
                             Text(
                                 "${uiState.unassignedPlayers.size} restantes",
@@ -290,12 +293,12 @@ fun FormTeamsScreen(
                                 "Aguarda Pagamento",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = SquadTextPrimary
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 "${uiState.awaitingPaymentPlayers.size} jogadores",
                                 fontSize = 12.sp,
-                                color = SquadTextSecondary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = FontWeight.Normal
                             )
                         }
@@ -332,7 +335,7 @@ fun FormTeamsScreen(
                                     Text(
                                         text = player.name,
                                         fontSize = 13.sp,
-                                        color = SquadTextSecondary,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontWeight = FontWeight.Medium
                                     )
                                     Spacer(Modifier.weight(1f))
@@ -362,7 +365,7 @@ fun FormTeamsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Equipas activas", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = SquadTextPrimary)
+                    Text("Equipas activas", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     TextButton(onClick = onAddTeam) {
                         Icon(Icons.Outlined.Add, null, tint = SquadOrange, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(4.dp))
@@ -397,7 +400,7 @@ fun FormTeamsScreen(
                         Text(
                             "Toca num jogador para o atribuir a uma equipa. Usa o botão Aleatório para distribuição automática equilibrada.",
                             fontSize = 12.sp,
-                            color = SquadTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 17.sp
                         )
                     }
@@ -416,7 +419,7 @@ private fun PlayerChip(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp,
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0E1DC))
@@ -433,7 +436,7 @@ private fun PlayerChip(
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(player.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = SquadTextPrimary)
+                Text(player.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     repeat(3) { i ->
                         Box(
@@ -450,7 +453,7 @@ private fun PlayerChip(
                     Text(
                         when (player.experienceLevel) { 1 -> "Iniciante"; 2 -> "Intermédio"; else -> "Avançado" },
                         fontSize = 11.sp,
-                        color = SquadTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -468,7 +471,7 @@ private fun TeamCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {
@@ -506,7 +509,7 @@ private fun TeamCard(
                         modifier = Modifier.fillMaxWidth().height(44.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Sem jogadores atribuídos", fontSize = 13.sp, color = SquadTextSecondary)
+                        Text("Sem jogadores atribuídos", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     team.players.forEach { player ->
@@ -525,12 +528,12 @@ private fun TeamCard(
                                 Text(player.initials, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
                             }
                             Spacer(Modifier.width(10.dp))
-                            Text(player.name, fontSize = 13.sp, color = SquadTextPrimary, modifier = Modifier.weight(1f))
+                            Text(player.name, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
                             IconButton(
                                 onClick = { onUnassignPlayer(player) },
                                 modifier = Modifier.size(24.dp)
                             ) {
-                                Icon(Icons.Outlined.Remove, null, tint = SquadTextSecondary, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Outlined.Remove, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                             }
                         }
                     }

@@ -1,5 +1,7 @@
 package com.example.squadup.features.auth.register
 
+import androidx.compose.material3.MaterialTheme
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -53,15 +55,15 @@ import com.example.squadup.core.ui.components.DateTimePickerMode
 import com.example.squadup.core.ui.components.LocationPickerDialog
 import com.example.squadup.core.ui.components.PrimaryButton
 import com.example.squadup.core.ui.components.ProfileDropdownField
+import com.example.squadup.core.ui.components.responsiveContentWidth
+import com.example.squadup.core.ui.components.responsiveHorizontalPadding
+import com.example.squadup.core.ui.components.responsiveVerticalSpacing
 import com.example.squadup.core.ui.components.SelectedLocation
 import com.example.squadup.core.ui.components.SquadDateTimePickerField
-import com.example.squadup.core.ui.theme.SquadBackground
 import com.example.squadup.core.ui.theme.SquadError
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
-import com.example.squadup.core.ui.theme.SquadTextPrimary
-import com.example.squadup.core.ui.theme.SquadTextSecondary
 import com.example.squadup.core.ui.theme.SquadWhite
 import kotlin.math.roundToInt
 
@@ -84,6 +86,8 @@ fun RegisterScreen(
     onLoginClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val cardTopSpacing = responsiveVerticalSpacing(30.dp)
+
     val accountTypeOptions = listOf(
         UserRole.PLAYER to stringResource(R.string.register_user_type_player),
         UserRole.ORGANIZER to stringResource(R.string.register_user_type_organizer),
@@ -95,8 +99,9 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SquadBackground)
-            .navigationBarsPadding()
+            .background(MaterialTheme.colorScheme.background)
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppHeader(
             showLogo = true,
@@ -129,16 +134,17 @@ fun RegisterScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .responsiveContentWidth(760.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(cardTopSpacing))
 
-            AuthCard(modifier = Modifier.padding(horizontal = 20.dp)) {
+            AuthCard(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))) {
                 Text(
                     text = stringResource(R.string.register_title),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SquadTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -147,7 +153,7 @@ fun RegisterScreen(
                     text = stringResource(R.string.register_subtitle),
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
-                    color = SquadTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -215,7 +221,7 @@ fun RegisterScreen(
                             .firstOrNull { it.second == selected }
                             ?.let { onAccountTypeChange(it.first) }
                     },
-                    labelColor = SquadTextPrimary
+                    labelColor = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -255,7 +261,7 @@ fun RegisterScreen(
                         text = stringResource(R.string.register_sports_interests),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SquadTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -328,7 +334,7 @@ private fun LocationField(
             text = stringResource(R.string.register_location_label),
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = SquadTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 4.dp)
         )
 
@@ -347,13 +353,13 @@ private fun LocationField(
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = address ?: stringResource(R.string.register_location_placeholder),
-                    color = if (address != null) SquadTextPrimary else SquadTextSecondary,
+                    color = if (address != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 15.sp,
                     modifier = Modifier.weight(1f),
                     maxLines = 1
@@ -361,7 +367,7 @@ private fun LocationField(
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                     contentDescription = null,
-                    tint = SquadTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -387,7 +393,7 @@ private fun PlayStyleSlider(
                 text = stringResource(R.string.register_play_style_label),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = label,
@@ -421,12 +427,12 @@ private fun PlayStyleSlider(
             Text(
                 text = stringResource(PlayStyle.LOW.labelRes),
                 fontSize = 12.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = stringResource(PlayStyle.HIGH.labelRes),
                 fontSize = 12.sp,
-                color = SquadTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -451,7 +457,7 @@ private fun NotificationRadiusSlider(
                 text = stringResource(R.string.register_notification_radius_label),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = SquadTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "$radius $unit",
@@ -479,8 +485,8 @@ private fun NotificationRadiusSlider(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "5 $unit", fontSize = 12.sp, color = SquadTextSecondary)
-            Text(text = "100 $unit", fontSize = 12.sp, color = SquadTextSecondary)
+            Text(text = "5 $unit", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = "100 $unit", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
