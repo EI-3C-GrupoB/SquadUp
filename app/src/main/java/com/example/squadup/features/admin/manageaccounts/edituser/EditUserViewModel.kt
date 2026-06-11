@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class EditUserViewModel(
-    savedStateHandle: SavedStateHandle,
-    private val repository: EditUserRepository = EditUserRepository()
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val repository = EditUserRepository()
 
     private val userId: Int? = savedStateHandle
         .get<String>("userId")

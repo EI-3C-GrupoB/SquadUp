@@ -6,6 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -24,16 +25,26 @@ class ManageAccountsViewModel : ViewModel() {
     private fun startObservingUsers() {
         usersJob?.cancel()
         usersJob = viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            repository.getUsersRealtime().collect { users ->
-                _uiState.update { 
-                    it.copy(
-                        users = users, 
-                        totalUsers = users.size,
-                        isLoading = false 
-                    ) 
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            repository.getUsersRealtime()
+                .catch { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = exception.message ?: "Erro ao carregar utilizadores"
+                        )
+                    }
                 }
-            }
+                .collect { users ->
+                    _uiState.update {
+                        it.copy(
+                            users = users,
+                            totalUsers = users.size,
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    }
+                }
         }
     }
 

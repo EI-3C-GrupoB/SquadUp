@@ -12,7 +12,8 @@ data class ManageAccountsUiState(
     val pendingRoleFilters: Set<AccountRole> = emptySet(),
     val showFilterDialog: Boolean = false,
     val currentSortOrder: SortOrder = SortOrder.RoleAZ,
-    val totalUsers: Int = 0
+    val totalUsers: Int = 0,
+    val errorMessage: String? = null
 ) {
     val filteredUsers: List<ManageAccountItem>
         get() {
@@ -38,5 +39,6 @@ data class ManageAccountItem(
     val initials: String,
     val name: String,
     val email: String,
-    val role: AccountRole
+    val role: AccountRole,
+    val isSuspended: Boolean = false
 )
