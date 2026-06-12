@@ -469,7 +469,6 @@
     <string name="myEvents_teams_label">TEAMS</string>
     <string name="myEvents_date_label">DATE</string>
     <string name="myEvents_venue_label">VENUE</string>
-    <string name="myEvents_manage">Manage →</string>
     <string name="myEvents_live">Live →</string>
     <string name="myEvents_view_results">View Results</string>
     <string name="myEvents_matches_in_progress">%1$d matches in progress</string>

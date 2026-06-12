@@ -45,7 +45,8 @@ class ProfileRepository(
             }
 
             val stats = try { getPlayerStats(user.id) } catch (e: Exception) { null }
-            
+            val teamStats = getPlayerTeamStats(user.id)
+
             Result.success(
                 ProfileData(
                     id = user.id,
@@ -55,9 +56,10 @@ class ProfileRepository(
                     role = UserRole.fromInt(user.accountType),
                     playStyle = user.playStyle,
                     photoUrl = user.photoUrl,
-                    matchesPlayed = stats?.totalMatches ?: 0,
+                    matchesPlayed = teamStats.matchesPlayed,
+                    wins = teamStats.wins,
                     goals = stats?.totalGoals ?: 0,
-                    teams = stats?.totalTeams ?: 0
+                    teams = teamStats.teams
                 )
             )
         } catch (exception: Exception) {
@@ -117,4 +119,52 @@ class ProfileRepository(
         }.getOrNull()
     }
 
+    private suspend fun getPlayerTeamStats(userId: Int): PlayerTeamStats {
+        return runCatching {
+            val registeredTeamIds = supabaseClient
+                .from("inscricao")
+                .select {
+                    filter {
+                        eq("user_id", userId)
+                    }
+                }
+                .decodeList<ProfileRegistrationRow>()
+                .mapNotNull { it.teamId }
+
+            val ownedTeamIds = supabaseClient
+                .from("equipa")
+                .select {
+                    filter {
+                        eq("user_id", userId)
+                    }
+                }
+                .decodeList<ProfileTeamRow>()
+                .map { it.id }
+
+            val teamIds = (registeredTeamIds + ownedTeamIds).toSet()
+
+            val gameTeams = if (teamIds.isEmpty()) {
+                emptyList()
+            } else {
+                supabaseClient
+                    .from("jogo_equipa")
+                    .select()
+                    .decodeList<ProfileGameTeamRow>()
+                    .filter { it.teamId in teamIds }
+            }
+
+            PlayerTeamStats(
+                teams = teamIds.size,
+                matchesPlayed = gameTeams.mapNotNull { it.gameId }.distinct().size,
+                wins = gameTeams.count { it.isWinner == true }
+            )
+        }.getOrElse { PlayerTeamStats(teams = 0, matchesPlayed = 0, wins = 0) }
+    }
+
 }
+
+private data class PlayerTeamStats(
+    val teams: Int,
+    val matchesPlayed: Int,
+    val wins: Int
+)

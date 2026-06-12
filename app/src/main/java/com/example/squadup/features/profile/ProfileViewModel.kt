@@ -34,7 +34,7 @@ class ProfileViewModel : ViewModel() {
                         displayName = profile.displayName,
                         photoUrl = profile.photoUrl,
                         matchesPlayed = profile.matchesPlayed,
-                        wins = 0,
+                        wins = profile.wins,
                         goals = profile.goals,
                         teams = profile.teams,
                         playStyle = resolvePlayStyle(profile.playStyle),

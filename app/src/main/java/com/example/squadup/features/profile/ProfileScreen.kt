@@ -194,7 +194,7 @@ fun ProfileScreen(
                 )
                 ProfileStatCard(
                     icon = Icons.Outlined.EmojiEvents,
-                    value = uiState.wins.toString().padStart(2, '0'),
+                    value = uiState.wins.toString(),
                     label = stringResource(R.string.profile_stat_wins),
                     modifier = Modifier.weight(1f)
                 )

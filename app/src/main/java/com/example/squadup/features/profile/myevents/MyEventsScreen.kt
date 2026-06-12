@@ -9,7 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.BroadcastOnHome
 import androidx.compose.material.icons.outlined.Search
@@ -21,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
@@ -214,6 +214,7 @@ private fun MyEventActiveCard(
     val context = LocalContext.current
 
     Surface(
+        onClick = onManageClick,
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
@@ -272,7 +273,7 @@ private fun MyEventActiveCard(
                 // Info row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     InfoColumn(
                         label = stringResource(R.string.myEvents_teams_label),
@@ -284,7 +285,9 @@ private fun MyEventActiveCard(
                     )
                     InfoColumn(
                         label = stringResource(R.string.myEvents_venue_label),
-                        value = event.location
+                        value = event.location,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 2
                     )
                 }
 
@@ -348,25 +351,6 @@ private fun MyEventActiveCard(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable(onClick = onManageClick)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.myEvents_manage),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = SquadOrange
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                                contentDescription = null,
-                                tint = SquadOrange,
-                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
@@ -473,8 +457,13 @@ private fun MyEventCompletedCard(
 }
 
 @Composable
-private fun InfoColumn(label: String, value: String) {
-    Column {
+private fun InfoColumn(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Column(modifier = modifier) {
         Text(
             text = label.uppercase(),
             fontSize = 11.sp,
@@ -487,7 +476,9 @@ private fun InfoColumn(label: String, value: String) {
             text = value,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

@@ -16,6 +16,7 @@ data class ProfileData(
     val playStyle: Int?,
     val photoUrl: String? = null,
     val matchesPlayed: Int,
+    val wins: Int,
     val goals: Int,
     val teams: Int
 )
@@ -44,5 +45,28 @@ data class PlayerStatsRow(
     val totalGoals: Int? = 0,
     @SerialName("total_equipas")
     val totalTeams: Int? = 0
+)
+
+@Serializable
+data class ProfileRegistrationRow(
+    @SerialName("equipa_id")
+    val teamId: Int? = null
+)
+
+@Serializable
+data class ProfileTeamRow(
+    val id: Int,
+    @SerialName("user_id")
+    val ownerId: Int? = null
+)
+
+@Serializable
+data class ProfileGameTeamRow(
+    @SerialName("equipa_id")
+    val teamId: Int? = null,
+    @SerialName("jogo_id")
+    val gameId: Int? = null,
+    @SerialName("is_vencedor")
+    val isWinner: Boolean? = null
 )
 

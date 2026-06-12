@@ -444,7 +444,6 @@
     <string name="myEvents_teams_label">EQUIPAS</string>
     <string name="myEvents_date_label">DATA</string>
     <string name="myEvents_venue_label">LOCAL</string>
-    <string name="myEvents_manage">Gerir →</string>
     <string name="myEvents_live">Ao Vivo →</string>
     <string name="myEvents_view_results">Ver Resultados</string>
     <string name="myEvents_matches_in_progress">%1$d jogos em curso</string>

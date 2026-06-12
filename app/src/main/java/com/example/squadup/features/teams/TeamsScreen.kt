@@ -348,7 +348,7 @@ private fun CreateTeamButton(
 ) {
     Surface(
         modifier = modifier
-            .height(48.dp)
+            .height(40.dp)
             .clickable(onClick = onClick),
         color = SquadOrange,
         shape = RoundedCornerShape(12.dp),
