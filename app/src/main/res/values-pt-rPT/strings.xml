@@ -165,16 +165,12 @@
     <string name="home_subtitle_guest">Encontra eventos desportivos perto de ti.</string>
     <string name="home_my_events">Os Meus Eventos</string>
     <string name="home_nearby_events">Eventos Próximos</string>
-    <string name="home_my_teams">As Minhas Equipas</string>
     <string name="home_see_all">Ver todos</string>
 
     <!-- NearbyEventCard Component -->
     <string name="nearbyEventCard_status_live">AO VIVO</string>
     <string name="nearbyEventCard_label_intensity">INTENSIDADE</string>
     <string name="nearbyEventCard_action_join">Juntar</string>
-
-    <!-- TeamListItem  Component -->
-    <string name="team_members">Membros</string>
 
     <!-- CurrentMatchCard  Component -->
     <string name="currentMatchCard_label">JOGO ATUAL</string>

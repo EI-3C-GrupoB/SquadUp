@@ -82,3 +82,29 @@ data class HomeGameTeamRow(
     @SerialName("jogo_id")
     val gameId: Int
 )
+
+@Serializable
+data class HomeUserPhotoRow(
+    val id: Int,
+    @SerialName("foto_url")
+    val photoUrl: String? = null
+)
+
+@Serializable
+data class HomeNearbyEventRow(
+    val id: Int,
+    @SerialName("titulo")
+    val title: String,
+    @SerialName("morada")
+    val address: String? = null,
+    @SerialName("data_inicio")
+    val startDate: String? = null,
+    @SerialName("estado_evento")
+    val status: String? = null,
+    @SerialName("modalidade_nome")
+    val modalityName: String? = null,
+    @SerialName("distancia_km")
+    val distanceKm: Double? = null,
+    @SerialName("criador_id")
+    val creatorId: Int? = null
+)

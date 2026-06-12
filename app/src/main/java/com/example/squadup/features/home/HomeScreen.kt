@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Groups
+import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -122,12 +123,14 @@ fun HomeScreen(
                     StatsCard(
                         label = stringResource(R.string.statsCard_events_created),
                         value = uiState.eventsCreated.toString(),
+                        icon = Icons.Outlined.CalendarMonth,
                         modifier = Modifier.weight(1f)
                     )
 
                     StatsCard(
                         label = stringResource(R.string.statsCard_active_teams),
                         value = uiState.activeTeams.toString(),
+                        icon = Icons.Outlined.Groups,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -138,6 +141,7 @@ fun HomeScreen(
                     label = stringResource(R.string.statsCard_total_revenue),
                     value = "$${uiState.totalRevenue}",
                     style = StatsCardStyle.HIGHLIGHT,
+                    icon = Icons.Outlined.Payments,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -192,101 +196,76 @@ fun HomeScreen(
                         onActionClick = onSeeAllEventsClick
                     )
                 } else {
-                    uiState.myEvents.forEach { event ->
-                        OrganizerEventCard(
-                            title = event.title,
-                            price = event.price,
-                            nTeams = event.nTeams,
-                            dateLeft = event.dateLeft,
-                            registeredCount = event.registeredCount,
-                            status = event.status,
-                            sportType = event.sportType,
-                            modifier = Modifier.clickable {
-                                onEventDetailsClick(event.id)
-                            }
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        uiState.myEvents.forEach { event ->
+                            OrganizerEventCard(
+                                title = event.title,
+                                price = event.price,
+                                nTeams = event.nTeams,
+                                dateLeft = event.dateLeft,
+                                registeredCount = event.registeredCount,
+                                registeredAvatars = event.registeredAvatars,
+                                status = event.status,
+                                sportType = event.sportType,
+                                modifier = Modifier
+                                    .width(280.dp)
+                                    .clickable { onEventDetailsClick(event.id) }
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(28.dp))
             }
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = stringResource(R.string.home_nearby_events),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
+            // Nearby events: só para jogadores/organizadores_jogadores (organizador puro não vê)
+            if (!uiState.isOrganizer || uiState.isPlayer) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = stringResource(R.string.home_nearby_events),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                Text(
-                    text = stringResource(R.string.home_see_all),
-                    fontSize = 14.sp,
-                    color = SquadOrange,
-                    modifier = Modifier.clickable(onClick = onSeeAllEventsClick)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            if (uiState.nearbyEvents.isEmpty()) {
-                EmptyStateCard(
-                    title = "Sem eventos próximos",
-                    message = "Ainda não existem eventos próximos disponíveis.",
-                    icon = Icons.Outlined.CalendarMonth
-                )
-            } else {
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    uiState.nearbyEvents.forEach { event ->
-                        NearbyEventCard(
-                            title = event.title,
-                            location = event.location,
-                            distance = event.distance,
-                            intensity = event.intensity,
-                            sportType = event.sportType,
-                            status = event.status,
-                            onJoinClick = {
-                                onJoinEventClick(event.id)
-                            }
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.home_see_all),
+                        fontSize = 14.sp,
+                        color = SquadOrange,
+                        modifier = Modifier.clickable(onClick = onSeeAllEventsClick)
+                    )
                 }
-            }
-
-            if (uiState.isPlayer) {
-                Spacer(modifier = Modifier.height(28.dp))
-
-                Text(
-                    text = stringResource(R.string.home_my_teams),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                if (uiState.teams.isEmpty()) {
+                if (uiState.nearbyEvents.isEmpty()) {
                     EmptyStateCard(
-                        title = "Sem equipas",
-                        message = "Ainda não tens equipas associadas à tua conta.",
-                        icon = Icons.Outlined.Groups
+                        title = "Sem eventos próximos",
+                        message = "Ainda não existem eventos próximos disponíveis.",
+                        icon = Icons.Outlined.CalendarMonth
                     )
                 } else {
-                    uiState.teams.forEach { team ->
-                        TeamListItem(
-                            name = team.name,
-                            nMembers = team.nMembers,
-                            sportType = team.sportType,
-                            badge = team.badge
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        uiState.nearbyEvents.forEach { event ->
+                            NearbyEventCard(
+                                title = event.title,
+                                location = event.location,
+                                distance = event.distance,
+                                intensity = event.intensity,
+                                sportType = event.sportType,
+                                status = event.status,
+                                onJoinClick = {
+                                    onJoinEventClick(event.id)
+                                }
+                            )
+                        }
                     }
                 }
             }

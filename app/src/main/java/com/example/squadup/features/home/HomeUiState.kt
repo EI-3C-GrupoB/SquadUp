@@ -19,9 +19,6 @@ data class HomeUiState(
     val activeTeams: Int = 0,
     val totalRevenue: Double = 0.0,
     val myEvents: List<HomeOrganizerEvent> = emptyList(),
-
-    // --- PLAYER ---
-    val teams: List<HomeTeam> = emptyList(),
 ) {
     val isOrganizer get() = role == UserRole.ORGANIZER || role == UserRole.PLAYER_ORGANIZER
     val isPlayer get() = role == UserRole.PLAYER || role == UserRole.PLAYER_ORGANIZER
@@ -53,14 +50,7 @@ data class HomeOrganizerEvent(
     val nTeams: Int,
     val dateLeft: String,
     val registeredCount: Int,
+    val registeredAvatars: List<String?> = emptyList(),
     val status: EventStatus,
     val sportType: SportType
-)
-
-data class HomeTeam(
-    val id: String,
-    val name: String,
-    val nMembers: Int,
-    val sportType: SportType,
-    val badge: String?
 )

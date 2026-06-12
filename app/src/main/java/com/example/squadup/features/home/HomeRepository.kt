@@ -7,6 +7,9 @@ import com.example.squadup.core.enums.UserRole
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -58,6 +61,11 @@ class HomeRepository(
             val allTeams = runCatching {
                 supabaseClient.from("equipa").select().decodeList<HomeTeamRow>()
             }.getOrElse { emptyList() }
+            val userPhotos = runCatching {
+                supabaseClient.from("utilizador")
+                    .select(io.github.jan.supabase.postgrest.query.Columns.raw("id, foto_url"))
+                    .decodeList<HomeUserPhotoRow>()
+            }.getOrElse { emptyList() }.associate { it.id to it.photoUrl }
 
             val games = runCatching {
                 supabaseClient.from("jogo").select {
@@ -77,17 +85,40 @@ class HomeRepository(
             val ownedTeams = allTeams.filter { it.ownerId == userId }
             val allRelevantTeamIds = userTeamIds + ownedTeams.map { it.id }
 
+            // Nearby events: só para jogadores/organizadores_jogadores, ordenados por
+            // distância/data (via RPC com base na localização do perfil), excluindo
+            // eventos do próprio utilizador, max 8
+            val isPlayerRole = role == UserRole.PLAYER || role == UserRole.PLAYER_ORGANIZER
+            val nearbyEvents = if (userId != null && isPlayerRole) {
+                runCatching {
+                    supabaseClient.postgrest.rpc(
+                        function = "get_nearby_events",
+                        parameters = buildJsonObject { put("p_user_id", userId) }
+                    ).decodeList<HomeNearbyEventRow>()
+                }.getOrElse { emptyList() }
+                    .filter { it.status != "cancelado" && it.creatorId != userId }
+                    .sortedWith(
+                        compareBy<HomeNearbyEventRow> { it.distanceKm ?: Double.MAX_VALUE }
+                            .thenBy { it.startDate.orEmpty() }
+                    )
+                    .take(8)
+                    .map { it.toHomeEvent() }
+            } else {
+                events
+                    .filter { it.status != "cancelado" }
+                    .filter { userId == null || it.creatorId != userId }
+                    .sortedBy { it.startDate.orEmpty() }
+                    .take(8)
+                    .map { it.toHomeEvent(modalities) }
+            }
+
             Result.success(
                 HomeUiState(
                     isLoggedIn = isLoggedIn,
                     displayName = displayName,
                     role = role,
                     currentMatch = buildCurrentMatch(games, events, ownedTeams, gameTeams, modalities, userId),
-                    nearbyEvents = events
-                        .filter { it.status != "cancelado" }
-                        .sortedBy { it.startDate.orEmpty() }
-                        .take(5)
-                        .map { it.toHomeEvent(modalities) },
+                    nearbyEvents = nearbyEvents,
                     eventsCreated = userId?.let { id -> events.count { it.creatorId == id } } ?: 0,
                     activeTeams = allRelevantTeamIds.size,
                     totalRevenue = userId?.let { id ->
@@ -98,24 +129,17 @@ class HomeRepository(
                         }
                     } ?: 0.0,
                     myEvents = userId?.let { id ->
-                        events.filter { it.creatorId == id }.map { event ->
-                            event.toOrganizerEvent(
-                                registrations = allRegistrations.filter { it.eventId == event.id },
-                                modalities = modalities
-                            )
-                        }
-                    }.orEmpty(),
-                    teams = allTeams
-                        .filter { it.id in allRelevantTeamIds }
-                        .map { team ->
-                            HomeTeam(
-                                id = team.id.toString(),
-                                name = team.name,
-                                nMembers = allRegistrations.count { it.teamId == team.id },
-                                sportType = SportType.SOCCER,
-                                badge = if (ownedTeams.any { it.id == team.id }) "LEADER" else null
-                            )
-                        }
+                        events.filter { it.creatorId == id }
+                            .sortedBy { it.startDate.orEmpty() }
+                            .take(8)
+                            .map { event ->
+                                event.toOrganizerEvent(
+                                    registrations = allRegistrations.filter { it.eventId == event.id },
+                                    modalities = modalities,
+                                    userPhotos = userPhotos
+                                )
+                            }
+                    }.orEmpty()
                 )
             )
         } catch (exception: Exception) {
@@ -126,7 +150,7 @@ class HomeRepository(
     private suspend fun getUserRole(userId: Int): UserRole {
         val user = supabaseClient
             .from("utilizador")
-            .select(io.github.jan.supabase.postgrest.query.Columns.raw("tipo_conta")) {
+            .select(io.github.jan.supabase.postgrest.query.Columns.raw("id, tipo_conta")) {
                 filter { eq("id", userId) }
             }
             .decodeSingle<HomeUserRow>()
@@ -176,9 +200,31 @@ class HomeRepository(
         )
     }
 
+    private fun HomeNearbyEventRow.toHomeEvent(): HomeEvent {
+        return HomeEvent(
+            id = id.toString(),
+            title = title,
+            location = address.orEmpty(),
+            distance = distanceKm.toDistanceLabel(),
+            intensity = 0f,
+            sportType = sportTypeFrom(modalityName),
+            status = status.toEventStatus()
+        )
+    }
+
+    private fun Double?.toDistanceLabel(): String {
+        val distance = this ?: return ""
+        return when {
+            distance < 1.0 -> "${(distance * 1000).toInt()} m"
+            distance < 10.0 -> "%.1f km".format(Locale.US, distance)
+            else -> "${distance.toInt()} km"
+        }
+    }
+
     private fun HomeEventRow.toOrganizerEvent(
         registrations: List<HomeRegistrationRow>,
-        modalities: Map<Int, HomeModalityRow>
+        modalities: Map<Int, HomeModalityRow>,
+        userPhotos: Map<Int, String?>
     ): HomeOrganizerEvent {
         return HomeOrganizerEvent(
             id = id.toString(),
@@ -187,6 +233,7 @@ class HomeRepository(
             nTeams = registrations.mapNotNull { it.teamId }.distinct().size,
             dateLeft = startDate.toShortDateTime(),
             registeredCount = registrations.size,
+            registeredAvatars = registrations.take(3).mapNotNull { it.userId }.map { userPhotos[it] },
             status = status.toEventStatus(),
             sportType = sportTypeFrom(modalityId?.let { modalities[it]?.name })
         )

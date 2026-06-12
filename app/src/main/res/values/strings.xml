@@ -166,16 +166,12 @@
     <string name="home_subtitle_guest">Find local sports events and squads near you.</string>
     <string name="home_my_events">My Events</string>
     <string name="home_nearby_events">Nearby Events</string>
-    <string name="home_my_teams">My Teams</string>
     <string name="home_see_all">See all</string>
 
     <!-- NearbyEventCard  Component -->
     <string name="nearbyEventCard_status_live">LIVE</string>
     <string name="nearbyEventCard_label_intensity">INTENSITY</string>
     <string name="nearbyEventCard_action_join">Join</string>
-
-    <!-- TeamListItem  Component -->
-    <string name="team_members">Members</string>
 
     <!-- CurrentMatchCard  Component -->
     <string name="currentMatchCard_label">CURRENT MATCH</string>

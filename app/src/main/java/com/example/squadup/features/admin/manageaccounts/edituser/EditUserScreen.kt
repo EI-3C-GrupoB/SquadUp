@@ -272,10 +272,10 @@ fun EditUserScreen(
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(
                     1.5.dp,
-                    if (uiState.isSuspended) Color(0xFF2E7D32) else Color(0xFFE65100)
+                    if (uiState.isSuspended) Color(0xFF2E7D32) else SquadOrange
                 ),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = if (uiState.isSuspended) Color(0xFF2E7D32) else Color(0xFFE65100)
+                    contentColor = if (uiState.isSuspended) Color(0xFF2E7D32) else SquadOrange
                 )
             ) {
                 Text(
@@ -296,8 +296,8 @@ fun EditUserScreen(
                 enabled = !uiState.isSaving && !uiState.isDeleting,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(1.5.dp, SquadError),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = SquadError)
+                border = BorderStroke(1.5.dp, SquadOrange),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = SquadOrange)
             ) {
                 Text(
                     text = stringResource(R.string.editUser_delete),
