@@ -39,6 +39,7 @@ class TeamsViewModel : ViewModel() {
                         null
                     },
                     pendingJoinRequests = teams.pendingJoinRequests + currentState.pendingJoinRequests,
+                    teamDetailTabs = currentState.teamDetailTabs,
                     showJoinByCodeDialog = currentState.showJoinByCodeDialog,
                     joinByCodeValue = currentState.joinByCodeValue,
                     joinByCodeError = currentState.joinByCodeError,
@@ -54,6 +55,12 @@ class TeamsViewModel : ViewModel() {
             searchQuery = "",
             expandedTeamId = null,
             settingsTeamId = null
+        )
+    }
+
+    fun onTeamDetailTabChange(teamId: String, tab: TeamDetailTab) {
+        _uiState.value = _uiState.value.copy(
+            teamDetailTabs = _uiState.value.teamDetailTabs + (teamId to tab)
         )
     }
 

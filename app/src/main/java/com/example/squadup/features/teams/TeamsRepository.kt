@@ -6,6 +6,9 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.realtime.PostgresAction
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
 import kotlinx.coroutines.flow.Flow
@@ -105,6 +108,41 @@ class TeamsRepository(
             }
             .decodeList<TeamsInviteRow>()
 
+        val games = runCatching {
+            supabaseClient.from("jogo").select().decodeList<TeamsGameRow>()
+        }.getOrElse { emptyList() }
+
+        val gameTeamLinks = runCatching {
+            supabaseClient.from("jogo_equipa").select().decodeList<TeamsGameTeamRow>()
+        }.getOrElse { emptyList() }
+
+        val eventsById = runCatching {
+            supabaseClient.from("evento").select().decodeList<TeamsEventRow>()
+        }.getOrElse { emptyList() }.associateBy { it.id }
+
+        val teamsById = teams.associateBy { it.id }
+
+        val upcomingMatchesByTeamId = mutableMapOf<Int, MutableList<TeamUpcomingMatch>>()
+        games.filter { it.status != "cancelado" }.forEach { game ->
+            val teamsInGame = gameTeamLinks.filter { it.gameId == game.id }
+            val eventName = game.eventId?.let { eventsById[it]?.title }.orEmpty()
+            teamsInGame.forEach { gameTeam ->
+                val opponentName = teamsInGame
+                    .filter { it.teamId != gameTeam.teamId }
+                    .mapNotNull { teamsById[it.teamId]?.name }
+                    .joinToString(" vs ")
+                    .ifBlank { "TBD" }
+                val match = TeamUpcomingMatch(
+                    id = game.id.toString(),
+                    eventName = eventName,
+                    date = game.scheduledAt.toShortDateTime(),
+                    location = game.address.orEmpty(),
+                    opponentName = opponentName
+                )
+                upcomingMatchesByTeamId.getOrPut(gameTeam.teamId) { mutableListOf() }.add(match)
+            }
+        }
+
         val myTeamIds = teamMemberRegistrations
             .filter { registration ->
                 registration.userId == currentUser.id &&
@@ -130,7 +168,8 @@ class TeamsRepository(
                     team.toTeamListItem(
                         registrations = teamMemberRegistrations,
                         users = users,
-                        currentUserId = currentUser.id
+                        currentUserId = currentUser.id,
+                        upcomingMatches = upcomingMatchesByTeamId[team.id] ?: emptyList()
                     )
                 },
             discoverTeams = teams
@@ -142,7 +181,8 @@ class TeamsRepository(
                     team.toTeamListItem(
                         registrations = teamMemberRegistrations,
                         users = users,
-                        currentUserId = currentUser.id
+                        currentUserId = currentUser.id,
+                        upcomingMatches = upcomingMatchesByTeamId[team.id] ?: emptyList()
                     )
                 },
             pendingJoinRequests = pendingInvites
@@ -151,6 +191,14 @@ class TeamsRepository(
                 }
                 .toSet()
         )
+    }
+
+    private fun String?.toShortDateTime(): String {
+        if (isNullOrBlank()) return ""
+        return runCatching {
+            val dt = LocalDateTime.parse(replace(" ", "T").take(19))
+            dt.format(DateTimeFormatter.ofPattern("MMM dd • HH:mm", Locale.US))
+        }.getOrDefault("")
     }
 
     private suspend fun getCurrentUserRow(): TeamsUserRow? {
@@ -171,7 +219,8 @@ class TeamsRepository(
     private fun TeamsTeamRow.toTeamListItem(
         registrations: List<TeamsRegistrationRow>,
         users: Map<Int, TeamsUserRow>,
-        currentUserId: Int?
+        currentUserId: Int?,
+        upcomingMatches: List<TeamUpcomingMatch> = emptyList()
     ): TeamListItem {
         val teamRegistrations = registrations.filter { registration ->
             registration.teamId == id &&
@@ -198,6 +247,7 @@ class TeamsRepository(
             inviteCode = inviteCode,
             logoUrl = logoUrl,
             isCaptain = isCaptain,
+            upcomingMatches = upcomingMatches,
             roster = teamRegistrations.mapNotNull { registration ->
                 val userId = registration.userId ?: return@mapNotNull null
                 val user = users[userId] ?: return@mapNotNull null

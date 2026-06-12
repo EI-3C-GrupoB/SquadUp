@@ -36,6 +36,7 @@ fun TeamsRoute(
         onAskToJoinClick = viewModel::onAskToJoinClick,
         onPromoteMemberClick = viewModel::onPromoteMemberClick,
         onRemoveMemberClick = viewModel::onRemoveMemberClick,
+        onTeamDetailTabChange = viewModel::onTeamDetailTabChange,
         onJoinByCodeDialogOpen = viewModel::onJoinByCodeDialogOpen,
         onJoinByCodeDialogDismiss = viewModel::onJoinByCodeDialogDismiss,
         onJoinByCodeChange = viewModel::onJoinByCodeChange,

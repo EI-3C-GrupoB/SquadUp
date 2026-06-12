@@ -108,3 +108,24 @@ data class NotificationUpdate(
     @SerialName("is_lida")
     val isRead: Boolean
 )
+
+@Serializable
+data class TeamsGameRow(
+    val id: Int,
+    @SerialName("data_hora_prevista") val scheduledAt: String? = null,
+    @SerialName("morada") val address: String? = null,
+    @SerialName("evento_id") val eventId: Int? = null,
+    @SerialName("estado_jogo") val status: String? = null
+)
+
+@Serializable
+data class TeamsGameTeamRow(
+    @SerialName("jogo_id") val gameId: Int,
+    @SerialName("equipa_id") val teamId: Int
+)
+
+@Serializable
+data class TeamsEventRow(
+    val id: Int,
+    @SerialName("titulo") val title: String = ""
+)

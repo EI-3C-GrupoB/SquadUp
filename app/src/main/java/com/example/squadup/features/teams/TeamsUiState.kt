@@ -7,10 +7,23 @@ enum class TeamsTab {
     DISCOVER
 }
 
+enum class TeamDetailTab {
+    MEMBERS,
+    MATCHES
+}
+
 enum class TeamRosterRole {
     CAPTAIN,
     MEMBER
 }
+
+data class TeamUpcomingMatch(
+    val id: String,
+    val eventName: String,
+    val date: String,
+    val location: String,
+    val opponentName: String = ""
+)
 
 data class TeamRosterMember(
     val id: String,
@@ -26,7 +39,8 @@ data class TeamListItem(
     val inviteCode: String? = null,
     val logoUrl: String? = null,
     val isCaptain: Boolean = false,
-    val roster: List<TeamRosterMember> = emptyList()
+    val roster: List<TeamRosterMember> = emptyList(),
+    val upcomingMatches: List<TeamUpcomingMatch> = emptyList()
 )
 
 data class TeamsUiState(
@@ -37,6 +51,7 @@ data class TeamsUiState(
     val expandedTeamId: String? = null,
     val settingsTeamId: String? = null,
     val pendingJoinRequests: Set<String> = emptySet(),
+    val teamDetailTabs: Map<String, TeamDetailTab> = emptyMap(),
 
     val showJoinByCodeDialog: Boolean = false,
     val joinByCodeValue: String = "",

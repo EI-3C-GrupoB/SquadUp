@@ -73,6 +73,7 @@ import com.example.squadup.core.ui.theme.SquadOrangeLight
 import com.example.squadup.core.ui.theme.SquadWhite
 import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
@@ -98,6 +99,7 @@ fun TeamsScreen(
     onAskToJoinClick: (String) -> Unit,
     onPromoteMemberClick: (teamId: String, memberId: String) -> Unit,
     onRemoveMemberClick: (teamId: String, memberId: String) -> Unit,
+    onTeamDetailTabChange: (teamId: String, TeamDetailTab) -> Unit,
     onJoinByCodeDialogOpen: () -> Unit,
     onJoinByCodeDialogDismiss: () -> Unit,
     onJoinByCodeChange: (String) -> Unit,
@@ -229,12 +231,14 @@ fun TeamsScreen(
                             selectedTab = uiState.selectedTab,
                             expanded = uiState.expandedTeamId == team.id,
                             settingsActive = uiState.settingsTeamId == team.id,
+                            currentDetailTab = uiState.teamDetailTabs[team.id] ?: TeamDetailTab.MEMBERS,
                             onToggle = { onTeamToggle(team.id) },
                             onInviteMembersClick = { onInviteMembersClick(team.id) },
                             onTeamSettingsToggle = { onTeamSettingsToggle(team.id) },
                             onAskToJoinClick = { onAskToJoinClick(team.id) },
                             onPromoteMemberClick = onPromoteMemberClick,
-                            onRemoveMemberClick = onRemoveMemberClick
+                            onRemoveMemberClick = onRemoveMemberClick,
+                            onDetailTabChange = { tab -> onTeamDetailTabChange(team.id, tab) }
                         )
                     }
                 }
@@ -443,12 +447,14 @@ private fun ExpandableTeamCard(
     selectedTab: TeamsTab,
     expanded: Boolean,
     settingsActive: Boolean,
+    currentDetailTab: TeamDetailTab,
     onToggle: () -> Unit,
     onInviteMembersClick: () -> Unit,
     onTeamSettingsToggle: () -> Unit,
     onAskToJoinClick: () -> Unit,
     onPromoteMemberClick: (teamId: String, memberId: String) -> Unit,
-    onRemoveMemberClick: (teamId: String, memberId: String) -> Unit
+    onRemoveMemberClick: (teamId: String, memberId: String) -> Unit,
+    onDetailTabChange: (TeamDetailTab) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -469,11 +475,13 @@ private fun ExpandableTeamCard(
                 team = team,
                 selectedTab = selectedTab,
                 settingsActive = settingsActive,
+                currentDetailTab = currentDetailTab,
                 onInviteMembersClick = onInviteMembersClick,
                 onTeamSettingsToggle = onTeamSettingsToggle,
                 onAskToJoinClick = onAskToJoinClick,
                 onPromoteMemberClick = onPromoteMemberClick,
-                onRemoveMemberClick = onRemoveMemberClick
+                onRemoveMemberClick = onRemoveMemberClick,
+                onDetailTabChange = onDetailTabChange
             )
         }
     }
@@ -564,11 +572,13 @@ private fun TeamExpandedContent(
     team: TeamListItem,
     selectedTab: TeamsTab,
     settingsActive: Boolean,
+    currentDetailTab: TeamDetailTab,
     onInviteMembersClick: () -> Unit,
     onTeamSettingsToggle: () -> Unit,
     onAskToJoinClick: () -> Unit,
     onPromoteMemberClick: (teamId: String, memberId: String) -> Unit,
-    onRemoveMemberClick: (teamId: String, memberId: String) -> Unit
+    onRemoveMemberClick: (teamId: String, memberId: String) -> Unit,
+    onDetailTabChange: (TeamDetailTab) -> Unit
 ) {
     var memberPendingPromotion by remember { mutableStateOf<TeamRosterMember?>(null) }
     var memberPendingRemoval by remember { mutableStateOf<TeamRosterMember?>(null) }
@@ -702,6 +712,13 @@ private fun TeamExpandedContent(
                 onTeamSettingsToggle = onTeamSettingsToggle
             )
 
+            if (selectedTab == TeamsTab.MY_TEAMS) {
+                TeamDetailTabSlider(
+                    currentTab = currentDetailTab,
+                    onTabChange = onDetailTabChange
+                )
+            }
+
             Column(
                 modifier = Modifier.padding(
                     start = 18.dp,
@@ -736,30 +753,32 @@ private fun TeamExpandedContent(
                     Spacer(modifier = Modifier.height(18.dp))
                 }
 
-                RosterHeader(
-                    playersCount = team.roster.size
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                if (team.roster.isEmpty()) {
-                    EmptyRosterMessage()
+                if (selectedTab == TeamsTab.MY_TEAMS && currentDetailTab == TeamDetailTab.MATCHES) {
+                    UpcomingMatchesList(matches = team.upcomingMatches)
                 } else {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        team.roster.forEach { member ->
-                            RosterMemberCard(
-                                member = member,
-                                selectedTab = selectedTab,
-                                settingsActive = settingsActive,
-                                onPromoteClick = {
-                                    memberPendingPromotion = member
-                                },
-                                onRemoveClick = {
-                                    memberPendingRemoval = member
-                                }
-                            )
+                    RosterHeader(playersCount = team.roster.size)
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    if (team.roster.isEmpty()) {
+                        EmptyRosterMessage()
+                    } else {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            team.roster.forEach { member ->
+                                RosterMemberCard(
+                                    member = member,
+                                    selectedTab = selectedTab,
+                                    settingsActive = settingsActive,
+                                    onPromoteClick = {
+                                        memberPendingPromotion = member
+                                    },
+                                    onRemoveClick = {
+                                        memberPendingRemoval = member
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -923,6 +942,132 @@ private fun TeamExpandedHero(
         }
     }
 }
+@Composable
+private fun TeamDetailTabSlider(
+    currentTab: TeamDetailTab,
+    onTabChange: (TeamDetailTab) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 18.dp, vertical = 10.dp)
+            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(10.dp))
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        TeamDetailTab.entries.forEach { tab ->
+            val selected = currentTab == tab
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(36.dp)
+                    .background(
+                        color = if (selected) SquadOrange else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .clickable { onTabChange(tab) },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = if (tab == TeamDetailTab.MEMBERS) Icons.Outlined.Groups else Icons.Outlined.CalendarMonth,
+                        contentDescription = null,
+                        tint = if (selected) SquadWhite else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = if (tab == TeamDetailTab.MEMBERS) "Membros" else "Próximos Jogos",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (selected) SquadWhite else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UpcomingMatchesList(matches: List<TeamUpcomingMatch>) {
+    if (matches.isEmpty()) {
+        EmptyStateCard(
+            title = "Sem jogos agendados",
+            message = "Esta equipa ainda não tem jogos próximos para mostrar.",
+            icon = Icons.Outlined.CalendarMonth
+        )
+        return
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        matches.forEach { match ->
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(SquadOrangeLight, RoundedCornerShape(8.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CalendarMonth,
+                            contentDescription = null,
+                            tint = SquadOrange,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = match.opponentName,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (match.eventName.isNotBlank()) {
+                            Text(
+                                text = match.eventName,
+                                fontSize = 11.sp,
+                                color = SquadOrange,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        if (match.date.isNotBlank()) {
+                            Text(
+                                text = match.date,
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (match.location.isNotBlank()) {
+                            Text(
+                                text = match.location,
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun TeamSimpleActionButton(
     text: String,
