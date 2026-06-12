@@ -12,7 +12,6 @@ fun EditUserRoute(
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onSendMessageClick: () -> Unit,
     onDeleteClick: () -> Unit,
     appViewModel: AppViewModel,
     viewModel: EditUserViewModel = viewModel()
@@ -27,7 +26,7 @@ fun EditUserRoute(
         onBackClick = onBackClick,
         onNotificationsClick = onNotificationsClick,
         onRoleChange = viewModel::onRoleChange,
-        onSendMessageClick = onSendMessageClick,
+        onAdminToggle = viewModel::onAdminToggle,
         onToggleSuspend = viewModel::onToggleSuspend,
         onDeleteClick = { viewModel.deleteUser(onDeleteClick) },
         onSaveClick = { viewModel.saveUser(onBackClick) },

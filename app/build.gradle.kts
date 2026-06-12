@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 val localProperties = Properties()
@@ -69,6 +70,7 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:auth-kt:3.1.4")
     implementation("io.github.jan-tennert.supabase:storage-kt:3.1.4")
     implementation("io.github.jan-tennert.supabase:realtime-kt:3.1.4")
+    implementation("io.github.jan-tennert.supabase:functions-kt:3.1.4")
     implementation("io.ktor:ktor-client-okhttp:3.1.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.maplibre.gl:android-sdk:13.0.2")
@@ -87,6 +89,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
 

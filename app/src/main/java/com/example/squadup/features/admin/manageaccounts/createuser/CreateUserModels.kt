@@ -9,7 +9,8 @@ data class CreateUserRequest(
     val username: String,
     val email: String,
     val password: String,
-    val role: AccountRole
+    val role: AccountRole,
+    val isAdmin: Boolean
 )
 
 @Serializable

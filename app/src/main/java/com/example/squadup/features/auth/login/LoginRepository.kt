@@ -6,6 +6,8 @@ import com.example.squadup.core.SupabaseClientProvider
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 
 class LoginRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
@@ -16,10 +18,35 @@ class LoginRepository(
                 email = credentials.email
                 password = credentials.password
             }
+
+            if (isAccountSuspended()) {
+                supabaseClient.auth.signOut()
+                return Result.failure(
+                    LoginException(R.string.login_account_suspended_message, isAccountSuspended = true)
+                )
+            }
+
             Result.success(Unit)
         } catch (exception: Exception) {
             Result.failure(LoginException(mapLoginError(exception)))
         }
+    }
+
+    private suspend fun isAccountSuspended(): Boolean {
+        val authUserId = supabaseClient.auth.currentUserOrNull()?.id ?: return false
+
+        val accountState = supabaseClient
+            .from("utilizador")
+            .select(Columns.raw("estado_conta")) {
+                filter {
+                    eq("auth_user_id", authUserId)
+                }
+            }
+            .decodeList<AccountStatusRow>()
+            .firstOrNull()
+            ?.accountState
+
+        return accountState == "suspenso"
     }
 
     @StringRes

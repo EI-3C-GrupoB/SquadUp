@@ -122,6 +122,11 @@ fun LiveMatchContent(
             // ── Score Header ──────────────────────────────────────────────────
             ScoreHeader(uiState)
 
+            // ── Offline banner ───────────────────────────────────────────────
+            if (uiState.isOffline) {
+                OfflineBanner(pendingCount = uiState.pendingSyncCount)
+            }
+
             // ── Tab toggle ────────────────────────────────────────────────────
             LiveMatchTabRow(
                 selectedTab = uiState.selectedTab,
@@ -249,6 +254,37 @@ private fun ScoreHeader(uiState: LiveMatchUiState) {
                         Text(uiState.awayTeamName, fontSize = 10.sp, color = Color.White.copy(alpha = 0.9f), fontWeight = FontWeight.Medium)
                     }
                 }
+            }
+        }
+    }
+}
+
+// ─── Offline Banner ───────────────────────────────────────────────────────────
+
+@Composable
+private fun OfflineBanner(pendingCount: Int) {
+    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = Color(0xFFFFF3E0),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Outlined.CloudOff, null, tint = SquadOrange, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    if (pendingCount > 0) {
+                        stringResource(R.string.liveMatch_offline_pending, pendingCount)
+                    } else {
+                        stringResource(R.string.liveMatch_offline)
+                    },
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = SquadOrange
+                )
             }
         }
     }
@@ -475,6 +511,15 @@ private fun MatchEventRow(event: MatchEventItem) {
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(event.teamAbbr, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (event.isHome) SquadOrange else MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (!event.synced) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    Icons.Outlined.Sync,
+                    contentDescription = stringResource(R.string.liveMatch_pending_sync),
+                    tint = SquadGray,
+                    modifier = Modifier.size(14.dp)
+                )
             }
         }
     }

@@ -4,7 +4,6 @@ import android.util.Log
 import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.features.admin.manageaccounts.AccountRole
 import com.example.squadup.features.admin.manageaccounts.toAccountType
-import com.example.squadup.features.admin.manageaccounts.toIsAdmin
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -18,7 +17,8 @@ class CreateUserRepository(
         username: String,
         email: String,
         password: String,
-        role: AccountRole
+        role: AccountRole,
+        isAdmin: Boolean
     ): Result<Unit> {
         return try {
             val request = CreateUserRequest(
@@ -26,7 +26,8 @@ class CreateUserRepository(
                 username = username.trim(),
                 email = email.trim(),
                 password = password,
-                role = role
+                role = role,
+                isAdmin = isAdmin
             )
 
             validateRequest(request)
@@ -75,7 +76,7 @@ class CreateUserRepository(
                     set("nome", request.name)
                     set("username", request.username)
                     set("email", request.email)
-                    set("is_admin", request.role.toIsAdmin())
+                    set("is_admin", request.isAdmin)
                     set("tipo_conta", request.role.toAccountType())
                     set("estado_conta", "ativo")
                 }) {
@@ -94,7 +95,7 @@ class CreateUserRepository(
                     username = request.username,
                     email = request.email,
                     authUserId = authUserId,
-                    isAdmin = request.role.toIsAdmin(),
+                    isAdmin = request.isAdmin,
                     accountType = request.role.toAccountType()
                 )
             )

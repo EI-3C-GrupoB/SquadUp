@@ -8,7 +8,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +34,7 @@ fun CreateUserScreen(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onRoleChange: (AccountRole) -> Unit,
+    onAdminToggle: () -> Unit,
     onCreateClick: () -> Unit,
     isAdmin: Boolean,
     isAdminView: Boolean,
@@ -42,7 +45,7 @@ fun CreateUserScreen(
     onDarkModeChange: (Boolean) -> Unit,
 ) {
     val roleOptions = listOf(
-        AccountRole.Admin to stringResource(R.string.manageAccounts_role_admin),
+        AccountRole.PlayerOrganizer to stringResource(R.string.manageAccounts_role_playerorganizer),
         AccountRole.Organizer to stringResource(R.string.manageAccounts_role_organizer),
         AccountRole.Player to stringResource(R.string.manageAccounts_role_player)
     )
@@ -150,6 +153,38 @@ fun CreateUserScreen(
                         onRoleChange(role)
                     }
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.manageAccounts_role_admin),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.editUser_admin_toggle_desc),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Switch(
+                        checked = uiState.isAdminRole,
+                        onCheckedChange = { onAdminToggle() },
+                        enabled = !uiState.isLoading,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = SquadOrange
+                        )
+                    )
+                }
 
                 if (uiState.errorMessage != null) {
                     Spacer(modifier = Modifier.height(16.dp))

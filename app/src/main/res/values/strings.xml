@@ -61,6 +61,34 @@
     <string name="login_error_network">Could not connect to the server. Check your Internet connection.</string>
     <string name="login_error_missing_permission">The app does not have Internet permission.</string>
     <string name="login_error_generic">Could not sign in. Try again.</string>
+    <string name="login_account_suspended_title">Account Suspended</string>
+    <string name="login_account_suspended_message">Your account has been suspended. Please contact an administrator for more information.</string>
+    <string name="login_account_suspended_button">OK</string>
+
+    <!-- Forgot Password Screen -->
+    <string name="forgotPassword_title">Forgot Password?</string>
+    <string name="forgotPassword_subtitle">Enter your email and we\'ll send you a recovery code.</string>
+    <string name="forgotPassword_emailLabel">Email Address</string>
+    <string name="forgotPassword_button">Send Code</string>
+    <string name="forgotPassword_button_loading">Sending…</string>
+    <string name="forgotPassword_error_empty_email">Enter your email.</string>
+    <string name="forgotPassword_error_network">Could not connect to the server. Check your Internet connection.</string>
+    <string name="forgotPassword_error_generic">Could not send the recovery code. Try again.</string>
+
+    <!-- Reset Password Screen -->
+    <string name="resetPassword_title">Reset Password</string>
+    <string name="resetPassword_subtitle">Enter the code we sent to your email and choose a new password.</string>
+    <string name="resetPassword_codeLabel">Recovery Code</string>
+    <string name="resetPassword_newPasswordLabel">New Password</string>
+    <string name="resetPassword_confirmPasswordLabel">Confirm New Password</string>
+    <string name="resetPassword_button">Reset Password</string>
+    <string name="resetPassword_button_loading">Resetting…</string>
+    <string name="resetPassword_error_empty_code">Enter the recovery code.</string>
+    <string name="resetPassword_error_weak_password">New password must have at least 6 characters.</string>
+    <string name="resetPassword_error_mismatch">New passwords do not match.</string>
+    <string name="resetPassword_error_invalid_code">Invalid or expired code.</string>
+    <string name="resetPassword_error_network">Could not connect to the server. Check your Internet connection.</string>
+    <string name="resetPassword_error_generic">Could not reset password. Try again.</string>
 
 
     <!-- Register Screen -->
@@ -391,6 +419,9 @@
     <string name="liveMatch_start_match">Start Match</string>
     <string name="liveMatch_live_title">Live Match</string>
     <string name="liveMatch_finished_title">Match Finished</string>
+    <string name="liveMatch_offline">You\'re offline. Changes will sync automatically.</string>
+    <string name="liveMatch_offline_pending">Offline — %d change(s) pending sync</string>
+    <string name="liveMatch_pending_sync">Pending sync</string>
     <string name="liveMatch_stop_timer">Pause</string>
     <string name="liveMatch_resume_timer">Resume</string>
     <string name="liveMatch_end_match">End Match</string>
@@ -462,10 +493,10 @@
     <string name="editUser_title">Manage User</string>
     <string name="editUser_subtitle">Edit Permissions</string>
     <string name="editUser_assign_role">ASSIGN SYSTEM ROLE</string>
-    <string name="editUser_role_admin_desc">Full system access</string>
+    <string name="editUser_role_playerorganizer_desc">Play and manage games and teams</string>
     <string name="editUser_role_organizer_desc">Manage games and teams</string>
     <string name="editUser_role_player_desc">Access teams and schedules</string>
-    <string name="editUser_send_message">Send Message</string>
+    <string name="editUser_admin_toggle_desc">Grants full administrative access</string>
     <string name="editUser_suspend">Suspend Account</string>
     <string name="editUser_reactivate">Reactivate Account</string>
     <string name="editUser_delete">Delete Account</string>
@@ -492,9 +523,9 @@
     <string name="manageAccounts_filter_apply">Apply</string>
     <string name="manageAccounts_filter_back">Back</string>
     <string name="manageAccounts_role_admin">Admin</string>
+    <string name="manageAccounts_role_playerorganizer">Player &amp; Organizer</string>
     <string name="manageAccounts_role_organizer">Organizer</string>
     <string name="manageAccounts_role_player">Player</string>
-    <string name="manageAccounts_role_admin_filter">Administrator</string>
 
     <!-- Ticket Status -->
     <string name="ticket_status_confirmed">CONFIRMED</string>

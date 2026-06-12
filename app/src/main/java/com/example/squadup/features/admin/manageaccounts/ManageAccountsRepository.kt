@@ -31,7 +31,7 @@ class ManageAccountsRepository(
         val initialUsers = getUsers().getOrDefault(emptyList())
         emit(initialUsers)
 
-        val channel = supabaseClient.channel("manage_accounts_realtime")
+        val channel = supabaseClient.channel("manage_accounts_realtime_${System.currentTimeMillis()}")
         
         val changes = channel.postgresChangeFlow<PostgresAction>(schema = "public") {
             table = "utilizador"

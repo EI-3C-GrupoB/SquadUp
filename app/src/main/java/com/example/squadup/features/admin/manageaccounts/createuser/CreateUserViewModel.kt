@@ -36,6 +36,10 @@ class CreateUserViewModel(
         _uiState.update { it.copy(selectedRole = role, errorMessage = null) }
     }
 
+    fun onAdminToggle() {
+        _uiState.update { it.copy(isAdminRole = !it.isAdminRole, errorMessage = null) }
+    }
+
     fun createUser(onSuccess: () -> Unit) {
         val state = _uiState.value
         val validationError = validate(state)
@@ -58,7 +62,8 @@ class CreateUserViewModel(
                 username = state.username.trim(),
                 email = state.email.trim(),
                 password = state.password,
-                role = state.selectedRole
+                role = state.selectedRole,
+                isAdmin = state.isAdminRole
             ).onSuccess {
                 _uiState.update {
                     it.copy(

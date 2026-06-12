@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AdminPanelSettings
 import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,7 +40,7 @@ fun EditUserScreen(
     onNotificationsClick: () -> Unit,
     onBackClick: () -> Unit,
     onRoleChange: (AccountRole) -> Unit,
-    onSendMessageClick: () -> Unit,
+    onAdminToggle: () -> Unit,
     onToggleSuspend: () -> Unit,
     onDeleteClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -157,14 +158,14 @@ fun EditUserScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     RoleCard(
-                        icon = Icons.Outlined.AdminPanelSettings,
-                        iconBackground = Color(0xFFFFE2D2),
-                        iconTint = SquadOrangeDark,
-                        title = stringResource(R.string.manageAccounts_role_admin),
-                        description = stringResource(R.string.editUser_role_admin_desc),
-                        selected = uiState.selectedRole == AccountRole.Admin,
+                        icon = Icons.Outlined.SportsSoccer,
+                        iconBackground = Color(0xFFD9F2E3),
+                        iconTint = Color(0xFF1B7A4B),
+                        title = stringResource(R.string.manageAccounts_role_playerorganizer),
+                        description = stringResource(R.string.editUser_role_playerorganizer_desc),
+                        selected = uiState.selectedRole == AccountRole.PlayerOrganizer,
                         enabled = !uiState.isSaving && !uiState.isDeleting,
-                        onClick = { onRoleChange(AccountRole.Admin) }
+                        onClick = { onRoleChange(AccountRole.PlayerOrganizer) }
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -195,6 +196,63 @@ fun EditUserScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Admin Toggle
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(12.dp),
+                shadowElevation = 2.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(Color(0xFFFFE2D2), RoundedCornerShape(8.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.AdminPanelSettings,
+                            contentDescription = null,
+                            tint = SquadOrangeDark,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.manageAccounts_role_admin),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.editUser_admin_toggle_desc),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Switch(
+                        checked = uiState.isAdminRole,
+                        onCheckedChange = { onAdminToggle() },
+                        enabled = !uiState.isSaving && !uiState.isDeleting,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = SquadOrange
+                        )
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
 
             // Save button
@@ -203,24 +261,6 @@ fun EditUserScreen(
                 onClick = onSaveClick,
                 enabled = !uiState.isSaving && !uiState.isDeleting
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Send Message
-            OutlinedButton(
-                onClick = onSendMessageClick,
-                enabled = !uiState.isSaving && !uiState.isDeleting,
-                modifier = Modifier.fillMaxWidth().height(54.dp),
-                shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(1.5.dp, SquadOrange),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = SquadOrange)
-            ) {
-                Text(
-                    text = stringResource(R.string.editUser_send_message),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

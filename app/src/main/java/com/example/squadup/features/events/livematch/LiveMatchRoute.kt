@@ -3,6 +3,7 @@ package com.example.squadup.features.events.livematch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -12,7 +13,7 @@ fun LiveMatchRoute(
     selectedRoute: String,
     onNavItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    viewModel: LiveMatchViewModel = viewModel()
+    viewModel: LiveMatchViewModel = viewModel(factory = LiveMatchViewModelFactory(LocalContext.current))
 ) {
     LaunchedEffect(gameId) {
         if (gameId.isNotBlank()) viewModel.loadGame(gameId)

@@ -61,6 +61,34 @@
     <string name="login_error_network">Não foi possível ligar ao servidor. Verifica a ligação à Internet.</string>
     <string name="login_error_missing_permission">A app não tem permissão de Internet.</string>
     <string name="login_error_generic">Não foi possível entrar. Tenta novamente.</string>
+    <string name="login_account_suspended_title">Conta Suspensa</string>
+    <string name="login_account_suspended_message">A sua conta foi suspensa. Contacte um administrador para mais informações.</string>
+    <string name="login_account_suspended_button">OK</string>
+
+    <!-- Forgot Password Screen -->
+    <string name="forgotPassword_title">Esqueceste a palavra-passe?</string>
+    <string name="forgotPassword_subtitle">Introduz o teu email e enviamos-te um código de recuperação.</string>
+    <string name="forgotPassword_emailLabel">Endereço de Email</string>
+    <string name="forgotPassword_button">Enviar Código</string>
+    <string name="forgotPassword_button_loading">A enviar…</string>
+    <string name="forgotPassword_error_empty_email">Introduz o teu email.</string>
+    <string name="forgotPassword_error_network">Não foi possível ligar ao servidor. Verifica a ligação à Internet.</string>
+    <string name="forgotPassword_error_generic">Não foi possível enviar o código de recuperação. Tenta novamente.</string>
+
+    <!-- Reset Password Screen -->
+    <string name="resetPassword_title">Repor Palavra-passe</string>
+    <string name="resetPassword_subtitle">Introduz o código que enviámos para o teu email e escolhe uma nova palavra-passe.</string>
+    <string name="resetPassword_codeLabel">Código de Recuperação</string>
+    <string name="resetPassword_newPasswordLabel">Nova Palavra-passe</string>
+    <string name="resetPassword_confirmPasswordLabel">Confirmar Nova Palavra-passe</string>
+    <string name="resetPassword_button">Repor Palavra-passe</string>
+    <string name="resetPassword_button_loading">A repor…</string>
+    <string name="resetPassword_error_empty_code">Introduz o código de recuperação.</string>
+    <string name="resetPassword_error_weak_password">A nova palavra-passe deve ter pelo menos 6 caracteres.</string>
+    <string name="resetPassword_error_mismatch">As novas palavras-passe não coincidem.</string>
+    <string name="resetPassword_error_invalid_code">Código inválido ou expirado.</string>
+    <string name="resetPassword_error_network">Não foi possível ligar ao servidor. Verifica a ligação à Internet.</string>
+    <string name="resetPassword_error_generic">Não foi possível repor a palavra-passe. Tenta novamente.</string>
 
     <!-- Register Screen -->
     <string name="register_login_action">Entrar</string>
@@ -370,6 +398,9 @@
     <string name="liveMatch_start_match">Iniciar Jogo</string>
     <string name="liveMatch_live_title">Jogo ao Vivo</string>
     <string name="liveMatch_finished_title">Jogo Terminado</string>
+    <string name="liveMatch_offline">Está offline. As alterações serão sincronizadas automaticamente.</string>
+    <string name="liveMatch_offline_pending">Offline — %d alteração(ões) pendente(s)</string>
+    <string name="liveMatch_pending_sync">Sincronização pendente</string>
     <string name="liveMatch_stop_timer">Pausar</string>
     <string name="liveMatch_resume_timer">Retomar</string>
     <string name="liveMatch_end_match">Terminar Jogo</string>
@@ -437,10 +468,10 @@
     <string name="editUser_title">Gerir Utilizador</string>
     <string name="editUser_subtitle">Editar Permissões</string>
     <string name="editUser_assign_role">ATRIBUIR CARGO</string>
-    <string name="editUser_role_admin_desc">Acesso completo ao sistema</string>
+    <string name="editUser_role_playerorganizer_desc">Jogar e gerir jogos e equipas</string>
     <string name="editUser_role_organizer_desc">Gerir jogos e equipas</string>
     <string name="editUser_role_player_desc">Aceder a equipas e horários</string>
-    <string name="editUser_send_message">Enviar Mensagem</string>
+    <string name="editUser_admin_toggle_desc">Concede acesso administrativo total</string>
     <string name="editUser_suspend">Suspender Conta</string>
     <string name="editUser_reactivate">Reativar Conta</string>
     <string name="editUser_delete">Eliminar Conta</string>
@@ -467,9 +498,9 @@
     <string name="manageAccounts_filter_apply">Aplicar</string>
     <string name="manageAccounts_filter_back">Voltar</string>
     <string name="manageAccounts_role_admin">Admin</string>
+    <string name="manageAccounts_role_playerorganizer">Jogador &amp; Organizador</string>
     <string name="manageAccounts_role_organizer">Organizador</string>
     <string name="manageAccounts_role_player">Jogador</string>
-    <string name="manageAccounts_role_admin_filter">Administrador</string>
 
     <!-- Ticket Status -->
     <string name="ticket_status_confirmed">CONFIRMADO</string>

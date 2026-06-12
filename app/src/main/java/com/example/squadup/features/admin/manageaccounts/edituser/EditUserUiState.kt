@@ -8,6 +8,7 @@ data class EditUserUiState(
     val userEmail: String = "",
     val userInitials: String = "",
     val selectedRole: AccountRole = AccountRole.Player,
+    val isAdminRole: Boolean = false,
     val isSuspended: Boolean = false,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,

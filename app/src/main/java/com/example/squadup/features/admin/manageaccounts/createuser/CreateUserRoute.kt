@@ -30,6 +30,7 @@ fun CreateUserRoute(
         onUsernameChange = viewModel::onUsernameChange,
         onPasswordChange = viewModel::onPasswordChange,
         onRoleChange = viewModel::onRoleChange,
+        onAdminToggle = viewModel::onAdminToggle,
         onCreateClick = { viewModel.createUser(onCreateClick) },
         isAdmin = appUiState.isAdmin,
         isAdminView = appUiState.isAdminView,

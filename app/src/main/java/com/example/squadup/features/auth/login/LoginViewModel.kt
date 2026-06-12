@@ -52,13 +52,25 @@ class LoginViewModel(
                     onSuccess()
                 }
                 .onFailure { exception ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = (exception as? LoginException)?.messageRes
-                            ?: R.string.login_error_generic
-                    )
+                    val loginException = exception as? LoginException
+                    if (loginException?.isAccountSuspended == true) {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            showAccountSuspendedDialog = true
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = loginException?.messageRes
+                                ?: R.string.login_error_generic
+                        )
+                    }
                 }
         }
+    }
+
+    fun dismissAccountSuspendedDialog() {
+        _uiState.value = _uiState.value.copy(showAccountSuspendedDialog = false)
     }
 }
 

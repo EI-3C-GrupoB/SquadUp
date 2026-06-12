@@ -3,7 +3,7 @@ package com.example.squadup.features.admin.manageaccounts.edituser
 import android.util.Log
 import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.features.admin.manageaccounts.AccountRole
-import com.example.squadup.features.admin.manageaccounts.toAccountUpdatePayload
+import com.example.squadup.features.admin.manageaccounts.toAccountType
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 
@@ -30,16 +30,15 @@ class EditUserRepository(
 
     suspend fun updateUserRole(
         userId: Int,
-        role: AccountRole
+        role: AccountRole,
+        isAdmin: Boolean
     ): Result<Unit> {
         return try {
-            val payload = role.toAccountUpdatePayload()
-
             supabaseClient
                 .from("utilizador")
                 .update({
-                    set("is_admin", payload["is_admin"] as Boolean)
-                    set("tipo_conta", payload["tipo_conta"] as Int)
+                    set("is_admin", isAdmin)
+                    set("tipo_conta", role.toAccountType())
                 }) {
                     filter {
                         eq("id", userId)

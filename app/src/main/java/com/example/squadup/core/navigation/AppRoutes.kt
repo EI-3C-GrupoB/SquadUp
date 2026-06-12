@@ -6,6 +6,10 @@ sealed class AppRoutes(val route: String) {
     data object Onboarding : AppRoutes("onboarding")
     data object Login      : AppRoutes("login")
     data object Register   : AppRoutes("register")
+    data object ForgotPassword : AppRoutes("forgot_password")
+    data object ResetPassword : AppRoutes("reset_password/{email}") {
+        fun createRoute(email: String) = "reset_password/$email"
+    }
     data object Notifications : AppRoutes("notifications")
     data object Home       : AppRoutes("home")
     data object Events     : AppRoutes("events")

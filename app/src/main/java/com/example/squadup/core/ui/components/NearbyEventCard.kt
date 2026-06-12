@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.squadup.R
@@ -84,7 +85,7 @@ fun NearbyEventCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Top) {
                 Icon(
                     imageVector = Icons.Outlined.LocationOn,
                     contentDescription = null,
@@ -94,7 +95,9 @@ fun NearbyEventCard(
                 Text(
                     text = "$location • $distance",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 

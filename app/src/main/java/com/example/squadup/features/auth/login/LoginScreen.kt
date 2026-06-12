@@ -17,7 +17,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +46,9 @@ fun LoginScreen(
     onPasswordChange: (String) -> Unit,
     onSignInClick: () -> Unit,
     onCreateAccountClick: () -> Unit,
-    onBackClick: () -> Unit
+    onForgotPasswordClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onDismissSuspendedDialog: () -> Unit
 ) {
     val topSpacing = responsiveVerticalSpacing(58.dp)
     val sectionSpacing = responsiveVerticalSpacing(30.dp)
@@ -108,7 +112,20 @@ fun LoginScreen(
                 isPassword = true
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = stringResource(R.string.login_forgot),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = !uiState.isLoading) { onForgotPasswordClick() },
+                textAlign = TextAlign.End,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = SquadOrange
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
 
             PrimaryButton(
                 text = if (uiState.isLoading) {
@@ -157,5 +174,22 @@ fun LoginScreen(
                 }
             )
         }
+    }
+
+    if (uiState.showAccountSuspendedDialog) {
+        AlertDialog(
+            onDismissRequest = onDismissSuspendedDialog,
+            title = {
+                Text(text = stringResource(R.string.login_account_suspended_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.login_account_suspended_message))
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissSuspendedDialog) {
+                    Text(text = stringResource(R.string.login_account_suspended_button))
+                }
+            }
+        )
     }
 }

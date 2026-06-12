@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun LoginRoute(
     onLoginSuccess: () -> Unit,
     onCreateAccountClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: LoginViewModel = viewModel(
         factory = LoginViewModelFactory(LoginRepository())
@@ -22,6 +23,8 @@ fun LoginRoute(
         onPasswordChange = viewModel::onPasswordChange,
         onSignInClick = { viewModel.login(onLoginSuccess) },
         onCreateAccountClick = onCreateAccountClick,
-        onBackClick = onBackClick
+        onForgotPasswordClick = onForgotPasswordClick,
+        onBackClick = onBackClick,
+        onDismissSuspendedDialog = viewModel::dismissAccountSuspendedDialog
     )
 }

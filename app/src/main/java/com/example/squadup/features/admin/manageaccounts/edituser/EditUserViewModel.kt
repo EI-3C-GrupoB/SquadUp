@@ -71,9 +71,20 @@ class EditUserViewModel(
         }
     }
 
+    fun onAdminToggle() {
+        _uiState.update {
+            it.copy(
+                isAdminRole = !it.isAdminRole,
+                errorMessage = null,
+                isSaveSuccessful = false
+            )
+        }
+    }
+
     fun saveUser(onSuccess: () -> Unit) {
         val id = userId ?: return
         val role = _uiState.value.selectedRole
+        val isAdmin = _uiState.value.isAdminRole
 
         viewModelScope.launch {
             _uiState.update {
@@ -84,7 +95,7 @@ class EditUserViewModel(
                 )
             }
 
-            repository.updateUserRole(id, role)
+            repository.updateUserRole(id, role, isAdmin)
                 .onSuccess {
                     _uiState.update {
                         it.copy(

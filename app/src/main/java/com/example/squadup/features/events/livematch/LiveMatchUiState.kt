@@ -2,15 +2,18 @@ package com.example.squadup.features.events.livematch
 
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.SportType
+import kotlinx.serialization.Serializable
 
 enum class LiveMatchPhase { PRE_MATCH, LIVE, FINISHED }
 enum class LiveMatchTab { EVENTS, STATS }
 enum class MatchEventType { SCORE, INFRACTION, SUBSTITUTION, TIMEOUT }
 
+@Serializable
 data class LiveMatchUiState(
     val gameId: String = "",
     val eventId: String = "",
     val isOrganizer: Boolean = true,
+    val isOffline: Boolean = false,
     val phase: LiveMatchPhase = LiveMatchPhase.PRE_MATCH,
     val sportType: SportType = SportType.SOCCER,
     val eventFormat: EventFormat? = null,
@@ -59,6 +62,8 @@ data class LiveMatchUiState(
     val isKnockout: Boolean get() =
         eventFormat == EventFormat.KNOCKOUT || eventFormat == EventFormat.GROUP_KNOCKOUT
 
+    val pendingSyncCount: Int get() = events.count { !it.synced }
+
     // Score label depends on sport
     val scoreUnitLabel: String get() = when (sportType) {
         SportType.SOCCER, SportType.FUTSAL -> "GOLOS"
@@ -67,6 +72,7 @@ data class LiveMatchUiState(
     }
 }
 
+@Serializable
 data class LiveMatchPlayer(
     val id: String,
     val name: String,
@@ -74,6 +80,7 @@ data class LiveMatchPlayer(
     val isHome: Boolean
 )
 
+@Serializable
 data class MatchEventItem(
     val id: String,
     val minute: Int,
@@ -86,6 +93,7 @@ data class MatchEventItem(
     val synced: Boolean = false
 )
 
+@Serializable
 data class LiveTeamStats(
     // Soccer / Futsal
     val shots: Int = 0,

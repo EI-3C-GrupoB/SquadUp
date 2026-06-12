@@ -36,15 +36,16 @@ fun EditUserRow.toEditUserUiState(): EditUserUiState {
         userEmail = email.orEmpty(),
         userInitials = displayName.toInitials(),
         selectedRole = toAccountRole(),
+        isAdminRole = isAdmin == true,
         isSuspended = accountState == "suspenso",
         isLoading = false
     )
 }
 
 private fun EditUserRow.toAccountRole(): AccountRole {
-    return when {
-        isAdmin == true -> AccountRole.Admin
-        accountType == 2 || accountType == 3 -> AccountRole.Organizer
+    return when (accountType) {
+        3 -> AccountRole.PlayerOrganizer
+        2 -> AccountRole.Organizer
         else -> AccountRole.Player
     }
 }

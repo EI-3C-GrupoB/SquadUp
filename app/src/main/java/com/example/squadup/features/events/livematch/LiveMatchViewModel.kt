@@ -2,7 +2,7 @@ package com.example.squadup.features.events.livematch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.squadup.core.enums.EventFormat
+import com.example.squadup.core.network.NetworkMonitor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,20 +12,42 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class LiveMatchViewModel : ViewModel() {
+class LiveMatchViewModel(
+    private val repository: LiveMatchRepository = LiveMatchRepository(),
+    private val networkMonitor: NetworkMonitor? = null
+) : ViewModel() {
 
-    private val repository = LiveMatchRepository()
     private val _uiState = MutableStateFlow(LiveMatchUiState())
     val uiState: StateFlow<LiveMatchUiState> = _uiState.asStateFlow()
 
     private var timerJob: Job? = null
 
+    init {
+        networkMonitor?.let { monitor ->
+            viewModelScope.launch {
+                var previousOnline: Boolean? = null
+                monitor.isOnline.collect { online ->
+                    _uiState.update { it.copy(isOffline = !online) }
+                    if (online && previousOnline == false) {
+                        syncPending()
+                    }
+                    previousOnline = online
+                }
+            }
+        }
+    }
+
     fun loadGame(gameId: String) {
         if (gameId.isBlank()) return
         viewModelScope.launch {
-            repository.getGame(gameId).onSuccess { game ->
-                _uiState.value = game.copy(selectedTab = _uiState.value.selectedTab)
-            }
+            repository.getGame(gameId)
+                .onSuccess { game ->
+                    _uiState.value = game.copy(selectedTab = _uiState.value.selectedTab)
+                    syncPending()
+                }
+                .onFailure {
+                    _uiState.update { it.copy(gameId = gameId, isOffline = true) }
+                }
         }
     }
 
@@ -62,7 +84,7 @@ class LiveMatchViewModel : ViewModel() {
             // KNOCKOUT: mark loser as eliminated
             if (state.isKnockout && state.homeScore != state.awayScore) {
                 val loserTeamId = if (state.homeScore < state.awayScore) state.homeTeamId else state.awayTeamId
-                repository.markLoserEliminated(state.eventId, loserTeamId)
+                repository.markLoserEliminated(state.gameId, state.eventId, loserTeamId)
             }
         }
     }
@@ -70,6 +92,7 @@ class LiveMatchViewModel : ViewModel() {
     private fun updatePhase(phase: LiveMatchPhase) {
         val gameId = _uiState.value.gameId
         _uiState.update { it.copy(phase = phase) }
+        persistSnapshot()
         if (gameId.isBlank()) return
         viewModelScope.launch { repository.updateGameStatus(gameId, phase) }
     }
@@ -100,6 +123,7 @@ class LiveMatchViewModel : ViewModel() {
                 showGoalForm = false
             )
         }
+        persistSnapshot()
         // Persist intermediate score
         val state = _uiState.value
         viewModelScope.launch {
@@ -128,6 +152,7 @@ class LiveMatchViewModel : ViewModel() {
             val newAway = if (!isHome) state.awayStats.withStat(statName, value) else state.awayStats
             state.copy(homeStats = newHome, awayStats = newAway, showAdvancedStatsForm = false)
         }
+        persistSnapshot()
     }
 
     private fun addEvent(
@@ -152,15 +177,36 @@ class LiveMatchViewModel : ViewModel() {
         _uiState.update { it.copy(events = listOf(event) + it.events) }
 
         viewModelScope.launch {
-            repository.insertMatchEvent(currentState, type, isHome, playerName, description)
-                .onSuccess {
+            repository.insertMatchEvent(currentState, type, isHome, playerName, description, event.id)
+                .onSuccess { syncedNow ->
                     _uiState.update { state ->
                         state.copy(events = state.events.map { item ->
-                            if (item.id == event.id) item.copy(synced = true) else item
+                            if (item.id == event.id) item.copy(synced = syncedNow) else item
                         })
                     }
+                    persistSnapshot()
                 }
         }
+    }
+
+    private fun syncPending() {
+        val gameId = _uiState.value.gameId
+        if (gameId.isBlank()) return
+        viewModelScope.launch {
+            repository.syncPendingOperations(gameId).onSuccess { syncedEventIds ->
+                if (syncedEventIds.isEmpty()) return@onSuccess
+                _uiState.update { state ->
+                    state.copy(events = state.events.map { item ->
+                        if (item.id in syncedEventIds) item.copy(synced = true) else item
+                    })
+                }
+                persistSnapshot()
+            }
+        }
+    }
+
+    private fun persistSnapshot() {
+        viewModelScope.launch { repository.saveSnapshot(_uiState.value) }
     }
 
     override fun onCleared() {

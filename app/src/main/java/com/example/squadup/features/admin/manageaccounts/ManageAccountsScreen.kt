@@ -478,26 +478,33 @@ private fun AccountUserRow(
             )
         }
 
-        RoleBadge(role = user.role)
+        Column(horizontalAlignment = Alignment.End) {
+            RoleBadge(role = user.role)
+
+            if (user.isAdmin) {
+                Spacer(modifier = Modifier.height(6.dp))
+                AdminBadge()
+            }
+        }
     }
 }
 
 @Composable
 private fun RoleBadge(role: AccountRole) {
     val background = when (role) {
-        AccountRole.Admin -> Color(0xFFFFD7C4)
+        AccountRole.PlayerOrganizer -> Color(0xFFD9F2E3)
         AccountRole.Organizer -> Color(0xFFD4E8FF)
         AccountRole.Player -> Color(0xFFE8E8E8)
     }
 
     val textColor = when (role) {
-        AccountRole.Admin -> SquadOrangeDark
+        AccountRole.PlayerOrganizer -> Color(0xFF1B7A4B)
         AccountRole.Organizer -> Color(0xFF1A5CA8)
         AccountRole.Player -> Color(0xFF757575)
     }
 
     val label = when (role) {
-        AccountRole.Admin -> stringResource(R.string.manageAccounts_role_admin)
+        AccountRole.PlayerOrganizer -> stringResource(R.string.manageAccounts_role_playerorganizer)
         AccountRole.Organizer -> stringResource(R.string.manageAccounts_role_organizer)
         AccountRole.Player -> stringResource(R.string.manageAccounts_role_player)
     }
@@ -511,6 +518,22 @@ private fun RoleBadge(role: AccountRole) {
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = textColor,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+        )
+    }
+}
+
+@Composable
+private fun AdminBadge() {
+    Surface(
+        color = Color(0xFFFFD7C4),
+        shape = RoundedCornerShape(999.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.manageAccounts_role_admin),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = SquadOrangeDark,
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
         )
     }
@@ -618,9 +641,9 @@ private fun RoleFilterRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         FilterSegment(
-            text = stringResource(R.string.manageAccounts_role_admin),
-            selected = AccountRole.Admin in selectedRoles,
-            onClick = { onRoleToggle(AccountRole.Admin) },
+            text = stringResource(R.string.manageAccounts_role_playerorganizer),
+            selected = AccountRole.PlayerOrganizer in selectedRoles,
+            onClick = { onRoleToggle(AccountRole.PlayerOrganizer) },
             modifier = Modifier.weight(1f)
         )
 

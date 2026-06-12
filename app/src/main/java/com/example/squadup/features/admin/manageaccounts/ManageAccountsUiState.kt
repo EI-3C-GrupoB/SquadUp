@@ -1,6 +1,6 @@
 package com.example.squadup.features.admin.manageaccounts
 
-enum class AccountRole { Admin, Organizer, Player }
+enum class AccountRole { PlayerOrganizer, Organizer, Player }
 
 enum class SortOrder { NameAZ, NameZA, RoleAZ, RoleZA }
 
@@ -40,5 +40,6 @@ data class ManageAccountItem(
     val name: String,
     val email: String,
     val role: AccountRole,
+    val isAdmin: Boolean = false,
     val isSuspended: Boolean = false
 )

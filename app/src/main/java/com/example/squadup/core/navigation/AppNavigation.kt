@@ -19,8 +19,10 @@ import com.example.squadup.core.ui.components.LoadingScreen
 import com.example.squadup.features.admin.manageaccounts.ManageAccountsRoute
 import com.example.squadup.features.admin.manageaccounts.createuser.CreateUserRoute
 import com.example.squadup.features.admin.manageaccounts.edituser.EditUserRoute
+import com.example.squadup.features.auth.forgotpassword.ForgotPasswordRoute
 import com.example.squadup.features.auth.login.LoginRoute
 import com.example.squadup.features.auth.register.RegisterRoute
+import com.example.squadup.features.auth.resetpassword.ResetPasswordRoute
 import com.example.squadup.features.events.EventsRoute
 import com.example.squadup.features.events.calendar.CalendarRoute
 import com.example.squadup.features.events.createevent.CreateEventRoute
@@ -65,16 +67,24 @@ fun AppNavigation(
 
     val appUiState by appViewModel.uiState.collectAsStateWithLifecycle()
 
-    if (appUiState.isInitializing) {
-        LoadingScreen(message = "Verificando sessão...")
-        return
-    }
-
     val onboardingViewModel: OnboardingViewModel = viewModel(
         factory = OnboardingViewModelFactory(
             preferences = OnboardingPreferences(context)
         )
     )
+
+    val hasCompletedOnboarding by onboardingViewModel.hasCompletedOnboarding.collectAsStateWithLifecycle(initialValue = null)
+
+    if (appUiState.isInitializing || hasCompletedOnboarding == null) {
+        LoadingScreen(message = "Verificando sessão...")
+        return
+    }
+
+    val startDestination = when {
+        hasCompletedOnboarding == false -> AppRoutes.Onboarding.route
+        appUiState.isLoggedIn -> AppRoutes.Home.route
+        else -> AppRoutes.Login.route
+    }
 
     val openNotifications: () -> Unit = {
         if (navController.currentDestination?.route == AppRoutes.Notifications.route) {
@@ -111,7 +121,7 @@ fun AppNavigation(
     CompositionLocalProvider(LocalAdminPageClick provides openAdminHome) {
         NavHost(
             navController = navController,
-            startDestination = AppRoutes.Onboarding.route
+            startDestination = startDestination
         ) {
         composable(AppRoutes.Onboarding.route) {
             OnboardingRoute(
@@ -140,6 +150,40 @@ fun AppNavigation(
                 },
                 onCreateAccountClick = {
                     navController.navigate(AppRoutes.Register.route)
+                },
+                onForgotPasswordClick = {
+                    navController.navigate(AppRoutes.ForgotPassword.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(AppRoutes.ForgotPassword.route) {
+            ForgotPasswordRoute(
+                onCodeSent = { email ->
+                    navController.navigate(AppRoutes.ResetPassword.createRoute(email))
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            AppRoutes.ResetPassword.route,
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+
+            ResetPasswordRoute(
+                email = email,
+                onPasswordReset = {
+                    navController.navigate(AppRoutes.Login.route) {
+                        popUpTo(AppRoutes.Login.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 onBackClick = {
                     navController.popBackStack()
@@ -432,7 +476,6 @@ fun AppNavigation(
                     navController.popBackStack()
                 },
                 onNotificationsClick = openNotifications,
-                onSendMessageClick = {},
                 onDeleteClick = {
                     navController.popBackStack()
                 },
