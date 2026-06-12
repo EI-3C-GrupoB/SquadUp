@@ -192,7 +192,7 @@ fun LiveMatchPreMatch(
                             )
                             Spacer(Modifier.width(10.dp))
                             Text(
-                                text = "A aguardar o início do jogo...",
+                                text = stringResource(R.string.liveMatch_waiting),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = SquadOrange

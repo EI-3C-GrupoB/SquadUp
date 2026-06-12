@@ -2,7 +2,7 @@
     <string name="app_name">SquadUp</string>
 
     <!-- Sports -->
-    <string name="sport_soccer">Soccer</string>
+    <string name="sport_soccer">Football</string>
     <string name="sport_basketball">Basketball</string>
     <string name="sport_paddle">Paddle</string>
     <string name="sport_volleyball">Volleyball</string>
@@ -112,8 +112,8 @@
 
     <string name="register_user_type_label">Account Type</string>
     <string name="register_user_type_player">Player</string>
-    <string name="register_user_type_organizer">Organizer</string>
-    <string name="register_user_type_player_organizer">Player &amp; Organizer</string>
+    <string name="register_user_type_organizer">Organiser</string>
+    <string name="register_user_type_player_organizer">Player &amp; Organiser</string>
 
     <string name="register_birth_date_label">Date of Birth</string>
 
@@ -189,8 +189,8 @@
     <!-- User Roles -->
     <string name="role_admin">ADMINISTRATOR</string>
     <string name="role_player">PLAYER</string>
-    <string name="role_organizer">ORGANIZER</string>
-    <string name="role_player_organizer">PLAYER &amp; ORGANIZER</string>
+    <string name="role_organizer">ORGANISER</string>
+    <string name="role_player_organizer">PLAYER &amp; ORGANISER</string>
 
     <!-- Create Event Flow -->
     <string name="createEvent_step1_title">Create Event (1 of 3)</string>
@@ -384,20 +384,20 @@
     <string name="stats_personal_fouls">PERSONAL FOULS</string>
     <string name="stats_technical_fouls">TECHNICAL FOULS</string>
     <string name="stats_sets_played">SETS PLAYED</string>
-    <string name="stats_section_discipline">DISCIPLINA</string>
-    <string name="stats_section_discipline_basketball">FALTAS</string>
+    <string name="stats_section_discipline">DISCIPLINE</string>
+    <string name="stats_section_discipline_basketball">FOULS</string>
     <string name="stats_section_sets">SETS</string>
-    <string name="stats_section_standings">CLASSIFICAÇÃO</string>
-    <string name="stats_section_results">RESULTADOS</string>
-    <string name="stats_section_top_performers">TOP JOGADORES</string>
+    <string name="stats_section_standings">STANDINGS</string>
+    <string name="stats_section_results">RESULTS</string>
+    <string name="stats_section_top_performers">TOP PERFORMERS</string>
     <string name="stats_goals_for">GF</string>
     <string name="stats_goals_against">GA</string>
     <string name="stats_goal_diff">+/-</string>
     <string name="stats_sets_won">SW</string>
-    <string name="stats_top_infractors">MAIS FALTAS / CARTÕES</string>
-    <string name="stats_no_data">Sem dados disponíveis ainda.</string>
-    <string name="stats_knockout_results">RESULTADOS ELIMINATÓRIAS</string>
-    <string name="stats_group_stage">FASE DE GRUPOS</string>
+    <string name="stats_top_infractors">MOST FOULS / CARDS</string>
+    <string name="stats_no_data">No data available yet.</string>
+    <string name="stats_knockout_results">KNOCKOUT RESULTS</string>
+    <string name="stats_group_stage">GROUP STAGE</string>
     <!-- Infractions -->
     <string name="infraction_yellow_card">Yellow Card</string>
     <string name="infraction_red_card">Red Card</string>
@@ -446,10 +446,10 @@
     <string name="liveMatch_form_team">TEAM</string>
     <string name="liveMatch_form_save">Save</string>
     <string name="liveMatch_form_optional">Optional</string>
-    <string name="liveMatch_form_sub_add">+ Adicionar substituição</string>
-    <string name="liveMatch_form_stats_title">Estatísticas</string>
-    <string name="liveMatch_form_stats_type">TIPO</string>
-    <string name="liveMatch_form_stats_value">VALOR</string>
+    <string name="liveMatch_form_sub_add">+ Add Substitution</string>
+    <string name="liveMatch_form_stats_title">Statistics</string>
+    <string name="liveMatch_form_stats_type">TYPE</string>
+    <string name="liveMatch_form_stats_value">VALUE</string>
     <string name="liveMatch_stat_shots">Shots</string>
     <string name="liveMatch_stat_shots_goal">Shots on Goal</string>
     <string name="liveMatch_stat_corners">Corners</string>
@@ -518,8 +518,8 @@
     <string name="manageAccounts_filter_apply">Apply</string>
     <string name="manageAccounts_filter_back">Back</string>
     <string name="manageAccounts_role_admin">Admin</string>
-    <string name="manageAccounts_role_playerorganizer">Player &amp; Organizer</string>
-    <string name="manageAccounts_role_organizer">Organizer</string>
+    <string name="manageAccounts_role_playerorganizer">Player &amp; Organiser</string>
+    <string name="manageAccounts_role_organizer">Organiser</string>
     <string name="manageAccounts_role_player">Player</string>
 
     <!-- Ticket Status -->
@@ -610,6 +610,199 @@
     <string name="settings_view_mode">View Mode</string>
     <string name="settings_view_normal">Usr</string>
     <string name="settings_view_admin">Adm</string>
+
+    <!-- Admin Home Screen -->
+    <string name="admin_dashboard_title">Global Admin Dashboard</string>
+    <string name="admin_dashboard_subtitle">Real-time overview of the SquadUp ecosystem</string>
+    <string name="admin_total_users">TOTAL USERS</string>
+    <string name="admin_growth_last_month">+%1$d%% from last month</string>
+    <string name="admin_active_matches">Active Matches</string>
+    <string name="admin_in_x_sports">In %1$d Different Sports</string>
+    <string name="admin_active_events">ACTIVE EVENTS</string>
+    <string name="admin_available_events">Currently available events</string>
+    <string name="admin_sport_popularity">Sport Popularity</string>
+    <string name="admin_no_popularity_data">No popularity data yet.</string>
+    <!-- Manage Event Overview Tab -->
+    <string name="manage_event_tools">MANAGEMENT TOOLS</string>
+    <string name="manage_event_individual_requests">Participation Requests</string>
+    <string name="manage_event_team_requests">Team Requests</string>
+
+    <!-- Calendar Screen -->
+    <string name="calendar_matches_scheduled">%1$d matches scheduled</string>
+    <string name="calendar_today">Today</string>
+    <string name="calendar_other_games_today">OTHER GAMES TODAY</string>
+    <string name="calendar_no_games_day">No matches on this day</string>
+    <string name="calendar_today_badge">TODAY</string>
+    <string name="calendar_game_details">Game Details</string>
+    <string name="calendar_view">View</string>
+    <string name="calendar_day_sun">SUN</string>
+    <string name="calendar_day_mon">MON</string>
+    <string name="calendar_day_tue">TUE</string>
+    <string name="calendar_day_wed">WED</string>
+    <string name="calendar_day_thu">THU</string>
+    <string name="calendar_day_fri">FRI</string>
+    <string name="calendar_day_sat">SAT</string>
+    <!-- Notifications Screen -->
+    <string name="notifications_page_title">Notifications</string>
+    <string name="notifications_subtitle">Stay updated on your squad activities</string>
+    <string name="notifications_empty_title">No Notifications</string>
+    <string name="notifications_empty_message">You have no notifications yet. All your squad updates will appear here.</string>
+    <string name="notifications_section_today">Today</string>
+    <string name="notifications_section_earlier">Earlier</string>
+    <string name="notifications_new_badge">%1$d New</string>
+    <!-- Registration Success Screen -->
+    <string name="registration_success_header">Registration Confirmed</string>
+    <string name="registration_success_title">Registration confirmed!</string>
+    <string name="registration_success_message">Your payment has been processed and your registration is confirmed. You can view your ticket at any time.</string>
+    <string name="registration_success_view_ticket">View Ticket</string>
+    <!-- Payment Screen -->
+    <string name="payment_confirm">Confirm Payment</string>
+    <string name="payment_event_summary">Event Summary</string>
+    <string name="payment_values">Breakdown</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="payment_method_card">Credit Card</string>
+
+    <!-- Teams Screen -->
+    <string name="teams_active_squads">Active Squads</string>
+    <string name="teams_tab_my_teams">My Teams</string>
+    <string name="teams_tab_discover">Discover</string>
+    <string name="teams_create_team">Create Team</string>
+    <string name="teams_search_placeholder">Search sports, teams or venues…</string>
+    <string name="teams_empty_my_title">No Teams Found</string>
+    <string name="teams_empty_my_message">You haven\'t joined or created any teams yet.</string>
+    <string name="teams_empty_discover_title">No Teams to Discover</string>
+    <string name="teams_empty_discover_message">There are no teams available for discovery right now.</string>
+    <string name="teams_guest_title">Sign In to See Your Teams</string>
+    <string name="teams_guest_message">Sign in to create or join your own teams and manage your squad.</string>
+    <string name="teams_guest_action">Login</string>
+    <string name="teams_request_sent">Request Sent</string>
+    <string name="teams_ask_to_join">Ask to Join</string>
+    <string name="teams_invite_members">Invite Members</string>
+    <string name="teams_settings_active">Settings Active</string>
+    <string name="teams_settings">Team Settings</string>
+    <string name="teams_tab_members">Members</string>
+    <string name="teams_tab_matches">Upcoming Matches</string>
+    <string name="teams_no_matches_title">No Upcoming Matches</string>
+    <string name="teams_no_matches_message">This team has no upcoming matches to show.</string>
+    <string name="teams_roster_header">Roster Management</string>
+    <string name="teams_players_active">%1$d Players Active</string>
+    <string name="teams_role_captain">CAPTAIN</string>
+    <string name="teams_role_member">MEMBER</string>
+    <string name="teams_promote">Promote</string>
+    <string name="teams_no_players_title">No Players</string>
+    <string name="teams_no_players_message">There are currently no players on this team. Try inviting your friends!</string>
+    <string name="teams_join_code_title">Join by invite code</string>
+    <string name="teams_join_code_desc">Enter the team invite code to request access.</string>
+    <string name="teams_join_code_sending">Sending…</string>
+    <string name="teams_join_code_request">Request</string>
+    <string name="teams_join_code_cancel">Cancel</string>
+    <string name="teams_promote_dialog_title">Promote player?</string>
+    <string name="teams_promote_dialog_message">Are you sure you want to promote %1$s to captain? The current captain will become a regular member.</string>
+    <string name="teams_promote_confirm">Promote</string>
+    <string name="teams_promote_dialog_cancel">Cancel</string>
+    <string name="teams_remove_dialog_title">Remove player?</string>
+    <string name="teams_remove_dialog_message">Are you sure you want to remove %1$s from %2$s? This player will receive a notification.</string>
+    <string name="teams_remove_confirm">Remove</string>
+    <string name="teams_remove_dialog_cancel">Cancel</string>
+    <!-- Profile Screen (Guest) -->
+    <string name="profile_guest_title">Guest Profile</string>
+    <string name="profile_guest_message">Sign in to view your statistics, manage your profile, and access your tickets and events.</string>
+    <string name="profile_guest_action">Login / Register</string>
+
+    <!-- Create Event Screen (missing/PT strings) -->
+    <string name="createEvent_warning_title">Warning</string>
+    <string name="createEvent_warning_ok">OK</string>
+    <string name="createEvent_registration_period">Registration Period</string>
+    <string name="createEvent_registration_period_hint">Optional. If left empty, registrations remain open until the event starts.</string>
+    <string name="createEvent_reg_start_date_label">Registration start date</string>
+    <string name="createEvent_reg_start_time_label">Registration start time</string>
+    <string name="createEvent_reg_end_date_label">Registration end date</string>
+    <string name="createEvent_reg_end_time_label">Registration end time</string>
+    <string name="createEvent_change_image">Change Image</string>
+    <string name="createEvent_add_cover">Add Event Cover</string>
+    <string name="createEvent_tap_to_choose">Tap to choose an image</string>
+    <string name="createEvent_location_selected">Location Selected</string>
+    <string name="createEvent_tap_to_change">Tap to change</string>
+
+    <!-- Events Map Screen -->
+    <string name="map_loading">Loading events…</string>
+    <string name="map_filter_all">All</string>
+    <string name="map_search_radius">Search radius</string>
+    <string name="map_registered_count">%1$d/%2$d registered</string>
+    <string name="map_view_details">View Details</string>
+    <string name="map_status_available">Available</string>
+    <string name="map_status_full">Full</string>
+    <string name="map_status_private">Private</string>
+    <string name="map_status_cancelled">Cancelled</string>
+    <string name="map_coming_soon">Coming soon</string>
+    <string name="map_no_location">Location unavailable</string>
+
+    <!-- More Details Screen -->
+    <string name="more_details_choose_team">Choose a team</string>
+    <string name="more_details_team_hint">Only teams where you can request participation and that aren\'t already registered for this event will appear.</string>
+    <string name="more_details_no_teams">You have no available teams for this event.</string>
+    <string name="more_details_cancel">Cancel</string>
+    <string name="more_details_manage_event">Manage Event</string>
+    <string name="more_details_complete_payment">Complete Payment</string>
+    <string name="more_details_view_ticket">View Ticket</string>
+    <string name="more_details_pending_team">Team request pending</string>
+    <string name="more_details_pending_individual">Individual registration pending</string>
+    <string name="more_details_rejected">Registration rejected</string>
+    <string name="more_details_registered">Registration recorded</string>
+    <string name="more_details_join_individual_loading">Requesting individual registration…</string>
+    <string name="more_details_join_team_loading">Requesting team participation…</string>
+    <string name="more_details_blocked">Blocked</string>
+    <string name="more_details_join_individual">Participate individually</string>
+    <string name="more_details_join_team">Participate with team</string>
+
+    <!-- Shared location strings -->
+    <string name="location_selected">Location selected</string>
+    <string name="location_copy_hint">Copy to open in GPS</string>
+    <string name="location_event_label">Event location</string>
+    <string name="location_copy">Copy</string>
+    <string name="location_copied_toast">Location copied</string>
+
+    <!-- QR Scanner Screen -->
+    <string name="qr_scanner_hint">Point the camera at the ticket QR code</string>
+    <string name="qr_scanner_permission_title">Camera permission required</string>
+    <string name="qr_scanner_permission_desc">Camera access is required to scan QR codes.</string>
+    <string name="qr_scanner_grant">Grant Permission</string>
+    <string name="qr_scanner_title">Verify Ticket</string>
+
+    <!-- Create Team Screen -->
+    <string name="create_team_label_name">Team Name</string>
+    <string name="create_team_label_sport">Sport Type</string>
+    <string name="create_team_label_description">Team Description</string>
+    <string name="create_team_create_squad">Create Squad</string>
+    <string name="create_team_upload_logo">Upload Logo</string>
+    <string name="create_team_identity">Create your squad identity</string>
+    <string name="create_team_identity_hint">Add the core details so players know what your team is about.</string>
+    <string name="create_team_required">Required</string>
+    <string name="create_team_private_title">Private Team</string>
+    <string name="create_team_private_desc">Membership by invite only</string>
+
+    <!-- Invite Team Screen -->
+    <string name="invite_squad_title">Invite Your Squad</string>
+    <string name="invite_squad_subtitle">Grow your team and prepare for the next tournament.</string>
+    <string name="invite_code_label">TEAM INVITE CODE</string>
+    <string name="invite_copy">Copy</string>
+    <string name="invite_by_username">Invite via Username or Email</string>
+    <string name="invite_suggested_contacts">Suggested Contacts</string>
+    <string name="invite_sync_contacts">Sync Contacts</string>
+    <string name="invite_share_link">Share Invite Link</string>
+    <string name="invite_status_invite">Invite</string>
+    <string name="invite_status_sent">✓ Sent</string>
+    <string name="invite_status_member">Member</string>
+
+    <!-- Live Match Pre-Match Screen -->
+    <string name="liveMatch_waiting">Waiting for the match to start…</string>
+
+    <!-- My Events Screen (missing strings) -->
+    <string name="myEvents_error_title">Error</string>
+    <string name="myEvents_retry">Try Again</string>
+    <string name="myEvents_empty_title">No Events</string>
+    <string name="myEvents_empty_message">You don\'t have any events in this category yet. Create an event to get started!</string>
+    <string name="myEvents_create_event">Create Event</string>
 
     <!-- SettingsDialog Component -->
     <string name="settings_title">SETTINGS</string>

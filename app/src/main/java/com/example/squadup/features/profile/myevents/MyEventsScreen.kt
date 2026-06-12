@@ -169,18 +169,18 @@ fun MyEventsScreen(
                 }
             } else if (uiState.errorMessage != null) {
                 EmptyStateCard(
-                    title = "Erro",
+                    title = stringResource(R.string.myEvents_error_title),
                     message = uiState.errorMessage,
                     icon = Icons.Default.CalendarMonth,
-                    actionText = "Tentar novamente",
+                    actionText = stringResource(R.string.myEvents_retry),
                     onActionClick = {}
                 )
             } else if (uiState.filteredEvents.isEmpty()) {
                 EmptyStateCard(
-                    title = "Sem eventos",
-                    message = "Ainda não tens eventos nesta categoria. Cria um evento para começar!",
+                    title = stringResource(R.string.myEvents_empty_title),
+                    message = stringResource(R.string.myEvents_empty_message),
                     icon = Icons.Default.CalendarMonth,
-                    actionText = "Criar Evento",
+                    actionText = stringResource(R.string.myEvents_create_event),
                     onActionClick = onCreateEventClick
                 )
             } else {
@@ -390,7 +390,7 @@ private fun MyEventCompletedCard(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = "COMPLETED",
+                        text = stringResource(R.string.myEvents_filter_completed).uppercase(),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color(0xFF5F738C),

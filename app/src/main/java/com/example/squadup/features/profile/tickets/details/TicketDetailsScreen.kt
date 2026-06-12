@@ -243,7 +243,7 @@ private fun TicketLocationCard(
                             .padding(14.dp)
                     ) {
                         Text(
-                            text = "Localização do evento",
+                            text = stringResource(R.string.location_event_label),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -251,7 +251,7 @@ private fun TicketLocationCard(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "Copia para abrir no GPS",
+                            text = stringResource(R.string.location_copy_hint),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White.copy(alpha = 0.9f),
@@ -288,7 +288,7 @@ private fun TicketLocationCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Localização do evento",
+                        text = stringResource(R.string.location_event_label),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -309,7 +309,7 @@ private fun TicketLocationCard(
                 Button(
                     onClick = {
                         clipboardManager.setText(AnnotatedString(copyText))
-                        Toast.makeText(context, "Localização copiada", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.location_copied_toast), Toast.LENGTH_SHORT).show()
                     },
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -317,7 +317,7 @@ private fun TicketLocationCard(
                         contentColor = Color.White
                     )
                 ) {
-                    Text(text = "Copiar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.location_copy), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

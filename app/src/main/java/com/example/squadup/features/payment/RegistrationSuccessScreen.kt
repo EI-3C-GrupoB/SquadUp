@@ -32,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.responsiveContentWidth
 import com.example.squadup.core.ui.components.responsiveHorizontalPadding
@@ -52,7 +54,7 @@ fun RegistrationSuccessScreen(
         topBar = {
             AppHeader(
                 showLogo = false,
-                title = "Inscrição confirmada",
+                title = stringResource(R.string.registration_success_header),
                 showBackButton = false,
                 showNotificationsButton = false,
                 showSettingsButton = false
@@ -86,7 +88,7 @@ fun RegistrationSuccessScreen(
             Spacer(modifier = Modifier.height(mediumSpacing))
 
             Text(
-                text = "Inscrição confirmada!",
+                text = stringResource(R.string.registration_success_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -96,7 +98,7 @@ fun RegistrationSuccessScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "O teu pagamento foi processado e a tua inscrição está confirmada. Podes ver o teu bilhete a qualquer momento.",
+                text = stringResource(R.string.registration_success_message),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -121,7 +123,7 @@ fun RegistrationSuccessScreen(
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "Ver Bilhete",
+                    text = stringResource(R.string.registration_success_view_ticket),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )

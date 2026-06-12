@@ -464,7 +464,7 @@ private fun TeamAccordionCard(
                     // Header da lista de jogadores
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Players",
+                            text = stringResource(R.string.manageEvent_players_label),
                             fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.weight(1f)
                         )

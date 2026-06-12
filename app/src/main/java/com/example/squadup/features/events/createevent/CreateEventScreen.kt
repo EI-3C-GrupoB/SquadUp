@@ -291,7 +291,7 @@ fun CreateEventScreen(
                     onDismissRequest = onDismissError,
                     title = {
                         Text(
-                            text = "Atenção",
+                            text = stringResource(R.string.createEvent_warning_title),
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface
@@ -307,7 +307,7 @@ fun CreateEventScreen(
                     confirmButton = {
                         TextButton(onClick = onDismissError) {
                             Text(
-                                text = "OK",
+                                text = stringResource(R.string.createEvent_warning_ok),
                                 color = SquadOrange,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -889,7 +889,7 @@ private fun LocationTimeStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Período de inscrições",
+            text = stringResource(R.string.createEvent_registration_period),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -898,7 +898,7 @@ private fun LocationTimeStep(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Opcional. Se deixares vazio, as inscrições ficam abertas até ao início do evento.",
+            text = stringResource(R.string.createEvent_registration_period_hint),
             fontSize = 12.sp,
             lineHeight = 17.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -909,7 +909,7 @@ private fun LocationTimeStep(
         SquadDateTimePickerField(
             value = uiState.registrationStartDate,
             onValueChange = onRegistrationStartDateChange,
-            label = "Data de início das inscrições",
+            label = stringResource(R.string.createEvent_reg_start_date_label),
             placeholder = "YYYY-MM-DD",
             mode = DateTimePickerMode.DATE,
             leadingIcon = Icons.Outlined.CalendarMonth
@@ -920,7 +920,7 @@ private fun LocationTimeStep(
         SquadDateTimePickerField(
             value = uiState.registrationStartTime,
             onValueChange = onRegistrationStartTimeChange,
-            label = "Hora de início das inscrições",
+            label = stringResource(R.string.createEvent_reg_start_time_label),
             placeholder = "09:00",
             mode = DateTimePickerMode.TIME,
             leadingIcon = Icons.Outlined.AccessTime
@@ -931,7 +931,7 @@ private fun LocationTimeStep(
         SquadDateTimePickerField(
             value = uiState.registrationEndDate,
             onValueChange = onRegistrationEndDateChange,
-            label = "Data de fim das inscrições",
+            label = stringResource(R.string.createEvent_reg_end_date_label),
             placeholder = "YYYY-MM-DD",
             mode = DateTimePickerMode.DATE,
             leadingIcon = Icons.Outlined.CalendarMonth
@@ -942,7 +942,7 @@ private fun LocationTimeStep(
         SquadDateTimePickerField(
             value = uiState.registrationEndTime,
             onValueChange = onRegistrationEndTimeChange,
-            label = "Hora de fim das inscrições",
+            label = stringResource(R.string.createEvent_reg_end_time_label),
             placeholder = "23:59",
             mode = DateTimePickerMode.TIME,
             leadingIcon = Icons.Outlined.AccessTime
@@ -1077,7 +1077,7 @@ private fun ReviewStep(
                     shape = RoundedCornerShape(999.dp)
                 ) {
                     Text(
-                        text = "Alterar imagem",
+                        text = stringResource(R.string.createEvent_change_image),
                         color = Color.White,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -1098,7 +1098,7 @@ private fun ReviewStep(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Adicionar capa do evento",
+                        text = stringResource(R.string.createEvent_add_cover),
                         color = Color.White,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
@@ -1107,7 +1107,7 @@ private fun ReviewStep(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Toca para escolher uma imagem",
+                        text = stringResource(R.string.createEvent_tap_to_choose),
                         color = Color.White.copy(alpha = 0.85f),
                         fontSize = 12.sp
                     )
@@ -1943,14 +1943,14 @@ private fun LocationPreviewCard(
                     .padding(14.dp)
             ) {
                 Text(
-                    text = "Localização selecionada",
+                    text = stringResource(R.string.createEvent_location_selected),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
 
                 Text(
-                    text = "Toca para alterar",
+                    text = stringResource(R.string.createEvent_tap_to_change),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White.copy(alpha = 0.9f)

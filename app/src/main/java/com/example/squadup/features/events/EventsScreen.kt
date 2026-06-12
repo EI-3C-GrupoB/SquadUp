@@ -1054,7 +1054,7 @@ private fun EventSummaryBottomSheet(
                                 Spacer(modifier = Modifier.width(4.dp))
 
                                 Text(
-                                    text = "DATE",
+                                    text = stringResource(R.string.myEvents_date_label),
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -1098,7 +1098,7 @@ private fun EventSummaryBottomSheet(
                                 Spacer(modifier = Modifier.width(4.dp))
 
                                 Text(
-                                    text = "VENUE",
+                                    text = stringResource(R.string.myEvents_venue_label),
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,

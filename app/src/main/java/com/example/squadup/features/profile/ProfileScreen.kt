@@ -65,7 +65,6 @@ fun ProfileScreen(
         topBar = {
             AppHeader(
                 showLogo = true,
-                title = stringResource(R.string.profile_title),
                 showBackButton = false,
                 showNotificationsButton = uiState.isLoggedIn,
                 notificationsCount = notificationsCount,
@@ -102,10 +101,10 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(guestSpacing))
 
                 EmptyStateCard(
-                    title = "Perfil de Convidado",
-                    message = "Inicia sessão para veres as tuas estatísticas, gerires o teu perfil e acederes aos teus bilhetes e eventos.",
+                    title = stringResource(R.string.profile_guest_title),
+                    message = stringResource(R.string.profile_guest_message),
                     icon = Icons.Outlined.Person,
-                    actionText = "Login / Registo",
+                    actionText = stringResource(R.string.profile_guest_action),
                     onActionClick = onLoginClick
                 )
 

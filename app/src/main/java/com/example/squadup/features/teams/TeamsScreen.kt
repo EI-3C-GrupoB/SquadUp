@@ -81,6 +81,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 import com.example.squadup.core.ui.theme.SquadError
 @Composable
 fun TeamsScreen(
@@ -131,7 +133,6 @@ fun TeamsScreen(
         topBar = {
             AppHeader(
                 showLogo = true,
-                title = "Teams",
                 showNotificationsButton = isLoggedIn,
                 notificationsCount = notificationsCount,
                 onNotificationsClick = onNotificationsClick,
@@ -195,7 +196,7 @@ fun TeamsScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = "Active Squads",
+                text = stringResource(R.string.teams_active_squads),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = SquadOrange,
@@ -209,18 +210,18 @@ fun TeamsScreen(
             ) {
                 if (!isLoggedIn && uiState.selectedTab == TeamsTab.MY_TEAMS) {
                     EmptyStateCard(
-                        title = "Entra para ver as tuas equipas",
-                        message = "Inicia sessão para criares ou juntares-te às tuas próprias equipas e gerires o teu plantel.",
+                        title = stringResource(R.string.teams_guest_title),
+                        message = stringResource(R.string.teams_guest_message),
                         icon = Icons.Outlined.Groups,
-                        actionText = "Login",
+                        actionText = stringResource(R.string.teams_guest_action),
                         onActionClick = onLoginClick
                     )
                 } else if (uiState.visibleTeams.isEmpty()) {
                     EmptyStateCard(
-                        title = if (uiState.selectedTab == TeamsTab.MY_TEAMS) "No Teams Found" else "No Teams to Discover",
+                        title = if (uiState.selectedTab == TeamsTab.MY_TEAMS) stringResource(R.string.teams_empty_my_title) else stringResource(R.string.teams_empty_discover_title),
                         message = if (uiState.selectedTab == TeamsTab.MY_TEAMS)
-                            "You haven't joined or created any teams yet."
-                        else "There are no teams available for discovery right now.",
+                            stringResource(R.string.teams_empty_my_message)
+                        else stringResource(R.string.teams_empty_discover_message),
                         icon = Icons.Outlined.Groups
                     )
                 } else {
@@ -280,14 +281,14 @@ private fun TeamsActionSelector(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TeamsSliderTab(
-                        text = "My Teams",
+                        text = stringResource(R.string.teams_tab_my_teams),
                         selected = selectedTab == TeamsTab.MY_TEAMS,
                         onClick = { onTabSelected(TeamsTab.MY_TEAMS) },
                         modifier = Modifier.weight(1f)
                     )
 
                     TeamsSliderTab(
-                        text = "Discover",
+                        text = stringResource(R.string.teams_tab_discover),
                         selected = selectedTab == TeamsTab.DISCOVER,
                         onClick = { onTabSelected(TeamsTab.DISCOVER) },
                         modifier = Modifier.weight(1f)
@@ -371,7 +372,7 @@ private fun CreateTeamButton(
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = "Create Team",
+                text = stringResource(R.string.teams_create_team),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = SquadWhite,
@@ -425,7 +426,7 @@ private fun TeamsSearchField(
                 ) {
                     if (value.isBlank()) {
                         Text(
-                            text = "Search sports, teams, or venues...",
+                            text = stringResource(R.string.teams_search_placeholder),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -591,14 +592,14 @@ private fun TeamExpandedContent(
             },
             title = {
                 Text(
-                    text = "Promover jogador?",
+                    text = stringResource(R.string.teams_promote_dialog_title),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
                 Text(
-                    text = "Tens a certeza que queres promover ${promotionTarget.name} a capitão? O capitão actual deixará de ser capitão e passará a membro.",
+                    text = stringResource(R.string.teams_promote_dialog_message, promotionTarget.name),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
@@ -617,7 +618,7 @@ private fun TeamExpandedContent(
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Text(
-                        text = "Promover",
+                        text = stringResource(R.string.teams_promote_confirm),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -629,7 +630,7 @@ private fun TeamExpandedContent(
                     }
                 ) {
                     Text(
-                        text = "Cancelar",
+                        text = stringResource(R.string.teams_promote_dialog_cancel),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -647,14 +648,14 @@ private fun TeamExpandedContent(
             },
             title = {
                 Text(
-                    text = "Remover jogador?",
+                    text = stringResource(R.string.teams_remove_dialog_title),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
                 Text(
-                    text = "Tens a certeza que queres remover ${removalTarget.name} da equipa ${team.name}? Este jogador receberá uma notificação.",
+                    text = stringResource(R.string.teams_remove_dialog_message, removalTarget.name, team.name),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     lineHeight = 20.sp
@@ -673,7 +674,7 @@ private fun TeamExpandedContent(
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Text(
-                        text = "Remover",
+                        text = stringResource(R.string.teams_remove_confirm),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -685,7 +686,7 @@ private fun TeamExpandedContent(
                     }
                 ) {
                     Text(
-                        text = "Cancelar",
+                        text = stringResource(R.string.teams_remove_dialog_cancel),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -744,7 +745,7 @@ private fun TeamExpandedContent(
                         )
                     ) {
                         Text(
-                            text = if (isPending) "Request Sent" else "Ask to join",
+                            text = if (isPending) stringResource(R.string.teams_request_sent) else stringResource(R.string.teams_ask_to_join),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -886,13 +887,7 @@ private fun TeamExpandedHero(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = when (team.sportType) {
-                            SportType.SOCCER -> "Soccer"
-                            SportType.BASKETBALL -> "Basketball"
-                            SportType.PADDLE -> "Paddle"
-                            SportType.VOLLEYBALL -> "Volleyball"
-                            SportType.FUTSAL -> "Futsal"
-                        },
+                        text = stringResource(team.sportType.labelRes),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = SquadWhite,
@@ -918,7 +913,7 @@ private fun TeamExpandedHero(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         TeamSimpleActionButton(
-                            text = "Invite Members",
+                            text = stringResource(R.string.teams_invite_members),
                             icon = Icons.Outlined.Add,
                             filled = true,
                             active = false,
@@ -928,7 +923,7 @@ private fun TeamExpandedHero(
 
                         if (team.isCaptain) {
                             TeamSimpleActionButton(
-                                text = if (settingsActive) "Settings Active" else "Team Settings",
+                                text = if (settingsActive) stringResource(R.string.teams_settings_active) else stringResource(R.string.teams_settings),
                                 icon = Icons.Outlined.Settings,
                                 filled = true,
                                 active = settingsActive,
@@ -979,7 +974,7 @@ private fun TeamDetailTabSlider(
                         modifier = Modifier.size(14.dp)
                     )
                     Text(
-                        text = if (tab == TeamDetailTab.MEMBERS) "Membros" else "Próximos Jogos",
+                        text = if (tab == TeamDetailTab.MEMBERS) stringResource(R.string.teams_tab_members) else stringResource(R.string.teams_tab_matches),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (selected) SquadWhite else MaterialTheme.colorScheme.onSurfaceVariant
@@ -994,8 +989,8 @@ private fun TeamDetailTabSlider(
 private fun UpcomingMatchesList(matches: List<TeamUpcomingMatch>) {
     if (matches.isEmpty()) {
         EmptyStateCard(
-            title = "Sem jogos agendados",
-            message = "Esta equipa ainda não tem jogos próximos para mostrar.",
+            title = stringResource(R.string.teams_no_matches_title),
+            message = stringResource(R.string.teams_no_matches_message),
             icon = Icons.Outlined.CalendarMonth
         )
         return
@@ -1135,7 +1130,7 @@ private fun RosterHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Roster Management",
+            text = stringResource(R.string.teams_roster_header),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -1143,7 +1138,7 @@ private fun RosterHeader(
         )
 
         Text(
-            text = "$playersCount Players Active",
+            text = stringResource(R.string.teams_players_active, playersCount),
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1202,7 +1197,7 @@ private fun RosterMemberCard(
                 when (member.role) {
                     TeamRosterRole.CAPTAIN -> {
                         RoleBadge(
-                            text = "CAPTAIN",
+                            text = stringResource(R.string.teams_role_captain),
                             background = SquadOrange,
                             textColor = SquadWhite
                         )
@@ -1210,7 +1205,7 @@ private fun RosterMemberCard(
 
                     TeamRosterRole.MEMBER -> {
                         RoleBadge(
-                            text = "MEMBER",
+                            text = stringResource(R.string.teams_role_member),
                             background = Color(0xFF9E9E9E),
                             textColor = SquadWhite
                         )
@@ -1246,7 +1241,7 @@ private fun RosterMemberCard(
                                 shape = RoundedCornerShape(999.dp)
                             ) {
                                 Text(
-                                    text = "Promote",
+                                    text = stringResource(R.string.teams_promote),
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = SquadWhite,
@@ -1290,8 +1285,8 @@ private fun RoleBadge(
 @Composable
 private fun EmptyRosterMessage() {
     EmptyStateCard(
-        title = "No Players",
-        message = "There are currently no players on this team. Try inviting your friends!",
+        title = stringResource(R.string.teams_no_players_title),
+        message = stringResource(R.string.teams_no_players_message),
         icon = Icons.Outlined.Person
     )
 }
@@ -1365,7 +1360,7 @@ private fun JoinByCodeDialog(
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(
-                text = "Join by invite code",
+                text = stringResource(R.string.teams_join_code_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -1374,7 +1369,7 @@ private fun JoinByCodeDialog(
         text = {
             Column {
                 Text(
-                    text = "Enter the team invite code to request access.",
+                    text = stringResource(R.string.teams_join_code_desc),
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1427,7 +1422,7 @@ private fun JoinByCodeDialog(
                 shape = RoundedCornerShape(10.dp)
             ) {
                 Text(
-                    text = if (isLoading) "Sending..." else "Request",
+                    text = if (isLoading) stringResource(R.string.teams_join_code_sending) else stringResource(R.string.teams_join_code_request),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -1438,7 +1433,7 @@ private fun JoinByCodeDialog(
                 enabled = !isLoading
             ) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.teams_join_code_cancel),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.SemiBold
                 )

@@ -80,6 +80,8 @@ import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 
 @Composable
 fun MoreDetailsScreen(
@@ -372,7 +374,7 @@ private fun TeamPickerBottomSheet(
                 .padding(bottom = 28.dp)
         ) {
             Text(
-                text = "Escolhe a equipa",
+                text = stringResource(R.string.more_details_choose_team),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -381,7 +383,7 @@ private fun TeamPickerBottomSheet(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Só aparecem equipas onde podes pedir participação e que ainda não estão inscritas neste evento.",
+                text = stringResource(R.string.more_details_team_hint),
                 fontSize = 13.sp,
                 lineHeight = 18.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -428,7 +430,7 @@ private fun TeamPickerBottomSheet(
                         border = BorderStroke(1.dp, Color(0xFFF0E1DC))
                     ) {
                         Text(
-                            text = "Não tens equipas disponíveis para este evento.",
+                            text = stringResource(R.string.more_details_no_teams),
                             fontSize = 14.sp,
                             lineHeight = 20.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -511,7 +513,7 @@ private fun TeamPickerBottomSheet(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Cancelar",
+                    text = stringResource(R.string.more_details_cancel),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -536,15 +538,19 @@ private fun EventActionButtons(
     val isPaidEvent = (uiState.eventPrice ?: 0.0) > 0.0
     val paymentDone = uiState.paymentStatus == "pago"
 
+    val pendingTeamText = stringResource(R.string.more_details_pending_team)
+    val pendingIndividualText = stringResource(R.string.more_details_pending_individual)
+    val rejectedText = stringResource(R.string.more_details_rejected)
+    val registeredText = stringResource(R.string.more_details_registered)
     val pendingButtonText = when {
         regStatus == "pendente" && uiState.userEventRegistrationType == "pedido_evento_equipa" ->
-            "Pedido de equipa pendente"
+            pendingTeamText
         regStatus == "pendente" ->
-            "Inscrição individual pendente"
+            pendingIndividualText
         regStatus == "recusada" ->
-            "Inscrição recusada"
+            rejectedText
         else ->
-            "Inscrição registada"
+            registeredText
     }
 
     when {
@@ -559,7 +565,7 @@ private fun EventActionButtons(
                 )
             ) {
                 Text(
-                    text = "Gerir evento",
+                    text = stringResource(R.string.more_details_manage_event),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -577,7 +583,7 @@ private fun EventActionButtons(
                 )
             ) {
                 Text(
-                    text = "Concluir Pagamento",
+                    text = stringResource(R.string.more_details_complete_payment),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -595,7 +601,7 @@ private fun EventActionButtons(
                 )
             ) {
                 Text(
-                    text = "Ver Bilhete",
+                    text = stringResource(R.string.more_details_view_ticket),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -644,17 +650,12 @@ private fun EventActionButtons(
                 ) {
                     Text(
                         text = when {
-                            uiState.joiningRegistrationType == "evento_individual" -> {
-                                "A pedir inscrição individual..."
-                            }
-
-                            uiState.isJoining -> {
-                                "Bloqueado"
-                            }
-
-                            else -> {
-                                "Participar individualmente"
-                            }
+                            uiState.joiningRegistrationType == "evento_individual" ->
+                                stringResource(R.string.more_details_join_individual_loading)
+                            uiState.isJoining ->
+                                stringResource(R.string.more_details_blocked)
+                            else ->
+                                stringResource(R.string.more_details_join_individual)
                         },
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
@@ -683,17 +684,12 @@ private fun EventActionButtons(
                 ) {
                     Text(
                         text = when {
-                            uiState.joiningRegistrationType == "pedido_evento_equipa" -> {
-                                "A pedir participação com equipa..."
-                            }
-
-                            uiState.isJoining -> {
-                                "Bloqueado"
-                            }
-
-                            else -> {
-                                "Participar com equipa"
-                            }
+                            uiState.joiningRegistrationType == "pedido_evento_equipa" ->
+                                stringResource(R.string.more_details_join_team_loading)
+                            uiState.isJoining ->
+                                stringResource(R.string.more_details_blocked)
+                            else ->
+                                stringResource(R.string.more_details_join_team)
                         },
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
@@ -717,9 +713,9 @@ private fun EventActionButtons(
             ) {
                 Text(
                     text = if (uiState.joiningRegistrationType == "evento_individual") {
-                        "A pedir inscrição individual..."
+                        stringResource(R.string.more_details_join_individual_loading)
                     } else {
-                        "Participar individualmente"
+                        stringResource(R.string.more_details_join_individual)
                     },
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
@@ -750,9 +746,9 @@ private fun EventActionButtons(
             ) {
                 Text(
                     text = if (uiState.joiningRegistrationType == "pedido_evento_equipa") {
-                        "A pedir participação com equipa..."
+                        stringResource(R.string.more_details_join_team_loading)
                     } else {
-                        "Participar com equipa"
+                        stringResource(R.string.more_details_join_team)
                     },
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
@@ -1238,7 +1234,7 @@ private fun LocationPreviewCard(
                             .padding(14.dp)
                     ) {
                         Text(
-                            text = "Localização selecionada",
+                            text = stringResource(R.string.location_selected),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -1247,7 +1243,7 @@ private fun LocationPreviewCard(
                         )
 
                         Text(
-                            text = "Copia para abrir no GPS",
+                            text = stringResource(R.string.location_copy_hint),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White.copy(alpha = 0.9f),
@@ -1288,7 +1284,7 @@ private fun LocationPreviewCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Localização do evento",
+                        text = stringResource(R.string.location_event_label),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -1316,7 +1312,7 @@ private fun LocationPreviewCard(
 
                         Toast.makeText(
                             context,
-                            "Localização copiada",
+                            context.getString(R.string.location_copied_toast),
                             Toast.LENGTH_SHORT
                         ).show()
                     },
@@ -1327,7 +1323,7 @@ private fun LocationPreviewCard(
                     )
                 ) {
                     Text(
-                        text = "Copiar",
+                        text = stringResource(R.string.location_copy),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,

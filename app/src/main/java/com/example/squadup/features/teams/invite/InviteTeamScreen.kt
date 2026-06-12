@@ -60,6 +60,8 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 
 @Composable
 fun InviteTeamScreen(
@@ -107,7 +109,7 @@ fun InviteTeamScreen(
                 .padding(top = 18.dp, bottom = 28.dp)
         ) {
             Text(
-                text = "Invite Your Squad",
+                text = stringResource(R.string.invite_squad_title),
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -116,7 +118,7 @@ fun InviteTeamScreen(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Grow your team and prepare for the next tournament.",
+                text = stringResource(R.string.invite_squad_subtitle),
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
                 fontWeight = FontWeight.Medium,
@@ -140,8 +142,8 @@ fun InviteTeamScreen(
             Spacer(modifier = Modifier.height(22.dp))
 
             InviteSectionHeader(
-                title = "Suggested Contacts",
-                action = "Sync Contacts"
+                title = stringResource(R.string.invite_suggested_contacts),
+                action = stringResource(R.string.invite_sync_contacts)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -154,7 +156,7 @@ fun InviteTeamScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             InviteSectionHeader(
-                title = "Share Invite Link",
+                title = stringResource(R.string.invite_share_link),
                 action = null
             )
 
@@ -183,7 +185,7 @@ private fun InviteCodeCard(
             modifier = Modifier.padding(18.dp)
         ) {
             Text(
-                text = "TEAM INVITE CODE",
+                text = stringResource(R.string.invite_code_label),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF9A3A00),
@@ -243,7 +245,7 @@ private fun InviteCodeCard(
                         Spacer(modifier = Modifier.width(5.dp))
 
                         Text(
-                            text = "Copy",
+                            text = stringResource(R.string.invite_copy),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -475,9 +477,9 @@ private fun InviteStatusButton(
     val enabled = status == InviteStatus.INVITE
 
     val label = when (status) {
-        InviteStatus.INVITE -> "Invite"
-        InviteStatus.SENT -> "✓ Sent"
-        InviteStatus.MEMBER -> "Member"
+        InviteStatus.INVITE -> stringResource(R.string.invite_status_invite)
+        InviteStatus.SENT -> stringResource(R.string.invite_status_sent)
+        InviteStatus.MEMBER -> stringResource(R.string.invite_status_member)
     }
 
     val backgroundColor = when (status) {
@@ -533,7 +535,7 @@ private fun InviteByUsernameCard(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Invite via Username or Email",
+                text = stringResource(R.string.invite_by_username),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

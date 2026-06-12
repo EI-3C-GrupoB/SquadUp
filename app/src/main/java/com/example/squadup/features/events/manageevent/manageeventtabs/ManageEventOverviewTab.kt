@@ -208,7 +208,7 @@ internal fun OverviewTabContent(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "MANAGEMENT TOOLS",
+                text = stringResource(R.string.manage_event_tools),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -278,7 +278,7 @@ internal fun OverviewTabContent(
 
         if (uiState.individualRegistrationRequests.isNotEmpty()) {
             Text(
-                text = "Pedidos de participação",
+                text = stringResource(R.string.manage_event_individual_requests),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -318,7 +318,7 @@ internal fun OverviewTabContent(
         // 5 — Inscrições recentes
         if (uiState.teamRegistrationRequests.isNotEmpty()) {
             Text(
-                text = "Pedidos de equipa",
+                text = stringResource(R.string.manage_event_team_requests),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

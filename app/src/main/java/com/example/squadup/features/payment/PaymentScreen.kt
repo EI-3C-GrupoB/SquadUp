@@ -43,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
@@ -131,7 +133,7 @@ fun PaymentScreen(
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = "Confirmar Pagamento",
+                        text = stringResource(R.string.payment_confirm),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -151,7 +153,7 @@ private fun EventSummaryCard(uiState: PaymentUiState) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Resumo do evento",
+                text = stringResource(R.string.payment_event_summary),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -208,7 +210,7 @@ private fun FeeBreakdownCard(uiState: PaymentUiState) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Valores",
+                text = stringResource(R.string.payment_values),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -253,7 +255,7 @@ private fun PaymentMethodCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Método de pagamento",
+                text = stringResource(R.string.payment_method),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -262,7 +264,7 @@ private fun PaymentMethodCard(
 
             PaymentMethodOption(
                 method = PaymentMethod.CARD,
-                label = "Cartão de Crédito",
+                label = stringResource(R.string.payment_method_card),
                 icon = Icons.Outlined.CreditCard,
                 selected = selected == PaymentMethod.CARD,
                 onSelect = onSelect

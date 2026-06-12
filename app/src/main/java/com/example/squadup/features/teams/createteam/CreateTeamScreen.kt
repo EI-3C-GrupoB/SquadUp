@@ -71,6 +71,8 @@ import com.example.squadup.core.utils.AppLanguage
 import com.example.squadup.core.utils.toIcon
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -151,7 +153,7 @@ fun CreateTeamScreen(
                     .padding(top = 22.dp, bottom = 24.dp)
             ) {
                 CreateTeamLabel(
-                    text = "Team Name",
+                    text = stringResource(R.string.create_team_label_name),
                     required = true
                 )
 
@@ -168,7 +170,7 @@ fun CreateTeamScreen(
                 Spacer(modifier = Modifier.height(22.dp))
 
                 CreateTeamLabel(
-                    text = "Sport Type",
+                    text = stringResource(R.string.create_team_label_sport),
                     required = true
                 )
 
@@ -197,7 +199,7 @@ fun CreateTeamScreen(
                 Spacer(modifier = Modifier.height(22.dp))
 
                 CreateTeamLabel(
-                    text = "Team Description",
+                    text = stringResource(R.string.create_team_label_description),
                     required = false
                 )
 
@@ -244,7 +246,7 @@ fun CreateTeamScreen(
                     Spacer(modifier = Modifier.size(8.dp))
 
                     Text(
-                        text = "Create Squad",
+                        text = stringResource(R.string.create_team_create_squad),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -305,7 +307,7 @@ private fun CreateTeamHero(
                             Spacer(modifier = Modifier.height(5.dp))
 
                             Text(
-                                text = "Upload Logo",
+                                text = stringResource(R.string.create_team_upload_logo),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -333,7 +335,7 @@ private fun CreateTeamHero(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "Create your squad identity",
+                text = stringResource(R.string.create_team_identity),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -343,7 +345,7 @@ private fun CreateTeamHero(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Add the core details so players know what your team is about.",
+                text = stringResource(R.string.create_team_identity_hint),
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 fontWeight = FontWeight.Medium,
@@ -373,7 +375,7 @@ private fun CreateTeamLabel(
 
         if (required) {
             Text(
-                text = "Required",
+                text = stringResource(R.string.create_team_required),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -431,13 +433,7 @@ private fun SportTypeChip(
     selected: Boolean,
     onClick: () -> Unit
 ) {
-    val label = when (sportType) {
-        SportType.SOCCER -> "Soccer"
-        SportType.BASKETBALL -> "Basketball"
-        SportType.PADDLE -> "Paddle"
-        SportType.VOLLEYBALL -> "Volleyball"
-        SportType.FUTSAL -> "Futsal"
-    }
+    val label = stringResource(sportType.labelRes)
 
     Surface(
         modifier = Modifier
@@ -512,7 +508,7 @@ private fun PrivateTeamCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "Private Team",
+                    text = stringResource(R.string.create_team_private_title),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -521,7 +517,7 @@ private fun PrivateTeamCard(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
-                    text = "Membership by invite only",
+                    text = stringResource(R.string.create_team_private_desc),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

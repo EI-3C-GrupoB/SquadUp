@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.sp
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.EmptyStateCard
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
@@ -149,7 +151,7 @@ fun NotificationsScreen(
                 .padding(top = 18.dp, bottom = 28.dp)
         ) {
             Text(
-                text = "Notifications",
+                text = stringResource(R.string.notifications_page_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -158,7 +160,7 @@ fun NotificationsScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Stay updated on your squad activities",
+                text = stringResource(R.string.notifications_subtitle),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -168,15 +170,15 @@ fun NotificationsScreen(
 
             if (uiState.todayNotifications.isEmpty() && uiState.earlierNotifications.isEmpty()) {
                 EmptyStateCard(
-                    title = "Sem notificações",
-                    message = "Ainda não tens notificações para mostrar. Todas as atualizações das tuas squads aparecerão aqui.",
+                    title = stringResource(R.string.notifications_empty_title),
+                    message = stringResource(R.string.notifications_empty_message),
                     icon = Icons.Outlined.Notifications
                 )
             } else {
                 if (uiState.todayNotifications.isNotEmpty()) {
                     NotificationSectionHeader(
-                        title = "Today",
-                        badgeText = "${uiState.newNotificationsCount} New"
+                        title = stringResource(R.string.notifications_section_today),
+                        badgeText = stringResource(R.string.notifications_new_badge, uiState.newNotificationsCount)
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -206,7 +208,7 @@ fun NotificationsScreen(
 
                 if (uiState.earlierNotifications.isNotEmpty()) {
                     NotificationSectionHeader(
-                        title = "Earlier",
+                        title = stringResource(R.string.notifications_section_earlier),
                         badgeText = null
                     )
 

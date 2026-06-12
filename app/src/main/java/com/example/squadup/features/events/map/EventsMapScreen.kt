@@ -76,6 +76,8 @@ import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 
 private const val OPEN_FREE_MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty"
 
@@ -180,7 +182,7 @@ fun EventsMapScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "A carregar eventos...",
+                            text = stringResource(R.string.map_loading),
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
@@ -454,13 +456,13 @@ private fun SportFilterRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         SportFilterChip(
-            text = "Todos",
+            text = stringResource(R.string.map_filter_all),
             selected = selectedSport == null,
             onClick = { onSportFilterChange(null) }
         )
         SportType.entries.forEach { sportType ->
             SportFilterChip(
-                text = sportType.name.lowercase().replaceFirstChar { it.uppercase() },
+                text = stringResource(sportType.labelRes),
                 selected = selectedSport == sportType,
                 onClick = { onSportFilterChange(sportType) },
                 icon = sportType
@@ -563,10 +565,10 @@ private fun MapStatsCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            MapStatRow("Disponível", availableCount, Color(0xFF2E7D32))
-            MapStatRow("Cheio", fullCount, Color(0xFFD32F2F))
-            MapStatRow("Privado", privateCount, Color(0xFF7B1FA2))
-            MapStatRow("Cancelado", cancelledCount, Color(0xFF757575))
+            MapStatRow(stringResource(R.string.map_status_available), availableCount, Color(0xFF2E7D32))
+            MapStatRow(stringResource(R.string.map_status_full), fullCount, Color(0xFFD32F2F))
+            MapStatRow(stringResource(R.string.map_status_private), privateCount, Color(0xFF7B1FA2))
+            MapStatRow(stringResource(R.string.map_status_cancelled), cancelledCount, Color(0xFF757575))
         }
     }
 }
@@ -613,7 +615,7 @@ private fun RadiusSliderCard(
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = "Raio de pesquisa",
+                    text = stringResource(R.string.map_search_radius),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -658,7 +660,7 @@ private fun SelectedEventCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = pin.sportType.name.lowercase().replaceFirstChar { it.uppercase() },
+                    text = stringResource(pin.sportType.labelRes),
                     color = SquadOrange,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
@@ -668,7 +670,7 @@ private fun SelectedEventCard(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = pin.startsAt.ifBlank { "Em breve" },
+                    text = pin.startsAt.ifBlank { stringResource(R.string.map_coming_soon) },
                     color = SquadOrange,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
@@ -686,7 +688,7 @@ private fun SelectedEventCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = pin.venue.ifBlank { "Localização não disponível" },
+                    text = pin.venue.ifBlank { stringResource(R.string.map_no_location) },
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp
                 )
@@ -702,7 +704,7 @@ private fun SelectedEventCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "${pin.registeredCount}/${pin.totalSpots} inscritos",
+                        text = stringResource(R.string.map_registered_count, pin.registeredCount, pin.totalSpots),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
@@ -713,7 +715,7 @@ private fun SelectedEventCard(
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = SquadOrange, contentColor = Color.White)
                 ) {
-                    Text(text = "Ver Detalhes", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.map_view_details), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

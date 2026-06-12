@@ -42,6 +42,8 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 
 @Composable
 fun QrScannerScreen(
@@ -142,7 +144,7 @@ fun QrScannerScreen(
                     .padding(bottom = 80.dp)
             ) {
                 Text(
-                    text = "Aponta a câmara para o QR code do bilhete",
+                    text = stringResource(R.string.qr_scanner_hint),
                     fontSize = 14.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -172,7 +174,7 @@ fun QrScannerScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        text = "Permissão de câmara necessária",
+                        text = stringResource(R.string.qr_scanner_permission_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -180,7 +182,7 @@ fun QrScannerScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Para ler QR codes é necessário acesso à câmara.",
+                        text = stringResource(R.string.qr_scanner_permission_desc),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -190,7 +192,7 @@ fun QrScannerScreen(
                         onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                         colors = ButtonDefaults.buttonColors(containerColor = SquadOrange)
                     ) {
-                        Text("Conceder Permissão")
+                        Text(stringResource(R.string.qr_scanner_grant))
                     }
                 }
             }
@@ -210,7 +212,7 @@ fun QrScannerScreen(
 
         // Title bar
         Text(
-            text = "Verificar Bilhete",
+            text = stringResource(R.string.qr_scanner_title),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,

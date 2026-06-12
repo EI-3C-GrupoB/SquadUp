@@ -43,6 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.components.responsiveHorizontalPadding
@@ -114,7 +116,7 @@ fun CalendarScreen(
                 )
 
                 Text(
-                    text = "${uiState.matchesScheduled} jogos agendados",
+                    text = stringResource(R.string.calendar_matches_scheduled, uiState.matchesScheduled),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -138,7 +140,7 @@ fun CalendarScreen(
                     )
 
                     Text(
-                        text = "Hoje",
+                        text = stringResource(R.string.calendar_today),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -181,7 +183,7 @@ fun CalendarScreen(
             if (uiState.dailySchedule.size > 1) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "OUTROS JOGOS HOJE",
+                    text = stringResource(R.string.calendar_other_games_today),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.6.sp,
@@ -213,7 +215,7 @@ fun CalendarScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Sem jogos neste dia",
+                            text = stringResource(R.string.calendar_no_games_day),
                             fontSize = 13.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -234,7 +236,15 @@ private fun MonthCalendarCard(
     calendarCells: List<Int?>,
     onDayClick: (Int) -> Unit
 ) {
-    val weekDays = listOf("DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB")
+    val weekDays = listOf(
+        stringResource(R.string.calendar_day_sun),
+        stringResource(R.string.calendar_day_mon),
+        stringResource(R.string.calendar_day_tue),
+        stringResource(R.string.calendar_day_wed),
+        stringResource(R.string.calendar_day_thu),
+        stringResource(R.string.calendar_day_fri),
+        stringResource(R.string.calendar_day_sat)
+    )
 
     val cells = calendarCells.ifEmpty {
         listOf<Int?>(
@@ -330,7 +340,7 @@ private fun CalendarDayCell(
 
                 if (selected) {
                     Text(
-                        text = "HOJE",
+                        text = stringResource(R.string.calendar_today_badge),
                         fontSize = 7.sp,
                         fontWeight = FontWeight.Bold,
                         color = SquadOrange
@@ -459,7 +469,7 @@ private fun MatchHighlightCard(
                     )
                 ) {
                     Text(
-                        text = "Detalhes do Jogo",
+                        text = stringResource(R.string.calendar_game_details),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -596,7 +606,7 @@ private fun GameCompactCard(
                 onClick = onDetailsClick,
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text(text = "Ver", color = SquadOrange, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(text = stringResource(R.string.calendar_view), color = SquadOrange, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

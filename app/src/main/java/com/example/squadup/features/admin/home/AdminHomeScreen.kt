@@ -36,6 +36,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.squadup.R
 import com.example.squadup.core.ui.components.AppHeader
 import com.example.squadup.core.ui.components.AppNavBar
 import com.example.squadup.core.ui.theme.SquadGrayLight
@@ -106,7 +108,7 @@ fun AdminHomeScreen(
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text(
-                    text = "Global Admin Dashboard",
+                    text = stringResource(R.string.admin_dashboard_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -115,7 +117,7 @@ fun AdminHomeScreen(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Real-time overview of the SquadUp ecosystem",
+                    text = stringResource(R.string.admin_dashboard_subtitle),
                     fontSize = 13.sp,
                     lineHeight = 18.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -124,9 +126,9 @@ fun AdminHomeScreen(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 AdminMetricCard(
-                    title = "TOTAL USERS",
+                    title = stringResource(R.string.admin_total_users),
                     value = uiState.totalUsers.formatNumber(),
-                    subtitle = "+${uiState.usersGrowthPercent.toInt()}% from last month",
+                    subtitle = stringResource(R.string.admin_growth_last_month, uiState.usersGrowthPercent.toInt()),
                     icon = Icons.Outlined.Groups,
                     subtitleColor = Color(0xFF00A85A)
                 )
@@ -134,18 +136,18 @@ fun AdminHomeScreen(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 AdminMetricCard(
-                    title = "Active Matches",
+                    title = stringResource(R.string.admin_active_matches),
                     value = uiState.activeMatches.formatNumber(),
-                    subtitle = "In ${uiState.activeSportsCount} Different Sports",
+                    subtitle = stringResource(R.string.admin_in_x_sports, uiState.activeSportsCount),
                     icon = Icons.Outlined.SportsScore
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 AdminMetricCard(
-                    title = "ACTIVE EVENTS",
+                    title = stringResource(R.string.admin_active_events),
                     value = uiState.activeEvents.formatNumber(),
-                    subtitle = "Currently available events",
+                    subtitle = stringResource(R.string.admin_available_events),
                     icon = Icons.Outlined.Event
                 )
 
@@ -244,7 +246,7 @@ private fun SportPopularityCard(
             modifier = Modifier.padding(18.dp)
         ) {
             Text(
-                text = "Sport Popularity",
+                text = stringResource(R.string.admin_sport_popularity),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -254,7 +256,7 @@ private fun SportPopularityCard(
 
             if (items.isEmpty()) {
                 Text(
-                    text = "Sem dados de popularidade.",
+                    text = stringResource(R.string.admin_no_popularity_data),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
