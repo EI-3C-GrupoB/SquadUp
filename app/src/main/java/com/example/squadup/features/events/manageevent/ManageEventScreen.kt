@@ -43,10 +43,6 @@ fun ManageEventScreen(
     onLoadMoreFreeAgents: () -> Unit,
     onGameSearchQueryChange: (String) -> Unit,
     onTeamExpand: (String) -> Unit,
-    onPlayerRemove: (String, String) -> Unit,
-    onAddPlayerClick: (String) -> Unit,
-    onEditTeamClick: (String) -> Unit,
-    onDeleteTeamClick: (String) -> Unit,
     onEditGameClick: (String) -> Unit,
     onCreateGameClick: () -> Unit,
     onDismissCreateGameDialog: () -> Unit,
@@ -232,10 +228,6 @@ fun ManageEventScreen(
                     onLoadMoreTeams = onLoadMoreTeams,
                     onLoadMoreFreeAgents = onLoadMoreFreeAgents,
                     onTeamExpand = onTeamExpand,
-                    onAddPlayerClick = onAddPlayerClick,
-                    onEditTeamClick = onEditTeamClick,
-                    onDeleteTeamClick = onDeleteTeamClick,
-                    onPlayerRemove = onPlayerRemove,
                     onAcceptIndividualRegistration = onAcceptIndividualRegistration,
                     onRejectIndividualRegistration = onRejectIndividualRegistration,
                     onAcceptTeamRegistration = onAcceptTeamRegistration,
@@ -290,7 +282,7 @@ private fun ManageEventTabRow(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 8.dp)
             .height(44.dp)
-            .background(Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
             .padding(4.dp)
     ) {
         // Pill laranja deslizante
@@ -389,7 +381,7 @@ private fun EditGameDialog(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = homeExpanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(),
                     shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                 )
                 ExposedDropdownMenu(expanded = homeExpanded, onDismissRequest = { homeExpanded = false }) {
                     uiState.teams.forEach { team ->
@@ -413,7 +405,7 @@ private fun EditGameDialog(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = awayExpanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(),
                     shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                 )
                 ExposedDropdownMenu(expanded = awayExpanded, onDismissRequest = { awayExpanded = false }) {
                     uiState.teams.forEach { team ->
@@ -438,7 +430,7 @@ private fun EditGameDialog(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                     )
                 }
                 Column(Modifier.weight(1f)) {
@@ -455,7 +447,7 @@ private fun EditGameDialog(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                     )
                 }
             }
@@ -472,7 +464,7 @@ private fun EditGameDialog(
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = { Icon(Icons.Outlined.LocationOn, null, tint = SquadGray, modifier = Modifier.size(18.dp)) },
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
             )
 
             uiState.editGameError?.let { err ->
@@ -568,7 +560,7 @@ private fun CreateGameDialog(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = homeExpanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(),
                     shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                 )
                 ExposedDropdownMenu(expanded = homeExpanded, onDismissRequest = { homeExpanded = false }) {
                     uiState.teams.forEach { team ->
@@ -593,7 +585,7 @@ private fun CreateGameDialog(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = awayExpanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(),
                     shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                 )
                 ExposedDropdownMenu(expanded = awayExpanded, onDismissRequest = { awayExpanded = false }) {
                     uiState.teams.forEach { team ->
@@ -619,7 +611,7 @@ private fun CreateGameDialog(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                     )
                 }
                 Column(Modifier.weight(1f)) {
@@ -637,7 +629,7 @@ private fun CreateGameDialog(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                     )
                 }
             }
@@ -655,7 +647,7 @@ private fun CreateGameDialog(
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = { Icon(Icons.Outlined.LocationOn, null, tint = SquadGray, modifier = Modifier.size(18.dp)) },
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = Color(0xFFE0E0E0))
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = SquadOrange, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
             )
 
             // Error

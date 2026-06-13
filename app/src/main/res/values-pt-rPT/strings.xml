@@ -64,6 +64,9 @@
     <string name="login_account_suspended_title">Conta Suspensa</string>
     <string name="login_account_suspended_message">A sua conta foi suspensa. Contacte um administrador para mais informações.</string>
     <string name="login_account_suspended_button">OK</string>
+    <string name="login_account_deleted_title">Conta Eliminada</string>
+    <string name="login_account_deleted_message">A tua conta foi eliminada e não é possível iniciar sessão.</string>
+    <string name="login_account_deleted_button">OK</string>
 
     <!-- Forgot Password Screen -->
     <string name="forgotPassword_title">Esqueceste a palavra-passe?</string>
@@ -166,6 +169,13 @@
     <string name="home_my_events">Os Meus Eventos</string>
     <string name="home_nearby_events">Eventos Próximos</string>
     <string name="home_see_all">Ver todos</string>
+    <string name="home_no_match_title">Sem jogo atual</string>
+    <string name="home_no_match_message">Ainda não existe nenhum jogo em destaque para mostrar.</string>
+    <string name="home_no_events_title">Sem eventos criados</string>
+    <string name="home_no_events_message">Ainda não criaste nenhum evento. Quando criares eventos, eles aparecem aqui.</string>
+    <string name="home_no_events_action">Criar evento</string>
+    <string name="home_no_nearby_title">Sem eventos próximos</string>
+    <string name="home_no_nearby_message">Ainda não existem eventos próximos disponíveis.</string>
 
     <!-- NearbyEventCard Component -->
     <string name="nearbyEventCard_status_live">AO VIVO</string>
@@ -175,6 +185,8 @@
     <!-- CurrentMatchCard  Component -->
     <string name="currentMatchCard_label">JOGO ATUAL</string>
     <string name="currentMatchCard_btn_details">VER DETALHES</string>
+    <string name="currentMatchCard_btn_view">VER JOGO</string>
+    <string name="currentMatchCard_btn_manage">GERIR JOGO</string>
 
     <!-- StatsCard Component -->
     <string name="statsCard_events_created">Eventos Criados</string>
@@ -273,6 +285,16 @@
     <string name="events_see_details">Ver Detalhes</string>
     <string name="events_sheet_no_team">Sem equipa necessária</string>
     <string name="events_sheet_no_team_sub">Participa individualmente — equipas formadas pelo organizador</string>
+    <string name="events_location_device_title">A mostrar eventos perto da tua localização atual</string>
+    <string name="events_location_profile_title">A mostrar eventos perto da localização do teu perfil</string>
+    <string name="events_location_unknown_title">A preparar localização dos eventos</string>
+    <string name="events_location_device_sub">A tua localização está a ser usada para encontrar eventos próximos.</string>
+    <string name="events_location_profile_sub">Localização atual indisponível. Podes tentar atualizar novamente.</string>
+    <string name="events_location_unknown_sub">A app vai tentar usar primeiro a tua localização atual.</string>
+    <string name="events_empty_title">Sem eventos encontrados</string>
+    <string name="events_empty_device">Não existem eventos perto da tua localização atual para os filtros selecionados.</string>
+    <string name="events_empty_profile">Não existem eventos perto da localização do teu perfil para os filtros selecionados.</string>
+    <string name="events_empty_unknown">Não existem eventos disponíveis para os filtros selecionados.</string>
     <string name="events_sheet_team_required">Equipa obrigatória</string>
     <string name="events_sheet_team_required_sub">Inscreve-te com a tua equipa para participar</string>
     <string name="events_sheet_spots">%1$d vagas restantes de %2$d</string>
@@ -520,6 +542,9 @@
     <string name="manageAccounts_role_playerorganizer">Jogador &amp; Organizador</string>
     <string name="manageAccounts_role_organizer">Organizador</string>
     <string name="manageAccounts_role_player">Jogador</string>
+    <string name="manageAccounts_error_title">Erro ao carregar utilizadores</string>
+    <string name="manageAccounts_empty_title">Nenhum utilizador</string>
+    <string name="manageAccounts_empty_message">Não foram encontrados utilizadores para a pesquisa selecionada.</string>
 
     <!-- Ticket Status -->
     <string name="ticket_status_confirmed">CONFIRMADO</string>
@@ -531,6 +556,10 @@
     <string name="tickets_title">Os Meus Bilhetes</string>
     <string name="tickets_tab_upcoming">PRÓXIMOS</string>
     <string name="tickets_tab_history">HISTÓRICO</string>
+    <string name="tickets_upcoming_empty_title">Sem bilhetes próximos</string>
+    <string name="tickets_upcoming_empty_message">Ainda não tens bilhetes para eventos futuros. Explora os eventos para te inscreveres!</string>
+    <string name="tickets_history_empty_title">Sem histórico</string>
+    <string name="tickets_history_empty_message">Ainda não tens um histórico de bilhetes. Os teus bilhetes passados aparecerão aqui.</string>
     <string name="tickets_confirmed">CONFIRMADO</string>
     <string name="tickets_view_details">Ver Detalhes</string>
     <string name="tickets_past_events">Eventos Passados</string>
@@ -627,6 +656,7 @@
     <string name="manage_event_team_requests">Pedidos de equipa</string>
 
     <!-- Calendar Screen -->
+    <string name="calendar_title">Calendário</string>
     <string name="calendar_matches_scheduled">%1$d jogos agendados</string>
     <string name="calendar_today">Hoje</string>
     <string name="calendar_other_games_today">OUTROS JOGOS HOJE</string>
@@ -738,6 +768,26 @@
     <string name="map_no_location">Localização não disponível</string>
 
     <!-- More Details Screen -->
+    <string name="more_details_label_date">DATA</string>
+    <string name="more_details_label_time">HORA</string>
+    <string name="more_details_label_sport">MODALIDADE</string>
+    <string name="more_details_label_format">FORMATO</string>
+    <string name="more_details_event_info">Informação do evento</string>
+    <string name="more_details_label_status">Estado</string>
+    <string name="more_details_label_entry_price">Preço de entrada</string>
+    <string name="more_details_label_registrations">Inscrições</string>
+    <string name="more_details_free">Grátis</string>
+    <string name="more_details_section_description">Descrição</string>
+    <string name="more_details_section_rules">Regras</string>
+    <string name="more_details_section_location">Localização</string>
+    <string name="more_details_registered_count">Inscritas</string>
+    <string name="more_details_max">Máximo</string>
+    <string name="more_details_spots">Vagas</string>
+    <string name="more_details_no_rules">Este evento ainda não tem regras definidas.</string>
+    <string name="more_details_no_address">Morada não definida</string>
+    <string name="more_details_no_date">Sem data</string>
+    <string name="more_details_no_time">Sem hora</string>
+    <string name="more_details_badge_private">Privado</string>
     <string name="more_details_choose_team">Escolhe a equipa</string>
     <string name="more_details_team_hint">Só aparecem equipas onde podes pedir participação e que ainda não estão inscritas neste evento.</string>
     <string name="more_details_no_teams">Não tens equipas disponíveis para este evento.</string>

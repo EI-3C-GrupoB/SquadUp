@@ -45,6 +45,7 @@ fun MyEventsScreen(
     onSearchQueryChange: (String) -> Unit,
     onFilterChange: (MyEventsFilter) -> Unit,
     onManageEventClick: (String) -> Unit,
+    onEventDetailsClick: (String) -> Unit,
     onViewResultsClick: (String) -> Unit,
     onCreateEventClick: () -> Unit,
     isAdmin: Boolean,
@@ -195,7 +196,8 @@ fun MyEventsScreen(
                         else -> {
                             MyEventActiveCard(
                                 event = event,
-                                onManageClick = { onManageEventClick(event.id) }
+                                onManageClick = { onManageEventClick(event.id) },
+                                onViewDetailsClick = { onEventDetailsClick(event.id) }
                             )
                         }
                     }
@@ -209,12 +211,14 @@ fun MyEventsScreen(
 @Composable
 private fun MyEventActiveCard(
     event: MyEventItem,
-    onManageClick: () -> Unit
+    onManageClick: () -> Unit,
+    onViewDetailsClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val primaryAction = if (event.isCreator) onManageClick else onViewDetailsClick
 
     Surface(
-        onClick = onManageClick,
+        onClick = primaryAction,
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
@@ -317,7 +321,7 @@ private fun MyEventActiveCard(
                         
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable(onClick = onManageClick)
+                            modifier = Modifier.clickable(onClick = primaryAction)
                         ) {
                             Text(
                                 text = stringResource(R.string.myEvents_live),

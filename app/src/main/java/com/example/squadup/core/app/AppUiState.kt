@@ -24,5 +24,9 @@ data class AppUiState(
     val isAdminView: Boolean = false,
 
     // notificações
-    val notificationsCount: Int = 0
+    val notificationsCount: Int = 0,
+
+    // conta suspensa ou eliminada
+    val showSuspendedDialog: Boolean = false,
+    val showDeletedDialog: Boolean = false
 )

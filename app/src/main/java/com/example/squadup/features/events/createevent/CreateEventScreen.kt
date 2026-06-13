@@ -108,7 +108,6 @@ import com.example.squadup.core.ui.components.SelectedLocation
 import com.example.squadup.core.ui.components.SquadDateTimePickerField
 import com.example.squadup.core.ui.components.responsiveHorizontalPadding
 import com.example.squadup.core.ui.theme.SquadGray
-import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
 import com.example.squadup.core.ui.theme.SquadOrangeLight
 import com.example.squadup.core.utils.AppLanguage
@@ -337,7 +336,7 @@ private fun StepProgressBar(
                     .weight(1f)
                     .height(4.dp)
                     .background(
-                        color = if (index < currentStep) SquadOrange else SquadGrayLight,
+                        color = if (index < currentStep) SquadOrange else MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(999.dp)
                     )
             )
@@ -393,7 +392,7 @@ private fun BasicInfoStep(
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = SquadOrange,
-                unfocusedBorderColor = SquadGrayLight,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
@@ -422,7 +421,7 @@ private fun BasicInfoStep(
             maxLines = 6,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = SquadOrange,
-                unfocusedBorderColor = SquadGrayLight,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
@@ -545,7 +544,7 @@ private fun FormatPlayersStep(
                     onClick = { onMaxTeamsChange(-1) },
                     modifier = Modifier
                         .size(42.dp)
-                        .background(SquadGrayLight, CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Remove,
@@ -601,7 +600,7 @@ private fun FormatPlayersStep(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(10.dp),
-            border = BorderStroke(1.dp, SquadGrayLight)
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 Text(
@@ -740,7 +739,9 @@ private fun FormatPlayersStep(
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = SquadOrange,
-                unfocusedBorderColor = SquadGrayLight
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
         )
 
@@ -1356,7 +1357,7 @@ private fun ReviewStep(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(1.dp, SquadGrayLight)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
@@ -1430,7 +1431,7 @@ private fun ReviewStep(
             },
             onClick = onCreateEvent,
             enabled = !uiState.isSaving,
-            trailingIcon = Icons.Outlined.RocketLaunch
+            trailingIcon = null
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -1514,7 +1515,7 @@ private fun RecurrenceDialog(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .background(
-                                            color = if (selected) SquadOrange else SquadGrayLight,
+                                            color = if (selected) SquadOrange else MaterialTheme.colorScheme.surfaceVariant,
                                             shape = CircleShape
                                         )
                                         .clickable { onDayToggle(index) },
@@ -1580,7 +1581,7 @@ private fun EventFormatCard(
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             width = if (selected) 1.5.dp else 1.dp,
-            color = if (selected) SquadOrange else SquadGrayLight
+            color = if (selected) SquadOrange else MaterialTheme.colorScheme.outlineVariant
         )
     ) {
         Row(
@@ -1591,7 +1592,7 @@ private fun EventFormatCard(
                 modifier = Modifier
                     .size(40.dp)
                     .background(
-                        color = if (selected) SquadOrange else SquadGrayLight,
+                        color = if (selected) SquadOrange else MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(8.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -1649,7 +1650,7 @@ private fun ParticipationToggleRow(
             modifier = Modifier
                 .size(40.dp)
                 .background(
-                    color = if (checked) SquadOrangeLight else SquadGrayLight,
+                    color = if (checked) SquadOrangeLight else MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(8.dp)
                 ),
             contentAlignment = Alignment.Center
@@ -1820,7 +1821,7 @@ private fun PrivacyButton(
         shape = RoundedCornerShape(10.dp),
         border = BorderStroke(
             width = if (selected) 1.5.dp else 1.dp,
-            color = if (selected) SquadOrange else SquadGrayLight
+            color = if (selected) SquadOrange else MaterialTheme.colorScheme.outlineVariant
         )
     ) {
         Row(
@@ -1894,7 +1895,7 @@ private fun ReviewCard(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, SquadGrayLight)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier.padding(14.dp),

@@ -59,12 +59,14 @@ class PaymentRepository(
 
     suspend fun confirmPayment(
         paymentId: Int?,
-        eventId: Int
+        eventId: Int,
+        inscricaoId: Int?
     ): Result<Int> {
         return try {
             val userId = getCurrentUserId()
                 ?: throw Exception("Utilizador não encontrado.")
 
+            // 1. Mark payment as paid
             if (paymentId != null) {
                 supabaseClient.from("pagamento")
                     .update(PaymentStatusUpdateRow(status = "pago")) {
@@ -80,6 +82,39 @@ class PaymentRepository(
                     }
             }
 
+            // 2. Confirm the registration record so it stops showing as "pendente"
+            if (inscricaoId != null) {
+                val inscricao = runCatching {
+                    supabaseClient.from("inscricao")
+                        .select { filter { eq("id", inscricaoId) } }
+                        .decodeSingle<PaymentInscricaoRow>()
+                }.getOrNull()
+
+                if (inscricao != null) {
+                    val isTeamRequest = inscricao.registrationType == "pedido_evento_equipa"
+
+                    supabaseClient.from("inscricao")
+                        .update(PaymentInscricaoConfirmRow(
+                            status = "aceite",
+                            registrationType = if (isTeamRequest) "evento_equipa" else inscricao.registrationType
+                        )) {
+                            filter { eq("id", inscricaoId) }
+                        }
+
+                    // 3. For team registrations, also confirm the evento_equipa record
+                    if (isTeamRequest && inscricao.teamId != null) {
+                        supabaseClient.from("evento_equipa")
+                            .update(PaymentEventTeamConfirmRow(status = "confirmada")) {
+                                filter {
+                                    eq("evento_id", eventId)
+                                    eq("equipa_id", inscricao.teamId)
+                                }
+                            }
+                    }
+                }
+            }
+
+            // 4. Create ticket
             val ticket = supabaseClient.from("bilhete")
                 .insert(PaymentTicketInsertRow(
                     userId = userId,

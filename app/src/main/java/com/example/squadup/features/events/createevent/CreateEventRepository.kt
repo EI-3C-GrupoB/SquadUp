@@ -196,6 +196,9 @@ class CreateEventRepository(
                         latitude = state.latitude,
                         longitude = state.longitude,
                         isPrivate = !state.isPublicEvent,
+                        codigoAcesso = if (!state.isPublicEvent) generateAccessCode() else null,
+                        recorrente = if (state.isRecurring) true else null,
+                        tipoRecorrencia = if (state.isRecurring) state.recurrenceType.name.lowercase() else null,
                         startDate = startDateTime,
                         endDate = endDateTime,
                         registrationStartDate = registrationStartDateTime,
@@ -257,6 +260,11 @@ class CreateEventRepository(
             state.allowTeams -> EventParticipationType.TEAM
             else -> EventParticipationType.INDIVIDUAL
         }
+    }
+
+    private fun generateAccessCode(): String {
+        val chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        return (1..6).map { chars.random() }.joinToString("")
     }
 
     private suspend fun uploadEventCoverImage(

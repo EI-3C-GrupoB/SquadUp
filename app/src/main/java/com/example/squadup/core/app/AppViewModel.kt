@@ -73,10 +73,22 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     loadNotificationsCount()
                     setupNotificationsRealtime()
                 }
-                .onFailure {
-                    _uiState.value = _uiState.value.copy(
-                        isInitializing = false
-                    )
+                .onFailure { exception ->
+                    when (exception) {
+                        is SuspendedAccountException -> _uiState.value = _uiState.value.copy(
+                            isInitializing = false,
+                            isLoggedIn = false,
+                            showSuspendedDialog = true
+                        )
+                        is DeletedAccountException -> _uiState.value = _uiState.value.copy(
+                            isInitializing = false,
+                            isLoggedIn = false,
+                            showDeletedDialog = true
+                        )
+                        else -> _uiState.value = _uiState.value.copy(
+                            isInitializing = false
+                        )
+                    }
                 }
         }
     }
@@ -173,6 +185,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onAdminViewChange(isAdminView: Boolean) {
         _uiState.value = _uiState.value.copy(isAdminView = isAdminView)
+    }
+
+    fun dismissSuspendedDialog() {
+        _uiState.value = _uiState.value.copy(showSuspendedDialog = false)
+    }
+
+    fun dismissDeletedDialog() {
+        _uiState.value = _uiState.value.copy(showDeletedDialog = false)
     }
 
     fun onPhotoUrlChange(url: String) {

@@ -84,6 +84,32 @@ data class PaymentEventOrganizerRow(
 )
 
 @Serializable
+data class PaymentInscricaoRow(
+    val id: Int,
+
+    @SerialName("tipo_inscricao")
+    val registrationType: String? = null,
+
+    @SerialName("equipa_id")
+    val teamId: Int? = null
+)
+
+@Serializable
+data class PaymentInscricaoConfirmRow(
+    @SerialName("estado_inscricao")
+    val status: String,
+
+    @SerialName("tipo_inscricao")
+    val registrationType: String? = null
+)
+
+@Serializable
+data class PaymentEventTeamConfirmRow(
+    @SerialName("estado")
+    val status: String
+)
+
+@Serializable
 data class PaymentNotificationInsertRow(
     @SerialName("user_id")
     val userId: Int,

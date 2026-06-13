@@ -42,9 +42,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.squadup.core.ui.theme.SquadGrayLight
 import com.example.squadup.core.ui.theme.SquadOrange
-import com.example.squadup.core.ui.theme.SquadWhite
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -94,9 +92,9 @@ fun SquadDateTimePickerField(
                     indication = null,
                     onClick = { showPicker = true }
                 ),
-            color = SquadWhite,
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(10.dp),
-            border = BorderStroke(1.dp, SquadGrayLight)
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             Row(
                 modifier = Modifier

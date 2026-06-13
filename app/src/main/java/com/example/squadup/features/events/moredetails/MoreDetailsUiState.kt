@@ -43,6 +43,8 @@ data class MoreDetailsUiState(
 
     val participationType: String = "individual",
     val isPrivate: Boolean = false,
+    val accessCode: String? = null,
+    val codeVerified: Boolean = false,
     val registrationStatusLabel: String = "",
     val userEventRegistrationStatus: String? = null,
     val userEventRegistrationType: String? = null,

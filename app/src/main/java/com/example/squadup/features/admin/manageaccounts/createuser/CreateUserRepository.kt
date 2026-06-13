@@ -32,21 +32,31 @@ class CreateUserRepository(
 
             validateRequest(request)
 
+            // Save admin session before signUpWith replaces it with the new user's session
+            val adminSession = supabaseClient.auth.currentSessionOrNull()
+
             val signUpUser = supabaseClient.auth.signUpWith(Email) {
                 this.email = request.email
                 this.password = request.password
             }
 
+            // signUpUser?.id is available even when signUpWith auto-signs-in as the new user
             val authUserId = signUpUser?.id
                 ?: supabaseClient.auth.currentUserOrNull()?.id
                 ?: return Result.failure(
                     IllegalStateException("Não foi possível obter o ID do utilizador criado.")
                 )
 
+            // Insert profile while still in the new user's session (needed for RLS)
             upsertUserProfile(
                 request = request,
                 authUserId = authUserId
             )
+
+            // Restore the admin's session so the app does not auto-login as the new user
+            if (adminSession != null) {
+                supabaseClient.auth.importSession(adminSession)
+            }
 
             Result.success(Unit)
         } catch (exception: Exception) {

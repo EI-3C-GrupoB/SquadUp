@@ -29,7 +29,7 @@ fun StatsCard(
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = when (style) {
-        StatsCardStyle.DEFAULT -> SquadWhite
+        StatsCardStyle.DEFAULT -> MaterialTheme.colorScheme.surface
         StatsCardStyle.HIGHLIGHT -> SquadOrange
     }
 

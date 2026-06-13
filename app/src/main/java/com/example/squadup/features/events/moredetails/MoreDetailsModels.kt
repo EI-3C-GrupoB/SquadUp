@@ -74,7 +74,10 @@ data class MoreDetailsEventRow(
     val formatId: Int? = null,
 
     @SerialName("is_private")
-    val isPrivate: Boolean? = false
+    val isPrivate: Boolean? = false,
+
+    @SerialName("codigo_acesso")
+    val accessCode: String? = null
 )
 
 @Serializable

@@ -89,8 +89,19 @@ class HomeRepository(
             // distância/data (via RPC com base na localização do perfil), excluindo
             // eventos do próprio utilizador, max 8
             val isPlayerRole = role == UserRole.PLAYER || role == UserRole.PLAYER_ORGANIZER
+            val upcomingEventsFallback = events
+                .filter { it.status != "cancelado" }
+                .filter { userId == null || it.creatorId != userId }
+                .filter { event ->
+                    val start = event.startDate.toLocalDateTimeOrNull()
+                    start == null || start.isAfter(LocalDateTime.now())
+                }
+                .sortedBy { it.startDate.orEmpty() }
+                .take(8)
+                .map { it.toHomeEvent(modalities) }
+
             val nearbyEvents = if (userId != null && isPlayerRole) {
-                runCatching {
+                val rpcResult = runCatching {
                     supabaseClient.postgrest.rpc(
                         function = "get_nearby_events",
                         parameters = buildJsonObject { put("p_user_id", userId) }
@@ -103,13 +114,10 @@ class HomeRepository(
                     )
                     .take(8)
                     .map { it.toHomeEvent() }
+
+                rpcResult.ifEmpty { upcomingEventsFallback }
             } else {
-                events
-                    .filter { it.status != "cancelado" }
-                    .filter { userId == null || it.creatorId != userId }
-                    .sortedBy { it.startDate.orEmpty() }
-                    .take(8)
-                    .map { it.toHomeEvent(modalities) }
+                upcomingEventsFallback
             }
 
             Result.success(

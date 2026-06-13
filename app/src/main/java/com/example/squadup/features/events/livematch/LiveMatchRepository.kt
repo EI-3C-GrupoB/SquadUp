@@ -11,6 +11,15 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,6 +31,38 @@ class LiveMatchRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client,
     private val offlineDao: LiveMatchOfflineDao? = null
 ) {
+    fun observeGame(gameId: String): Flow<LiveMatchUiState> = flow {
+        val parsedGameId = gameId.toIntOrNull()
+        if (parsedGameId == null) {
+            emit(LiveMatchUiState(gameId = gameId))
+            return@flow
+        }
+        emitAll(
+            observeGameTables(parsedGameId)
+                .map {
+                    getGame(gameId).getOrElse { LiveMatchUiState(gameId = gameId, isOffline = true) }
+                }
+        )
+    }
+
+    private fun observeGameTables(gameId: Int): Flow<Unit> = flow {
+        val suffix = "${gameId}_${System.currentTimeMillis()}"
+        val statsChannel = supabaseClient.channel("livematch_stats_$suffix")
+        val timelineChannel = supabaseClient.channel("livematch_timeline_$suffix")
+
+        val statsChanges = statsChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "estatistica_jogo" }
+            .map { Unit }
+        val timelineChanges = timelineChannel
+            .postgresChangeFlow<PostgresAction>(schema = "public") { table = "registo_timeline" }
+            .map { Unit }
+
+        statsChannel.subscribe()
+        timelineChannel.subscribe()
+
+        emitAll(merge(statsChanges, timelineChanges).onStart { emit(Unit) })
+    }
+
     suspend fun getGame(gameId: String): Result<LiveMatchUiState> {
         return try {
             val state = getGameNetwork(gameId)

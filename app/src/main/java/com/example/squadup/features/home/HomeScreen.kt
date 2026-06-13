@@ -159,8 +159,8 @@ fun HomeScreen(
                 )
             } else {
                 EmptyStateCard(
-                    title = "Sem jogo atual",
-                    message = "Ainda não existe nenhum jogo em destaque para mostrar.",
+                    title = stringResource(R.string.home_no_match_title),
+                    message = stringResource(R.string.home_no_match_message),
                     icon = Icons.Outlined.SportsSoccer
                 )
             }
@@ -189,10 +189,10 @@ fun HomeScreen(
 
                 if (uiState.myEvents.isEmpty()) {
                     EmptyStateCard(
-                        title = "Sem eventos criados",
-                        message = "Ainda não criaste nenhum evento. Quando criares eventos, eles aparecem aqui.",
+                        title = stringResource(R.string.home_no_events_title),
+                        message = stringResource(R.string.home_no_events_message),
                         icon = Icons.Outlined.CalendarMonth,
-                        actionText = "Criar evento",
+                        actionText = stringResource(R.string.home_no_events_action),
                         onActionClick = onSeeAllEventsClick
                     )
                 } else {
@@ -244,8 +244,8 @@ fun HomeScreen(
 
                 if (uiState.nearbyEvents.isEmpty()) {
                     EmptyStateCard(
-                        title = "Sem eventos próximos",
-                        message = "Ainda não existem eventos próximos disponíveis.",
+                        title = stringResource(R.string.home_no_nearby_title),
+                        message = stringResource(R.string.home_no_nearby_message),
                         icon = Icons.Outlined.CalendarMonth
                     )
                 } else {
@@ -261,9 +261,8 @@ fun HomeScreen(
                                 intensity = event.intensity,
                                 sportType = event.sportType,
                                 status = event.status,
-                                onJoinClick = {
-                                    onJoinEventClick(event.id)
-                                }
+                                onJoinClick = { onJoinEventClick(event.id) },
+                                onCardClick = { onEventDetailsClick(event.id) }
                             )
                         }
                     }

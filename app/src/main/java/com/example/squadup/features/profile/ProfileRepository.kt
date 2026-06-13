@@ -44,8 +44,8 @@ class ProfileRepository(
                 return Result.failure(ProfileException(R.string.profile_error_load))
             }
 
-            val stats = try { getPlayerStats(user.id) } catch (e: Exception) { null }
             val teamStats = getPlayerTeamStats(user.id)
+            val goals = countGoals(user.id)
 
             Result.success(
                 ProfileData(
@@ -58,7 +58,7 @@ class ProfileRepository(
                     photoUrl = user.photoUrl,
                     matchesPlayed = teamStats.matchesPlayed,
                     wins = teamStats.wins,
-                    goals = stats?.totalGoals ?: 0,
+                    goals = goals,
                     teams = teamStats.teams
                 )
             )
@@ -105,56 +105,84 @@ class ProfileRepository(
         }
     }
 
-    private suspend fun getPlayerStats(userId: Int): PlayerStatsRow? {
+    private suspend fun countGoals(userId: Int): Int {
         return runCatching {
+            val goalActionIds = supabaseClient
+                .from("tipo_acao")
+                .select()
+                .decodeList<ProfileActionTypeRow>()
+                .filter { row ->
+                    val name = row.name.lowercase()
+                    "golo" in name || "goal" in name || "score" in name || "ponto" in name
+                }
+                .map { it.id }
+
+            if (goalActionIds.isEmpty()) return@runCatching 0
+
             supabaseClient
-                .from("estatistica_jogador")
+                .from("registo_timeline")
                 .select {
                     filter {
                         eq("user_id", userId)
+                        isIn("tipo_acao_id", goalActionIds)
                     }
-                    limit(1)
                 }
-                .decodeSingle<PlayerStatsRow>()
-        }.getOrNull()
+                .decodeList<ProfileTimelineRow>()
+                .size
+        }.getOrElse { 0 }
     }
 
     private suspend fun getPlayerTeamStats(userId: Int): PlayerTeamStats {
         return runCatching {
-            val registeredTeamIds = supabaseClient
+            // Todas as equipas em que o jogador participou em eventos (inclui aleatórias)
+            // — usadas para calcular jogos e vitórias
+            val allParticipatedTeamIds = supabaseClient
                 .from("inscricao")
                 .select {
-                    filter {
-                        eq("user_id", userId)
-                    }
+                    filter { eq("user_id", userId) }
                 }
-                .decodeList<ProfileRegistrationRow>()
+                .decodeList<ProfileInscricaoRow>()
                 .mapNotNull { it.teamId }
+                .toSet()
 
+            // Equipas reais: criadas pelo utilizador ou entradas via convite aceite
+            // — usadas apenas para o contador de Teams
             val ownedTeamIds = supabaseClient
                 .from("equipa")
                 .select {
-                    filter {
-                        eq("user_id", userId)
-                    }
+                    filter { eq("user_id", userId) }
                 }
                 .decodeList<ProfileTeamRow>()
                 .map { it.id }
+                .toSet()
 
-            val teamIds = (registeredTeamIds + ownedTeamIds).toSet()
+            val joinedTeamIds = supabaseClient
+                .from("convite")
+                .select {
+                    filter {
+                        eq("convidado_user_id", userId)
+                        eq("estado", "aceite")
+                    }
+                }
+                .decodeList<ProfileConviteRow>()
+                .map { it.teamId }
+                .toSet()
 
-            val gameTeams = if (teamIds.isEmpty()) {
+            val realTeamIds = ownedTeamIds + joinedTeamIds
+
+            // Jogos e vitórias baseados em todas as equipas participadas
+            val gameTeams = if (allParticipatedTeamIds.isEmpty()) {
                 emptyList()
             } else {
                 supabaseClient
                     .from("jogo_equipa")
                     .select()
                     .decodeList<ProfileGameTeamRow>()
-                    .filter { it.teamId in teamIds }
+                    .filter { it.teamId in allParticipatedTeamIds }
             }
 
             PlayerTeamStats(
-                teams = teamIds.size,
+                teams = realTeamIds.size,
                 matchesPlayed = gameTeams.mapNotNull { it.gameId }.distinct().size,
                 wins = gameTeams.count { it.isWinner == true }
             )

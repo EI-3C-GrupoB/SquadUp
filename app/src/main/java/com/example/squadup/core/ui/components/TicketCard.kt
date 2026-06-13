@@ -38,7 +38,7 @@ fun TicketCard(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp
     ) {
@@ -106,7 +106,7 @@ fun TicketCard(
                     }
                 }
 
-                HorizontalDivider(color = Color(0xFFEEEEEE))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
                 Row(
                     modifier = Modifier
@@ -138,7 +138,7 @@ fun TicketCard(
 private fun TicketStatusBadge() {
     Row(
         modifier = Modifier
-            .background(Color(0xFFE0F2F1), RoundedCornerShape(999.dp))
+            .background(Color(0xFF00897B).copy(alpha = 0.15f), RoundedCornerShape(999.dp))
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)

@@ -77,7 +77,7 @@ fun CalendarScreen(
                 showLogo = false,
                 showBackButton = true,
                 onBackClick = onBackClick,
-                title = "Calendário",
+                title = stringResource(R.string.calendar_title),
                 showNotificationsButton = true,
                 showSettingsButton = true,
                 onNotificationsClick = onNotificationsClick,
@@ -368,7 +368,7 @@ private fun MatchHighlightCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFFFFFBF8),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(14.dp),
         shadowElevation = 2.dp
     ) {

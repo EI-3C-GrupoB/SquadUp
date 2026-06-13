@@ -301,7 +301,7 @@ fun ManageAccountsScreen(
 
                         uiState.errorMessage != null -> {
                             EmptyStateCard(
-                                title = "Erro ao carregar utilizadores",
+                                title = stringResource(R.string.manageAccounts_error_title),
                                 message = uiState.errorMessage,
                                 icon = Icons.Outlined.Groups,
                                 modifier = Modifier.weight(1f)
@@ -310,8 +310,8 @@ fun ManageAccountsScreen(
 
                         uiState.filteredUsers.isEmpty() -> {
                             EmptyStateCard(
-                                title = "Nenhum utilizador",
-                                message = "Não foram encontrados utilizadores para a pesquisa selecionada.",
+                                title = stringResource(R.string.manageAccounts_empty_title),
+                                message = stringResource(R.string.manageAccounts_empty_message),
                                 icon = Icons.Outlined.Groups,
                                 modifier = Modifier.weight(1f)
                             )

@@ -105,7 +105,7 @@ fun CurrentMatchCard(
                     )
                 ) {
                     Text(
-                        text = if (isOrganizer) "GERIR JOGO" else "VER JOGO",
+                        text = if (isOrganizer) stringResource(R.string.currentMatchCard_btn_manage) else stringResource(R.string.currentMatchCard_btn_view),
                         fontWeight = FontWeight.Bold
                     )
                 }

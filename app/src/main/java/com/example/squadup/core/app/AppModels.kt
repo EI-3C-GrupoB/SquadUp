@@ -29,5 +29,8 @@ data class LoggedInUserRow(
     val photoUrl: String? = null,
 
     @SerialName("tipo_conta")
-    val accountType: Int? = null
+    val accountType: Int? = null,
+
+    @SerialName("estado_conta")
+    val accountState: String? = null
 )

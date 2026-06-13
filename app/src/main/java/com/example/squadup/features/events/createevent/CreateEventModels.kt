@@ -66,6 +66,15 @@ data class CreateEventInsertRow(
     @SerialName("is_private")
     val isPrivate: Boolean,
 
+    @SerialName("codigo_acesso")
+    val codigoAcesso: String? = null,
+
+    @SerialName("recorrente")
+    val recorrente: Boolean? = null,
+
+    @SerialName("tipo_recorrencia")
+    val tipoRecorrencia: String? = null,
+
     @SerialName("data_inicio")
     val startDate: String?,
 

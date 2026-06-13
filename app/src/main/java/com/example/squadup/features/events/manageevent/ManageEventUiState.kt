@@ -20,6 +20,7 @@ data class ManageEventUiState(
     val formatName: String = "",
     val status: EventStatus = EventStatus.DRAFT,
     val isPublic: Boolean = true,
+    val accessCode: String? = null,
     val allowTeams: Boolean = false,
     val allowFreeAgents: Boolean = false,
     val registeredTeams: Int = 0,

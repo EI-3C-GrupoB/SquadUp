@@ -7,6 +7,9 @@ import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.StateFlow
 
+class SuspendedAccountException : Exception("Account is suspended")
+class DeletedAccountException : Exception("Account has been deleted")
+
 class AppRepository(
     private val supabaseClient: SupabaseClient = SupabaseClientProvider.client
 ) {
@@ -34,7 +37,16 @@ class AppRepository(
                 if (attempt < 2) kotlinx.coroutines.delay(1000)
             }
 
-            val userRow = row ?: return Result.failure(Exception("User profile not found in database"))
+            if (row == null) {
+                supabaseClient.auth.signOut()
+                return Result.failure(DeletedAccountException())
+            }
+            val userRow = row
+
+            if (userRow.accountState == "suspenso") {
+                supabaseClient.auth.signOut()
+                return Result.failure(SuspendedAccountException())
+            }
 
             Result.success(
                 LoggedInUser(

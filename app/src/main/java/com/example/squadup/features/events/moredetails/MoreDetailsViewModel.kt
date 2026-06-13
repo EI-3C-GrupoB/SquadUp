@@ -208,6 +208,15 @@ class MoreDetailsViewModel : ViewModel() {
         }
     }
 
+    fun verifyAccessCode(enteredCode: String) {
+        val expected = _uiState.value.accessCode
+        if (!expected.isNullOrBlank() && enteredCode.trim().uppercase() == expected.trim().uppercase()) {
+            _uiState.value = _uiState.value.copy(codeVerified = true)
+        } else {
+            _uiState.value = _uiState.value.copy(errorMessage = "Código inválido. Tenta novamente.")
+        }
+    }
+
     override fun onCleared() {
         eventDetailsJob?.cancel()
         super.onCleared()

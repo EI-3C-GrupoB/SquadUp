@@ -25,6 +25,9 @@ data class ManageEventRow(
     @SerialName("is_private")
     val isPrivate: Boolean? = null,
 
+    @SerialName("codigo_acesso")
+    val accessCode: String? = null,
+
     @SerialName("max_equipas")
     val maxTeams: Int? = null,
 
@@ -98,6 +101,18 @@ data class ManageEventTeamRow(
 
     @SerialName("nome")
     val name: String
+)
+
+@Serializable
+data class ManageEventTeamMemberRow(
+    @SerialName("user_id")
+    val userId: Int? = null,
+
+    @SerialName("equipa_id")
+    val teamId: Int? = null,
+
+    @SerialName("is_capitao")
+    val isCaptain: Boolean? = null
 )
 
 @Serializable

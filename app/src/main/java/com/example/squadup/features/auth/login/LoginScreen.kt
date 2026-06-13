@@ -62,7 +62,7 @@ fun LoginScreen(
     ) {
         AppHeader(
             showLogo = true,
-            showBackButton = true,
+            showBackButton = false,
             onBackClick = onBackClick
         )
 

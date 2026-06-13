@@ -64,6 +64,9 @@
     <string name="login_account_suspended_title">Account Suspended</string>
     <string name="login_account_suspended_message">Your account has been suspended. Please contact an administrator for more information.</string>
     <string name="login_account_suspended_button">OK</string>
+    <string name="login_account_deleted_title">Account Deleted</string>
+    <string name="login_account_deleted_message">Your account has been deleted. It is not possible to sign in.</string>
+    <string name="login_account_deleted_button">OK</string>
 
     <!-- Forgot Password Screen -->
     <string name="forgotPassword_title">Forgot Password?</string>
@@ -167,6 +170,13 @@
     <string name="home_my_events">My Events</string>
     <string name="home_nearby_events">Nearby Events</string>
     <string name="home_see_all">See all</string>
+    <string name="home_no_match_title">No current match</string>
+    <string name="home_no_match_message">There is no featured match to show right now.</string>
+    <string name="home_no_events_title">No events created</string>
+    <string name="home_no_events_message">You haven\'t created any events yet. When you do, they\'ll appear here.</string>
+    <string name="home_no_events_action">Create event</string>
+    <string name="home_no_nearby_title">No nearby events</string>
+    <string name="home_no_nearby_message">There are no nearby events available yet.</string>
 
     <!-- NearbyEventCard  Component -->
     <string name="nearbyEventCard_status_live">LIVE</string>
@@ -176,6 +186,8 @@
     <!-- CurrentMatchCard  Component -->
     <string name="currentMatchCard_label">CURRENT MATCH</string>
     <string name="currentMatchCard_btn_details">VIEW DETAILS</string>
+    <string name="currentMatchCard_btn_view">VIEW GAME</string>
+    <string name="currentMatchCard_btn_manage">MANAGE GAME</string>
 
     <!-- StatsCard Component -->
     <string name="statsCard_events_created">Events Created</string>
@@ -274,6 +286,16 @@
     <string name="events_see_details">See Details</string>
     <string name="events_sheet_no_team">No team needed</string>
     <string name="events_sheet_no_team_sub">Participate individually — teams formed by organizer</string>
+    <string name="events_location_device_title">Showing events near your current location</string>
+    <string name="events_location_profile_title">Showing events near your profile location</string>
+    <string name="events_location_unknown_title">Preparing event locations</string>
+    <string name="events_location_device_sub">Your location is being used to find nearby events.</string>
+    <string name="events_location_profile_sub">Current location unavailable. You can try refreshing.</string>
+    <string name="events_location_unknown_sub">The app will try to use your current location first.</string>
+    <string name="events_empty_title">No events found</string>
+    <string name="events_empty_device">No events near your current location for the selected filters.</string>
+    <string name="events_empty_profile">No events near your profile location for the selected filters.</string>
+    <string name="events_empty_unknown">No events available for the selected filters.</string>
     <string name="events_sheet_team_required">Team required</string>
     <string name="events_sheet_team_required_sub">Register with your team to participate</string>
     <string name="events_sheet_spots">%1$d spots left of %2$d</string>
@@ -521,6 +543,9 @@
     <string name="manageAccounts_role_playerorganizer">Player &amp; Organiser</string>
     <string name="manageAccounts_role_organizer">Organiser</string>
     <string name="manageAccounts_role_player">Player</string>
+    <string name="manageAccounts_error_title">Error loading users</string>
+    <string name="manageAccounts_empty_title">No users found</string>
+    <string name="manageAccounts_empty_message">No users were found for the selected search.</string>
 
     <!-- Ticket Status -->
     <string name="ticket_status_confirmed">CONFIRMED</string>
@@ -532,6 +557,10 @@
     <string name="tickets_title">My Tickets</string>
     <string name="tickets_tab_upcoming">UPCOMING</string>
     <string name="tickets_tab_history">HISTORY</string>
+    <string name="tickets_upcoming_empty_title">No upcoming tickets</string>
+    <string name="tickets_upcoming_empty_message">You don\'t have tickets for future events yet. Explore events to register!</string>
+    <string name="tickets_history_empty_title">No history</string>
+    <string name="tickets_history_empty_message">You don\'t have any past tickets yet. Your past tickets will appear here.</string>
     <string name="tickets_confirmed">CONFIRMED</string>
     <string name="tickets_view_details">View Details</string>
     <string name="tickets_past_events">Past Events</string>
@@ -628,6 +657,7 @@
     <string name="manage_event_team_requests">Team Requests</string>
 
     <!-- Calendar Screen -->
+    <string name="calendar_title">Calendar</string>
     <string name="calendar_matches_scheduled">%1$d matches scheduled</string>
     <string name="calendar_today">Today</string>
     <string name="calendar_other_games_today">OTHER GAMES TODAY</string>
@@ -739,6 +769,26 @@
     <string name="map_no_location">Location unavailable</string>
 
     <!-- More Details Screen -->
+    <string name="more_details_label_date">DATE</string>
+    <string name="more_details_label_time">TIME</string>
+    <string name="more_details_label_sport">SPORT</string>
+    <string name="more_details_label_format">FORMAT</string>
+    <string name="more_details_event_info">Event information</string>
+    <string name="more_details_label_status">Status</string>
+    <string name="more_details_label_entry_price">Entry price</string>
+    <string name="more_details_label_registrations">Registrations</string>
+    <string name="more_details_free">Free</string>
+    <string name="more_details_section_description">Description</string>
+    <string name="more_details_section_rules">Rules</string>
+    <string name="more_details_section_location">Location</string>
+    <string name="more_details_registered_count">Registered</string>
+    <string name="more_details_max">Maximum</string>
+    <string name="more_details_spots">Spots</string>
+    <string name="more_details_no_rules">This event has no rules defined yet.</string>
+    <string name="more_details_no_address">Address not defined</string>
+    <string name="more_details_no_date">No date</string>
+    <string name="more_details_no_time">No time</string>
+    <string name="more_details_badge_private">Private</string>
     <string name="more_details_choose_team">Choose a team</string>
     <string name="more_details_team_hint">Only teams where you can request participation and that aren\'t already registered for this event will appear.</string>
     <string name="more_details_no_teams">You have no available teams for this event.</string>

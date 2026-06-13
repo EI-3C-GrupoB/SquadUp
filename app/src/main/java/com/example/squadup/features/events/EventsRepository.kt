@@ -5,6 +5,7 @@ import com.example.squadup.core.enums.SportType
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.realtime.PostgresAction
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
@@ -161,7 +162,7 @@ class EventsRepository(
                 .decodeList<EventsNearbyEventRow>()
                 .sortedByDistanceAndDate()
 
-            Result.success(events.toEventsData())
+            Result.success(events.toEventsData(currentUserId = userId))
         } catch (exception: Exception) {
             Result.failure(exception)
         }
@@ -182,9 +183,25 @@ class EventsRepository(
                 .decodeList<EventsNearbyEventRow>()
                 .sortedByDistanceAndDate()
 
-            Result.success(events.toEventsData())
+            Result.success(events.toEventsData(currentUserId = userId))
         } catch (exception: Exception) {
             Result.failure(exception)
+        }
+    }
+
+    suspend fun findEventByAccessCode(code: String): Result<BrowseEventItem?> {
+        return try {
+            val row = supabaseClient
+                .postgrest
+                .from("evento")
+                .select {
+                    filter { eq("codigo_acesso", code.trim().uppercase()) }
+                }
+                .decodeList<EventsNearbyEventRow>()
+                .firstOrNull()
+            Result.success(row?.toBrowseEvent())
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
@@ -224,9 +241,102 @@ class EventsRepository(
         )
     }
 
-    private fun List<EventsNearbyEventRow>.toEventsData(): EventsData {
-        val orderedForBrowse = sortedByDistanceAndDate()
-        val orderedForFeatured = sortedByFeaturedPriority()
+    private suspend fun loadAccessiblePrivateEvents(userId: Int): List<EventsNearbyEventRow> {
+        val modalities = runCatching {
+            supabaseClient.postgrest.from("modalidade")
+                .select()
+                .decodeList<EventsModalityRow>()
+                .associateBy { it.id }
+        }.getOrElse { emptyMap() }
+
+        val acceptedEventIds = getAcceptedPrivateEventIds(userId)
+
+        // Events created by the user OR in acceptedEventIds
+        val createdByUser = runCatching {
+            supabaseClient.postgrest.from("evento")
+                .select {
+                    filter {
+                        eq("criador_id", userId)
+                        eq("is_private", true)
+                    }
+                }
+                .decodeList<EventsPrivateEventRow>()
+        }.getOrElse { emptyList() }
+
+        val acceptedPrivate = if (acceptedEventIds.isNotEmpty()) {
+            runCatching {
+                supabaseClient.postgrest.from("evento")
+                    .select {
+                        filter {
+                            isIn("id", acceptedEventIds.toList())
+                            eq("is_private", true)
+                        }
+                    }
+                    .decodeList<EventsPrivateEventRow>()
+            }.getOrElse { emptyList() }
+        } else emptyList()
+
+        return (createdByUser + acceptedPrivate)
+            .distinctBy { it.id }
+            .map { it.toNearbyEventRow(modalities[it.modalityId]?.name) }
+    }
+
+    private suspend fun getAcceptedPrivateEventIds(userId: Int): Set<Int> {
+        val result = mutableSetOf<Int>()
+
+        // Individual registrations accepted by organizer
+        runCatching {
+            supabaseClient.postgrest.from("inscricao")
+                .select {
+                    filter {
+                        eq("user_id", userId)
+                        eq("estado_inscricao", "aceite")
+                    }
+                }
+                .decodeList<EventsInscricaoRow>()
+                .mapNotNull { it.eventoId }
+        }.getOrElse { emptyList() }.forEach { result.add(it) }
+
+        // Team registrations: find user's teams, then check if any team has a confirmed evento_equipa
+        val teamIds = runCatching {
+            supabaseClient.postgrest.from("inscricao")
+                .select {
+                    filter {
+                        eq("user_id", userId)
+                        exact("evento_id", null)
+                    }
+                }
+                .decodeList<EventsInscricaoRow>()
+                .mapNotNull { it.equipaId }
+        }.getOrElse { emptyList() }
+
+        if (teamIds.isNotEmpty()) {
+            runCatching {
+                supabaseClient.postgrest.from("evento_equipa")
+                    .select {
+                        filter {
+                            isIn("equipa_id", teamIds)
+                            eq("estado", "confirmada")
+                        }
+                    }
+                    .decodeList<EventsEventoEquipaRow>()
+                    .mapNotNull { it.eventoId }
+            }.getOrElse { emptyList() }.forEach { result.add(it) }
+        }
+
+        return result
+    }
+
+    private suspend fun List<EventsNearbyEventRow>.toEventsData(currentUserId: Int): EventsData {
+        // RPC may exclude private events — fetch them separately and merge
+        val privateEvents = loadAccessiblePrivateEvents(currentUserId)
+        val rpcIds = map { it.id }.toSet()
+        val merged = this + privateEvents.filter { it.id !in rpcIds }
+        val visible = merged.filter { event ->
+            event.isPrivate != true || event.creatorId == currentUserId || event.id in privateEvents.map { it.id }.toSet()
+        }
+        val orderedForBrowse = visible.sortedByDistanceAndDate()
+        val orderedForFeatured = visible.sortedByFeaturedPriority()
 
         return EventsData(
             featuredEvent = orderedForFeatured.firstOrNull()?.toFeaturedEvent(),

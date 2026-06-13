@@ -2,12 +2,14 @@ package com.example.squadup.features.events.livematch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.squadup.core.enums.SportType
 import com.example.squadup.core.network.NetworkMonitor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -21,6 +23,7 @@ class LiveMatchViewModel(
     val uiState: StateFlow<LiveMatchUiState> = _uiState.asStateFlow()
 
     private var timerJob: Job? = null
+    private var gameRealtimeJob: Job? = null
 
     init {
         networkMonitor?.let { monitor ->
@@ -39,20 +42,29 @@ class LiveMatchViewModel(
 
     fun loadGame(gameId: String) {
         if (gameId.isBlank()) return
-        viewModelScope.launch {
-            // Push any offline-queued changes first, so the fetch below reflects them
+        gameRealtimeJob?.cancel()
+        gameRealtimeJob = viewModelScope.launch {
             runCatching { repository.syncPendingOperations(gameId) }
 
-            repository.getGame(gameId)
-                .onSuccess { game ->
-                    _uiState.value = game.copy(selectedTab = _uiState.value.selectedTab)
-                    // Retomar a contagem se o jogo já está a decorrer (tempo vem de data_hora_real)
-                    if (game.phase == LiveMatchPhase.LIVE && game.isTimerRunning) {
+            repository.observeGame(gameId)
+                .catch { _uiState.update { it.copy(gameId = gameId, isOffline = true) } }
+                .collect { game ->
+                    val current = _uiState.value
+                    val timerAlreadyRunning = current.isTimerRunning
+                    _uiState.update {
+                        game.copy(
+                            selectedTab = current.selectedTab,
+                            isTimerRunning = current.isTimerRunning,
+                            timerSeconds = if (current.isTimerRunning) current.timerSeconds else game.timerSeconds,
+                            showGoalForm = current.showGoalForm,
+                            showInfractionForm = current.showInfractionForm,
+                            showSubstitutionForm = current.showSubstitutionForm,
+                            showAdvancedStatsForm = current.showAdvancedStatsForm
+                        )
+                    }
+                    if (game.phase == LiveMatchPhase.LIVE && !timerAlreadyRunning) {
                         startTimer()
                     }
-                }
-                .onFailure {
-                    _uiState.update { it.copy(gameId = gameId, isOffline = true) }
                 }
         }
     }
@@ -127,23 +139,74 @@ class LiveMatchViewModel(
     fun onRecordGoal(isHome: Boolean, playerName: String, description: String, delta: Int = 1) {
         addEvent(MatchEventType.SCORE, isHome, playerName, description, scoreDelta = delta)
         _uiState.update { state ->
+            val update = { s: LiveTeamStats ->
+                when (state.sportType) {
+                    SportType.SOCCER, SportType.FUTSAL -> s.copy(
+                        shots = s.shots + 1,
+                        shotsOnGoal = s.shotsOnGoal + 1
+                    )
+                    SportType.BASKETBALL -> when (delta) {
+                        1 -> s.copy(points1 = s.points1 + 1)
+                        3 -> s.copy(points3 = s.points3 + 1)
+                        else -> s.copy(points2 = s.points2 + 1)
+                    }
+                    SportType.VOLLEYBALL, SportType.PADDLE -> s.copy(setsWon = s.setsWon + 1)
+                }
+            }
             state.copy(
                 homeScore = if (isHome) state.homeScore + delta else state.homeScore,
                 awayScore = if (!isHome) state.awayScore + delta else state.awayScore,
+                homeStats = if (isHome) update(state.homeStats) else state.homeStats,
+                awayStats = if (!isHome) update(state.awayStats) else state.awayStats,
                 showGoalForm = false
             )
         }
         persistSnapshot()
-        // Persist intermediate score
         val state = _uiState.value
         viewModelScope.launch {
             repository.updateScore(state.gameId, state.homeTeamId, state.awayTeamId, state.homeScore, state.awayScore)
+            val teamId = if (isHome) state.homeTeamId else state.awayTeamId
+            val stats = if (isHome) state.homeStats else state.awayStats
+            repository.updateStats(state.gameId, teamId, isHome, stats)
         }
     }
 
     fun onRecordInfraction(isHome: Boolean, playerName: String, description: String) {
         addEvent(MatchEventType.INFRACTION, isHome, playerName, description)
-        _uiState.update { it.copy(showInfractionForm = false) }
+        val desc = description.uppercase()
+        _uiState.update { state ->
+            val update = { s: LiveTeamStats ->
+                when (state.sportType) {
+                    SportType.SOCCER, SportType.FUTSAL -> when {
+                        "SECOND YELLOW" in desc -> s.copy(yellowCards = s.yellowCards + 1, redCards = s.redCards + 1)
+                        "YELLOW" in desc -> s.copy(yellowCards = s.yellowCards + 1)
+                        "RED" in desc -> s.copy(redCards = s.redCards + 1)
+                        else -> s.copy(fouls = s.fouls + 1)
+                    }
+                    SportType.BASKETBALL -> when {
+                        "TECHNICAL" in desc -> s.copy(technicalFouls = s.technicalFouls + 1)
+                        else -> s.copy(personalFouls = s.personalFouls + 1)
+                    }
+                    SportType.VOLLEYBALL, SportType.PADDLE -> when {
+                        "EXPULSION" in desc -> s.copy(redCards = s.redCards + 1)
+                        "PENALTY" in desc -> s.copy(fouls = s.fouls + 1)
+                        else -> s.copy(yellowCards = s.yellowCards + 1)
+                    }
+                }
+            }
+            state.copy(
+                homeStats = if (isHome) update(state.homeStats) else state.homeStats,
+                awayStats = if (!isHome) update(state.awayStats) else state.awayStats,
+                showInfractionForm = false
+            )
+        }
+        persistSnapshot()
+        val state = _uiState.value
+        val teamId = if (isHome) state.homeTeamId else state.awayTeamId
+        val stats = if (isHome) state.homeStats else state.awayStats
+        viewModelScope.launch {
+            repository.updateStats(state.gameId, teamId, isHome, stats)
+        }
     }
 
     fun onRecordSubstitution(isHome: Boolean, playerOut: String, playerIn: String) {
@@ -229,6 +292,7 @@ class LiveMatchViewModel(
     override fun onCleared() {
         super.onCleared()
         timerJob?.cancel()
+        gameRealtimeJob?.cancel()
     }
 }
 

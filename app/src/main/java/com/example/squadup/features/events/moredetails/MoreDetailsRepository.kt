@@ -283,7 +283,7 @@ class MoreDetailsRepository(
     }
 
     private suspend fun getAcceptedRegistrationsCount(eventId: Int): Int {
-        return runCatching {
+        val inscricaoCount = runCatching {
             supabaseClient
                 .from("inscricao")
                 .select {
@@ -295,6 +295,22 @@ class MoreDetailsRepository(
                 .decodeList<MoreDetailsRegistrationRow>()
                 .size
         }.getOrDefault(0)
+
+        // Also count confirmed teams (evento_equipa) — covers team events where inscricao may be missing.
+        val confirmedTeamsCount = runCatching {
+            supabaseClient
+                .from("evento_equipa")
+                .select {
+                    filter {
+                        eq("evento_id", eventId)
+                        eq("estado", "confirmada")
+                    }
+                }
+                .decodeList<MoreDetailsEventTeamRow>()
+                .size
+        }.getOrDefault(0)
+
+        return maxOf(inscricaoCount, confirmedTeamsCount)
     }
 
     private fun MoreDetailsEventRow.toUiState(
@@ -387,6 +403,7 @@ class MoreDetailsRepository(
             creatorId = creatorId,
             participationType = pt,
             isPrivate = isPrivate == true,
+            accessCode = accessCode,
             registrationStatusLabel = registrationStatusLabel,
 
             userEventRegistrationStatus = currentUserRegistration?.registrationStatus,
@@ -855,12 +872,19 @@ class MoreDetailsRepository(
 
     private fun validateRegistrationPeriod(event: MoreDetailsEventRow) {
         val now = LocalDateTime.now()
-        val regStart = event.registrationStartDate.toLocalDateTimeOrNull()
         val regEnd = event.registrationEndDate.toLocalDateTimeOrNull()
 
-        if (regStart != null && now.isBefore(regStart)) {
-            throw Exception("As inscrições ainda não estão abertas.")
+        // If the organizer explicitly set the status to "publicado" (registrations open),
+        // honour that intent — skip the start-date gate, only enforce the end date.
+        val isExplicitlyOpen = event.eventStatus?.lowercase() == "publicado"
+
+        if (!isExplicitlyOpen) {
+            val regStart = event.registrationStartDate.toLocalDateTimeOrNull()
+            if (regStart != null && now.isBefore(regStart)) {
+                throw Exception("As inscrições ainda não estão abertas.")
+            }
         }
+
         if (regEnd != null && now.isAfter(regEnd)) {
             throw Exception("O período de inscrições já terminou.")
         }

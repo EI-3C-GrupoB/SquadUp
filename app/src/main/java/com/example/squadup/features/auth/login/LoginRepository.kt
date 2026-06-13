@@ -19,13 +19,6 @@ class LoginRepository(
                 password = credentials.password
             }
 
-            if (isAccountSuspended()) {
-                supabaseClient.auth.signOut()
-                return Result.failure(
-                    LoginException(R.string.login_account_suspended_message, isAccountSuspended = true)
-                )
-            }
-
             Result.success(Unit)
         } catch (exception: Exception) {
             Result.failure(LoginException(mapLoginError(exception)))

@@ -56,6 +56,7 @@ fun MoreDetailsRoute(
                 currentUserId = appUiState.userId
             )
         },
+        onVerifyCode = viewModel::verifyAccessCode,
         onPaymentClick = {
             val inscricaoId = uiState.userInscricaoId
             val evId = uiState.eventId

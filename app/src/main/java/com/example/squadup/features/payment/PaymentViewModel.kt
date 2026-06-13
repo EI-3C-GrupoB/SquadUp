@@ -45,7 +45,11 @@ class PaymentViewModel : ViewModel() {
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isConfirming = true, errorMessage = null)
-            repository.confirmPayment(paymentId = state.paymentId, eventId = eventId)
+            repository.confirmPayment(
+                paymentId = state.paymentId,
+                eventId = eventId,
+                inscricaoId = state.inscricaoId
+            )
                 .onSuccess { ticketId ->
                     _uiState.value = _uiState.value.copy(isConfirming = false)
                     onSuccess(ticketId)

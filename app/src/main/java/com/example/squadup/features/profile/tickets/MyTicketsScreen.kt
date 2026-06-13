@@ -86,8 +86,8 @@ fun MyTicketsScreen(
                 TicketTab.Upcoming -> {
                     if (uiState.upcomingTickets.isEmpty()) {
                         EmptyStateCard(
-                            title = "Sem bilhetes próximos",
-                            message = "Ainda não tens bilhetes para eventos futuros. Explora os eventos para te inscreveres!",
+                            title = stringResource(R.string.tickets_upcoming_empty_title),
+                            message = stringResource(R.string.tickets_upcoming_empty_message),
                             icon = Icons.Outlined.ConfirmationNumber
                         )
                     } else {
@@ -107,8 +107,8 @@ fun MyTicketsScreen(
                 TicketTab.History -> {
                     if (uiState.pastTickets.isEmpty()) {
                         EmptyStateCard(
-                            title = "Sem histórico",
-                            message = "Ainda não tens um histórico de bilhetes. Os teus bilhetes passados aparecerão aqui.",
+                            title = stringResource(R.string.tickets_history_empty_title),
+                            message = stringResource(R.string.tickets_history_empty_message),
                             icon = Icons.Outlined.History
                         )
                     } else {

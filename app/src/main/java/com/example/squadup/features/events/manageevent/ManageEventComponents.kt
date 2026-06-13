@@ -34,7 +34,7 @@ internal fun MetricCard(
     val accentColor = if (isWarning) Color(0xFFFFA000) else SquadOrange
     Surface(
         modifier = modifier,
-        color = if (isWarning) Color(0xFFFFF8E1) else Color.White,
+        color = if (isWarning) Color(0xFFFFA000).copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp
     ) {

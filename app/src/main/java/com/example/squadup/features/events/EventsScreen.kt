@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,6 +72,50 @@ fun EventsScreen(
     val horizontalPadding = responsiveHorizontalPadding(20.dp)
     val topSpacing = responsiveVerticalSpacing(20.dp)
     var selectedEvent by remember { mutableStateOf<BrowseEventItem?>(null) }
+
+    // Private event code dialog
+    val coroutineScope = rememberCoroutineScope()
+    val eventsRepository = remember { EventsRepository() }
+    var showPrivateCodeDialog by remember { mutableStateOf(false) }
+    var privateCodeInput by remember { mutableStateOf("") }
+    var isSearchingCode by remember { mutableStateOf(false) }
+    var privateCodeError by remember { mutableStateOf<String?>(null) }
+
+    if (showPrivateCodeDialog) {
+        PrivateEventCodeDialog(
+            codeInput = privateCodeInput,
+            onCodeChange = {
+                privateCodeInput = it.uppercase()
+                privateCodeError = null
+            },
+            isLoading = isSearchingCode,
+            errorMessage = privateCodeError,
+            onConfirm = {
+                coroutineScope.launch {
+                    isSearchingCode = true
+                    eventsRepository.findEventByAccessCode(privateCodeInput)
+                        .onSuccess { event ->
+                            if (event != null) {
+                                showPrivateCodeDialog = false
+                                privateCodeInput = ""
+                                onEventClick(event.id)
+                            } else {
+                                privateCodeError = "Evento não encontrado. Verifica o código."
+                            }
+                        }
+                        .onFailure {
+                            privateCodeError = "Erro ao pesquisar. Tenta novamente."
+                        }
+                    isSearchingCode = false
+                }
+            },
+            onDismiss = {
+                showPrivateCodeDialog = false
+                privateCodeInput = ""
+                privateCodeError = null
+            }
+        )
+    }
 
     selectedEvent?.let { event ->
         EventSummaryBottomSheet(
@@ -135,6 +180,15 @@ fun EventsScreen(
                     modifier = Modifier.weight(1f)
                 )
 
+                Icon(
+                    imageVector = Icons.Outlined.Lock,
+                    contentDescription = "Evento Privado",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { showPrivateCodeDialog = true }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
                 Icon(
                     imageVector = Icons.Outlined.Map,
                     contentDescription = null,
@@ -306,11 +360,11 @@ fun EventsScreen(
 
             if (uiState.filteredBrowseEvents.isEmpty() && uiState.filteredUpcomingEvents.isEmpty()) {
                 EmptyStateCard(
-                    title = "Sem eventos encontrados",
+                    title = stringResource(R.string.events_empty_title),
                     message = when (uiState.locationSource) {
-                        EventsLocationSource.DEVICE -> "Não existem eventos perto da tua localização actual para os filtros seleccionados."
-                        EventsLocationSource.PROFILE -> "Não existem eventos perto da localização do teu perfil para os filtros seleccionados."
-                        EventsLocationSource.UNKNOWN -> "Não existem eventos disponíveis para os filtros seleccionados."
+                        EventsLocationSource.DEVICE -> stringResource(R.string.events_empty_device)
+                        EventsLocationSource.PROFILE -> stringResource(R.string.events_empty_profile)
+                        EventsLocationSource.UNKNOWN -> stringResource(R.string.events_empty_unknown)
                     },
                     icon = Icons.Outlined.CalendarMonth,
                     modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
@@ -341,15 +395,15 @@ private fun LocationSourceCard(
     modifier: Modifier = Modifier
 ) {
     val message = when (locationSource) {
-        EventsLocationSource.DEVICE -> "A mostrar eventos perto da tua localização actual"
-        EventsLocationSource.PROFILE -> "A mostrar eventos perto da localização do teu perfil"
-        EventsLocationSource.UNKNOWN -> "A preparar localização dos eventos"
+        EventsLocationSource.DEVICE -> stringResource(R.string.events_location_device_title)
+        EventsLocationSource.PROFILE -> stringResource(R.string.events_location_profile_title)
+        EventsLocationSource.UNKNOWN -> stringResource(R.string.events_location_unknown_title)
     }
 
     val subMessage = when (locationSource) {
-        EventsLocationSource.DEVICE -> "Se estiveres no emulador, confirma a localização em Extended Controls."
-        EventsLocationSource.PROFILE -> "A localização actual não foi usada. Podes tentar actualizar novamente."
-        EventsLocationSource.UNKNOWN -> "A app vai tentar usar primeiro a localização actual."
+        EventsLocationSource.DEVICE -> stringResource(R.string.events_location_device_sub)
+        EventsLocationSource.PROFILE -> stringResource(R.string.events_location_profile_sub)
+        EventsLocationSource.UNKNOWN -> stringResource(R.string.events_location_unknown_sub)
     }
 
     Surface(
@@ -1250,4 +1304,78 @@ private fun EventSummaryBottomSheet(
             }
         }
     }
+}
+
+@Composable
+private fun PrivateEventCodeDialog(
+    codeInput: String,
+    onCodeChange: (String) -> Unit,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = null,
+                tint = Color(0xFF6A1B9A)
+            )
+        },
+        title = {
+            Text(
+                text = "Evento Privado",
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Insere o código de acesso para entrares num evento privado.",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = codeInput,
+                    onValueChange = onCodeChange,
+                    placeholder = { Text("Ex: ABC123", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    singleLine = true,
+                    isError = errorMessage != null,
+                    supportingText = errorMessage?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF6A1B9A),
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = codeInput.length >= 4 && !isLoading,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = Color.White
+                    )
+                } else {
+                    Text("Entrar")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
 }

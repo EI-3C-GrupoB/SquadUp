@@ -18,6 +18,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -93,7 +100,7 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
                 // Format badge
                 if (uiState.formatName.isNotBlank()) {
                     Surface(
-                        color = Color(0xFFE3F2FD),
+                        color = Color(0xFF1565C0).copy(alpha = 0.12f),
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Row(
@@ -118,7 +125,7 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
                 }
                 // Public/Private badge
                 val privacyColor = if (uiState.isPublic) Color(0xFF2E7D32) else Color(0xFF6A1B9A)
-                val privacyBg = if (uiState.isPublic) Color(0xFFE8F5E9) else Color(0xFFF3E5F5)
+                val privacyBg = privacyColor.copy(alpha = 0.12f)
                 Surface(
                     color = privacyBg,
                     shape = RoundedCornerShape(6.dp)
@@ -148,7 +155,7 @@ internal fun EventHeroCard(uiState: ManageEventUiState, modifier: Modifier = Mod
             }
 
             Spacer(modifier = Modifier.height(14.dp))
-            HorizontalDivider(color = SquadGray)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Spacer(modifier = Modifier.height(14.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -189,6 +196,12 @@ internal fun OverviewTabContent(
 
         // 1 — Métricas adaptativas
         MetricsGrid(uiState)
+
+        // Código de acesso — visível apenas para eventos privados
+        if (!uiState.isPublic && !uiState.accessCode.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            PrivateEventCodeCard(code = uiState.accessCode)
+        }
 
         // Progress — só para torneios (múltiplos jogos)
         if (!uiState.isSingleMatch) {
@@ -305,7 +318,7 @@ internal fun OverviewTabContent(
                         if (index < uiState.individualRegistrationRequests.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
-                                color = SquadGrayLight
+                                color = MaterialTheme.colorScheme.outlineVariant
                             )
                         }
                     }
@@ -345,7 +358,7 @@ internal fun OverviewTabContent(
                         if (index < uiState.teamRegistrationRequests.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
-                                color = SquadGrayLight
+                                color = MaterialTheme.colorScheme.outlineVariant
                             )
                         }
                     }
@@ -388,7 +401,7 @@ internal fun OverviewTabContent(
                     if (index < uiState.recentRegistrations.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(16.dp)),
-                            color = SquadGrayLight
+                            color = MaterialTheme.colorScheme.outlineVariant
                         )
                     }
                 }
@@ -579,7 +592,7 @@ private fun ManagementToolCard(
     isDestructive: Boolean = false
 ) {
     val contentColor = if (isDestructive) SquadError else MaterialTheme.colorScheme.onSurface
-    val bgColor = if (isDestructive) Color(0xFFFFF5F5) else Color.White
+    val bgColor = if (isDestructive) SquadError.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
     Surface(
         modifier = modifier.clickable(onClick = onClick),
         color = bgColor,
@@ -597,6 +610,65 @@ private fun ManagementToolCard(
             Icon(icon, null, tint = contentColor, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = label, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = contentColor)
+        }
+    }
+}
+
+@Composable
+private fun PrivateEventCodeCard(code: String) {
+    val clipboard = LocalClipboardManager.current
+    var copied by remember { mutableStateOf(false) }
+    val purple = Color(0xFF6A1B9A)
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = purple.copy(alpha = 0.08f),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, purple.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = null,
+                tint = purple,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Código de Acesso Privado",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = purple,
+                    letterSpacing = 0.5.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = code,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 5.sp,
+                    color = purple
+                )
+                Text(
+                    text = "Partilha este código com os participantes",
+                    fontSize = 10.sp,
+                    color = purple.copy(alpha = 0.7f)
+                )
+            }
+            IconButton(onClick = {
+                clipboard.setText(AnnotatedString(code))
+                copied = true
+            }) {
+                Icon(
+                    imageVector = if (copied) Icons.Outlined.Check else Icons.Outlined.ContentCopy,
+                    contentDescription = if (copied) "Copiado" else "Copiar",
+                    tint = purple
+                )
+            }
         }
     }
 }

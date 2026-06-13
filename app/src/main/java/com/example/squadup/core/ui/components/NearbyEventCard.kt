@@ -3,6 +3,7 @@ package com.example.squadup.core.ui.components
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,10 +35,11 @@ fun NearbyEventCard(
     sportType: SportType,
     status: EventStatus,
     onJoinClick: () -> Unit,
+    onCardClick: () -> Unit = onJoinClick,
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier.width(245.dp),
+        modifier = modifier.width(245.dp).clickable(onClick = onCardClick),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp

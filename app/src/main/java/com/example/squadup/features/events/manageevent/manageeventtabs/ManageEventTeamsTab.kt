@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 
 import com.example.squadup.features.events.manageevent.*
 import com.example.squadup.core.enums.GameStatus
+import com.example.squadup.core.enums.PlayerValidationState
 import com.example.squadup.core.enums.TeamEventStatus
 
 import androidx.compose.animation.AnimatedVisibility
@@ -44,10 +45,6 @@ internal fun TeamsTabContent(
     onLoadMoreTeams: () -> Unit,
     onLoadMoreFreeAgents: () -> Unit,
     onTeamExpand: (String) -> Unit,
-    onAddPlayerClick: (String) -> Unit,
-    onEditTeamClick: (String) -> Unit,
-    onDeleteTeamClick: (String) -> Unit,
-    onPlayerRemove: (String, String) -> Unit,
     onAcceptIndividualRegistration: (Int) -> Unit,
     onRejectIndividualRegistration: (Int) -> Unit,
     onAcceptTeamRegistration: (Int) -> Unit,
@@ -198,10 +195,6 @@ internal fun TeamsTabContent(
                     team = team,
                     isExpanded = uiState.expandedTeamId == team.id,
                     onExpand = { onTeamExpand(team.id) },
-                    onAddPlayer = { onAddPlayerClick(team.id) },
-                    onEditTeam = { onEditTeamClick(team.id) },
-                    onDeleteTeam = { onDeleteTeamClick(team.id) },
-                    onRemovePlayer = { playerId -> onPlayerRemove(team.id, playerId) },
                     modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(20.dp))
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -388,10 +381,6 @@ private fun TeamAccordionCard(
     team: ManageTeamItem,
     isExpanded: Boolean,
     onExpand: () -> Unit,
-    onAddPlayer: () -> Unit,
-    onEditTeam: () -> Unit,
-    onDeleteTeam: () -> Unit,
-    onRemovePlayer: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -423,7 +412,7 @@ private fun TeamAccordionCard(
                         Text(team.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                         TeamEventStatusBadge(team.eventStatus)
                     }
-                    Text("${team.playerCount} Players • ${team.badge}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("${team.playerCount} Players", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Icon(
                     imageVector = if (isExpanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
@@ -440,55 +429,31 @@ private fun TeamAccordionCard(
                 exit = shrinkVertically()
             ) {
                 Column(modifier = Modifier.padding(horizontal = responsiveHorizontalPadding(14.dp))) {
-                    HorizontalDivider(color = SquadGrayLight)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Localização + ações
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(13.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(team.location, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                        IconButton(onClick = onEditTeam, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Outlined.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                        }
-                        IconButton(onClick = onDeleteTeam, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Outlined.Delete, null, tint = SquadError, modifier = Modifier.size(16.dp))
+                    Text(
+                        text = stringResource(R.string.manageEvent_players_label),
+                        fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        letterSpacing = 0.5.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    if (team.players.isEmpty()) {
+                        Text(
+                            text = "Sem jogadores registados",
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        team.players.forEach { player ->
+                            PlayerRow(player = player)
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
-
-                    // Header da lista de jogadores
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(R.string.manageEvent_players_label),
-                            fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            text = stringResource(R.string.manageEvent_add_player),
-                            fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = SquadOrange,
-                            modifier = Modifier.clickable(onClick = onAddPlayer)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Text("Name", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                        Text("State", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(90.dp))
-                    }
-
-                    HorizontalDivider(color = SquadGrayLight, modifier = Modifier.padding(vertical = 6.dp))
-
-                    team.players.forEach { player ->
-                        PlayerRow(player = player, onRemove = { onRemovePlayer(player.id) })
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
@@ -496,25 +461,44 @@ private fun TeamAccordionCard(
 }
 
 @Composable
-private fun PlayerRow(player: ManagePlayerItem, onRemove: () -> Unit) {
+private fun PlayerRow(player: ManagePlayerItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp),
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(32.dp)
                 .background(SquadOrangeLight, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text(player.initials, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
+            Text(player.initials, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SquadOrange)
         }
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(player.name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
-        IconButton(onClick = onRemove, modifier = Modifier.size(28.dp)) {
-            Icon(Icons.Outlined.Close, null, tint = Color(0xFFD32F2F), modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            player.name,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        val (roleLabel, roleColor) = when (player.state) {
+            PlayerValidationState.VALIDATED -> "CAPITÃO" to SquadOrange
+            else -> "MEMBRO" to MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        Surface(
+            color = roleColor.copy(alpha = 0.12f),
+            shape = RoundedCornerShape(4.dp)
+        ) {
+            Text(
+                roleLabel,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                color = roleColor,
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+            )
         }
     }
 }

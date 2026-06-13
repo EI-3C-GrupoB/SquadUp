@@ -78,8 +78,14 @@ class ManageEventRepository(
                     .decodeList<ManageEventTeamRow>()
             }
 
-            // Only load users who are registered to this event (filtro server-side)
-            val registeredUserIds = registrations.mapNotNull { it.userId }.toSet()
+            // Fetch team memberships (inscricao rows with evento_id = null) for all confirmed teams
+            // so we can show all team members, not just the captain who registered the team.
+            val teamMemberships = getTeamMemberships(allRelevantTeamIds)
+
+            // Include captain + all team member IDs so usersById has everyone.
+            val registeredUserIds = (registrations.mapNotNull { it.userId } +
+                    eventTeamRegistrations.mapNotNull { it.captainUserId } +
+                    teamMemberships.mapNotNull { it.userId }).toSet()
             val users = if (registeredUserIds.isEmpty()) emptyList() else {
                 supabaseClient.from("utilizador")
                     .select { filter { isIn("id", registeredUserIds.toList()) } }
@@ -104,6 +110,7 @@ class ManageEventRepository(
                     formato = formato,
                     registrations = registrations,
                     eventTeamRegistrations = eventTeamRegistrations,
+                    teamMemberships = teamMemberships,
                     teams = teams,
                     users = users,
                     games = games,
@@ -656,6 +663,20 @@ class ManageEventRepository(
             .decodeList()
     }
 
+    private suspend fun getTeamMemberships(teamIds: Set<Int>): List<ManageEventTeamMemberRow> {
+        if (teamIds.isEmpty()) return emptyList()
+        return runCatching {
+            supabaseClient.from("inscricao")
+                .select {
+                    filter {
+                        isIn("equipa_id", teamIds.toList())
+                        exact("evento_id", null)
+                    }
+                }
+                .decodeList<ManageEventTeamMemberRow>()
+        }.getOrElse { emptyList() }
+    }
+
     private suspend fun getGames(eventId: Int): List<ManageEventGameRow> {
         return supabaseClient
             .from("jogo")
@@ -672,6 +693,7 @@ class ManageEventRepository(
         formato: ManageEventFormatoRow?,
         registrations: List<ManageEventRegistrationRow>,
         eventTeamRegistrations: List<ManageEventTeamRegistrationRow>,
+        teamMemberships: List<ManageEventTeamMemberRow>,
         teams: List<ManageEventTeamRow>,
         users: List<ManageEventUserRow>,
         games: List<ManageEventGameRow>,
@@ -741,6 +763,7 @@ class ManageEventRepository(
             formatName = formato?.name.orEmpty(),
             status = status.toEventStatus(),
             isPublic = isPrivate != true,
+            accessCode = accessCode,
             allowTeams = participationType == "equipa" || participationType == "individual_e_equipa",
             allowFreeAgents = participationType == "individual" || participationType == "individual_e_equipa",
             registeredTeams = confirmedTeamIds.size,
@@ -757,23 +780,46 @@ class ManageEventRepository(
             completedGames = games.count { it.status == "terminado" },
             totalGames = games.size,
             matchProgress = if (games.isEmpty()) 0f else games.count { it.status == "terminado" } / games.size.toFloat(),
-            recentRegistrations = registrations
-                .sortedByDescending { it.createdAt.orEmpty() }
-                .take(5)
-                .map { registration ->
-                    val user = registration.userId?.let { usersById[it] }
-                    RecentRegistrationItem(
-                        id = registration.id.toString(),
-                        name = user?.name ?: registration.teamId?.let { teamsById[it]?.name }.orEmpty(),
-                        position = if (registration.teamId == null) "Free Agent" else "Team",
-                        timeAgo = registration.createdAt.toShortDateTime()
-                    )
-                },
+            recentRegistrations = buildList {
+                    // Individual / captain event inscricao rows
+                    registrations
+                        .filter { it.teamId == null || it.registrationType == "evento_equipa" || it.registrationType == "pedido_evento_equipa" }
+                        .forEach { registration ->
+                            val user = registration.userId?.let { usersById[it] }
+                            val teamName = registration.teamId?.let { teamsById[it]?.name }
+                            add(RecentRegistrationItem(
+                                id = "i_${registration.id}",
+                                name = teamName ?: user?.name.orEmpty(),
+                                position = if (registration.teamId == null) "Free Agent" else "Equipa",
+                                timeAgo = registration.createdAt.toShortDateTime()
+                            ))
+                        }
+                    // Team registrations directly from evento_equipa (covers cases where inscricao is missing)
+                    eventTeamRegistrations.forEach { et ->
+                        val teamName = teamsById[et.teamId]?.name ?: return@forEach
+                        val alreadyListed = registrations.any { it.teamId == et.teamId }
+                        if (!alreadyListed) {
+                            add(RecentRegistrationItem(
+                                id = "et_${et.id}",
+                                name = teamName,
+                                position = "Equipa",
+                                timeAgo = et.createdAt.toShortDateTime()
+                            ))
+                        }
+                    }
+                }
+                .sortedByDescending { it.timeAgo }
+                .take(5),
             teams = confirmedTeamIds
                 .mapNotNull { teamId ->
+                    val eventTeamRow = confirmedEventTeamRegistrations
+                        .firstOrNull { it.teamId == teamId }
                     teamsById[teamId]?.toManageTeam(
                         registrations = confirmedTeamRegistrations.filter { it.teamId == teamId },
-                        usersById = usersById
+                        teamMemberships = teamMemberships.filter { it.teamId == teamId },
+                        usersById = usersById,
+                        eventTeamDbStatus = eventTeamRow?.status,
+                        captainFallbackUserId = eventTeamRow?.captainUserId
                     )
                 },
             freeAgents = acceptedIndividualRegistrations.mapNotNull { registration ->
@@ -852,30 +898,66 @@ class ManageEventRepository(
 
     private fun ManageEventTeamRow.toManageTeam(
         registrations: List<ManageEventRegistrationRow>,
-        usersById: Map<Int, ManageEventUserRow>
+        teamMemberships: List<ManageEventTeamMemberRow>,
+        usersById: Map<Int, ManageEventUserRow>,
+        eventTeamDbStatus: String? = null,
+        captainFallbackUserId: Int? = null
     ): ManageTeamItem {
-        return ManageTeamItem(
-            id = id.toString(),
-            name = name,
-            abbreviation = name.abbreviation(),
-            location = "",
-            playerCount = registrations.size,
-            badge = "",
-            eventStatus = registrations.firstOrNull()?.status.toTeamEventStatus(),
-            players = registrations.mapNotNull { registration ->
+        val resolvedStatus = eventTeamDbStatus ?: registrations.firstOrNull()?.status
+
+        // Build from team memberships (inscricao with evento_id = null) — most complete source.
+        val playersFromMemberships = teamMemberships.mapNotNull { member ->
+            val user = member.userId?.let { usersById[it] } ?: return@mapNotNull null
+            ManagePlayerItem(
+                id = user.id.toString(),
+                name = user.name,
+                initials = user.name.initials(),
+                playerId = "#${user.id}",
+                state = if (member.isCaptain == true) PlayerValidationState.VALIDATED else PlayerValidationState.PENDING
+            )
+        }.sortedByDescending { it.state == PlayerValidationState.VALIDATED }
+
+        // Fall back to event inscricao rows if team memberships are empty.
+        val playersFromInscricao = if (playersFromMemberships.isEmpty()) {
+            registrations.mapNotNull { registration ->
                 val user = registration.userId?.let { usersById[it] } ?: return@mapNotNull null
                 ManagePlayerItem(
                     id = user.id.toString(),
                     name = user.name,
                     initials = user.name.initials(),
                     playerId = "#${user.id}",
-                    state = if (registration.status == "aceite") {
-                        PlayerValidationState.VALIDATED
-                    } else {
-                        PlayerValidationState.PENDING
-                    }
+                    state = if (registration.status == "aceite") PlayerValidationState.VALIDATED else PlayerValidationState.PENDING
                 )
             }
+        } else emptyList()
+
+        // Last resort: show captain from evento_equipa if both lists are empty.
+        val players = when {
+            playersFromMemberships.isNotEmpty() -> playersFromMemberships
+            playersFromInscricao.isNotEmpty() -> playersFromInscricao
+            else -> {
+                val captainUser = captainFallbackUserId?.let { usersById[it] }
+                if (captainUser != null) listOf(
+                    ManagePlayerItem(
+                        id = captainUser.id.toString(),
+                        name = captainUser.name,
+                        initials = captainUser.name.initials(),
+                        playerId = "#${captainUser.id}",
+                        state = PlayerValidationState.VALIDATED
+                    )
+                ) else emptyList()
+            }
+        }
+
+        return ManageTeamItem(
+            id = id.toString(),
+            name = name,
+            abbreviation = name.abbreviation(),
+            location = "",
+            playerCount = players.size,
+            badge = "",
+            eventStatus = resolvedStatus.toTeamEventStatus(),
+            players = players
         )
     }
 
@@ -1000,7 +1082,7 @@ class ManageEventRepository(
 
     private fun String?.toTeamEventStatus(): TeamEventStatus {
         return when (this) {
-            "aceite" -> TeamEventStatus.CONFIRMED
+            "aceite", "confirmada" -> TeamEventStatus.CONFIRMED
             "recusada", "recusado", "banido" -> TeamEventStatus.WITHDRAWN
             else -> TeamEventStatus.PENDING
         }

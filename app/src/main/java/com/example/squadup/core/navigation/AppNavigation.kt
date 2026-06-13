@@ -1,10 +1,16 @@
 package com.example.squadup.core.navigation
 
 import android.app.Application
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import com.example.squadup.R
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -78,6 +84,32 @@ fun AppNavigation(
     if (appUiState.isInitializing || hasCompletedOnboarding == null) {
         LoadingScreen(message = "Verificando sessão...")
         return
+    }
+
+    if (appUiState.showSuspendedDialog) {
+        AlertDialog(
+            onDismissRequest = appViewModel::dismissSuspendedDialog,
+            title = { Text(text = stringResource(R.string.login_account_suspended_title), fontWeight = FontWeight.Bold) },
+            text = { Text(text = stringResource(R.string.login_account_suspended_message)) },
+            confirmButton = {
+                TextButton(onClick = appViewModel::dismissSuspendedDialog) {
+                    Text(text = stringResource(R.string.login_account_suspended_button))
+                }
+            }
+        )
+    }
+
+    if (appUiState.showDeletedDialog) {
+        AlertDialog(
+            onDismissRequest = appViewModel::dismissDeletedDialog,
+            title = { Text(text = stringResource(R.string.login_account_deleted_title), fontWeight = FontWeight.Bold) },
+            text = { Text(text = stringResource(R.string.login_account_deleted_message)) },
+            confirmButton = {
+                TextButton(onClick = appViewModel::dismissDeletedDialog) {
+                    Text(text = stringResource(R.string.login_account_deleted_button))
+                }
+            }
+        )
     }
 
     val startDestination = when {
@@ -234,11 +266,11 @@ fun AppNavigation(
                 onSeeAllEventsClick = {
                     navController.navigate(AppRoutes.MyEvents.route)
                 },
-                onJoinEventClick = {
-                    // TODO: navegar para detalhe do evento
+                onJoinEventClick = { eventId ->
+                    navController.navigate(AppRoutes.MoreDetails.createRoute(eventId))
                 },
-                onEventDetailsClick = {
-                    // TODO: navegar para detalhe do evento
+                onEventDetailsClick = { eventId ->
+                    navController.navigate(AppRoutes.MoreDetails.createRoute(eventId))
                 },
                 onLoginClick = {
                     navController.navigate(AppRoutes.Login.route)
@@ -506,6 +538,9 @@ fun AppNavigation(
                 onNotificationsClick = openNotifications,
                 onManageEventClick = { eventId ->
                     navController.navigate(AppRoutes.ManageEvent.createRoute(eventId))
+                },
+                onEventDetailsClick = { eventId ->
+                    navController.navigate(AppRoutes.MoreDetails.createRoute(eventId))
                 },
                 onViewResultsClick = {},
                 onCreateEventClick = {

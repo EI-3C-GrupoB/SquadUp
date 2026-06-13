@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.SportsSoccer
 import androidx.compose.material.icons.outlined.SportsVolleyball
 import androidx.compose.material3.Button
@@ -46,10 +47,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -97,16 +103,80 @@ fun MoreDetailsScreen(
     onTeamSelected: (Int) -> Unit,
     onPaymentClick: () -> Unit = {},
     onViewTicketClick: () -> Unit = {},
+    onVerifyCode: (String) -> Unit = {},
     selectedLanguage: AppLanguage,
     isDarkMode: Boolean,
     onLanguageChange: (AppLanguage) -> Unit,
     onDarkModeChange: (Boolean) -> Unit
 ) {
+    var showCodeDialog by remember { mutableStateOf(false) }
+    var codeInput by remember { mutableStateOf("") }
+
     if (uiState.isTeamPickerVisible) {
         TeamPickerBottomSheet(
             uiState = uiState,
             onDismiss = onDismissTeamPicker,
             onTeamSelected = onTeamSelected
+        )
+    }
+
+    if (showCodeDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showCodeDialog = false
+                codeInput = ""
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Lock,
+                    contentDescription = null,
+                    tint = Color(0xFF6A1B9A)
+                )
+            },
+            title = {
+                Text(
+                    text = "Código de Acesso Privado",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Introduz o código partilhado pelo organizador para acederes a este evento.",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = codeInput,
+                        onValueChange = { codeInput = it.uppercase().take(8) },
+                        label = { Text("Código") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onVerifyCode(codeInput)
+                        showCodeDialog = false
+                        codeInput = ""
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6A1B9A))
+                ) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showCodeDialog = false
+                    codeInput = ""
+                }) {
+                    Text("Cancelar")
+                }
+            }
         )
     }
 
@@ -185,8 +255,9 @@ fun MoreDetailsScreen(
                         Spacer(modifier = Modifier.height(18.dp))
 
                         // Privacy + registration status badges
+                        val privateBadge = stringResource(R.string.more_details_badge_private)
                         val statusBadges = buildList {
-                            if (uiState.isPrivate) add("Privado" to Color(0xFF6B7280))
+                            if (uiState.isPrivate) add(privateBadge to Color(0xFF6B7280))
                             if (uiState.registrationStatusLabel.isNotBlank()) {
                                 val c = when (uiState.registrationStatusLabel) {
                                     "Cheio" -> Color(0xFFDC2626)
@@ -234,15 +305,15 @@ fun MoreDetailsScreen(
                         ) {
                             InfoCard(
                                 icon = Icons.Outlined.CalendarMonth,
-                                label = "DATA",
-                                value = uiState.date.ifBlank { "Sem data" },
+                                label = stringResource(R.string.more_details_label_date),
+                                value = uiState.date.ifBlank { stringResource(R.string.more_details_no_date) },
                                 modifier = Modifier.weight(1f)
                             )
 
                             InfoCard(
                                 icon = Icons.Outlined.AccessTime,
-                                label = "HORA",
-                                value = uiState.time.ifBlank { "Sem hora" },
+                                label = stringResource(R.string.more_details_label_time),
+                                value = uiState.time.ifBlank { stringResource(R.string.more_details_no_time) },
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -255,14 +326,14 @@ fun MoreDetailsScreen(
                         ) {
                             InfoCard(
                                 icon = Icons.Outlined.SportsSoccer,
-                                label = "MODALIDADE",
+                                label = stringResource(R.string.more_details_label_sport),
                                 value = uiState.modalityName,
                                 modifier = Modifier.weight(1f)
                             )
 
                             InfoCard(
                                 icon = Icons.Outlined.Info,
-                                label = "FORMATO",
+                                label = stringResource(R.string.more_details_label_format),
                                 value = uiState.formatName,
                                 modifier = Modifier.weight(1f)
                             )
@@ -287,7 +358,7 @@ fun MoreDetailsScreen(
 
                             SectionTitle(
                                 icon = Icons.Outlined.Description,
-                                title = "Descrição"
+                                title = stringResource(R.string.more_details_section_description)
                             )
 
                             Spacer(modifier = Modifier.height(12.dp))
@@ -299,7 +370,7 @@ fun MoreDetailsScreen(
 
                         SectionTitle(
                             icon = Icons.Outlined.Gavel,
-                            title = "Regras"
+                            title = stringResource(R.string.more_details_section_rules)
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -313,20 +384,20 @@ fun MoreDetailsScreen(
                                 }
                             }
                         } else {
-                            TextCard(text = "Este evento ainda não tem regras definidas.")
+                            TextCard(text = stringResource(R.string.more_details_no_rules))
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
                         SectionTitle(
                             icon = Icons.Outlined.LocationOn,
-                            title = "Localização"
+                            title = stringResource(R.string.more_details_section_location)
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         LocationPreviewCard(
-                            venueName = uiState.venueName.ifBlank { "Morada não definida" },
+                            venueName = uiState.venueName.ifBlank { stringResource(R.string.more_details_no_address) },
                             latitude = uiState.latitude,
                             longitude = uiState.longitude
                         )
@@ -341,7 +412,8 @@ fun MoreDetailsScreen(
                             onJoinIndividuallyClick = onJoinIndividuallyClick,
                             onJoinWithTeamClick = onJoinWithTeamClick,
                             onPaymentClick = onPaymentClick,
-                            onViewTicketClick = onViewTicketClick
+                            onViewTicketClick = onViewTicketClick,
+                            onEnterCodeClick = { showCodeDialog = true }
                         )
 
                         Spacer(modifier = Modifier.height(28.dp))
@@ -530,13 +602,16 @@ private fun EventActionButtons(
     onJoinIndividuallyClick: () -> Unit,
     onJoinWithTeamClick: () -> Unit,
     onPaymentClick: () -> Unit = {},
-    onViewTicketClick: () -> Unit = {}
+    onViewTicketClick: () -> Unit = {},
+    onEnterCodeClick: () -> Unit = {}
 ) {
     val regStatus = uiState.userEventRegistrationStatus
     val hasUserEventRegistration = !regStatus.isNullOrBlank()
 
     val isPaidEvent = (uiState.eventPrice ?: 0.0) > 0.0
     val paymentDone = uiState.paymentStatus == "pago"
+
+    val needsCodeEntry = uiState.isPrivate && !uiState.canManageEvent && !hasUserEventRegistration && !uiState.codeVerified
 
     val pendingTeamText = stringResource(R.string.more_details_pending_team)
     val pendingIndividualText = stringResource(R.string.more_details_pending_individual)
@@ -554,6 +629,30 @@ private fun EventActionButtons(
     }
 
     when {
+        needsCodeEntry -> {
+            Button(
+                onClick = onEnterCodeClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6A1B9A),
+                    contentColor = Color.White
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Lock,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "Inserir Código de Acesso",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
         uiState.canManageEvent -> {
             Button(
                 onClick = onManageEventClick,
@@ -862,7 +961,7 @@ private fun InfoCard(
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp,
-        border = BorderStroke(1.dp, Color(0xFFF0E1DC))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -907,10 +1006,11 @@ private fun InfoCard(
 private fun StatusAndPriceCard(
     uiState: MoreDetailsUiState
 ) {
+    val freeLabel = stringResource(R.string.more_details_free)
     val paymentLabel = when {
         uiState.priceLabel.isNotBlank() && uiState.priceLabel != "Grátis" -> uiState.priceLabel
         uiState.entryFeeLabel.isNotBlank() && uiState.entryFeeLabel != "Grátis" -> uiState.entryFeeLabel
-        else -> "Grátis"
+        else -> freeLabel
     }
 
     val shouldShowRegistrationPeriod =
@@ -922,33 +1022,33 @@ private fun StatusAndPriceCard(
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp,
-        border = BorderStroke(1.dp, Color(0xFFF0E1DC))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             SectionTitle(
                 icon = Icons.Outlined.Euro,
-                title = "Informação do evento"
+                title = stringResource(R.string.more_details_event_info)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            DetailRow(label = "Estado", value = uiState.eventStatus)
+            DetailRow(label = stringResource(R.string.more_details_label_status), value = uiState.eventStatus)
 
             HorizontalDivider(
-                color = Color(0xFFF0E1DC),
+                color = MaterialTheme.colorScheme.outlineVariant,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            DetailRow(label = "Preço de entrada", value = paymentLabel)
+            DetailRow(label = stringResource(R.string.more_details_label_entry_price), value = paymentLabel)
 
             if (shouldShowRegistrationPeriod) {
                 HorizontalDivider(
-                    color = Color(0xFFF0E1DC),
+                    color = MaterialTheme.colorScheme.outlineVariant,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
                 DetailRow(
-                    label = "Inscrições",
+                    label = stringResource(R.string.more_details_label_registrations),
                     value = uiState.registrationPeriod
                 )
             }
@@ -994,9 +1094,9 @@ private fun TeamRequirementCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFFFFEEE9),
+        color = SquadOrange.copy(alpha = 0.12f),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color(0xFFFFD3C7))
+        border = BorderStroke(1.dp, SquadOrange.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -1037,19 +1137,19 @@ private fun TeamRequirementCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 MiniStatCard(
-                    label = "Inscritas",
+                    label = stringResource(R.string.more_details_registered_count),
                     value = registeredTeams.toString(),
                     modifier = Modifier.weight(1f)
                 )
 
                 MiniStatCard(
-                    label = "Máximo",
+                    label = stringResource(R.string.more_details_max),
                     value = if (maxTeams > 0) maxTeams.toString() else "-",
                     modifier = Modifier.weight(1f)
                 )
 
                 MiniStatCard(
-                    label = "Vagas",
+                    label = stringResource(R.string.more_details_spots),
                     value = if (maxTeams > 0) spotsLeft.toString() else "-",
                     modifier = Modifier.weight(1f)
                 )
@@ -1199,7 +1299,7 @@ private fun LocationPreviewCard(
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 1.dp,
-        border = BorderStroke(1.dp, Color(0xFFF0E1DC))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
             Box(
