@@ -40,10 +40,16 @@ class LiveMatchViewModel(
     fun loadGame(gameId: String) {
         if (gameId.isBlank()) return
         viewModelScope.launch {
+            // Push any offline-queued changes first, so the fetch below reflects them
+            runCatching { repository.syncPendingOperations(gameId) }
+
             repository.getGame(gameId)
                 .onSuccess { game ->
                     _uiState.value = game.copy(selectedTab = _uiState.value.selectedTab)
-                    syncPending()
+                    // Retomar a contagem se o jogo já está a decorrer (tempo vem de data_hora_real)
+                    if (game.phase == LiveMatchPhase.LIVE && game.isTimerRunning) {
+                        startTimer()
+                    }
                 }
                 .onFailure {
                     _uiState.update { it.copy(gameId = gameId, isOffline = true) }
@@ -52,9 +58,13 @@ class LiveMatchViewModel(
     }
 
     fun onStartMatch() {
-        updatePhase(LiveMatchPhase.LIVE)
-        _uiState.update { it.copy(isTimerRunning = true) }
+        val gameId = _uiState.value.gameId
+        _uiState.update { it.copy(phase = LiveMatchPhase.LIVE, isTimerRunning = true) }
+        persistSnapshot()
         startTimer()
+        if (gameId.isBlank()) return
+        // Persiste estado + hora de início real (data_hora_real) para o cronómetro sobreviver a reentradas
+        viewModelScope.launch { repository.startMatch(gameId) }
     }
 
     fun onStopTimer() {
@@ -153,6 +163,13 @@ class LiveMatchViewModel(
             state.copy(homeStats = newHome, awayStats = newAway, showAdvancedStatsForm = false)
         }
         persistSnapshot()
+
+        val state = _uiState.value
+        val teamId = if (isHome) state.homeTeamId else state.awayTeamId
+        val stats = if (isHome) state.homeStats else state.awayStats
+        viewModelScope.launch {
+            repository.updateStats(state.gameId, teamId, isHome, stats)
+        }
     }
 
     private fun addEvent(

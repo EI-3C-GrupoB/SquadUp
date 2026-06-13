@@ -11,6 +11,7 @@ data class EditProfileUiState(
     val showLocationPicker: Boolean = false,
     val photoUrl: String? = null,
     val selectedPlayStyle: PlayStyle = PlayStyle.HIGH,
+    val notificationRadius: Int = 25,
     val selectedSports: List<SportType> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: Int? = null

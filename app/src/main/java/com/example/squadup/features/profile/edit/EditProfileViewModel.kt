@@ -34,6 +34,7 @@ class EditProfileViewModel : ViewModel() {
                         location = profile.location,
                         photoUrl = profile.photoUrl,
                         selectedPlayStyle = profile.playStyle,
+                        notificationRadius = profile.notificationRadius,
                         selectedSports = profile.sports,
                         isLoading = false
                     )
@@ -65,6 +66,10 @@ class EditProfileViewModel : ViewModel() {
 
     fun onPlayStyleChange(playStyle: PlayStyle) {
         _uiState.value = _uiState.value.copy(selectedPlayStyle = playStyle, errorMessage = null)
+    }
+
+    fun onNotificationRadiusChange(value: Int) {
+        _uiState.value = _uiState.value.copy(notificationRadius = value, errorMessage = null)
     }
 
     fun onSportToggle(sport: SportType) {
@@ -117,6 +122,7 @@ class EditProfileViewModel : ViewModel() {
                         name = currentState.name.trim(),
                         username = currentState.username.trim(),
                         playStyle = currentState.selectedPlayStyle,
+                        notificationRadius = currentState.notificationRadius,
                         sports = currentState.selectedSports,
                         location = currentState.location
                     )

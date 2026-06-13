@@ -8,6 +8,8 @@ data class CalendarGameRow(
     val id: Int,
     @SerialName("data_hora_prevista")
     val scheduledAt: String? = null,
+    @SerialName("estado_jogo")
+    val status: String? = null,
     @SerialName("morada")
     val address: String? = null,
     @SerialName("evento_id")

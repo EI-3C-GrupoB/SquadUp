@@ -29,6 +29,7 @@ fun EditProfileRoute(
         onLocationChange = viewModel::onLocationChange,
         onShowLocationPickerChange = viewModel::onShowLocationPickerChange,
         onPlayStyleChange = viewModel::onPlayStyleChange,
+        onNotificationRadiusChange = viewModel::onNotificationRadiusChange,
         onSportToggle = viewModel::onSportToggle,
         onSaveChangesClick = { viewModel.saveProfile(onSaveChangesClick) },
         onDeleteAccountClick = onDeleteAccountClick,

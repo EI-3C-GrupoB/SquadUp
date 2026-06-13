@@ -30,6 +30,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +65,7 @@ import com.example.squadup.core.utils.toDisplayName
 
 import com.example.squadup.core.ui.components.LocationPickerDialog
 import com.example.squadup.core.ui.components.SelectedLocation
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -76,6 +79,7 @@ fun EditProfileScreen(
     onLocationChange: (SelectedLocation?) -> Unit,
     onShowLocationPickerChange: (Boolean) -> Unit,
     onPlayStyleChange: (PlayStyle) -> Unit,
+    onNotificationRadiusChange: (Int) -> Unit,
     onSportToggle: (SportType) -> Unit,
     onSaveChangesClick: () -> Unit,
     onDeleteAccountClick: () -> Unit,
@@ -167,6 +171,13 @@ fun EditProfileScreen(
                             onPlayStyleChange(playStyle)
                         },
                         labelColor = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    NotificationRadiusSlider(
+                        radius = uiState.notificationRadius,
+                        onRadiusChange = onNotificationRadiusChange
                     )
                 }
             }
@@ -351,6 +362,59 @@ private fun PreferredSportChip(
                 color = if (selected) SquadOrangeDark else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+        }
+    }
+}
+
+// ── Notification radius slider ─────────────────────────────────────────────────
+
+@Composable
+private fun NotificationRadiusSlider(
+    radius: Int,
+    onRadiusChange: (Int) -> Unit
+) {
+    val unit = stringResource(R.string.register_notification_radius_unit)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.register_notification_radius_label),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "$radius $unit",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = SquadOrange
+            )
+        }
+
+        Slider(
+            value = radius.toFloat(),
+            onValueChange = { onRadiusChange(it.roundToInt()) },
+            valueRange = 5f..100f,
+            colors = SliderDefaults.colors(
+                thumbColor = SquadOrange,
+                activeTrackColor = SquadOrange,
+                inactiveTrackColor = SquadOrangeLight,
+                activeTickColor = SquadOrange,
+                inactiveTickColor = SquadOrangeLight
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "5 $unit", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = "100 $unit", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

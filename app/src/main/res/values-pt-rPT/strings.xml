@@ -634,6 +634,7 @@
     <string name="calendar_today_badge">HOJE</string>
     <string name="calendar_game_details">Detalhes do Jogo</string>
     <string name="calendar_view">Ver</string>
+    <string name="calendar_game_finished">TERMINADO</string>
     <string name="calendar_day_sun">DOM</string>
     <string name="calendar_day_mon">SEG</string>
     <string name="calendar_day_tue">TER</string>

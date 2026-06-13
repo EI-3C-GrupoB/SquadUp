@@ -68,35 +68,35 @@ class ManageEventRepository(
             val registrations = getRegistrations(event.id)
             val eventTeamRegistrations = getEventTeamRegistrations(event.id)
 
-            // Only load teams relevant to this event (performance optimisation)
+            // Only load teams relevant to this event (filtro server-side)
             val eventTeamIds = eventTeamRegistrations.map { it.teamId }.toSet()
             val inscricaoTeamIds = registrations.mapNotNull { it.teamId }.toSet()
             val allRelevantTeamIds = eventTeamIds + inscricaoTeamIds
             val teams = if (allRelevantTeamIds.isEmpty()) emptyList() else {
-                supabaseClient.from("equipa").select().decodeList<ManageEventTeamRow>()
-                    .filter { it.id in allRelevantTeamIds }
+                supabaseClient.from("equipa")
+                    .select { filter { isIn("id", allRelevantTeamIds.toList()) } }
+                    .decodeList<ManageEventTeamRow>()
             }
 
-            // Only load users who are registered to this event
+            // Only load users who are registered to this event (filtro server-side)
             val registeredUserIds = registrations.mapNotNull { it.userId }.toSet()
             val users = if (registeredUserIds.isEmpty()) emptyList() else {
-                supabaseClient.from("utilizador").select().decodeList<ManageEventUserRow>()
-                    .filter { it.id in registeredUserIds }
+                supabaseClient.from("utilizador")
+                    .select { filter { isIn("id", registeredUserIds.toList()) } }
+                    .decodeList<ManageEventUserRow>()
             }
 
             val games = getGames(event.id)
-            val gameIds = games.map { it.id }.toSet()
-            val gameTeams = supabaseClient
+            val gameIds = games.map { it.id }
+            val gameTeams = if (gameIds.isEmpty()) emptyList() else supabaseClient
                 .from("jogo_equipa")
-                .select()
+                .select { filter { isIn("jogo_id", gameIds) } }
                 .decodeList<ManageEventGameTeamRow>()
-                .filter { it.gameId in gameIds }
             val actions = supabaseClient.from("tipo_acao").select().decodeList<ManageEventActionTypeRow>()
-            val timeline = supabaseClient
+            val timeline = if (gameIds.isEmpty()) emptyList() else supabaseClient
                 .from("registo_timeline")
-                .select()
+                .select { filter { isIn("jogo_id", gameIds) } }
                 .decodeList<ManageEventTimelineRow>()
-                .filter { it.gameId in gameIds }
 
             Result.success(
                 event.toUiState(
@@ -714,7 +714,8 @@ class ManageEventRepository(
         val eventFormat = eventFormatFrom(formato?.name)
         val scheduledGames = games.map { game ->
             game.toScheduledGame(
-                gameTeams = gameTeams.filter { it.gameId == game.id },
+                // Ordem estável (mesma do LiveMatch) para casa/fora não trocar entre ecrãs
+                gameTeams = gameTeams.filter { it.gameId == game.id }.sortedBy { it.teamId },
                 teamsById = teamsById,
                 sportType = sportType
             )

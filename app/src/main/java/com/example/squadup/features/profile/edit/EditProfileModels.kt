@@ -14,6 +14,7 @@ data class EditableProfile(
     val name: String,
     val username: String,
     val playStyle: PlayStyle,
+    val notificationRadius: Int,
     val sports: List<SportType>,
     val photoUrl: String? = null,
     val location: SelectedLocation? = null
@@ -23,6 +24,7 @@ data class EditProfileUpdate(
     val name: String,
     val username: String,
     val playStyle: PlayStyle,
+    val notificationRadius: Int,
     val sports: List<SportType>,
     val location: SelectedLocation?
 )
@@ -35,6 +37,8 @@ data class EditableProfileRow(
     val username: String? = null,
     @SerialName("play_style")
     val playStyle: Int? = null,
+    @SerialName("raio_notificacao")
+    val notificationRadius: Int? = null,
     @SerialName("foto_url")
     val photoUrl: String? = null,
     @SerialName("loc_id")
@@ -48,6 +52,8 @@ data class EditUserProfileUpdateRow(
     val username: String,
     @SerialName("play_style")
     val playStyle: Int,
+    @SerialName("raio_notificacao")
+    val notificationRadius: Int,
     @SerialName("loc_id")
     val locId: Long? = null
 )

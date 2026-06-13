@@ -65,11 +65,20 @@ class CalendarRepository(
 
             val safeDay = selectedDay.coerceIn(1, yearMonth.lengthOfMonth())
 
-            val gamesOnSelectedDay = gamesThisMonth.filter { it.second.dayOfMonth == safeDay }
+            // Jogos do dia, com os jogos ainda por jogar primeiro (terminados/cancelados no fim)
+            val gamesOnSelectedDay = gamesThisMonth
+                .filter { it.second.dayOfMonth == safeDay }
+                .sortedWith(compareBy({ it.first.isFinished() }, { it.second }))
 
-            val highlighted = gamesOnSelectedDay.firstOrNull()
-                ?: datedGames.firstOrNull { it.second.isAfter(LocalDateTime.now()) }
-                ?: datedGames.firstOrNull()
+            // O card "PRÓXIMO" deve apontar para um jogo ativo, nunca para um já terminado
+            val now = LocalDateTime.now()
+            val highlighted = if (gamesOnSelectedDay.isNotEmpty()) {
+                gamesOnSelectedDay.firstOrNull { !it.first.isFinished() } ?: gamesOnSelectedDay.first()
+            } else {
+                datedGames.firstOrNull { it.second.isAfter(now) && !it.first.isFinished() }
+                    ?: datedGames.firstOrNull { it.second.isAfter(now) }
+                    ?: datedGames.firstOrNull()
+            }
 
             Result.success(
                 CalendarUiState(
@@ -85,7 +94,7 @@ class CalendarRepository(
                         game.toCalendarMatch(dateTime, gameTeams, teams, userTicketsByEvent)
                     },
                     dailySchedule = gamesOnSelectedDay.map { (game, dateTime) ->
-                        val linkedTeams = gameTeams.filter { it.gameId == game.id }
+                        val linkedTeams = gameTeams.filter { it.gameId == game.id }.sortedBy { it.teamId }
                         val home = linkedTeams.getOrNull(0)?.teamId?.let { teams[it]?.name }.orEmpty()
                         val away = linkedTeams.getOrNull(1)?.teamId?.let { teams[it]?.name }.orEmpty()
                         DailyScheduleItem(
@@ -96,7 +105,8 @@ class CalendarRepository(
                             homeTeam = home,
                             awayTeam = away,
                             eventName = game.eventId?.let { events[it]?.title }.orEmpty(),
-                            location = game.address.orEmpty()
+                            location = game.address.orEmpty(),
+                            isFinished = game.isFinished()
                         )
                     }
                 )
@@ -122,21 +132,26 @@ class CalendarRepository(
         teams: Map<Int, CalendarTeamRow>,
         ticketsByEvent: Map<Int, Int> = emptyMap()
     ): CalendarMatchItem {
-        val linkedTeams = gameTeams.filter { it.gameId == id }
+        val linkedTeams = gameTeams.filter { it.gameId == id }.sortedBy { it.teamId }
         val homeTeam = linkedTeams.getOrNull(0)?.teamId?.let { teams[it]?.name }.orEmpty()
         val awayTeam = linkedTeams.getOrNull(1)?.teamId?.let { teams[it]?.name }.orEmpty()
         val dateLabel = dateTime.format(DateTimeFormatter.ofPattern("dd MMM", Locale("pt", "PT"))).uppercase()
+        val finished = isFinished()
         return CalendarMatchItem(
-            label = "PRÓXIMO: $dateLabel",
+            label = if (finished) "TERMINADO: $dateLabel" else "PRÓXIMO: $dateLabel",
             homeTeam = homeTeam,
             awayTeam = awayTeam,
             time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
             location = address.orEmpty(),
             gameId = id,
             eventId = eventId ?: 0,
-            ticketId = eventId?.let { ticketsByEvent[it] } ?: 0
+            ticketId = eventId?.let { ticketsByEvent[it] } ?: 0,
+            isFinished = finished
         )
     }
+
+    private fun CalendarGameRow.isFinished(): Boolean =
+        status == "terminado" || status == "cancelado"
 
     private fun String?.toLocalDateTimeOrNull(): LocalDateTime? {
         if (isNullOrBlank()) return null

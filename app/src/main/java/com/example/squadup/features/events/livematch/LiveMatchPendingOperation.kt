@@ -8,7 +8,7 @@ sealed class PendingOperation {
     @Serializable
     data class InsertEvent(
         val eventId: String,
-        val type: MatchEventType,
+        val eventType: MatchEventType,
         val isHome: Boolean,
         val playerName: String,
         val description: String,
@@ -29,5 +29,11 @@ sealed class PendingOperation {
     @Serializable
     data class MarkLoserEliminated(
         val loserTeamId: Int?
+    ) : PendingOperation()
+
+    @Serializable
+    data class UpdateStats(
+        val isHome: Boolean,
+        val stats: LiveTeamStats
     ) : PendingOperation()
 }

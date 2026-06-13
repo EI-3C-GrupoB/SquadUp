@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -91,6 +92,8 @@ fun OrganizerEventCard(
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
                     Text(
@@ -106,13 +109,15 @@ fun OrganizerEventCard(
                 Text(
                     text = "$nTeams ${stringResource(R.string.organizerEventCard_teams)} • $dateLeft",
                     fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.width((12 * 3 + 24).dp)) {
+                    Box(modifier = Modifier.width((12 * 3 + 24).dp).height(24.dp)) {
                         repeat(minOf(registeredCount, 3)) { index ->
                             val avatarUrl = registeredAvatars.getOrNull(index)
                             if (avatarUrl != null) {

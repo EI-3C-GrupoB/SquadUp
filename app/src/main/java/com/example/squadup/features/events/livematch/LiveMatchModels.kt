@@ -8,6 +8,8 @@ data class LiveMatchGameRow(
     val id: Int,
     @SerialName("data_hora_prevista")
     val scheduledAt: String? = null,
+    @SerialName("data_hora_real")
+    val startedAt: String? = null,
     @SerialName("estado_jogo")
     val status: String? = null,
     @SerialName("morada")
@@ -149,6 +151,38 @@ data class LiveMatchTimelineInsertRow(
 data class LiveMatchGameStatusUpdateRow(
     @SerialName("estado_jogo")
     val status: String
+)
+
+@Serializable
+data class LiveMatchStartRow(
+    @SerialName("estado_jogo")
+    val status: String,
+    @SerialName("data_hora_real")
+    val startedAt: String
+)
+
+@Serializable
+data class LiveMatchStatsUpsertRow(
+    @SerialName("jogo_id")
+    val gameId: Int,
+    @SerialName("equipa_id")
+    val teamId: Int,
+    @SerialName("remates_total")
+    val shots: Int,
+    @SerialName("remates_baliza")
+    val shotsOnGoal: Int,
+    @SerialName("cantos")
+    val corners: Int,
+    @SerialName("faltas")
+    val fouls: Int,
+    @SerialName("cartoes_amarelos")
+    val yellowCards: Int,
+    @SerialName("cartoes_vermelhos")
+    val redCards: Int,
+    @SerialName("fora_de_jogo")
+    val offsides: Int,
+    @SerialName("defesas")
+    val saves: Int
 )
 
 @Serializable

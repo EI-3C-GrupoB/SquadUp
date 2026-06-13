@@ -39,6 +39,7 @@ class EditProfileRepository(
                     name = profile.name.orEmpty(),
                     username = profile.username.orEmpty(),
                     playStyle = PlayStyle.fromLevel(profile.playStyle ?: 3),
+                    notificationRadius = profile.notificationRadius ?: 25,
                     sports = selectedSports,
                     photoUrl = profile.photoUrl,
                     location = location
@@ -82,6 +83,7 @@ class EditProfileRepository(
                         name = update.name,
                         username = update.username,
                         playStyle = update.playStyle.level,
+                        notificationRadius = update.notificationRadius,
                         locId = newLocId
                     )
                 ) {

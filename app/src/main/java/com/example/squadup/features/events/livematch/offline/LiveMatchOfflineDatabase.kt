@@ -24,7 +24,7 @@ abstract class LiveMatchOfflineDatabase : RoomDatabase() {
                     context.applicationContext,
                     LiveMatchOfflineDatabase::class.java,
                     "live_match_offline.db"
-                ).build().also { instance = it }
+                ).fallbackToDestructiveMigration().build().also { instance = it }
             }
         }
     }

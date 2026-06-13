@@ -1,5 +1,6 @@
 package com.example.squadup.features.events.livematch
 
+import android.util.Log
 import com.example.squadup.core.SupabaseClientProvider
 import com.example.squadup.core.enums.EventFormat
 import com.example.squadup.core.enums.SportType
@@ -9,6 +10,7 @@ import com.example.squadup.features.events.livematch.offline.PendingOperationEnt
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -30,15 +32,50 @@ class LiveMatchRepository(
                     updatedAt = System.currentTimeMillis()
                 )
             )
-            Result.success(state)
+            Result.success(withPendingEvents(gameId, state))
         } catch (exception: Exception) {
-            val cached = offlineDao?.getCachedGame(gameId)
-            if (cached != null) {
-                Result.success(Json.decodeFromString<LiveMatchUiState>(cached.stateJson).copy(isOffline = true))
+            val cached = runCatching { offlineDao?.getCachedGame(gameId) }.getOrNull()
+            val cachedState = cached?.let {
+                runCatching { Json.decodeFromString<LiveMatchUiState>(it.stateJson) }.getOrNull()
+            }
+            if (cachedState != null) {
+                Result.success(withPendingEvents(gameId, cachedState.copy(isOffline = true)))
             } else {
                 Result.failure(exception)
             }
         }
+    }
+
+    /**
+     * Reconstrói eventos registados offline que ainda não foram sincronizados,
+     * para que não desapareçam do ecrã ao reabrir a app antes da sincronização.
+     */
+    private suspend fun withPendingEvents(gameId: String, state: LiveMatchUiState): LiveMatchUiState {
+        val dao = offlineDao ?: return state
+        val pendingInserts = runCatching { dao.getPendingOperations(gameId) }.getOrDefault(emptyList())
+            .mapNotNull { entity ->
+                runCatching { Json.decodeFromString<PendingOperation>(entity.opJson) }.getOrNull() as? PendingOperation.InsertEvent
+            }
+        if (pendingInserts.isEmpty()) return state
+
+        val existingIds = state.events.map { it.id }.toSet()
+        val missingEvents = pendingInserts
+            .filter { it.eventId !in existingIds }
+            .map { op ->
+                MatchEventItem(
+                    id = op.eventId,
+                    minute = op.minute,
+                    type = op.eventType,
+                    playerName = op.playerName,
+                    teamAbbr = if (op.isHome) state.homeTeamAbbr else state.awayTeamAbbr,
+                    description = op.description,
+                    isHome = op.isHome,
+                    synced = false
+                )
+            }
+            .reversed()
+        if (missingEvents.isEmpty()) return state
+        return state.copy(events = missingEvents + state.events)
     }
 
     private suspend fun getGameNetwork(gameId: String): LiveMatchUiState {
@@ -59,9 +96,15 @@ class LiveMatchRepository(
                 filter {
                     eq("jogo_id", game.id)
                 }
+                // Ordem estável para casa/fora não trocar entre carregamentos/ecrãs
+                order("equipa_id", Order.ASCENDING)
             }
             .decodeList<LiveMatchGameTeamRow>()
-        val teams = supabaseClient.from("equipa").select().decodeList<LiveMatchTeamRow>().associateBy { it.id }
+        val teamIds = gameTeams.map { it.teamId }.distinct()
+        val teams = if (teamIds.isEmpty()) emptyMap() else supabaseClient.from("equipa")
+            .select { filter { isIn("id", teamIds) } }
+            .decodeList<LiveMatchTeamRow>()
+            .associateBy { it.id }
         // Jogadores via inscricao.equipa_id (onde estão realmente atribuídos)
         val eventId = game.eventId
         val registrations: List<LiveMatchLineupRow> = if (eventId != null) {
@@ -77,7 +120,6 @@ class LiveMatchRepository(
                 .map { LiveMatchLineupRow(id = it.id, teamId = it.teamId, userId = it.userId, gameId = game.id) }
         } else emptyList()
         val lineups = registrations
-        val users = supabaseClient.from("utilizador").select().decodeList<LiveMatchUserRow>().associateBy { it.id }
         val stats = supabaseClient
             .from("estatistica_jogo")
             .select {
@@ -87,7 +129,7 @@ class LiveMatchRepository(
             }
             .decodeList<LiveMatchStatsRow>()
             .associateBy { it.teamId }
-        val actions = supabaseClient.from("tipo_acao").select().decodeList<LiveMatchActionTypeRow>().associateBy { it.id }
+        val actions = actionTypes().associateBy { it.id }
         val timeline = supabaseClient
             .from("registo_timeline")
             .select {
@@ -96,6 +138,12 @@ class LiveMatchRepository(
                 }
             }
             .decodeList<LiveMatchTimelineRow>()
+        // Buscar só os utilizadores referenciados (lineups + timeline), não a tabela inteira
+        val userIds = (lineups.mapNotNull { it.userId } + timeline.mapNotNull { it.userId }).distinct()
+        val users = if (userIds.isEmpty()) emptyMap() else supabaseClient.from("utilizador")
+            .select { filter { isIn("id", userIds) } }
+            .decodeList<LiveMatchUserRow>()
+            .associateBy { it.id }
 
         val isOrganizer = runCatching {
             val authId = supabaseClient.auth.currentUserOrNull()?.id ?: return@runCatching false
@@ -106,6 +154,26 @@ class LiveMatchRepository(
         }.getOrDefault(false)
 
         return game.toUiState(event, modality, formato, gameTeams, teams, lineups, users, stats, actions, timeline, isOrganizer)
+    }
+
+    suspend fun startMatch(gameId: String): Result<Unit> {
+        return try {
+            startMatchNetwork(gameId)
+            Result.success(Unit)
+        } catch (exception: Exception) {
+            queueOrFail(gameId, exception, PendingOperation.UpdateStatus(LiveMatchPhase.LIVE))
+        }
+    }
+
+    private suspend fun startMatchNetwork(gameId: String) {
+        val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+        supabaseClient
+            .from("jogo")
+            .update(LiveMatchStartRow(status = LiveMatchPhase.LIVE.toDatabaseStatus(), startedAt = now)) {
+                filter {
+                    eq("id", gameId.toIntOrNull() ?: -1)
+                }
+            }
     }
 
     suspend fun updateGameStatus(gameId: String, phase: LiveMatchPhase): Result<Unit> {
@@ -141,23 +209,26 @@ class LiveMatchRepository(
             insertMatchEventNetwork(state.gameId, teamId, type, playerName, description, minute)
             Result.success(true)
         } catch (exception: Exception) {
+            Log.e("LiveMatchRepo", "insertMatchEventNetwork failed for gameId=${state.gameId}", exception)
             val dao = offlineDao ?: return Result.failure(exception)
-            dao.insertPendingOperation(
-                PendingOperationEntity(
-                    gameId = state.gameId,
-                    opJson = Json.encodeToString<PendingOperation>(
-                        PendingOperation.InsertEvent(
-                            eventId = eventId,
-                            type = type,
-                            isHome = isHome,
-                            playerName = playerName,
-                            description = description,
-                            minute = minute
-                        )
-                    ),
-                    createdAt = System.currentTimeMillis()
+            runCatching {
+                dao.insertPendingOperation(
+                    PendingOperationEntity(
+                        gameId = state.gameId,
+                        opJson = Json.encodeToString<PendingOperation>(
+                            PendingOperation.InsertEvent(
+                                eventId = eventId,
+                                eventType = type,
+                                isHome = isHome,
+                                playerName = playerName,
+                                description = description,
+                                minute = minute
+                            )
+                        ),
+                        createdAt = System.currentTimeMillis()
+                    )
                 )
-            )
+            }
             Result.success(false)
         }
     }
@@ -214,6 +285,37 @@ class LiveMatchRepository(
         }
     }
 
+    suspend fun updateStats(gameId: String, teamId: Int?, isHome: Boolean, stats: LiveTeamStats): Result<Unit> {
+        if (teamId == null) return Result.success(Unit)
+        return try {
+            updateStatsNetwork(gameId, teamId, stats)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            queueOrFail(gameId, e, PendingOperation.UpdateStats(isHome, stats))
+        }
+    }
+
+    private suspend fun updateStatsNetwork(gameId: String, teamId: Int, stats: LiveTeamStats) {
+        val gid = gameId.toIntOrNull() ?: throw IllegalArgumentException("gameId inválido")
+        supabaseClient.from("estatistica_jogo")
+            .upsert(
+                LiveMatchStatsUpsertRow(
+                    gameId = gid,
+                    teamId = teamId,
+                    shots = stats.shots,
+                    shotsOnGoal = stats.shotsOnGoal,
+                    corners = stats.corners,
+                    fouls = stats.fouls,
+                    yellowCards = stats.yellowCards,
+                    redCards = stats.redCards,
+                    offsides = stats.offsides,
+                    saves = stats.saves
+                )
+            ) {
+                onConflict = "jogo_id,equipa_id"
+            }
+    }
+
     suspend fun markLoserEliminated(gameId: String, eventId: String, loserTeamId: Int?): Result<Unit> {
         if (loserTeamId == null) return Result.success(Unit)
         return try {
@@ -234,13 +336,15 @@ class LiveMatchRepository(
 
     suspend fun saveSnapshot(state: LiveMatchUiState) {
         if (state.gameId.isBlank()) return
-        offlineDao?.upsertCachedGame(
-            CachedGameEntity(
-                gameId = state.gameId,
-                stateJson = Json.encodeToString(state),
-                updatedAt = System.currentTimeMillis()
+        runCatching {
+            offlineDao?.upsertCachedGame(
+                CachedGameEntity(
+                    gameId = state.gameId,
+                    stateJson = Json.encodeToString(state),
+                    updatedAt = System.currentTimeMillis()
+                )
             )
-        )
+        }
     }
 
     suspend fun syncPendingOperations(gameId: String): Result<List<String>> {
@@ -256,15 +360,15 @@ class LiveMatchRepository(
 
             val syncedEventIds = mutableListOf<String>()
             for (entity in pending) {
-                val operation = Json.decodeFromString<PendingOperation>(entity.opJson)
                 try {
+                    val operation = Json.decodeFromString<PendingOperation>(entity.opJson)
                     when (operation) {
                         is PendingOperation.InsertEvent -> {
                             val teamId = if (operation.isHome) homeTeamId else awayTeamId
                             insertMatchEventNetwork(
                                 gameId = gameId,
                                 teamId = teamId,
-                                type = operation.type,
+                                type = operation.eventType,
                                 playerName = operation.playerName,
                                 description = operation.description,
                                 minute = operation.minute
@@ -286,10 +390,19 @@ class LiveMatchRepository(
                                 markLoserEliminatedNetwork(eventId, loserTeamId)
                             }
                         }
+
+                        is PendingOperation.UpdateStats -> {
+                            val teamId = if (operation.isHome) homeTeamId else awayTeamId
+                            if (teamId != null) {
+                                updateStatsNetwork(gameId, teamId, operation.stats)
+                            }
+                        }
                     }
                     dao.deletePendingOperation(entity.localId)
                 } catch (exception: Exception) {
-                    return Result.success(syncedEventIds)
+                    // Keep this operation queued for a future retry, but don't block
+                    // independent operations (e.g. score/status updates) further in the queue.
+                    Log.e("LiveMatchRepo", "syncPendingOperations: operation failed, will retry later", exception)
                 }
             }
             Result.success(syncedEventIds)
@@ -300,13 +413,15 @@ class LiveMatchRepository(
 
     private suspend fun queueOrFail(gameId: String, exception: Exception, operation: PendingOperation): Result<Unit> {
         val dao = offlineDao ?: return Result.failure(exception)
-        dao.insertPendingOperation(
-            PendingOperationEntity(
-                gameId = gameId,
-                opJson = Json.encodeToString(operation),
-                createdAt = System.currentTimeMillis()
+        runCatching {
+            dao.insertPendingOperation(
+                PendingOperationEntity(
+                    gameId = gameId,
+                    opJson = Json.encodeToString(operation),
+                    createdAt = System.currentTimeMillis()
+                )
             )
-        )
+        }
         return Result.success(Unit)
     }
 
@@ -347,14 +462,26 @@ class LiveMatchRepository(
     private suspend fun findUserId(playerName: String): Int? {
         if (playerName.isBlank()) return null
 
+        // Filtro case-insensitive server-side (ilike sem wildcards = igualdade), em vez de
+        // descarregar a tabela utilizador inteira a cada evento registado.
         return runCatching {
             supabaseClient
                 .from("utilizador")
-                .select()
+                .select { filter { ilike("nome", playerName) } }
                 .decodeList<LiveMatchUserRow>()
-                .firstOrNull { it.name.equals(playerName, ignoreCase = true) }
+                .firstOrNull()
                 ?.id
         }.getOrNull()
+    }
+
+    // Cache da tabela de referência tipo_acao (pequena e imutável durante a sessão)
+    private var cachedActionTypes: List<LiveMatchActionTypeRow>? = null
+
+    private suspend fun actionTypes(): List<LiveMatchActionTypeRow> {
+        cachedActionTypes?.let { return it }
+        return runCatching {
+            supabaseClient.from("tipo_acao").select().decodeList<LiveMatchActionTypeRow>()
+        }.getOrDefault(emptyList()).also { if (it.isNotEmpty()) cachedActionTypes = it }
     }
 
     private suspend fun findActionTypeId(type: MatchEventType): Int? {
@@ -365,16 +492,9 @@ class LiveMatchRepository(
             MatchEventType.TIMEOUT -> listOf("timeout")
         }
 
-        return runCatching {
-            supabaseClient
-                .from("tipo_acao")
-                .select()
-                .decodeList<LiveMatchActionTypeRow>()
-                .firstOrNull { action ->
-                    preferredNames.any { it in action.name.lowercase() }
-                }
-                ?.id
-        }.getOrNull()
+        return actionTypes().firstOrNull { action ->
+            preferredNames.any { it in action.name.lowercase() }
+        }?.id
     }
 
     private fun LiveMatchGameRow.toUiState(
@@ -395,6 +515,14 @@ class LiveMatchRepository(
         val homeTeam = homeTeamId?.let { teams[it] }
         val awayTeam = awayTeamId?.let { teams[it] }
         val scheduledDateTime = scheduledAt.toLocalDateTimeOrNull()
+        val phase = status.toPhase()
+        // Reconstruir o tempo decorrido a partir da hora de início real (data_hora_real),
+        // para o cronómetro não voltar a 00:00 ao reabrir um jogo a decorrer.
+        val elapsedSeconds = if (phase == LiveMatchPhase.LIVE) {
+            startedAt.toLocalDateTimeOrNull()?.let { start ->
+                java.time.Duration.between(start, LocalDateTime.now()).seconds.coerceAtLeast(0L).toInt()
+            } ?: 0
+        } else 0
         val timelineEvents = timeline.map { row ->
             row.toMatchEvent(
                 isHome = row.teamId == homeTeamId,
@@ -408,7 +536,9 @@ class LiveMatchRepository(
             gameId = id.toString(),
             eventId = event?.id?.toString().orEmpty(),
             isOrganizer = isOrganizer,
-            phase = status.toPhase(),
+            phase = phase,
+            timerSeconds = elapsedSeconds,
+            isTimerRunning = phase == LiveMatchPhase.LIVE,
             sportType = sportTypeFrom(modality?.name),
             eventFormat = eventFormatFrom(formato?.name),
             homeTeamId = homeTeamId,
