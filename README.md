@@ -1,149 +1,254 @@
-# SquadUp
+<table width="100%">
+  <tr>
+    <td valign="middle" width="74%">
 
-<p align="center">
-  <img src="docs/screenshots/logo.png" width="180" alt="Logotipo do SquadUp" />
+<h1>SquadUp 🏆</h1>
+
+<p>
+  <strong>SquadUp</strong> é uma aplicação móvel Android para <strong>gestão de eventos desportivos</strong>, desenvolvida em <strong>Kotlin</strong> com <strong>Jetpack Compose</strong>.
 </p>
 
-**SquadUp** é uma aplicação móvel Android desenvolvida em **Kotlin** para gestão de eventos desportivos, enquadrada no **Tema 2 - Gestão de Eventos Desportivos**.
+<p>
+  A aplicação permite descobrir, criar e gerir eventos desportivos, organizar equipas, gerir inscrições, acompanhar jogos em directo, consultar bilhetes e administrar contas. O backend é suportado pelo <strong>Supabase</strong>, usado para autenticação, base de dados, storage, realtime e funções auxiliares.
+</p>
 
-O projecto permite descobrir, criar e gerir eventos/torneios desportivos, organizar equipas, gerir inscrições, acompanhar jogos e consultar informação relevante para jogadores, organizadores e administradores. A aplicação usa **Supabase** como backend e base de dados remota, com interface construída em **Jetpack Compose**.
+<p>
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android" />
+  <img src="https://img.shields.io/badge/Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
+  <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Room-6DB33F?style=for-the-badge" alt="Room" />
+</p>
 
-Este README descreve apenas funcionalidades observadas no código e no enunciado fornecido.
+</td>
+<td align="center" valign="middle" width="26%">
+  <img src="docs/screenshots/logo.png" width="150" alt="Logotipo do SquadUp" />
+</td>
+  </tr>
+</table>
 
-## Funcionalidades principais
+---
 
-- Ecrãs de onboarding com apresentação inicial da aplicação.
-- Registo, login, recuperação e alteração de palavra-passe.
-- Perfis de utilizador com tipos como administrador, organizador e jogador/utilizador.
-- Gestão de perfil, incluindo dados pessoais, localização, modalidades de interesse e estilo de jogo.
-- Página inicial com eventos, jogos em destaque e informação contextual do utilizador.
-- Exploração de eventos desportivos com pesquisa, filtros e eventos próximos.
-- Visualização de eventos em mapa, com suporte a localização.
-- Criação de eventos em vários passos, incluindo modalidade, formato, regras, inscrições, data/hora, localização e imagem de capa.
-- Suporte a eventos públicos e privados.
-- Formatos de competição como jogo único, liga, eliminatória, grupos + eliminatória e formato aberto.
-- Gestão de eventos criados pelo organizador.
-- Gestão de equipas, pedidos de inscrição, jogadores, jogos, classificações e estatísticas do evento.
-- Criação e edição de jogos associados a eventos.
-- Acompanhamento de jogos em directo, com resultado, estatísticas e timeline de acontecimentos.
-- Registo de eventos de jogo, como pontuação, faltas/infrações, substituições e tempos técnicos, de acordo com a modalidade.
-- Suporte parcial a funcionamento offline no acompanhamento de jogos, com cache local e operações pendentes para sincronização posterior.
-- Criação e gestão de equipas.
-- Convites para equipas e pedidos de adesão por código.
-- Gestão de membros de equipa, incluindo capitão/membro.
-- Inscrição individual ou por equipa em eventos, quando aplicável.
-- Fluxo de pagamento/confirmação de inscrição e emissão de bilhete.
-- Consulta de bilhetes do utilizador e detalhe de bilhete.
-- Leitura/validação de QR codes de bilhetes para eventos.
-- Notificações relacionadas com eventos, equipas e convites.
-- Painel de administração com métricas gerais.
-- Gestão de contas por administradores, incluindo criação, edição, suspensão/estado e remoção lógica.
-- Suporte de interface em inglês e português de Portugal através de recursos Android.
-- Testes unitários e testes instrumentados associados a estados de UI, login, filtros, contas, eventos e acesso a eventos privados.
+## Funcionalidades
 
-## Tecnologias usadas
+### Utilizadores e autenticação
 
-- **Kotlin**: linguagem principal da aplicação.
-- **Android / Gradle**: projecto Android nativo.
-- **Jetpack Compose**: construção da interface declarativa.
-- **Material 3**: componentes visuais da interface.
-- **Navigation Compose**: navegação entre ecrãs.
-- **ViewModel, StateFlow e Lifecycle**: gestão de estado e ciclo de vida.
-- **Supabase**: autenticação, PostgREST, Storage, Realtime e Functions.
-- **Ktor OkHttp Client**: comunicação HTTP usada pelas bibliotecas Supabase.
-- **Kotlinx Serialization**: serialização de modelos.
-- **MapLibre**: mapas e selecção/visualização de localização.
-- **Google Play Services Location**: localização do dispositivo.
-- **Room**: persistência local para suporte offline no módulo de jogo em directo.
-- **DataStore Preferences**: persistência local de preferências, como onboarding.
-- **CameraX, ML Kit Barcode Scanning e ZXing**: leitura e validação de QR codes.
-- **Coil**: carregamento de imagens em Compose.
-- **JUnit, AndroidX Test, Espresso e Compose UI Test**: testes unitários e instrumentados.
+* onboarding inicial da aplicação;
+* registo, login, recuperação e alteração de palavra-passe;
+* perfis com diferentes tipos de utilizador, como administrador, organizador e jogador;
+* edição de perfil, localização, modalidades de interesse e estilo de jogo;
+* suporte de interface em **Português de Portugal** e **Inglês**.
+
+### Eventos desportivos
+
+* pesquisa e exploração de eventos;
+* filtros por modalidade, localização e eventos próximos;
+* visualização de eventos em mapa;
+* criação de eventos em vários passos;
+* suporte a eventos públicos e privados;
+* formatos como jogo único, liga, eliminatória, grupos + eliminatória e formato aberto;
+* gestão de eventos criados pelo organizador.
+
+### Equipas e inscrições
+
+* criação e gestão de equipas;
+* convites para equipas;
+* pedidos de adesão por código;
+* gestão de membros e capitães;
+* inscrição individual ou por equipa em eventos;
+* fluxo de confirmação de inscrição e emissão de bilhete.
+
+### Jogos em directo
+
+* criação e edição de jogos associados a eventos;
+* acompanhamento de jogos em directo;
+* actualização de resultado, estatísticas e timeline;
+* registo de acontecimentos como pontos, faltas, substituições e tempos técnicos;
+* suporte offline parcial com cache local e sincronização posterior.
+
+### Bilhetes, notificações e administração
+
+* consulta de bilhetes do utilizador;
+* detalhe de bilhete;
+* leitura e validação de QR codes;
+* notificações relacionadas com eventos, equipas e convites;
+* painel de administração com métricas gerais;
+* gestão de contas, estados e permissões.
+
+---
+
+## Demonstração
+
+<p align="center">
+  Alguns ecrãs principais da aplicação:
+</p>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <b>Início</b><br />
+      <img src="docs/screenshots/home.png" width="210" alt="Ecrã inicial do SquadUp" />
+    </td>
+    <td align="center">
+      <b>Eventos</b><br />
+      <img src="docs/screenshots/events.png" width="210" alt="Listagem de eventos no SquadUp" />
+    </td>
+    <td align="center">
+      <b>Mapa de eventos</b><br />
+      <img src="docs/screenshots/map-view.png" width="210" alt="Mapa de eventos do SquadUp" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <b>Calendário</b><br />
+      <img src="docs/screenshots/calendar.png" width="210" alt="Calendário de eventos do SquadUp" />
+    </td>
+    <td align="center">
+      <b>Bilhete</b><br />
+      <img src="docs/screenshots/ticket-details.png" width="210" alt="Detalhes de bilhete com QR code" />
+    </td>
+    <td align="center">
+      <b>Jogo terminado</b><br />
+      <img src="docs/screenshots/match-finished.png" width="210" alt="Ecrã de jogo terminado" />
+    </td>
+  </tr>
+</table>
+
+---
 
 ## Arquitectura
 
-O projecto segue uma organização por funcionalidades, com separação entre UI, estado, navegação e acesso a dados.
+O projeto segue uma organização por funcionalidades, com separação entre interface, estado, navegação, repositories e integração com serviços externos.
 
-- **`core`** concentra elementos partilhados da aplicação, como navegação, tema, componentes de UI, enums, permissões, cliente Supabase e monitorização de rede.
-- **`features`** agrupa os módulos funcionais da aplicação. Cada funcionalidade tende a ter ficheiros de `Screen`, `Route`, `ViewModel`, `UiState`, `Repository` e `Models`.
-- **Repositories** encapsulam o acesso ao Supabase, operações de leitura/escrita e, em alguns casos, subscrições Realtime.
-- **ViewModels** coordenam estado, validações e chamadas aos repositories.
-- **Screens/Routes** implementam a interface Jetpack Compose e ligam os ecrãs à navegação.
-- **Room** é usado no módulo de jogo em directo para cache local e operações offline pendentes.
+```mermaid
+flowchart LR
+    U[Utilizador] --> UI[Jetpack Compose Screens]
+    UI --> VM[ViewModels + UiState]
+    VM --> R[Repositories]
+    R --> S[Supabase<br/>Auth · Database · Storage · Realtime]
+    R --> L[Room<br/>Cache offline]
+    UI --> N[Navigation Compose]
+    UI --> M[MapLibre / Location]
+    UI --> Q[CameraX / ML Kit<br/>QR Scanner]
+```
 
-### Módulos principais
+### Organização principal
 
-| Área | Responsabilidade |
-| --- | --- |
-| `features/auth` | Login, registo, recuperação e reposição de palavra-passe. |
-| `features/home` | Página inicial, eventos próximos e jogo em destaque. |
-| `features/events` | Listagem, mapa, detalhe, criação, edição e gestão de eventos. |
-| `features/events/livematch` | Acompanhamento de jogos em directo, estatísticas, timeline e suporte offline. |
-| `features/events/manageevent` | Gestão operacional de eventos, equipas, inscrições, jogos, estatísticas e QR scanner. |
-| `features/teams` | Equipas, criação, convites, membros e pedidos de adesão. |
-| `features/profile` | Perfil, bilhetes, eventos do utilizador, edição e alteração de palavra-passe. |
-| `features/payment` | Fluxo de confirmação de pagamento/inscrição e criação de bilhetes. |
-| `features/notifications` | Notificações e interacção com convites/eventos. |
-| `features/admin` | Dashboard administrativo e gestão de contas. |
-| `features/onboarding` | Introdução inicial da aplicação. |
+| Área                          | Responsabilidade                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------- |
+| `core`                        | navegação, tema, componentes comuns, permissões, cliente Supabase e utilitários |
+| `features/auth`               | login, registo, recuperação e alteração de palavra-passe                        |
+| `features/home`               | página inicial, eventos próximos e destaques                                    |
+| `features/events`             | listagem, mapa, detalhe, criação, edição e gestão de eventos                    |
+| `features/events/livematch`   | jogo em directo, estatísticas, timeline, cache local e sincronização            |
+| `features/events/manageevent` | gestão operacional de eventos, equipas, inscrições, jogos e QR scanner          |
+| `features/teams`              | equipas, convites, membros e pedidos de adesão                                  |
+| `features/profile`            | perfil, bilhetes, eventos do utilizador e definições                            |
+| `features/payment`            | confirmação de inscrição e geração de bilhetes                                  |
+| `features/notifications`      | notificações e interacções com convites/eventos                                 |
+| `features/admin`              | dashboard administrativo e gestão de contas                                     |
+| `features/onboarding`         | apresentação inicial da aplicação                                               |
 
-## Estrutura de pastas
+---
+
+## Tecnologias
+
+* **Kotlin** — linguagem principal;
+* **Android / Gradle** — projeto Android nativo;
+* **Jetpack Compose** — interface declarativa;
+* **Material 3** — componentes visuais;
+* **Navigation Compose** — navegação entre ecrãs;
+* **ViewModel, StateFlow e Lifecycle** — gestão de estado e ciclo de vida;
+* **Supabase** — autenticação, PostgREST, Storage, Realtime e Functions;
+* **Ktor OkHttp Client** — comunicação HTTP usada pelas bibliotecas Supabase;
+* **Kotlinx Serialization** — serialização de modelos;
+* **MapLibre** — mapas e selecção de localização;
+* **Google Play Services Location** — localização do dispositivo;
+* **Room** — cache local e suporte offline parcial;
+* **DataStore Preferences** — persistência local de preferências;
+* **CameraX, ML Kit Barcode Scanning e ZXing** — leitura e validação de QR codes;
+* **Coil** — carregamento de imagens;
+* **JUnit, AndroidX Test, Espresso e Compose UI Test** — testes unitários e instrumentados.
+
+---
+
+## Estrutura do projeto
 
 ```text
 .
-|-- app/
-|   |-- src/
-|   |   |-- main/
-|   |   |   |-- java/com/example/squadup/
-|   |   |   |   |-- core/          # Navegação, tema, componentes, enums, Supabase e utilitários
-|   |   |   |   |-- features/      # Funcionalidades da aplicação
-|   |   |   |   |-- MainActivity.kt
-|   |   |   |-- res/              # Strings, temas, imagens, ícones, fontes e XML Android
-|   |   |   |-- AndroidManifest.xml
-|   |   |-- test/                 # Testes unitários
-|   |   |-- androidTest/          # Testes instrumentados
-|   |-- build.gradle.kts          # Configuração Gradle do módulo Android
-|   |-- proguard-rules.pro
-|-- gradle/
-|   |-- libs.versions.toml        # Versões de plugins e dependências
-|   |-- wrapper/                  # Gradle Wrapper
-|-- build.gradle.kts              # Configuração Gradle de topo
-|-- settings.gradle.kts           # Nome do projecto e módulos
-|-- gradlew / gradlew.bat         # Gradle Wrapper
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/example/squadup/
+│   │   │   │   ├── core/          # Navegação, tema, componentes, Supabase e utilitários
+│   │   │   │   ├── features/      # Funcionalidades da aplicação
+│   │   │   │   └── MainActivity.kt
+│   │   │   ├── res/               # Strings, temas, imagens, ícones, fontes e XML Android
+│   │   │   └── AndroidManifest.xml
+│   │   ├── test/                  # Testes unitários
+│   │   └── androidTest/           # Testes instrumentados
+│   ├── build.gradle.kts
+│   └── proguard-rules.pro
+├── gradle/
+│   ├── libs.versions.toml
+│   └── wrapper/
+├── build.gradle.kts
+├── settings.gradle.kts
+├── gradlew
+└── gradlew.bat
 ```
 
-## Como executar
+---
 
-### Pré-requisitos
+## Pré-requisitos
 
-- Android Studio instalado.
-- JDK compatível com o projecto Android.
-- Android SDK com suporte para `compileSdk 36`.
-- Emulador Android ou dispositivo físico.
-- Projecto Supabase configurado com as tabelas e funções esperadas pela aplicação.
+* Android Studio;
+* JDK compatível com o projeto;
+* Android SDK com suporte para `compileSdk 36`;
+* emulador Android ou dispositivo físico;
+* projeto Supabase configurado com as tabelas, permissões e funções esperadas pela aplicação.
 
-### Configurar variáveis locais
+---
 
-O projecto lê as credenciais do Supabase a partir do ficheiro `local.properties`, que está ignorado pelo Git.
+## Configuração
 
-Na raiz do repositório, criar ou actualizar `local.properties` com:
+O projeto lê as credenciais do Supabase através do ficheiro `local.properties`, que não deve ser versionado.
+
+Na raiz do repositório, criar ou actualizar:
 
 ```properties
 SUPABASE_URL=https://<project-id>.supabase.co
 SUPABASE_ANON_KEY=<supabase-anon-key>
 ```
 
-Estes valores são expostos ao código através de `BuildConfig.SUPABASE_URL` e `BuildConfig.SUPABASE_ANON_KEY`.
+Estes valores são expostos ao código através de:
 
-### Abrir no Android Studio
+```text
+BuildConfig.SUPABASE_URL
+BuildConfig.SUPABASE_ANON_KEY
+```
+
+> A aplicação Android deve usar apenas a chave pública `anon`. Chaves privadas, como `service_role`, não devem ser usadas no cliente nem guardadas no repositório.
+
+---
+
+## Como executar
+
+### Android Studio
 
 1. Abrir a pasta do repositório no Android Studio.
 2. Aguardar pela sincronização Gradle.
-3. Confirmar que `local.properties` contém as chaves do Supabase.
-4. Seleccionar um emulador/dispositivo.
+3. Confirmar que o ficheiro `local.properties` contém as chaves do Supabase.
+4. Seleccionar um emulador ou dispositivo físico.
 5. Executar a configuração `app`.
 
-### Executar pela linha de comandos
+### Linha de comandos
+
+Gerar build debug:
+
+```bash
+./gradlew assembleDebug
+```
 
 No Windows:
 
@@ -151,19 +256,15 @@ No Windows:
 gradlew.bat assembleDebug
 ```
 
-Em Linux/macOS:
-
-```bash
-./gradlew assembleDebug
-```
-
-Para instalar no dispositivo/emulador ligado:
+Instalar no dispositivo/emulador ligado:
 
 ```bash
 ./gradlew installDebug
 ```
 
-### Testes
+---
+
+## Testes
 
 Testes unitários:
 
@@ -171,72 +272,27 @@ Testes unitários:
 ./gradlew test
 ```
 
-Testes instrumentados, com emulador ou dispositivo ligado:
+Testes instrumentados:
 
 ```bash
 ./gradlew connectedAndroidTest
 ```
 
-## Variáveis de ambiente / configuração
+> Os testes instrumentados requerem um emulador ou dispositivo físico ligado.
 
-Não foram identificadas variáveis de ambiente obrigatórias no código. A configuração sensível é feita por propriedades locais:
-
-| Chave | Onde definir | Descrição |
-| --- | --- | --- |
-| `SUPABASE_URL` | `local.properties` | URL do projecto Supabase. |
-| `SUPABASE_ANON_KEY` | `local.properties` | Chave pública anon do Supabase usada pelo cliente Android. |
-
-O ficheiro `local.properties` não deve ser versionado.
-
-## Screenshots
-
-### Início
-
-<p align="center">
-  <img src="docs/screenshots/home.png" width="280" alt="Ecrã inicial do SquadUp" />
-</p>
-
-### Eventos
-
-<p align="center">
-  <img src="docs/screenshots/events.png" width="280" alt="Listagem de eventos no SquadUp" />
-</p>
-
-### Mapa de eventos
-
-<p align="center">
-  <img src="docs/screenshots/map-view.png" width="280" alt="Mapa de eventos do SquadUp" />
-</p>
-
-### Calendário de eventos
-
-<p align="center">
-  <img src="docs/screenshots/calendar.png" width="280" alt="Calendário de eventos do SquadUp" />
-</p>
-
-### Detalhes do bilhete
-
-<p align="center">
-  <img src="docs/screenshots/ticket-details.png" width="280" alt="Detalhes de bilhete com QR code" />
-</p>
-
-### Jogo terminado
-
-<p align="center">
-  <img src="docs/screenshots/match-finished.png" width="280" alt="Ecrã de jogo terminado" />
-</p>
+---
 
 ## Estado do projecto
 
-Projecto académico desenvolvido para a unidade curricular de Computação Móvel, no âmbito do **Tema 2 - Gestão de Eventos Desportivos**.
+Projecto académico desenvolvido para a unidade curricular de **Computação Móvel**, no âmbito do **Tema 2 - Gestão de Eventos Desportivos**.
 
-A versão actual contém uma aplicação Android estruturada por módulos funcionais, com autenticação, eventos, equipas, inscrições, bilhetes, mapa, notificações, administração, jogos em directo, suporte offline parcial e testes. Algumas funcionalidades dependem da existência/configuração correcta do backend Supabase e das respectivas tabelas, funções e permissões.
+A versão actual inclui autenticação, eventos, equipas, inscrições, bilhetes, mapa, notificações, administração, jogos em directo, suporte offline parcial e testes. Algumas funcionalidades dependem da configuração correcta do backend Supabase, incluindo tabelas, permissões, storage, realtime e funções auxiliares.
+
+---
 
 ## Autores
 
-Autores/contribuidores identificados no histórico Git do repositório:
-
-- [Simão Mendes](https://github.com/SimaoMendes30)
-- [Diogo Fontes](https://github.com/Fontezilla)
-- [Pedro Cruz](https://github.com/pedrojcruz)
-- [Simão Sousa](https://github.com/simaosousa10)
+* [Simão Mendes](https://github.com/SimaoMendes30)
+* [Diogo Fontes](https://github.com/Fontezilla)
+* [Pedro Cruz](https://github.com/pedrojcruz)
+* [Simão Sousa](https://github.com/simaosousa10)
