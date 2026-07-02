@@ -1,5 +1,9 @@
 # SquadUp
 
+<p align="center">
+  <img src="docs/screenshots/logo.png" width="180" alt="Logotipo do SquadUp" />
+</p>
+
 **SquadUp** é uma aplicação móvel Android desenvolvida em **Kotlin** para gestão de eventos desportivos, enquadrada no **Tema 2 - Gestão de Eventos Desportivos**.
 
 O projecto permite descobrir, criar e gerir eventos/torneios desportivos, organizar equipas, gerir inscrições, acompanhar jogos e consultar informação relevante para jogadores, organizadores e administradores. A aplicação usa **Supabase** como backend e base de dados remota, com interface construída em **Jetpack Compose**.
@@ -186,7 +190,41 @@ O ficheiro `local.properties` não deve ser versionado.
 
 ## Screenshots
 
-Não foi encontrada uma pasta `docs/screenshots` neste repositório. Por isso, este README não inclui capturas de ecrã.
+### Início
+
+<p align="center">
+  <img src="docs/screenshots/home.png" width="280" alt="Ecrã inicial do SquadUp" />
+</p>
+
+### Eventos
+
+<p align="center">
+  <img src="docs/screenshots/events.png" width="280" alt="Listagem de eventos no SquadUp" />
+</p>
+
+### Mapa de eventos
+
+<p align="center">
+  <img src="docs/screenshots/map-view.png" width="280" alt="Mapa de eventos do SquadUp" />
+</p>
+
+### Calendário de eventos
+
+<p align="center">
+  <img src="docs/screenshots/calendar.png" width="280" alt="Calendário de eventos do SquadUp" />
+</p>
+
+### Detalhes do bilhete
+
+<p align="center">
+  <img src="docs/screenshots/ticket-details.png" width="280" alt="Detalhes de bilhete com QR code" />
+</p>
+
+### Jogo terminado
+
+<p align="center">
+  <img src="docs/screenshots/match-finished.png" width="280" alt="Ecrã de jogo terminado" />
+</p>
 
 ## Estado do projecto
 
