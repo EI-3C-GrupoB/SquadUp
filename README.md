@@ -2,7 +2,7 @@
   <tr>
     <td valign="middle" width="74%">
 
-<h1>SquadUp 🏆</h1>
+<h1>SquadUp</h1>
 
 <p>
   <strong>SquadUp</strong> é uma aplicação móvel Android para <strong>gestão de eventos desportivos</strong>, desenvolvida em <strong>Kotlin</strong> com <strong>Jetpack Compose</strong>.
